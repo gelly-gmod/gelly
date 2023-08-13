@@ -1,0 +1,6 @@
+[submodule "modules/gelly-engine/vendor/FleX"]
+	path = modules/gelly-engine/vendor/FleX
+	url = https://github.com/NVIDIAGameWorks/FleX.git
+[submodule "modules/gelly-engine/vendor/raylib"]
+	path = modules/gelly-engine/vendor/raylib
+	url = https://github.com/raysan5/raylib.git
