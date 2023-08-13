@@ -3,7 +3,8 @@
 
 
 class Scene {
-
+private:
+    
 };
 
 

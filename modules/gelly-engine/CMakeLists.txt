@@ -20,10 +20,18 @@ set(FLEX_LIBRARIES
 
 add_library(gelly_engine STATIC
         src/engine.cpp
-        src/engine.h)
+        include/engine.h
+        src/Scene.cpp
+        include/Scene.h)
 
 target_link_libraries(gelly_engine
         ${FLEX_LIBRARIES})
+
+target_include_directories(gelly_engine PUBLIC
+        include)
+
+target_include_directories(gelly_engine PRIVATE
+        vendor/FleX/include)
 
 if(BUILD_GELLY_ENGINE_TEST)
     # TODO: ADD THIS
