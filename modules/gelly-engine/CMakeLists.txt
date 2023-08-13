@@ -13,16 +13,17 @@ else()
 endif()
 
 set(FLEX_LIBRARIES
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexReleaseD3D_${ARCH_SUFFIX}.lib"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexReleaseCUDA_${ARCH_SUFFIX}.lib"
         "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexDeviceRelease_${ARCH_SUFFIX}.lib"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexExtReleaseD3D_${ARCH_SUFFIX}.lib"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexExtReleaseCUDA_${ARCH_SUFFIX}.lib"
         )
 
 add_library(gelly_engine STATIC
-        src/engine.cpp
-        include/engine.h
-        src/Scene.cpp
-        include/Scene.h)
+        src/GellyEngine.cpp
+        include/GellyEngine.h
+        src/GellyScene.cpp
+        include/GellyScene.h
+        )
 
 target_link_libraries(gelly_engine
         ${FLEX_LIBRARIES})
@@ -30,7 +31,7 @@ target_link_libraries(gelly_engine
 target_include_directories(gelly_engine PUBLIC
         include)
 
-target_include_directories(gelly_engine PRIVATE
+target_include_directories(gelly_engine PUBLIC
         vendor/FleX/include)
 
 if(BUILD_GELLY_ENGINE_TEST)
@@ -39,5 +40,5 @@ if(BUILD_GELLY_ENGINE_TEST)
     add_subdirectory(vendor/raylib)
     add_executable(gelly_engine_test test/main.cpp)
     target_link_libraries(gelly_engine_test gelly_engine raylib)
-    target_include_directories(gelly_engine_test PRIVATE vendor/raylib/src)
+    target_include_directories(gelly_engine_test PRIVATE vendor/raylib/src vendor/raygui/src)
 endif()

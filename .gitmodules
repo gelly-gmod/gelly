@@ -4,3 +4,6 @@
 [submodule "modules/gelly-engine/vendor/raylib"]
 	path = modules/gelly-engine/vendor/raylib
 	url = https://github.com/raysan5/raylib.git
+[submodule "modules/gelly-engine/vendor/raygui"]
+	path = modules/gelly-engine/vendor/raygui
+	url = https://github.com/raysan5/raygui.git
