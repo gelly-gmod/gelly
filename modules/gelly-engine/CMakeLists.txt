@@ -13,9 +13,9 @@ else()
 endif()
 
 set(FLEX_LIBRARIES
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexReleaseCUDA_${ARCH_SUFFIX}.lib"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexReleaseD3D_${ARCH_SUFFIX}.lib"
         "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexDeviceRelease_${ARCH_SUFFIX}.lib"
-        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexExtReleaseCUDA_${ARCH_SUFFIX}.lib"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexExtReleaseD3D_${ARCH_SUFFIX}.lib"
         )
 
 add_library(gelly_engine STATIC
