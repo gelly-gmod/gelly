@@ -1,9 +1,13 @@
 #ifndef GELLY_GELLYSCENE_H
 #define GELLY_GELLYSCENE_H
 
+#include <cstring>
 #include <NvFlex.h>
 #include <NvFlexExt.h>
 #include <vector>
+#include <map>
+#include <string>
+#include <unordered_map>
 
 struct Vec4 {
     float x, y, z, w;
@@ -40,20 +44,32 @@ using MeshID = NvFlexTriangleMeshId;
 struct GellyEntity {
     Vec3 position;
     Quat rotation;
-    MeshID mesh;
+    std::string modelPath;
 };
 
+/**
+ * @brief Internal mesh used to track the mesh ID and buffers for later deletion.
+ */
+struct ColliderMesh {
+    MeshID id;
+    NvFlexBuffer* vertices;
+    NvFlexBuffer* indices;
+};
+
+using EntityHandle = unsigned int;
 class Colliders : GPUCriticalObject {
     friend class GellyScene;
 private:
     NvFlexLibrary *library;
-    std::vector<GellyEntity> entities;
     NvFlexVector<NvFlexCollisionGeometry> geometries;
     NvFlexVector<Vec4> positions;
     NvFlexVector<Quat> rotations;
     NvFlexVector<Vec4> prevPositions;
     NvFlexVector<Quat> prevRotations;
     NvFlexVector<int> flags;
+
+    std::map<std::string, ColliderMesh> meshes;
+    std::unordered_map<EntityHandle, GellyEntity> entities;
 public:
     void EnterGPUWork() override;
 
@@ -63,9 +79,22 @@ public:
 
     ~Colliders() override = default;
 
-    MeshID AddTriangleMesh(const MeshUploadInfo &info);
+    void AddTriangleMesh(const std::string& modelPath, const MeshUploadInfo &info);
 
-    void AddEntity(GellyEntity entity);
+    /**
+     * Adds an entity to the collider simulation. It's recommended to use this method during GPU work mode.
+     * @note The entity structure passed is expected to not be used again as this method moves the entity into the internal map for efficient transfer.
+     * @param entity
+     * @return
+     */
+    EntityHandle AddEntity(GellyEntity entity);
+
+    /**
+     * Modifies an entity, this method requires that the class is in GPU work mode.
+     * @param handle Entity handle received from AddEntity
+     * @return Temporary pointer to the entity, this pointer is only valid while the class is in GPU work mode.
+     */
+    GellyEntity* ModifyEntity(EntityHandle handle);
 
     [[nodiscard]] int GetEntityCount() const;
 
@@ -108,6 +137,8 @@ public:
     void Update(float deltaTime);
 
     void AddParticle(Vec4 position, Vec3 velocity);
+
+    void AddBSP(const std::string& mapName, uint8_t* data, size_t dataSize);
 
     [[nodiscard]] Vec4 *GetPositions() const;
 

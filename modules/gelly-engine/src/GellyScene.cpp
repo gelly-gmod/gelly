@@ -1,3 +1,4 @@
+#include "MeshConvert.h"
 #include "GellyScene.h"
 #include <memory>
 
@@ -15,6 +16,7 @@ GellyScene::GellyScene(NvFlexLibrary *library, int maxParticles, int maxCollider
     gpuWork = false;
 
     NvFlexSolverDesc solverDesc{};
+    NvFlexSetSolverDescDefaults(&solverDesc);
     solverDesc.maxParticles = maxParticles;
     solverDesc.maxNeighborsPerParticle = 128;
 
@@ -26,9 +28,9 @@ GellyScene::GellyScene(NvFlexLibrary *library, int maxParticles, int maxCollider
     defaultParams->gravity[2] = 0.0f;
     defaultParams->radius = 0.2f;
     defaultParams->numIterations = 4;
-    defaultParams->collisionDistance = 21.f;
-    defaultParams->particleCollisionMargin = 1.f;
-    defaultParams->shapeCollisionMargin = 1.f;
+    defaultParams->collisionDistance = 0.1f;
+    defaultParams->particleCollisionMargin = 0.01f;
+    defaultParams->shapeCollisionMargin = 0.01f;
     defaultParams->dynamicFriction = 0.25f;
     defaultParams->staticFriction = 0.25f;
     defaultParams->maxSpeed = FLT_MAX;
@@ -109,8 +111,6 @@ void GellyScene::Update(float deltaTime) {
     NvFlexGetParticles(solver, positions.buffer, &copyDesc);
     NvFlexGetVelocities(solver, velocities.buffer, &copyDesc);
     NvFlexGetPhases(solver, phases.buffer, &copyDesc);
-
-    NvFlexFlush(library);
 }
 
 void GellyScene::AddParticle(Vec4 position, Vec3 velocity) {
@@ -148,96 +148,18 @@ int GellyScene::GetCurrentParticleCount() const {
     return currentParticleCount;
 }
 
-void Colliders::EnterGPUWork() {
-    if (gpuWork) {
-        return;
-    }
-
-    gpuWork = true;
-    geometries.map();
-    positions.map();
-    rotations.map();
-    prevPositions.map();
-    prevRotations.map();
-    flags.map();
-}
-
-void Colliders::ExitGPUWork() {
+void GellyScene::AddBSP(const std::string &mapName, uint8_t *data, size_t dataSize) {
     if (!gpuWork) {
         return;
     }
 
-    gpuWork = false;
-    geometries.unmap();
-    positions.unmap();
-    rotations.unmap();
-    prevPositions.unmap();
-    prevRotations.unmap();
-    flags.unmap();
-}
+    auto info = MeshConvert_LoadBSP(data, dataSize);
+    colliders.AddTriangleMesh(mapName, info);
+    MeshConvert_FreeBSP(info);
 
-Colliders::Colliders(NvFlexLibrary *library, int maxColliders) :
-        library(library),
-        geometries(library, maxColliders),
-        positions(library, maxColliders),
-        rotations(library, maxColliders),
-        prevPositions(library, maxColliders),
-        prevRotations(library, maxColliders),
-        flags(library, maxColliders) {
-    gpuWork = false;
-}
-
-MeshID Colliders::AddTriangleMesh(const MeshUploadInfo &info) {
-    auto meshId = NvFlexCreateTriangleMesh(library);
-
-    NvFlexBuffer* verticesBuffer = NvFlexAllocBuffer(library, info.vertexCount, sizeof(Vec4), eNvFlexBufferHost);
-    NvFlexBuffer* indicesBuffer = NvFlexAllocBuffer(library, info.indexCount, sizeof(int), eNvFlexBufferHost);
-
-    Vec4* vertices = static_cast<Vec4 *>(NvFlexMap(verticesBuffer, eNvFlexMapWait));
-    int* indices = static_cast<int *>(NvFlexMap(indicesBuffer, eNvFlexMapWait));
-
-    for (int i = 0; i < info.vertexCount; i++) {
-        vertices[i] = Vec4{info.vertices[i].x, info.vertices[i].y, info.vertices[i].z, 0.5};
-    }
-
-    memcpy(indices, info.indices, sizeof(int) * info.indexCount);
-
-    NvFlexUnmap(verticesBuffer);
-    NvFlexUnmap(indicesBuffer);
-
-    NvFlexUpdateTriangleMesh(library, meshId, verticesBuffer, indicesBuffer, info.vertexCount, info.vertexCount / 3,
-                             reinterpret_cast<const float *>(&info.lower), reinterpret_cast<const float *>(&info.upper));
-
-    return meshId;
-}
-
-void Colliders::AddEntity(GellyEntity entity) {
-    entities.push_back(entity);
-}
-
-int Colliders::GetEntityCount() const {
-    return static_cast<int>(entities.size());
-}
-
-void Colliders::Update() {
-    if (!gpuWork) {
-        return;
-    }
-
-    for (int entityIndex = 0; entityIndex < entities.size(); entityIndex++) {
-        const auto& entity = entities[entityIndex];
-
-        geometries[entityIndex].triMesh.mesh = entity.mesh;
-        geometries[entityIndex].triMesh.scale[0] = 1.0f;
-        geometries[entityIndex].triMesh.scale[1] = 1.0f;
-        geometries[entityIndex].triMesh.scale[2] = 1.0f;
-
-        prevPositions[entityIndex] = positions[entityIndex];
-        prevRotations[entityIndex] = rotations[entityIndex];
-
-        positions[entityIndex] = Vec4{entity.position.x, entity.position.y, entity.position.z, 0};
-        rotations[entityIndex] = entity.rotation;
-
-        flags[entityIndex] = NvFlexMakeShapeFlags(eNvFlexShapeTriangleMesh, false);
-    }
+    colliders.AddEntity({
+        .position = Vec3{0, 0, 0},
+        .rotation = Quat{0, 0, 0, 1},
+        .modelPath = mapName
+    });
 }

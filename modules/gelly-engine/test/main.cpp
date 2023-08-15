@@ -2,25 +2,69 @@
 #include <raylib.h>
 #include <GellyEngine.h>
 #include <vector>
+#include <glm/glm.hpp>
 
 #define RAYGUI_IMPLEMENTATION
 
 #include <raygui.h>
+#include <filesystem>
+#include <fstream>
+#include "../src/MeshConvert.h"
 
 const int screenWidth = 1366;
 const int screenHeight = 768;
 const int fps = 60;
 const char *title = "Gelly Engine Test Window";
 static std::vector<Model> models;
+static Camera3D camera;
 
-void drawFluid(GellyScene *scene) {
-    Camera3D camera = {0};
+void initCamera() {
     camera.position = Vector3{0.0f, 10.0f, 10.0f};
     camera.target = Vector3{0.0f, 0.0f, 0.0f};
-    camera.up = Vector3{0.0f, 1.0f, 0.0f};
+    camera.up = Vector3{0.0f, 0.0f, 1.0f};
     camera.fovy = 15.0f;
     camera.projection = CAMERA_PERSPECTIVE;
+}
 
+void updateCamera() {
+    glm::vec3 dir = glm::normalize(glm::vec3(camera.target.x, camera.target.y, camera.target.z) - glm::vec3(camera.position.x, camera.position.y, camera.position.z));
+    glm::vec3 right = glm::normalize(glm::cross(dir, glm::vec3(0, 0, 1)));
+    glm::vec3 up = glm::normalize(glm::cross(right, dir));
+
+    if (IsKeyDown(KEY_W)) {
+        camera.position = Vector3{
+            camera.position.x + dir.x * 0.1f,
+            camera.position.y + dir.y * 0.1f,
+            camera.position.z + dir.z * 0.1f
+        };
+    }
+
+    if (IsKeyDown(KEY_S)) {
+        camera.position = Vector3{
+            camera.position.x - dir.x * 0.1f,
+            camera.position.y - dir.y * 0.1f,
+            camera.position.z - dir.z * 0.1f
+        };
+    }
+
+    if (IsKeyDown(KEY_A)) {
+        camera.position = Vector3{
+            camera.position.x - right.x * 0.1f,
+            camera.position.y - right.y * 0.1f,
+            camera.position.z - right.z * 0.1f
+        };
+    }
+
+    if (IsKeyDown(KEY_D)) {
+        camera.position = Vector3{
+            camera.position.x + right.x * 0.1f,
+            camera.position.y + right.y * 0.1f,
+            camera.position.z + right.z * 0.1f
+        };
+    }
+}
+
+void drawFluid(GellyScene *scene) {
     BeginMode3D(camera);
     scene->EnterGPUWork();
     scene->colliders.Update();
@@ -42,7 +86,7 @@ void drawFluid(GellyScene *scene) {
 
     if (IsKeyDown(KEY_SPACE)) {
         SetRandomSeed(GetRandomValue(-400, 400) + GetTime());
-        scene->AddParticle(Vec4{0, 0, 0, 0.5f}, Vec3{static_cast<float>(GetRandomValue(-10, 10)) / 10.f, 0.1,
+        scene->AddParticle(Vec4{camera.position.x, camera.position.y, camera.position.z, .5f}, Vec3{static_cast<float>(GetRandomValue(-10, 10)) / 10.f, 0.1,
                                                      static_cast<float>(GetRandomValue(-10, 10)) / 10.f});
     }
     scene->ExitGPUWork();
@@ -79,7 +123,7 @@ void drawGUI(GellyScene *scene) {
 
     if (GuiButton(Rectangle{10, 130, 100, 20}, "Add test mesh")) {
         scene->colliders.EnterGPUWork();
-        Mesh plane = GenMeshPlane(1, 1, 2, 2);
+        Mesh plane = GenMeshKnot(1.f, 1.f, 16, 32);
         MeshUploadInfo info{};
         info.vertices = reinterpret_cast<Vec3 *>(plane.vertices);
         info.vertexCount = plane.vertexCount;
@@ -94,12 +138,14 @@ void drawGUI(GellyScene *scene) {
         info.lower = Vec3{-1000.f, -1000.f, -1000.f};
         info.upper = Vec3{1000.f, 1000.f, 1000.f};
 
-        auto id = scene->colliders.AddTriangleMesh(info);
+        scene->colliders.AddTriangleMesh("models/knot", info);
         GellyEntity entity{};
         entity.position = Vec3{0, 0, 0};
         entity.rotation = Quat{0, 0, 0, 1};
-        entity.mesh = id;
+        entity.modelPath = "models/knot";
+
         scene->colliders.AddEntity(entity);
+        scene->colliders.Update();
         scene->colliders.ExitGPUWork();
 
         free(indices);
@@ -117,8 +163,34 @@ int main() {
     GellyScene *scene = GellyEngine_CreateScene(1000, 100);
     InitWindow(screenWidth, screenHeight, title);
     SetTargetFPS(fps);
+    initCamera();
+
+    scene->params->gravity[1] = 0;
+    scene->params->gravity[2] = -1.f;
+    if (std::filesystem::exists("./test_bsp.bsp")) {
+        std::ifstream file("test_bsp.bsp", std::ios::binary | std::ios::ate);
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        std::vector<uint8_t> buffer(size);
+        if (file.read(reinterpret_cast<char *>(buffer.data()), size)) {
+            scene->EnterGPUWork();
+            scene->AddBSP("test_bsp", buffer.data(), size);
+            scene->ExitGPUWork();
+
+            MeshUploadInfo info = MeshConvert_LoadBSP(buffer.data(), size);
+            Mesh mesh = {0};
+            mesh.vertices = reinterpret_cast<float *>(info.vertices);
+            mesh.vertexCount = info.vertexCount;
+            mesh.triangleCount = info.indexCount / 3;
+            mesh.indices = nullptr; // Our indices are incompatible with raylib's
+            UploadMesh(&mesh, false);
+            models.push_back(LoadModelFromMesh(mesh));
+        }
+    }
 
     while (!WindowShouldClose()) {
+        updateCamera();
         BeginDrawing();
         ClearBackground(BLACK);
         drawFluid(scene);

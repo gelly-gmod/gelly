@@ -7,3 +7,9 @@
 [submodule "modules/gelly-engine/vendor/raygui"]
 	path = modules/gelly-engine/vendor/raygui
 	url = https://github.com/raysan5/raygui.git
+[submodule "modules/gelly-engine/vendor/glm"]
+	path = modules/gelly-engine/vendor/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "modules/gelly-engine/vendor/BSPParser"]
+	path = modules/gelly-engine/vendor/BSPParser
+	url = https://github.com/Derpius/BSPParser.git
