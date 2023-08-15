@@ -48,10 +48,31 @@ struct GellyEntity {
 };
 
 /**
+ * @brief Internal mesh properties used to provide finer control over how the mesh is interpreted in FleX.
+ */
+union ColliderMeshProperties {
+    struct {
+        Vec3 scale;
+    } triangleMesh;
+    struct {
+        float radius;
+    } sphere;
+    struct {
+        float radius;
+        float halfHeight;
+    } capsule;
+};
+
+/**
  * @brief Internal mesh used to track the mesh ID and buffers for later deletion.
  */
 struct ColliderMesh {
     MeshID id;
+    NvFlexCollisionShapeType geometryType;
+    /**
+     * The active member for this union is determined by the geometryType property.
+     */
+    ColliderMeshProperties properties;
     NvFlexBuffer* vertices;
     NvFlexBuffer* indices;
 };
@@ -77,9 +98,11 @@ public:
 
     Colliders(NvFlexLibrary *library, int maxColliders);
 
-    ~Colliders() override = default;
+    ~Colliders() noexcept override;
 
     void AddTriangleMesh(const std::string& modelPath, const MeshUploadInfo &info);
+    void AddSphere(const std::string& modelPath, float radius);
+    void AddCapsule(const std::string& modelPath, float radius, float halfHeight);
 
     /**
      * Adds an entity to the collider simulation. It's recommended to use this method during GPU work mode.
@@ -116,6 +139,7 @@ private:
     NvFlexVector<int> phases;
     NvFlexVector<int> activeIndices;
 public:
+    const char* computeDeviceName;
     Colliders colliders;
     NvFlexParams *params;
 

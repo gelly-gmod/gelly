@@ -81,13 +81,16 @@ void drawFluid(GellyScene *scene) {
             screenPosition.y > screenHeight) {
             continue;
         }
-        DrawSphere(Vector3{positions[i].x, positions[i].y, positions[i].z}, 0.1f, BROWN);
+        DrawSphereEx(Vector3{positions[i].x, positions[i].y, positions[i].z}, 0.1f, 3, 3, RED);
     }
 
     if (IsKeyDown(KEY_SPACE)) {
         SetRandomSeed(GetRandomValue(-400, 400) + GetTime());
-        scene->AddParticle(Vec4{camera.position.x, camera.position.y, camera.position.z, .5f}, Vec3{static_cast<float>(GetRandomValue(-10, 10)) / 10.f, 0.1,
-                                                     static_cast<float>(GetRandomValue(-10, 10)) / 10.f});
+        for (int i = 0; i < 10; i++) {
+            float x = static_cast<float>(GetRandomValue(-10, 10)) / 10.f;
+            float y = static_cast<float>(GetRandomValue(-10, 10)) / 10.f;
+            scene->AddParticle(Vec4{x, y, 2, .5f}, Vec3{0, 0, 0});
+        }
     }
     scene->ExitGPUWork();
     scene->Update(GetFrameTime());
@@ -101,7 +104,10 @@ void drawInfo(GellyScene *scene) {
     char particleText[256];
     sprintf(particleText, "particles: %d", scene->GetCurrentParticleCount());
     DrawText(particleText, 10, 50, 20, RAYWHITE);
-    DrawFPS(10, 70);
+    char deviceText[256];
+    sprintf(deviceText, "device: %s", scene->computeDeviceName);
+    DrawText(deviceText, 10, 70, 20, RAYWHITE);
+    DrawFPS(10, 90);
 }
 
 static float GUI_radiusValue = 0.f;
@@ -109,10 +115,10 @@ static float GUI_collisionDistanceValue = 0.f;
 static float GUI_surfaceTensionValue = 0.f;
 static float GUI_viscosityValue = 0.f;
 #define PARAM_SLIDER(index, name, leftText, rightText, minValue, maxValue) \
-    GuiSlider(Rectangle{10, 160 + index * 30, 300, 20}, leftText, rightText, &GUI_##name##Value, minValue, maxValue); \
+    GuiSlider(Rectangle{10, 180 + index * 30, 300, 20}, leftText, rightText, &GUI_##name##Value, minValue, maxValue); \
     scene->params->name = GUI_##name##Value;
 void drawGUI(GellyScene *scene) {
-    if (GuiButton(Rectangle{10, 100, 100, 20}, "Shoot particles up")) {
+    if (GuiButton(Rectangle{10, 120, 100, 20}, "Shoot particles up")) {
         scene->EnterGPUWork();
         for (int i = 0; i < scene->GetCurrentParticleCount(); i++) {
             Vec3 oldVelocity = scene->GetVelocities()[i];
@@ -121,7 +127,7 @@ void drawGUI(GellyScene *scene) {
         scene->ExitGPUWork();
     }
 
-    if (GuiButton(Rectangle{10, 130, 100, 20}, "Add test mesh")) {
+    if (GuiButton(Rectangle{10, 140, 100, 20}, "Add test mesh")) {
         scene->colliders.EnterGPUWork();
         Mesh plane = GenMeshKnot(1.f, 1.f, 16, 32);
         MeshUploadInfo info{};
@@ -135,15 +141,14 @@ void drawGUI(GellyScene *scene) {
         info.indices = indices;
         info.indexCount = plane.vertexCount;
         BoundingBox box = GetMeshBoundingBox(plane);
-        info.lower = Vec3{-1000.f, -1000.f, -1000.f};
-        info.upper = Vec3{1000.f, 1000.f, 1000.f};
+        info.lower = Vec3{box.min.x, box.min.y, box.min.z};
+        info.upper = Vec3{box.max.x, box.max.y, box.max.z};
 
         scene->colliders.AddTriangleMesh("models/knot", info);
         GellyEntity entity{};
         entity.position = Vec3{0, 0, 0};
         entity.rotation = Quat{0, 0, 0, 1};
         entity.modelPath = "models/knot";
-
         scene->colliders.AddEntity(entity);
         scene->colliders.Update();
         scene->colliders.ExitGPUWork();
@@ -153,6 +158,23 @@ void drawGUI(GellyScene *scene) {
         models.push_back(LoadModelFromMesh(plane));
     }
 
+    if (GuiButton(Rectangle{10, 160, 100, 20}, "Add sphere")) {
+        scene->colliders.EnterGPUWork();
+        // For our visualization, not for the actual scene.
+        Mesh sphere = GenMeshSphere(1.f, 32, 32);
+        models.push_back(LoadModelFromMesh(sphere));
+
+        scene->colliders.AddSphere("models/sphere", 1.f);
+        GellyEntity entity{};
+        entity.position = Vec3{0, 0, 0};
+        entity.rotation = Quat{0, 0, 0, 1};
+        entity.modelPath = "models/sphere";
+
+        scene->colliders.AddEntity(entity);
+        scene->colliders.Update();
+        scene->colliders.ExitGPUWork();
+    }
+
     PARAM_SLIDER(0, radius, "0.1 radius", "10 radius", 0.2f, 10.f);
     PARAM_SLIDER(1, collisionDistance, "0.1 collision distance", "10 collision distance", 0.1f, 10.f);
     PARAM_SLIDER(2, surfaceTension, "0.1 surface tension", "10 surface tension", 0.1f, 10.f);
@@ -160,7 +182,7 @@ void drawGUI(GellyScene *scene) {
 }
 
 int main() {
-    GellyScene *scene = GellyEngine_CreateScene(1000, 100);
+    GellyScene *scene = GellyEngine_CreateScene(10000, 100);
     InitWindow(screenWidth, screenHeight, title);
     SetTargetFPS(fps);
     initCamera();

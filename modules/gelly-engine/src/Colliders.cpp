@@ -46,6 +46,16 @@ Colliders::Colliders(NvFlexLibrary *library, int maxColliders) :
     gpuWork = false;
 }
 
+Colliders::~Colliders() noexcept {
+    for (auto& mesh : meshes) {
+        if (mesh.second.geometryType == eNvFlexShapeTriangleMesh) {
+            NvFlexDestroyTriangleMesh(library, mesh.second.id);
+            NvFlexFreeBuffer(mesh.second.vertices);
+            NvFlexFreeBuffer(mesh.second.indices);
+        }
+    }
+}
+
 void Colliders::AddTriangleMesh(const std::string& modelPath, const MeshUploadInfo &info) {
     NvFlexBuffer* verticesBuffer = NvFlexAllocBuffer(library, info.vertexCount, sizeof(Vec4), eNvFlexBufferHost);
     NvFlexBuffer* indicesBuffer = NvFlexAllocBuffer(library, info.indexCount, sizeof(int), eNvFlexBufferHost);
@@ -67,8 +77,12 @@ void Colliders::AddTriangleMesh(const std::string& modelPath, const MeshUploadIn
     NvFlexUpdateTriangleMesh(library, meshId, verticesBuffer, indicesBuffer, info.vertexCount, info.vertexCount / 3,
                              reinterpret_cast<const float *>(&info.lower), reinterpret_cast<const float *>(&info.upper));
 
+    ColliderMeshProperties properties{};
+    properties.triangleMesh.scale = Vec3{1.f, 1.f, 1.f};
     meshes[modelPath] = {
             .id = meshId,
+            .geometryType = eNvFlexShapeTriangleMesh,
+            .properties = properties,
             .vertices = verticesBuffer,
             .indices = indicesBuffer
     };
@@ -106,17 +120,56 @@ void Colliders::Update() {
         }
 
         const auto& mesh = meshes[entity.modelPath];
-        geometries[entityIndex].triMesh.mesh = mesh.id;
-        geometries[entityIndex].triMesh.scale[0] = 1.f;
-        geometries[entityIndex].triMesh.scale[1] = 1.f;
-        geometries[entityIndex].triMesh.scale[2] = 1.f;
+
+        switch (mesh.geometryType) {
+            case eNvFlexShapeTriangleMesh:
+                geometries[entityIndex].triMesh.mesh = mesh.id;
+                geometries[entityIndex].triMesh.scale[0] = mesh.properties.triangleMesh.scale.x;
+                geometries[entityIndex].triMesh.scale[1] = mesh.properties.triangleMesh.scale.y;
+                geometries[entityIndex].triMesh.scale[2] = mesh.properties.triangleMesh.scale.z;
+
+                flags[entityIndex] = NvFlexMakeShapeFlags(eNvFlexShapeTriangleMesh, true);
+                break;
+            case eNvFlexShapeSphere:
+                geometries[entityIndex].sphere.radius = mesh.properties.sphere.radius;
+
+                flags[entityIndex] = NvFlexMakeShapeFlags(eNvFlexShapeSphere, true);
+                break;
+            case eNvFlexShapeCapsule:
+                geometries[entityIndex].capsule.radius = mesh.properties.capsule.radius;
+                geometries[entityIndex].capsule.halfHeight = mesh.properties.capsule.halfHeight;
+
+                flags[entityIndex] = NvFlexMakeShapeFlags(eNvFlexShapeCapsule, true);
+                break;
+            default:
+                printf("Unknown geometry type: %d\n", mesh.geometryType);
+                break;
+        }
 
         prevPositions[entityIndex] = positions[entityIndex];
         prevRotations[entityIndex] = rotations[entityIndex];
 
         positions[entityIndex] = Vec4{entity.position.x, entity.position.y, entity.position.z, 0};
         rotations[entityIndex] = entity.rotation;
-
-        flags[entityIndex] = NvFlexMakeShapeFlags(eNvFlexShapeTriangleMesh, true);
     }
+}
+
+void Colliders::AddSphere(const std::string &modelPath, float radius) {
+    meshes[modelPath] = {
+            .id = 0,
+            .geometryType = eNvFlexShapeSphere,
+            .properties = {.sphere = {.radius = radius}},
+            .vertices = nullptr,
+            .indices = nullptr
+    };
+}
+
+void Colliders::AddCapsule(const std::string &modelPath, float radius, float halfHeight) {
+    meshes[modelPath] = {
+            .id = 0,
+            .geometryType = eNvFlexShapeCapsule,
+            .properties = {.capsule = {.radius = radius, .halfHeight = halfHeight}},
+            .vertices = nullptr,
+            .indices = nullptr
+    };
 }

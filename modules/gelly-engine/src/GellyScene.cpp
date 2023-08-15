@@ -12,7 +12,8 @@ GellyScene::GellyScene(NvFlexLibrary *library, int maxParticles, int maxCollider
         velocities(library, maxParticles),
         phases(library, maxParticles),
         activeIndices(library, maxParticles),
-        colliders(library, maxColliders) {
+        colliders(library, maxColliders),
+        computeDeviceName(NvFlexGetDeviceName(library)) {
     gpuWork = false;
 
     NvFlexSolverDesc solverDesc{};
