@@ -1,7 +1,7 @@
 #ifndef GELLY_ERRORHANDLING_H
 #define GELLY_ERRORHANDLING_H
 
-#include <windows.h>
+#include <Windows.h>
 #include <cstdio>
 
 #define DX(prettyMessage, x) if (FAILED(x)) { \

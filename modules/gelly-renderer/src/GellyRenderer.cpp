@@ -1,5 +1,5 @@
 #include <GellyRenderer.h>
-#include "ErrorHandling.h"
+#include "detail/ErrorHandling.h"
 
 #define MAKE_GBUFFER_TEXTURE(name, format) \
     D3D11_TEXTURE2D_DESC name##Desc; \
@@ -18,20 +18,26 @@ RendererResources::RendererResources(ID3D11Device* device, const RendererInitPar
         .normal = nullptr
     }),
     pixelShaders({
-        .particleSplat = PixelShader(device, "shaders/ParticleSplatPS.hlsl", "PSMain", nullptr),
+        .particleSplat = PixelShader(device, L"shaders/ParticleSplatPS.hlsl", "PSMain", nullptr)
     }),
     vertexShaders({
-        .particleSplat = VertexShader(device, "shaders/ParticleSplatVS.hlsl", "VSMain", nullptr)
-    })
+        .particleSplat = VertexShader(device, L"shaders/ParticleSplatVS.hlsl", "VSMain", nullptr)
+    }),
+    particleSplatCBuffer(device)
 {
     D3D11_BUFFER_DESC bufferDesc;
     ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-    bufferDesc.ByteWidth = sizeof(Vec4) * params.maxParticles;
+    bufferDesc.ByteWidth = sizeof(Vertex) * params.maxParticles;
     bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
     DX("Failed to make point vertex buffer",
        device->CreateBuffer(&bufferDesc, nullptr, particles.GetAddressOf()));
+
+    particleInputLayout[0] = {"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0};
+    device->CreateInputLayout(particleInputLayout, 1, vertexShaders.particleSplat.GetShaderBlob()->GetBufferPointer(),
+                              vertexShaders.particleSplat.GetShaderBlob()->GetBufferSize(), particleInputLayoutObject.GetAddressOf());
 
     ID3D11Resource* normalResource = nullptr;
     DX("Failed to open the texture in D3D11 from D3D9!",
@@ -42,12 +48,22 @@ RendererResources::RendererResources(ID3D11Device* device, const RendererInitPar
 
     DX("Failed to release the shared resource!",
        normalResource->Release());
+
+    // Create render target views for the gbuffer textures
+
+    D3D11_RENDER_TARGET_VIEW_DESC normalRTVDesc;
+    ZeroMemory(&normalRTVDesc, sizeof(normalRTVDesc));
+
+    normalRTVDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    normalRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+    normalRTVDesc.Texture2D.MipSlice = 0;
 }
 
 GellyRenderer::GellyRenderer(const RendererInitParams &params) :
     device(nullptr),
     deviceContext(nullptr),
-    resources(nullptr) {
+    resources(nullptr),
+    params(params) {
     D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_0};
 
     DX("Failed to create the D3D11 device.",
@@ -55,6 +71,63 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params) :
                          device.GetAddressOf(), nullptr, deviceContext.GetAddressOf()));
 
     resources = new RendererResources(device.Get(), params);
+}
+
+void GellyRenderer::Render() {
+    // Clear the gbuffer
+    float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    deviceContext->ClearRenderTargetView(resources->gbuffer.normalRTV.Get(), clearColor);
+
+    // Set the gbuffer as the render target
+    ID3D11RenderTargetView* renderTargets[] = {
+        resources->gbuffer.normalRTV.Get()
+    };
+    deviceContext->OMSetRenderTargets(1, renderTargets, nullptr);
+
+    // Set the viewport
+    D3D11_VIEWPORT viewport;
+    ZeroMemory(&viewport, sizeof(viewport));
+
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = params.width;
+    viewport.Height = params.height;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+
+    deviceContext->RSSetViewports(1, &viewport);
+
+    // Set up the IA
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+    deviceContext->IASetVertexBuffers(
+            0,
+            1,
+            resources->particles.GetAddressOf(),
+            &stride,
+            &offset
+        );
+
+    deviceContext->IASetInputLayout(resources->particleInputLayoutObject.Get());
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+    // Set up the shaders
+    deviceContext->VSSetShader(resources->vertexShaders.particleSplat.GetShader(), nullptr, 0);
+    deviceContext->PSSetShader(resources->pixelShaders.particleSplat.GetShader(), nullptr, 0);
+
+    // Set up the constant buffer data
+    ParticleSplatCBuffer cbufferData{};
+    cbufferData.view = camera.GetView();
+    cbufferData.projection = camera.GetProjection();
+
+    resources->particleSplatCBuffer.Set(deviceContext.Get(), &cbufferData);
+    resources->particleSplatCBuffer.BindToShaders(deviceContext.Get(), 0);
+
+    // Draw the particles
+    deviceContext->Draw(params.maxParticles, 0);
+
+    // Send our commands to the GPU. We don't have the usual swap-chain configuration, so we're just going to manually make the pipeline run.
+    deviceContext->Flush();
 }
 
 GellyRenderer::~GellyRenderer() {

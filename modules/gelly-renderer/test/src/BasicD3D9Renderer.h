@@ -9,11 +9,6 @@
 
 using namespace Microsoft::WRL;
 
-struct Vertex {
-    float x,y,z,w;
-};
-
-
 /**
  * This is a basic D3D9 renderer that is used to test the D3D11 renderer.
  * This renderer will have some textures that we're going to try to share to the D3D11 renderer.
@@ -35,6 +30,5 @@ public:
 
     [[nodiscard]] HANDLE* GetInputNormalSharedHandle();
 };
-
 
 #endif //GELLY_BASICD3D9RENDERER_H

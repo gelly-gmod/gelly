@@ -2,6 +2,10 @@
 #include "SDL_syswm.h"
 #include "ErrorHandling.h"
 
+struct Vec4 {
+    float x, y, z, w;
+};
+
 BasicD3D9Renderer::BasicD3D9Renderer(SDL_Window* window) :
     d3d9(nullptr),
     device(nullptr),
@@ -44,7 +48,7 @@ BasicD3D9Renderer::BasicD3D9Renderer(SDL_Window* window) :
 
     // Quad vertex buffer
 
-    Vertex vertices[] = {
+    Vec4 vertices[] = {
         { -0.5f, -0.5f, 0.0f, 1.0f },
         { -0.5f,  0.5f, 0.0f, 1.0f },
         {  0.5f, -0.5f, 0.0f, 1.0f },
@@ -73,7 +77,7 @@ void BasicD3D9Renderer::Render() {
     DX("Failed to set normal texture",
        device->SetTexture(0, gbuffer.input_normal));
     DX("Failed to set vertex buffer",
-        device->SetStreamSource(0, vertexBuffer.Get(), 0, sizeof(Vertex)));
+        device->SetStreamSource(0, vertexBuffer.Get(), 0, sizeof(Vec4)));
     DX("Failed to set FVF",
          device->SetFVF(D3DFVF_XYZW));
     DX("Failed to draw",

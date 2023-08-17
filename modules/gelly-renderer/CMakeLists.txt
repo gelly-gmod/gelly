@@ -8,8 +8,9 @@ endif()
 
 add_library(gelly_renderer STATIC
         include/GellyRenderer.h
-        src/GellyRenderer.cpp src/ErrorHandling.h
-        src/Shader.h src/Shader.cpp)
+        src/GellyRenderer.cpp include/detail/ErrorHandling.h
+        include/detail/Shader.h src/Shader.cpp
+        src/Camera.cpp)
 
 target_link_libraries(gelly_renderer PUBLIC d3d9.lib d3d11.lib d3dcompiler.lib)
 target_include_directories(gelly_renderer PUBLIC include src)
