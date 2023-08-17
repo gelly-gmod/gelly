@@ -2,8 +2,9 @@
 #include "SDL_syswm.h"
 #include "ErrorHandling.h"
 
-struct Vec4 {
-    float x, y, z, w;
+struct QuadVertex {
+    float x, y, z;
+    float u, v;
 };
 
 BasicD3D9Renderer::BasicD3D9Renderer(SDL_Window* window) :
@@ -41,18 +42,16 @@ BasicD3D9Renderer::BasicD3D9Renderer(SDL_Window* window) :
     // D3DFMT_A16B16G16R16F is DXGI_FORMAT_R16G16B16A16_FLOAT in D3D11.
     // We're forced to use 16-bit precision as D3D9 doesn't support 32-bit float textures.
     HANDLE shared_handle = nullptr;
-    IDirect3DTexture9* input_normal = nullptr;
     DX("Failed to create the input normal texture.",
        device->CreateTexture(840, 640, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT, &gbuffer.input_normal, &shared_handle));
     gbuffer.input_normal_shared_handle = new HANDLE(shared_handle);
 
-    // Quad vertex buffer
-
-    Vec4 vertices[] = {
-        { -0.5f, -0.5f, 0.0f, 1.0f },
-        { -0.5f,  0.5f, 0.0f, 1.0f },
-        {  0.5f, -0.5f, 0.0f, 1.0f },
-        {  0.5f,  0.5f, 0.0f, 1.0f }
+    // Screen-aligned quad vertex buffer
+    QuadVertex vertices[] = {
+        { -0.5f, -0.5f, 0.0f, 0.0f, 0.0f },
+        { -0.5f,  0.5f, 0.0f, 0.0f, 1.0f },
+        {  0.5f, -0.5f, 0.0f, 1.0f, 0.0f },
+        {  0.5f,  0.5f, 0.0f, 1.0f, 1.0f }
     };
 
     // Create vertex buffer and populate it with vertex data
@@ -76,10 +75,22 @@ void BasicD3D9Renderer::Render() {
        device->Clear(0, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0));
     DX("Failed to set normal texture",
        device->SetTexture(0, gbuffer.input_normal));
-    DX("Failed to set vertex buffer",
-        device->SetStreamSource(0, vertexBuffer.Get(), 0, sizeof(Vec4)));
+    DX("Failed to null vertex shader",
+       device->SetVertexShader(nullptr));
     DX("Failed to set FVF",
-         device->SetFVF(D3DFVF_XYZW));
+       device->SetFVF(D3DFVF_XYZ | D3DFVF_TEX1));
+    DX("Failed to set vertex buffer",
+        device->SetStreamSource(0, vertexBuffer.Get(), 0, sizeof(QuadVertex)));
+    DX("Failed to set render state",
+        device->SetRenderState(D3DRS_LIGHTING, FALSE));
+    DX("Failed to set render state",
+        device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+    DX("Failed to set render state",
+        device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+    DX("Failed to set render state",
+        device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+    DX("Failed to set texture stage state",
+        device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
     DX("Failed to draw",
          device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2));
     DX("Failed to end scene",

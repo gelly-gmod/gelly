@@ -32,8 +32,19 @@ RendererResources::RendererResources(ID3D11Device* device, const RendererInitPar
     bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
+    // Make some mock data
+    D3D11_SUBRESOURCE_DATA subresourceData;
+    ZeroMemory(&subresourceData, sizeof(subresourceData));
+
+    auto* vertices = new Vertex[params.maxParticles];
+    for (int i = 0; i < params.maxParticles; i++) {
+        vertices[i] = {1.0f, 0.0f, 0.0f, 1.0f};
+    }
+    subresourceData.pSysMem = vertices;
+    subresourceData.SysMemPitch = 0;
+
     DX("Failed to make point vertex buffer",
-       device->CreateBuffer(&bufferDesc, nullptr, particles.GetAddressOf()));
+       device->CreateBuffer(&bufferDesc, &subresourceData, particles.GetAddressOf()));
 
     particleInputLayout[0] = {"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0};
     device->CreateInputLayout(particleInputLayout, 1, vertexShaders.particleSplat.GetShaderBlob()->GetBufferPointer(),
@@ -57,6 +68,8 @@ RendererResources::RendererResources(ID3D11Device* device, const RendererInitPar
     normalRTVDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
     normalRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
     normalRTVDesc.Texture2D.MipSlice = 0;
+
+    DX("Failed to make normal RTV", device->CreateRenderTargetView(gbuffer.normal.Get(), &normalRTVDesc, gbuffer.normalRTV.GetAddressOf()));
 }
 
 GellyRenderer::GellyRenderer(const RendererInitParams &params) :
@@ -71,11 +84,15 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params) :
                          device.GetAddressOf(), nullptr, deviceContext.GetAddressOf()));
 
     resources = new RendererResources(device.Get(), params);
+
+    camera.SetPerspective(1, (float)params.width / (float)params.height, 0.1f, 1000.0f);
+    camera.SetPosition(0.0f, 0.0f, 0.0f);
+    camera.SetRotation(0.0f, 0.0f, 0.0f);
 }
 
 void GellyRenderer::Render() {
     // Clear the gbuffer
-    float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    float clearColor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     deviceContext->ClearRenderTargetView(resources->gbuffer.normalRTV.Get(), clearColor);
 
     // Set the gbuffer as the render target

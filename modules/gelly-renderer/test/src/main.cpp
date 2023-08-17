@@ -27,7 +27,7 @@ int main() {
     BasicD3D9Renderer d3d9Renderer(window);
 
     RendererInitParams gellyParams = {
-            .maxParticles = 1000,
+            .maxParticles = 50,
             .width = 840,
             .height = 640,
             .inputNormalSharedHandle = d3d9Renderer.GetInputNormalSharedHandle()
@@ -41,11 +41,11 @@ int main() {
             if (event.type == SDL_QUIT) quit = true;
         }
 
+        renderer->Render();
         d3d9Renderer.Render();
         // Sleep for 1 / 60
         SDL_Delay(1000 / 60);
     }
-
 
     GellyRenderer_Destroy(renderer);
     SDL_DestroyWindow(window);

@@ -11,11 +11,6 @@ using namespace Microsoft::WRL;
 #define VERTEX_PROFILE "vs_5_0"
 #define PIXEL_PROFILE "ps_5_0"
 
-enum class ShaderProfileType {
-    Vertex,
-    Pixel
-};
-
 template<typename ShaderType>
 class Shader {
 private:
