@@ -126,7 +126,7 @@ void GellyRenderer::Render() {
         );
 
     deviceContext->IASetInputLayout(resources->particleInputLayoutObject.Get());
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
     // Set up the shaders
     deviceContext->VSSetShader(resources->vertexShaders.particleSplat.GetShader(), nullptr, 0);

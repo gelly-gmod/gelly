@@ -17,3 +17,7 @@
 	path = modules/gelly-renderer/test/vendor/SDL
 	url = https://github.com/libsdl-org/SDL.git
 	branch = SDL2
+[submodule "modules/gelly-binary-module/vendor/gmod-module-base"]
+	path = modules/gelly-binary-module/vendor/gmod-module-base
+	url = https://github.com/Facepunch/gmod-module-base
+	branch = development
