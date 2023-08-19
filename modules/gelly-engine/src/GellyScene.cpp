@@ -55,6 +55,7 @@ GellyScene::GellyScene(NvFlexLibrary *library, int maxParticles, int maxCollider
 
 GellyScene::~GellyScene() {
     NvFlexDestroySolver(solver);
+    if (d3dParticleBuffer) NvFlexUnregisterD3DBuffer(d3dParticleBuffer);
     delete params;
 }
 
@@ -110,6 +111,7 @@ void GellyScene::Update(float deltaTime) {
     NvFlexUpdateSolver(solver, deltaTime, 2, false);
 
     NvFlexGetParticles(solver, positions.buffer, &copyDesc);
+    if (d3dParticleBuffer) NvFlexGetParticles(solver, d3dParticleBuffer, &copyDesc);
     NvFlexGetVelocities(solver, velocities.buffer, &copyDesc);
     NvFlexGetPhases(solver, phases.buffer, &copyDesc);
 }
@@ -163,4 +165,8 @@ void GellyScene::AddBSP(const std::string &mapName, uint8_t *data, size_t dataSi
         .rotation = Quat{0, 0, 0, 1},
         .modelPath = mapName
     });
+}
+
+void GellyScene::RegisterD3DBuffer(void *buffer, int elementCount, int elementStride) {
+    d3dParticleBuffer = NvFlexRegisterD3DBuffer(library, buffer, elementCount, elementStride);
 }

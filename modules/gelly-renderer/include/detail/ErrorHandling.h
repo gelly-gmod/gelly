@@ -5,9 +5,10 @@
 #include <cstdio>
 
 #define DX(prettyMessage, x) if (FAILED(x)) { \
-    printf("D3D11 HRESULT: %lx", x);                                          \
-    MessageBox(nullptr, prettyMessage, "Gelly Renderer Fatal Error", MB_OK); \
-    exit(1); \
+    char error[256];                          \
+    sprintf_s(error, "%s\nHRESULT: 0x%lx", prettyMessage, x); \
+    MessageBox(nullptr, error, "Gelly Renderer Fatal Error", MB_OK); \
+    exit(2); \
 }
 
 

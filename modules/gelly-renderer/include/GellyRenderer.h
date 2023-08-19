@@ -13,17 +13,19 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 // Usually you could use XMVECTOR, but there's no guarantees from FleX about the alignment of the data. It's safer to just use a struct.
-struct Vec4 {
+struct Vertex {
     float x,y,z,w;
 };
 
-using Vertex = Vec4;
+struct SharedTextures {
+    HANDLE* normal;
+};
 
 struct RendererInitParams {
     int maxParticles;
     int width;
     int height;
-    HANDLE* inputNormalSharedHandle;
+    SharedTextures sharedTextures;
 };
 
 struct ParticleSplatCBuffer {
@@ -35,7 +37,7 @@ class RendererResources {
 public:
     ComPtr<ID3D11Buffer> particles;
 
-    D3D11_INPUT_ELEMENT_DESC particleInputLayout[1];
+    D3D11_INPUT_ELEMENT_DESC particleInputLayout[1]{};
     ComPtr<ID3D11InputLayout> particleInputLayoutObject;
 
     ConstantBuffer<ParticleSplatCBuffer> particleSplatCBuffer;
@@ -69,7 +71,7 @@ public:
      * @note This is meant for doing GPU-GPU copying with FleX.
      * @return
      */
-    ID3D11Buffer* GetD3DParticleBuffer() const;
+    [[nodiscard]] ID3D11Buffer* GetD3DParticleBuffer() const;
     void Render();
     explicit GellyRenderer(const RendererInitParams& params);
     ~GellyRenderer();

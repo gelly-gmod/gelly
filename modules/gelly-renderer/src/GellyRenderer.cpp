@@ -1,18 +1,6 @@
 #include <GellyRenderer.h>
 #include "detail/ErrorHandling.h"
 
-#define MAKE_GBUFFER_TEXTURE(name, format) \
-    D3D11_TEXTURE2D_DESC name##Desc; \
-    ZeroMemory(&name##Desc, sizeof(name##Desc)); \
-    name##Desc.Width = params.width; \
-    name##Desc.Height = params.height; \
-    name##Desc.MipLevels = 1; \
-    name##Desc.ArraySize = 1; \
-    name##Desc.Format = format; \
-    name##Desc.SampleDesc.Count = 1; \
-    name##Desc.BindFlags = D3D11_BIND_RENDER_TARGET; \
-    DX("Failed to make "#name" texture", device->CreateTexture2D(&name##Desc, nullptr, gbuffer.name.GetAddressOf()));
-
 RendererResources::RendererResources(ID3D11Device* device, const RendererInitParams& params) :
     gbuffer({
         .normal = nullptr
@@ -28,31 +16,29 @@ RendererResources::RendererResources(ID3D11Device* device, const RendererInitPar
     D3D11_BUFFER_DESC bufferDesc;
     ZeroMemory(&bufferDesc, sizeof(bufferDesc));
     bufferDesc.ByteWidth = sizeof(Vertex) * params.maxParticles;
-    bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
     bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    bufferDesc.CPUAccessFlags = 0;
 
-    // Make some mock data
-    D3D11_SUBRESOURCE_DATA subresourceData;
-    ZeroMemory(&subresourceData, sizeof(subresourceData));
-
-    auto* vertices = new Vertex[params.maxParticles];
+    D3D11_SUBRESOURCE_DATA initData;
+    ZeroMemory(&initData, sizeof(initData));
+    auto* initPositions = new Vertex[params.maxParticles];
     for (int i = 0; i < params.maxParticles; i++) {
-        vertices[i] = {1.0f, 0.0f, 0.0f, 1.0f};
+        initPositions[i] = {1.0, 0.0, 0.0, 1.0};
     }
-    subresourceData.pSysMem = vertices;
-    subresourceData.SysMemPitch = 0;
+
+    initData.pSysMem = initPositions;
 
     DX("Failed to make point vertex buffer",
-       device->CreateBuffer(&bufferDesc, &subresourceData, particles.GetAddressOf()));
+       device->CreateBuffer(&bufferDesc, &initData, particles.GetAddressOf()));
 
     particleInputLayout[0] = {"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0};
-    device->CreateInputLayout(particleInputLayout, 1, vertexShaders.particleSplat.GetShaderBlob()->GetBufferPointer(),
-                              vertexShaders.particleSplat.GetShaderBlob()->GetBufferSize(), particleInputLayoutObject.GetAddressOf());
+    DX("Failed to make input layout.", device->CreateInputLayout(particleInputLayout, 1, vertexShaders.particleSplat.GetShaderBlob()->GetBufferPointer(),
+                              vertexShaders.particleSplat.GetShaderBlob()->GetBufferSize(), particleInputLayoutObject.GetAddressOf()));
 
     ID3D11Resource* normalResource = nullptr;
     DX("Failed to open the texture in D3D11 from D3D9!",
-       device->OpenSharedResource(*params.inputNormalSharedHandle, __uuidof(ID3D11Resource), (void**)&normalResource));
+       device->OpenSharedResource(*params.sharedTextures.normal, __uuidof(ID3D11Resource), (void**)&normalResource));
 
     DX("Failed to query D3D11Texture2D from the shared resource!",
        normalResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)gbuffer.normal.GetAddressOf()));
@@ -77,7 +63,7 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params) :
     deviceContext(nullptr),
     resources(nullptr),
     params(params) {
-    D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_0};
+    D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_1};
 
     DX("Failed to create the D3D11 device.",
        D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, featureLevel, 1, D3D11_SDK_VERSION,
@@ -92,7 +78,9 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params) :
 
 void GellyRenderer::Render() {
     // Clear the gbuffer
-    float clearColor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float testGreen = sinf((float)GetTickCount() / 1000.0f);
+    float testRed = cosf((float)GetTickCount() / 1000.0f);
+    float clearColor[4] = {testRed, fabsf(testGreen), 1.0f, 1.0f};
     deviceContext->ClearRenderTargetView(resources->gbuffer.normalRTV.Get(), clearColor);
 
     // Set the gbuffer as the render target
@@ -101,18 +89,6 @@ void GellyRenderer::Render() {
     };
     deviceContext->OMSetRenderTargets(1, renderTargets, nullptr);
 
-    // Set the viewport
-    D3D11_VIEWPORT viewport;
-    ZeroMemory(&viewport, sizeof(viewport));
-
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-    viewport.Width = params.width;
-    viewport.Height = params.height;
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-
-    deviceContext->RSSetViewports(1, &viewport);
 
     // Set up the IA
     UINT stride = sizeof(Vertex);
@@ -126,7 +102,7 @@ void GellyRenderer::Render() {
         );
 
     deviceContext->IASetInputLayout(resources->particleInputLayoutObject.Get());
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
     // Set up the shaders
     deviceContext->VSSetShader(resources->vertexShaders.particleSplat.GetShader(), nullptr, 0);
@@ -145,6 +121,10 @@ void GellyRenderer::Render() {
 
     // Send our commands to the GPU. We don't have the usual swap-chain configuration, so we're just going to manually make the pipeline run.
     deviceContext->Flush();
+}
+
+ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
+    return resources->particles.Get();
 }
 
 GellyRenderer::~GellyRenderer() {

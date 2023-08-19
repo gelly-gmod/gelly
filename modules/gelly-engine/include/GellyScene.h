@@ -138,6 +138,8 @@ private:
     NvFlexVector<Vec3> velocities;
     NvFlexVector<int> phases;
     NvFlexVector<int> activeIndices;
+
+    NvFlexBuffer *d3dParticleBuffer;
 public:
     const char* computeDeviceName;
     Colliders colliders;
@@ -163,6 +165,14 @@ public:
     void AddParticle(Vec4 position, Vec3 velocity);
 
     void AddBSP(const std::string& mapName, uint8_t* data, size_t dataSize);
+
+    /**
+     * This method registers a D3D11 buffer with FleX. Currently, this mechanism is only used to deliver particle data straight to the supplied buffer.
+     * @param buffer
+     * @param elementCount
+     * @param elementStride
+     */
+    void RegisterD3DBuffer(void* buffer, int elementCount, int elementStride);
 
     [[nodiscard]] Vec4 *GetPositions() const;
 

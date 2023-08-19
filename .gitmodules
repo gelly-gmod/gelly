@@ -21,3 +21,9 @@
 	path = modules/gelly-binary-module/vendor/gmod-module-base
 	url = https://github.com/Facepunch/gmod-module-base
 	branch = development
+[submodule "modules/gelly-binary-module/vendor/minhook"]
+	path = modules/gelly-binary-module/vendor/minhook
+	url = https://github.com/TsudaKageyu/minhook.git
+[submodule "modules/gelly-binary-module/vendor/GMFS"]
+	path = modules/gelly-binary-module/vendor/GMFS
+	url = https://github.com/Derpius/GMFS.git

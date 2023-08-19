@@ -30,8 +30,11 @@ int main() {
             .maxParticles = 50,
             .width = 840,
             .height = 640,
-            .inputNormalSharedHandle = d3d9Renderer.GetInputNormalSharedHandle()
+            .sharedTextures = {
+                    .normal = d3d9Renderer.GetInputNormalSharedHandle()
+            }
     };
+
     GellyRenderer* renderer = GellyRenderer_Create(gellyParams);
 
     bool quit = false;
