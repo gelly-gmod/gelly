@@ -15,7 +15,7 @@ void Camera::InvalidateView() {
     XMVECTOR pos = XMLoadFloat3(&position);
     XMVECTOR rot = XMLoadFloat3(&rotation);
 
-    XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixRotationRollPitchYawFromVector(rot) * XMMatrixTranslationFromVector(pos)));
+    XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixTranslationFromVector(pos) * XMMatrixRotationRollPitchYawFromVector(rot)));
 }
 
 void Camera::InvalidateProjection() {
@@ -44,10 +44,8 @@ void Camera::SetPerspective(float fov, float aspect, float nearZ, float farZ) {
 
 // We copy these since we don't want to expose a reference to the internal data.
 
-XMFLOAT4X4 Camera::GetView() const {
-    return view;
-}
-
-XMFLOAT4X4 Camera::GetProjection() const {
-    return projection;
+XMFLOAT4X4 Camera::GetVPMatrix() const {
+    XMFLOAT4X4 vp{};
+    XMStoreFloat4x4(&vp, XMLoadFloat4x4(&projection) * XMLoadFloat4x4(&view));
+    return vp;
 }

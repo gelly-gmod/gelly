@@ -13,8 +13,12 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 // Usually you could use XMVECTOR, but there's no guarantees from FleX about the alignment of the data. It's safer to just use a struct.
-struct Vertex {
-    float x,y,z,w;
+struct ParticlePoint {
+    float x, y, z, w;
+};
+
+struct QuadPoint {
+    float x, y, z;
 };
 
 struct SharedTextures {
@@ -29,15 +33,15 @@ struct RendererInitParams {
 };
 
 struct ParticleSplatCBuffer {
-    XMFLOAT4X4 view;
-    XMFLOAT4X4 projection;
+    XMFLOAT4X4 vp;
 };
 
 class RendererResources {
 public:
+    ComPtr<ID3D11Buffer> quad;
     ComPtr<ID3D11Buffer> particles;
 
-    D3D11_INPUT_ELEMENT_DESC particleInputLayout[1]{};
+    D3D11_INPUT_ELEMENT_DESC particleInputLayout[2]{};
     ComPtr<ID3D11InputLayout> particleInputLayoutObject;
 
     ConstantBuffer<ParticleSplatCBuffer> particleSplatCBuffer;
@@ -60,8 +64,13 @@ public:
 
 class GellyRenderer {
 private:
+#ifdef _DEBUG
+    ComPtr<ID3D11InfoQueue> debugMsgQueue;
+#endif
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> deviceContext;
+    ComPtr<ID3D11RasterizerState> rasterizerState;
+
     RendererResources* resources;
     Camera camera;
     RendererInitParams params;
@@ -73,6 +82,11 @@ public:
      */
     [[nodiscard]] ID3D11Buffer* GetD3DParticleBuffer() const;
     void Render();
+
+#ifdef _DEBUG
+    void PrintDebugMessages();
+#endif
+
     explicit GellyRenderer(const RendererInitParams& params);
     ~GellyRenderer();
 };

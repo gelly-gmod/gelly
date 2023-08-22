@@ -8,7 +8,6 @@
     char error[256];                          \
     sprintf_s(error, "%s\nHRESULT: 0x%lx", prettyMessage, x); \
     MessageBox(nullptr, error, "Gelly Renderer Fatal Error", MB_OK); \
-    exit(2); \
 }
 
 

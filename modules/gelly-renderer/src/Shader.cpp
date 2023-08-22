@@ -25,7 +25,7 @@ template<> Shader<ID3D11PixelShader>::Shader(ID3D11Device* device, const wchar_t
 
     if (FAILED(hr)) {
         if (errorBlob) {
-            OutputDebugStringA(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
+            printf("%s\n", reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
             errorBlob->Release();
         }
 
@@ -65,7 +65,7 @@ template<> Shader<ID3D11VertexShader>::Shader(ID3D11Device* device, const wchar_
 
     if (FAILED(hr)) {
         if (errorBlob) {
-            OutputDebugStringA(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
+            printf("%s\n", reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
             errorBlob->Release();
         }
 

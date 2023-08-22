@@ -1,23 +1,24 @@
 struct VS_INPUT {
-    float4 position : POSITION;
+    float3 position : POSITION;
+    float4 instancePos : INSTANCEPOS;
 };
 
 struct VS_OUTPUT {
-    float4 position : SV_Position;
+    float4 worldPos : worldPos;
+    float4 centerPos : centerPos;
 };
 
 cbuffer MVPBuffer : register(b0)
 {
-    matrix view;
-    matrix projection;
+    matrix vp;
 }
 
 VS_OUTPUT VSMain(VS_INPUT input) {
     VS_OUTPUT output;
 
-    output.position = float4(input.position.xyz, 1.0);
-    output.position = mul(output.position, view);
-    output.position = mul(output.position, projection);
+    output.worldPos = float4(input.position + input.instancePos.xyz, 1.0);
+    output.worldPos = mul(output.position, vp);
+    output.centerPos = mul(float4(input.position + input.instancePos.xyz, 1.0), vp);
 
     return output;
 }

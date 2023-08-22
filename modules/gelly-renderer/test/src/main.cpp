@@ -27,7 +27,7 @@ int main() {
     BasicD3D9Renderer d3d9Renderer(window);
 
     RendererInitParams gellyParams = {
-            .maxParticles = 50,
+            .maxParticles = 32,
             .width = 840,
             .height = 640,
             .sharedTextures = {
@@ -46,6 +46,9 @@ int main() {
 
         renderer->Render();
         d3d9Renderer.Render();
+#ifdef _DEBUG
+        renderer->PrintDebugMessages();
+#endif
         // Sleep for 1 / 60
         SDL_Delay(1000 / 60);
     }

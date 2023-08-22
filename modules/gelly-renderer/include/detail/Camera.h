@@ -35,8 +35,7 @@ public:
 
     void SetPerspective(float fov, float aspect, float nearZ, float farZ);
 
-    [[nodiscard]] XMFLOAT4X4 GetView() const;
-    [[nodiscard]] XMFLOAT4X4 GetProjection() const;
+    [[nodiscard]] XMFLOAT4X4 GetVPMatrix() const;
 };
 
 #endif //GELLY_CAMERA_H
