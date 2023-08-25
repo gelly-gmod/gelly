@@ -1,0 +1,12 @@
+BasedOnStyle: Google
+IndentWidth: 4
+UseTab: Always
+TabWidth: 4
+ColumnLimit: 80
+DerivePointerAlignment: false
+PointerAlignment: Right
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
+BinPackParameters: false
+IndentAccessModifiers: false
+AccessModifierOffset: -4

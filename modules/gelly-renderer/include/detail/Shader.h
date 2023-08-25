@@ -1,30 +1,42 @@
 #ifndef GELLY_SHADER_H
 #define GELLY_SHADER_H
 
+#include <Windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <Windows.h>
 #include <wrl.h>
 
 using namespace Microsoft::WRL;
 
 #define VERTEX_PROFILE "vs_5_0"
 #define PIXEL_PROFILE "ps_5_0"
+#define GEOMETRY_PROFILE "gs_5_0"
 
-template<typename ShaderType>
-class Shader {
-private:
-    ComPtr<ID3DBlob> shaderBlob;
-    ComPtr<ShaderType> shader;
-public:
-    Shader(ID3D11Device* device, const wchar_t* filePath, const char* entryPoint, const D3D_SHADER_MACRO* defines);
-    ~Shader() = default;
-
-    [[nodiscard]] ShaderType* GetShader() const;
-    [[nodiscard]] ID3DBlob* GetShaderBlob() const;
+template <typename Shader>
+struct ShaderCompileResult {
+	ComPtr<ID3DBlob> shaderBlob;
+	ComPtr<Shader> shader;
 };
 
-using VertexShader = Shader<ID3D11VertexShader>;
-using PixelShader = Shader<ID3D11PixelShader>;
+struct ShaderCompileOptions {
+	ID3D11Device *device;
+	struct {
+		void *buffer;
+		size_t size;
+		const char *name;
+		const char *entryPoint;
+	} shader;
+	const D3D_SHADER_MACRO *defines;
+};
 
-#endif //GELLY_SHADER_H
+ShaderCompileResult<ID3D11PixelShader> compile_pixel_shader(
+	const ShaderCompileOptions &options
+);
+ShaderCompileResult<ID3D11VertexShader> compile_vertex_shader(
+	const ShaderCompileOptions &options
+);
+ShaderCompileResult<ID3D11GeometryShader> compile_geometry_shader(
+	const ShaderCompileOptions &options
+);
+
+#endif	// GELLY_SHADER_H

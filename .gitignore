@@ -1,1 +1,3 @@
 cmake-build-*
+# For the renderer which automates shader embedding
+generated
