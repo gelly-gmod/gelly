@@ -8,7 +8,7 @@
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 			</inputlayout>
-			<rendertexture />
+			<rendertexture name="Depth" />
 			<items>
 				<item name="Sphere" type="geometry">
 					<type>Sphere</type>
@@ -17,10 +17,11 @@
 					<depth>1</depth>
 					<scaleX>0.488382936</scaleX>
 					<scaleY>0.340991855</scaleY>
-					<scaleZ>1.9138329</scaleZ>
-					<x>0.226495743</x>
-					<y>0.249236405</y>
-					<z>0.31854248</z>
+					<scaleZ>0.33150053</scaleZ>
+					<roll>1.08957958</roll>
+					<x>0.0349241495</x>
+					<y>0.41464597</y>
+					<z>-1.23251927</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere2" type="geometry">
@@ -29,6 +30,20 @@
 					<height>1</height>
 					<depth>1</depth>
 					<y>1.20777786</y>
+					<z>-0.0404115915</z>
+					<topology>PointList</topology>
+				</item>
+				<item name="Sphere3" type="geometry">
+					<type>Sphere</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<scaleX>0.488382936</scaleX>
+					<scaleY>0.340991855</scaleY>
+					<scaleZ>0.33150053</scaleZ>
+					<x>-1.18814409</x>
+					<y>0.804721832</y>
+					<z>-1.47319627</z>
 					<topology>PointList</topology>
 				</item>
 			</items>
@@ -40,20 +55,71 @@
 			</variables>
 			<macros />
 		</pass>
+		<pass name="ParticleSmoothing" type="shader" active="true" patchverts="1" collapsed="true">
+			<shader type="vs" path="shaders\ParticleSmoothingVS.hlsl" entry="main" />
+			<shader type="ps" path="shaders\ParticleSmoothingPS.hlsl" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture name="DepthSmooth" />
+			<items>
+				<item name="ScreenQuadNDC" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
+			<itemvalues />
+			<variables>
+				<variable type="float2" name="res" system="ViewportSize" />
+				<variable type="float4x4" name="matProj" system="Projection" />
+			</variables>
+			<macros />
+		</pass>
+		<pass name="NormalEstimation" type="shader" active="true" patchverts="1">
+			<shader type="vs" path="shaders\NormalEstimationVS.hlsl" entry="main" />
+			<shader type="ps" path="shaders\NormalEstimationPS.hlsl" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Normal" semantic="NORMAL" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture />
+			<items>
+				<item name="ScreenQuadNDC1" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
+			<itemvalues />
+			<variables>
+				<variable type="float2" name="res" system="ViewportSize" />
+				<variable type="float4x4" name="matProj" system="Projection" />
+			</variables>
+			<macros />
+		</pass>
 	</pipeline>
 	<objects>
-		<object type="rendertexture" name="Depth" format="R16G16B16A16_FLOAT" rsize="1.000000,1.000000" clear="true" />
+		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
+			<bind slot="0" name="ParticleSmoothing" />
+			<bind slot="0" name="NormalEstimation" />
+		</object>
+		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Depth" item="rt" />
-		<entry type="file" name="ParticleRender" shader="vs" />
-		<entry type="file" name="ParticleRender" shader="gs" />
-		<entry type="file" name="ParticleRender" shader="ps" />
+		<entry type="file" name="NormalEstimation" shader="vs" />
+		<entry type="file" name="NormalEstimation" shader="ps" />
 		<entry type="camera" fp="false">
-			<distance>2</distance>
-			<pitch>33</pitch>
-			<yaw>355</yaw>
+			<distance>3</distance>
+			<pitch>21</pitch>
+			<yaw>353</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
