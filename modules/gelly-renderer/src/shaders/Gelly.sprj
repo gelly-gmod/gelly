@@ -15,13 +15,12 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.488382936</scaleX>
-					<scaleY>0.340991855</scaleY>
-					<scaleZ>0.33150053</scaleZ>
-					<roll>1.08957958</roll>
-					<x>0.0349241495</x>
-					<y>0.41464597</y>
-					<z>-1.23251927</z>
+					<scaleX>0.0989744067</scaleX>
+					<scaleY>0.0898574591</scaleY>
+					<scaleZ>0.0889289379</scaleZ>
+					<x>-1.04774094</x>
+					<y>0.919799328</y>
+					<z>-0.575885594</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere2" type="geometry">
@@ -29,8 +28,9 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<y>1.20777786</y>
-					<z>-0.0404115915</z>
+					<x>-2.24883604</x>
+					<y>-0.253191888</y>
+					<z>3.38198256</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere3" type="geometry">
@@ -38,12 +38,25 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.488382936</scaleX>
-					<scaleY>0.340991855</scaleY>
-					<scaleZ>0.33150053</scaleZ>
-					<x>-1.18814409</x>
+					<scaleX>0.108716428</scaleX>
+					<scaleY>0.0502393246</scaleY>
+					<scaleZ>0.308240652</scaleZ>
+					<x>-1.01746655</x>
 					<y>0.804721832</y>
-					<z>-1.47319627</z>
+					<z>-1.09298158</z>
+					<topology>PointList</topology>
+				</item>
+				<item name="Sphere4" type="geometry">
+					<type>Sphere</type>
+					<width>2</width>
+					<height>1</height>
+					<depth>1</depth>
+					<scaleX>0.153828025</scaleX>
+					<scaleY>0.081156373</scaleY>
+					<scaleZ>0.170765638</scaleZ>
+					<x>-1.14088988</x>
+					<y>0.555123746</y>
+					<z>-1.15938067</z>
 					<topology>PointList</topology>
 				</item>
 			</items>
@@ -55,7 +68,7 @@
 			</variables>
 			<macros />
 		</pass>
-		<pass name="ParticleSmoothing" type="shader" active="true" patchverts="1" collapsed="true">
+		<pass name="ParticleSmoothing" type="shader" active="true" patchverts="1">
 			<shader type="vs" path="shaders\ParticleSmoothingVS.hlsl" entry="main" />
 			<shader type="ps" path="shaders\ParticleSmoothingPS.hlsl" entry="main" />
 			<inputlayout>
@@ -101,6 +114,8 @@
 			<variables>
 				<variable type="float2" name="res" system="ViewportSize" />
 				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float" name="time" system="Time" />
+				<variable type="float4x4" name="matView" system="View" />
 			</variables>
 			<macros />
 		</pass>
@@ -108,19 +123,23 @@
 	<objects>
 		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="ParticleSmoothing" />
+		</object>
+		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="NormalEstimation" />
 		</object>
-		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
+		<entry type="file" name="ParticleSmoothing" shader="vs" />
+		<entry type="file" name="ParticleSmoothing" shader="ps" />
 		<entry type="file" name="NormalEstimation" shader="vs" />
 		<entry type="file" name="NormalEstimation" shader="ps" />
-		<entry type="camera" fp="false">
-			<distance>3</distance>
-			<pitch>21</pitch>
-			<yaw>353</yaw>
-			<roll>360</roll>
+		<entry type="camera" fp="true">
+			<positionX>-1.97632945</positionX>
+			<positionY>0.939358473</positionY>
+			<positionZ>0.0307234377</positionZ>
+			<yaw>-402.503143</yaw>
+			<pitch>-11.2498255</pitch>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

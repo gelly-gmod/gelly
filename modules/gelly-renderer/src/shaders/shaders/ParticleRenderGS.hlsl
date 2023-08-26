@@ -8,6 +8,7 @@ cbuffer cbPerFrame : register(b0) {
 
 struct GS_OUTPUT {
 	float4 Position : SV_Position;
+	float4 Center : CENTER;
 	float2 Texcoord : TEXCOORD;
 	float Depth : DEPTH;
 };
@@ -29,7 +30,9 @@ void main(point VS_INPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
     float2 bottomLeft = float2(-scale, scale);
     float2 bottomRight = float2(scale, scale);
     
+    
 	GS_OUTPUT output;
+	output.Center = origin;
 	output.Position = mul(origin + float4(topLeft, 0.0f, 0.0f), matProj);
 	output.Texcoord = float2(0, 0);
 	stream.Append(output);

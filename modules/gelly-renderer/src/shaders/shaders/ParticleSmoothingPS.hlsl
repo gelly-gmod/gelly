@@ -1,3 +1,5 @@
+// Highly unstable and broken implementation of
+// the narrow range filter
 cbuffer cbPerFrame : register(b0) {
 	float2 res;
 	float4x4 matProj;
@@ -7,8 +9,8 @@ Texture2D depth : register(t0);
 
 SamplerState DepthSampler {
 	Filter = MIN_MAG_MIP_LINEAR;
-	AddressU = Wrap;
-	AddressV = Wrap;
+	AddressU = Clamp;
+	AddressV = Clamp;
 };
 
 struct VS_OUTPUT {
@@ -24,8 +26,7 @@ float GaussianWeight(float2 i, float2 j, float stdDev) {
 	float powerNumerator = -length(j - i);
 	powerNumerator *= powerNumerator;
 	
-	float powerDenominator = 2 * stdDev;
-	powerDenominator *= powerDenominator;
+	float powerDenominator = 2 * (stdDev * stdDev);
 	
 	float power = powerNumerator / powerDenominator;
 	
@@ -53,7 +54,7 @@ float ComputeFilterWeight(float2 i, float2 j, float stdDev, float upperDepth) {
 * From equation 2
 */
 float Clamping(float z_i, float z_j, float upper, float lower) {
-	if (z_j > z_i - upper) {
+	if (z_j >= z_i - upper) {
 		return z_j;
 	}
 	
@@ -80,7 +81,7 @@ float FilterDepth(float2 i, float upper, float lower, float stdDev) {
 		return 0;
 	}
 	
-	float filterSize = GetFilterSize(0.01f, depth_i);
+	float filterSize = 9;
 	for (int y = -filterSize; y <= filterSize; y++) {
 		for (int x = -filterSize; x <= filterSize; x++) {
 			float2 j = (pixel_i + float2(x, y)) / res;
@@ -96,6 +97,6 @@ float FilterDepth(float2 i, float upper, float lower, float stdDev) {
 }
 
 float4 main(VS_OUTPUT input) : SV_TARGET {
-	float newDepth = FilterDepth(input.Texcoord, 0.1, 0.01, 100);
+	float newDepth = FilterDepth(input.Texcoord, 0.5, -0.1, 0.05);
 	return float4(newDepth);	
 }
