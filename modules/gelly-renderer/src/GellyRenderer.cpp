@@ -97,15 +97,23 @@ void GellyRenderer::Render() {
 
 	deviceContext->RSSetViewports(1, &viewport);
 
-	TechniqueRTs rts{.normal = resources->gbuffer.normalRTV.Get()};
-	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts);
+	TechniqueRTs rts{// float2 for compatability with SHADERed.
+					 .width = static_cast<float>(params.width),
+					 .height = static_cast<float>(params.height),
+					 .normal = resources->gbuffer.normalRTV.Get()};
+
+	pipeline.particleRendering->activeParticles = activeParticles;
+	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts, camera);
 }
 
 ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
 	return particles.Get();
 }
 
-GellyRenderer::~GellyRenderer() { delete resources; }
+GellyRenderer::~GellyRenderer() {
+	delete resources;
+	delete pipeline.particleRendering;
+}
 
 #ifdef _DEBUG
 void GellyRenderer::PrintDebugMessages() {
@@ -133,10 +141,14 @@ void GellyRenderer::PrintDebugMessages() {
 #endif
 
 void GellyRenderer::InitializePipeline() {
-	auto *particleRendering = new ParticleRendering();
-	particleRendering->Initialize(device.Get(), params.maxParticles);
+	auto *particleRendering =
+		new ParticleRendering(device.Get(), params.maxParticles);
 	particles = particleRendering->GetParticleBuffer();
 	pipeline.particleRendering = particleRendering;
+}
+
+void GellyRenderer::SetActiveParticles(int newActiveParticles) {
+	activeParticles = newActiveParticles;
 }
 
 GellyRenderer *GellyRenderer_Create(const RendererInitParams &params) {

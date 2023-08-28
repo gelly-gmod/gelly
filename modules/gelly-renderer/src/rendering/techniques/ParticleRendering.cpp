@@ -4,25 +4,16 @@
 
 #include "detail/ErrorHandling.h"
 
-// Technique overview:
-// 1. Bind the particle vertex buffer to the input assembler.
-// 2. Bind the particle vertex shader.
-// 3. Bind the geometry shader and stream outputs.
-// 4. Run the geometry shader.
-// 5. Run the pipeline again on the new stream output.
-// 6. Bind the pixel shader.
-// 7. Run the pipeline.
-
 static const char *PIXEL_SHADER_SOURCE =
-#include "generated/FluidRendering_ParticleSplattingPS.embed.hlsl"
+#include "generated/ParticleRenderPS.embed.hlsl"
 	;
 
 static const char *VERTEX_SHADER_SOURCE =
-#include "generated/FluidRendering_ParticleSplattingVS.embed.hlsl"
+#include "generated/ParticleRenderVS.embed.hlsl"
 	;
 
 static const char *GEOMETRY_SHADER_SOURCE =
-#include "generated/FluidRendering_ParticleSplattingGS.embed.hlsl"
+#include "generated/ParticleRenderGS.embed.hlsl"
 	;
 
 #define INIT_OPTIONS_FOR_SHADER(source, shaderName, shaderEntryPoint) \
@@ -31,7 +22,8 @@ static const char *GEOMETRY_SHADER_SOURCE =
 	options.shader.name = shaderName;                                 \
 	options.shader.entryPoint = shaderEntryPoint;
 
-void ParticleRendering::Initialize(ID3D11Device *device, int maxParticles) {
+ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
+	: perFrameCBuffer(device) {
 	ShaderCompileOptions options = {
 		.device = device,
 		.shader = {},
@@ -39,32 +31,30 @@ void ParticleRendering::Initialize(ID3D11Device *device, int maxParticles) {
 	};
 
 	INIT_OPTIONS_FOR_SHADER(
-		PIXEL_SHADER_SOURCE, "FluidRendering_ParticleSplattingPS.hlsl", "main"
+		PIXEL_SHADER_SOURCE, "ParticleRenderPS.hlsl", "main"
 	);
 	auto pixelShaderResult = compile_pixel_shader(options);
-	pixelShader = pixelShaderResult.shader;
+	// .Attach has to be used to prevent releasing the underlying resource.
+	pixelShader.Attach(pixelShaderResult.shader);
 
 	INIT_OPTIONS_FOR_SHADER(
-		VERTEX_SHADER_SOURCE, "FluidRendering_ParticleSplattingVS.hlsl", "main"
+		VERTEX_SHADER_SOURCE, "ParticleRenderVS.hlsl", "main"
 	);
 	auto vertexShaderResult = compile_vertex_shader(options);
-	vertexShader = vertexShaderResult.shader;
-	vertexShaderBlob = vertexShaderResult.shaderBlob;
+	vertexShader.Attach(vertexShaderResult.shader);
+	vertexShaderBlob.Attach(vertexShaderResult.shaderBlob);
 
 	INIT_OPTIONS_FOR_SHADER(
-		GEOMETRY_SHADER_SOURCE,
-		"FluidRendering_ParticleSplattingGS.hlsl",
-		"main"
+		GEOMETRY_SHADER_SOURCE, "ParticleRenderGS.hlsl", "main"
 	);
 
 	auto geometryShaderResult = compile_geometry_shader(options);
-
-	geometryShader = geometryShaderResult.shader;
+	geometryShader.Attach(geometryShaderResult.shader);
 
 	// Create particle buffer
 	D3D11_INPUT_ELEMENT_DESC inputLayout[1] = {};
 	inputLayout[0] = {
-		"POSITION",
+		"SV_Position",
 		0,
 		DXGI_FORMAT_R32G32B32_FLOAT,
 		0,
@@ -94,7 +84,7 @@ void ParticleRendering::Initialize(ID3D11Device *device, int maxParticles) {
 
 		initData.pSysMem = initPositions;
 
-		DX("Failed to make point instance buffer",
+		DX("Failed to make point buffer",
 		   device->CreateBuffer(
 			   &bufferDesc, &initData, particleBuffer.GetAddressOf()
 		   ));
@@ -110,20 +100,29 @@ void ParticleRendering::Initialize(ID3D11Device *device, int maxParticles) {
 		   vertexShaderBlob->GetBufferSize(),
 		   particleInputLayoutBuffer.GetAddressOf()
 	   ));
-
-	this->maxParticles = maxParticles;
 }
 
 void ParticleRendering::RunForFrame(
 	ID3D11DeviceContext *context, TechniqueRTs *rts, const Camera &camera
 ) {
+	// Upload the per-frame data
+	{
+		PerFrameCBuffer perFrameData = {
+			.res = {rts->width, rts->height},
+			.padding = {},
+			.view = camera.GetViewMatrix(),
+			.projection = camera.GetProjectionMatrix()};
+
+		perFrameCBuffer.Set(context, &perFrameData);
+	}
+
 	// Clear the RTs
 	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
-	context->ClearRenderTargetView(rts->depth.Get(), emptyColor);
+	context->ClearRenderTargetView(rts->normal.Get(), emptyColor);
 
 	// Bind the RTs
 	// TODO: implement normals
-	ID3D11RenderTargetView *renderTargets[1] = {rts->depth.Get()};
+	ID3D11RenderTargetView *renderTargets[1] = {rts->normal.Get()};
 	context->OMSetRenderTargets(1, renderTargets, nullptr);
 
 	// Bind the particle buffer
@@ -141,7 +140,7 @@ void ParticleRendering::RunForFrame(
 	context->GSSetShader(geometryShader.Get(), nullptr, 0);
 	context->PSSetShader(pixelShader.Get(), nullptr, 0);
 
-	context->Draw(maxParticles, 0);
+	context->Draw(activeParticles, 0);
 	context->Flush();
 }
 

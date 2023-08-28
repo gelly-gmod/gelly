@@ -14,7 +14,7 @@ function(add_shader shader_name)
     # Prepares the shader for embedding by adding R"===()===" around the shader code
     file(READ ${shader_path} shader_code)
     set(shader_code "R\"===(${shader_code})===\"")
-    file(WRITE ${output_path} ${shader_code})
+    file(WRITE ${output_path} "${shader_code}")
 endfunction()
 
 add_library(gelly_renderer STATIC
@@ -24,12 +24,16 @@ add_library(gelly_renderer STATIC
         src/Camera.cpp
         src/rendering/Technique.h
         src/rendering/techniques/ParticleRendering.cpp
-        src/rendering/techniques/ParticleRendering.h)
+        src/rendering/techniques/ParticleRendering.h include/detail/DataTypes.h)
 
 target_link_libraries(gelly_renderer PUBLIC d3d9.lib d3d11.lib d3dcompiler.lib)
 target_include_directories(gelly_renderer PUBLIC include src)
 target_include_directories(gelly_renderer PRIVATE src)
 
-add_shader(FluidRendering_ParticleSplattingPS)
-add_shader(FluidRendering_ParticleSplattingVS)
-add_shader(FluidRendering_ParticleSplattingGS)
+add_shader(NormalEstimationPS)
+add_shader(NormalEstimationVS)
+add_shader(ParticleRenderGS)
+add_shader(ParticleRenderPS)
+add_shader(ParticleRenderVS)
+add_shader(ParticleSmoothingPS)
+add_shader(ParticleSmoothingVS)

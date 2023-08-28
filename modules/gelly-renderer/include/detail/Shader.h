@@ -14,8 +14,8 @@ using namespace Microsoft::WRL;
 
 template <typename Shader>
 struct ShaderCompileResult {
-	ComPtr<ID3DBlob> shaderBlob;
-	ComPtr<Shader> shader;
+	ID3DBlob *shaderBlob;
+	Shader *shader;
 };
 
 struct ShaderCompileOptions {

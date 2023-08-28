@@ -2,13 +2,13 @@
 #define GELLY_PARTICLERENDERING_H
 
 #include "detail/Camera.h"
+#include "detail/ConstantBuffer.h"
+#include "detail/DataTypes.h"
 #include "rendering/Technique.h"
 
-struct ParticlePoint {
-	float x, y, z, w;
-};
-
 struct PerFrameCBuffer {
+	XMFLOAT2 res;
+	XMFLOAT2 padding;  // Required for 16-byte alignment.
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 projection;
 };
@@ -30,14 +30,14 @@ private:
 	ComPtr<ID3D11GeometryShader> geometryShader;
 	ComPtr<ID3D11Buffer> particleBuffer;
 	ComPtr<ID3D11InputLayout> particleInputLayoutBuffer;
-
-	int maxParticles;
+	ConstantBuffer<PerFrameCBuffer> perFrameCBuffer;
 
 public:
-	ParticleRendering() = default;
+	int activeParticles;
+
+	ParticleRendering(ID3D11Device *device, int maxParticles);
 	~ParticleRendering() override = default;
 
-	void Initialize(ID3D11Device *device, int maxParticles);
 	void RunForFrame(
 		ID3D11DeviceContext *context, TechniqueRTs *rts, const Camera &camera
 	) override;

@@ -1,6 +1,10 @@
 cbuffer cbPerFrame : register(b0) {
+	float2 res;
+	float2 padding;
 	float4x4 matProj;
-}
+	float4x4 matView;
+};
+
 
 struct PS_INPUT {
 	float4 Position : SV_Position;

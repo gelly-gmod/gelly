@@ -65,8 +65,17 @@
 				<variable type="float4x4" name="matView" system="View" />
 				<variable type="float4x4" name="matProj" system="Projection" />
 				<variable type="float4x4" name="matGeo" system="GeometryTransform" />
+				<variable type="float2" name="res" system="ViewportSize" />
+				<variable type="float2" name="padding">
+					<row>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
-			<macros />
+			<macros>
+				<define name="SHADERED" active="true">1</define>
+			</macros>
 		</pass>
 		<pass name="ParticleSmoothing" type="shader" active="true" patchverts="1">
 			<shader type="vs" path="shaders\ParticleSmoothingVS.hlsl" entry="main" />
@@ -89,6 +98,13 @@
 			<variables>
 				<variable type="float2" name="res" system="ViewportSize" />
 				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float2" name="padding">
+					<row>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="matView" system="View" />
 			</variables>
 			<macros />
 		</pass>
@@ -115,26 +131,33 @@
 				<variable type="float2" name="res" system="ViewportSize" />
 				<variable type="float4x4" name="matProj" system="Projection" />
 				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float2" name="padding">
+					<row>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
 	</pipeline>
 	<objects>
-		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
+		<object type="rendertexture" name="Depth" format="R16G16B16A16_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="ParticleSmoothing" />
 		</object>
-		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
+		<object type="rendertexture" name="DepthSmooth" format="R16G16B16A16_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="NormalEstimation" />
 		</object>
 	</objects>
 	<cameras />
 	<settings>
+		<entry type="pinned" name="padding" owner="ParticleRender" />
 		<entry type="camera" fp="true">
-			<positionX>-1.7854799</positionX>
-			<positionY>0.7954247</positionY>
-			<positionZ>-0.470091552</positionZ>
-			<yaw>-771.703064</yaw>
-			<pitch>-8.99958801</pitch>
+			<positionX>-5.91157675</positionX>
+			<positionY>0.856343687</positionY>
+			<positionZ>-0.0523315705</positionZ>
+			<yaw>-852.052795</yaw>
+			<pitch>-8.24960518</pitch>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

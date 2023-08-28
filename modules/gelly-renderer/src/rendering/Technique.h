@@ -11,6 +11,9 @@ using namespace Microsoft::WRL;
  * inputs for a technique.
  */
 struct TechniqueRTs {
+	float width;
+	float height;
+	
 	ComPtr<ID3D11RenderTargetView> depth;
 	ComPtr<ID3D11RenderTargetView> normal;
 };

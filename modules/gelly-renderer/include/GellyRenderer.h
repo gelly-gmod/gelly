@@ -8,17 +8,13 @@
 
 #include "detail/Camera.h"
 #include "detail/ConstantBuffer.h"
+#include "detail/DataTypes.h"
 #include "detail/Shader.h"
 #include "rendering/Technique.h"
+#include "rendering/techniques/ParticleRendering.h"
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
-
-// Usually you could use XMVECTOR, but there's no guarantees from FleX about the
-// alignment of the data. It's safer to just use a struct.
-struct ParticlePoint {
-	float x, y, z, w;
-};
 
 struct SharedTextures {
 	HANDLE *normal;
@@ -57,8 +53,10 @@ private:
 	RendererInitParams params;
 
 	struct {
-		Technique *particleRendering;
+		ParticleRendering *particleRendering;
 	} pipeline;
+
+	int activeParticles{};
 
 	/**
 	 * Initializes the techniques and their resources.
@@ -77,6 +75,8 @@ public:
 #ifdef _DEBUG
 	void PrintDebugMessages();
 #endif
+
+	void SetActiveParticles(int newActiveParticles);
 
 	explicit GellyRenderer(const RendererInitParams &params);
 	~GellyRenderer();

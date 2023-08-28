@@ -2,8 +2,11 @@
 // the narrow range filter
 cbuffer cbPerFrame : register(b0) {
 	float2 res;
+	float2 padding;
 	float4x4 matProj;
+	float4x4 matView;
 };
+
 
 Texture2D depth : register(t0);
 

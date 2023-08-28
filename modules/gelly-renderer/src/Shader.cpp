@@ -38,56 +38,57 @@ ID3DBlob *compile_shader(
 		DX("Failed to compile shader", compileResult);
 	}
 
-	return shaderBlob.Get();
+	// Transfers ownership.
+	return shaderBlob.Detach();
 }
 
 ShaderCompileResult<ID3D11PixelShader> compile_pixel_shader(
 	const ShaderCompileOptions &options
 ) {
-	ComPtr<ID3D11PixelShader> shader;
-	ComPtr<ID3DBlob> shaderBlob = compile_shader(options, PIXEL_PROFILE);
+	ID3D11PixelShader *shader;
+	ID3DBlob *shaderBlob = compile_shader(options, PIXEL_PROFILE);
 
 	DX("Failed to create pixel shader",
 	   options.device->CreatePixelShader(
 		   shaderBlob->GetBufferPointer(),
 		   shaderBlob->GetBufferSize(),
 		   nullptr,
-		   shader.GetAddressOf()
+		   &shader
 	   ));
 
-	return {shaderBlob.Get(), shader.Get()};
+	return {shaderBlob, shader};
 }
 
 ShaderCompileResult<ID3D11VertexShader> compile_vertex_shader(
 	const ShaderCompileOptions &options
 ) {
-	ComPtr<ID3D11VertexShader> shader;
-	ComPtr<ID3DBlob> shaderBlob = compile_shader(options, VERTEX_PROFILE);
+	ID3D11VertexShader *shader;
+	ID3DBlob *shaderBlob = compile_shader(options, VERTEX_PROFILE);
 
 	DX("Failed to create vertex shader",
 	   options.device->CreateVertexShader(
 		   shaderBlob->GetBufferPointer(),
 		   shaderBlob->GetBufferSize(),
 		   nullptr,
-		   shader.GetAddressOf()
+		   &shader
 	   ));
 
-	return {shaderBlob.Get(), shader.Get()};
+	return {shaderBlob, shader};
 }
 
 ShaderCompileResult<ID3D11GeometryShader> compile_geometry_shader(
 	const ShaderCompileOptions &options
 ) {
-	ComPtr<ID3D11GeometryShader> shader;
-	ComPtr<ID3DBlob> shaderBlob = compile_shader(options, GEOMETRY_PROFILE);
-	
+	ID3D11GeometryShader *shader;
+	ID3DBlob *shaderBlob = compile_shader(options, GEOMETRY_PROFILE);
+
 	DX("Failed to create geometry shader",
 	   options.device->CreateGeometryShader(
 		   shaderBlob->GetBufferPointer(),
 		   shaderBlob->GetBufferSize(),
 		   nullptr,
-		   shader.GetAddressOf()
+		   &shader
 	   ));
 
-	return {shaderBlob.Get(), shader.Get()};
+	return {shaderBlob, shader};
 }
