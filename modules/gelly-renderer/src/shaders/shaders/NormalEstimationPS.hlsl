@@ -1,6 +1,5 @@
 cbuffer cbPerFrame : register(b0) {
 	float2 res;
-	float time;
 	float4x4 matProj;
 	float4x4 matView;
 };
@@ -50,9 +49,7 @@ float3 EstimateNormal(float2 i) {
 	// Optionally, normalize the normal vector to ensure it's a unit vector.
 	normal = normalize(normal);
 	
-	float shading = dot(normal, mul(normalize(float3(0.56 + cos(time), 0.5 - sin(time), 0.9 + cos(time))), matView));
-	//return float3(shading * float3(0.5, 0.5, 1));
-	return normal * 0.5 + 0.5;
+	return normal;
 }
 
 float4 main(VS_OUTPUT input) : SV_TARGET {

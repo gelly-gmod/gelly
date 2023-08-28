@@ -15,12 +15,12 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.0989744067</scaleX>
-					<scaleY>0.0898574591</scaleY>
+					<scaleX>0.127043724</scaleX>
+					<scaleY>0.157434046</scaleY>
 					<scaleZ>0.0889289379</scaleZ>
-					<x>-1.04774094</x>
+					<x>-1.06012774</x>
 					<y>0.919799328</y>
-					<z>-0.575885594</z>
+					<z>-0.0427309275</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere2" type="geometry">
@@ -43,7 +43,7 @@
 					<scaleZ>0.308240652</scaleZ>
 					<x>-1.01746655</x>
 					<y>0.804721832</y>
-					<z>-1.09298158</z>
+					<z>-0.437661886</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere4" type="geometry">
@@ -51,9 +51,9 @@
 					<width>2</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.153828025</scaleX>
+					<scaleX>0.0735212564</scaleX>
 					<scaleY>0.081156373</scaleY>
-					<scaleZ>0.170765638</scaleZ>
+					<scaleZ>0.0818047523</scaleZ>
 					<x>-1.14088988</x>
 					<y>0.555123746</y>
 					<z>-1.15938067</z>
@@ -114,7 +114,6 @@
 			<variables>
 				<variable type="float2" name="res" system="ViewportSize" />
 				<variable type="float4x4" name="matProj" system="Projection" />
-				<variable type="float" name="time" system="Time" />
 				<variable type="float4x4" name="matView" system="View" />
 			</variables>
 			<macros />
@@ -130,16 +129,12 @@
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="file" name="ParticleSmoothing" shader="vs" />
-		<entry type="file" name="ParticleSmoothing" shader="ps" />
-		<entry type="file" name="NormalEstimation" shader="vs" />
-		<entry type="file" name="NormalEstimation" shader="ps" />
 		<entry type="camera" fp="true">
-			<positionX>-1.97632945</positionX>
-			<positionY>0.939358473</positionY>
-			<positionZ>0.0307234377</positionZ>
-			<yaw>-402.503143</yaw>
-			<pitch>-11.2498255</pitch>
+			<positionX>-1.7854799</positionX>
+			<positionY>0.7954247</positionY>
+			<positionZ>-0.470091552</positionZ>
+			<yaw>-771.703064</yaw>
+			<pitch>-8.99958801</pitch>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

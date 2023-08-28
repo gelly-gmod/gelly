@@ -81,7 +81,7 @@ float FilterDepth(float2 i, float upper, float lower, float stdDev) {
 		return 0;
 	}
 	
-	float filterSize = 9;
+	float filterSize = 3.f;
 	for (int y = -filterSize; y <= filterSize; y++) {
 		for (int x = -filterSize; x <= filterSize; x++) {
 			float2 j = (pixel_i + float2(x, y)) / res;
