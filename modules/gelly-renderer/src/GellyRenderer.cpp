@@ -62,11 +62,11 @@ RendererResources::RendererResources(
 	D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc;
 	ZeroMemory(&depthStencilStateDesc, sizeof(depthStencilStateDesc));
 	// MENTAL RECAP: THIS MAKES EVERYTHING BLACK. WHY?
-	depthStencilStateDesc.DepthEnable = true;
+	depthStencilStateDesc.DepthEnable = false;
 	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_GREATER;
 
-	depthStencilStateDesc.StencilEnable = true;
+	depthStencilStateDesc.StencilEnable = false;
 	depthStencilStateDesc.StencilReadMask = 0xFF;
 	depthStencilStateDesc.StencilWriteMask = 0xFF;
 
@@ -130,7 +130,7 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 	resources = new RendererResources(device.Get(), params);
 
 	camera.SetPerspective(
-		45, (float)params.width / (float)params.height, 1.f, 100.0f
+		80, (float)params.width / (float)params.height, 1.0f, 100.0f
 	);
 	camera.SetPosition(0.0f, 0.0f, 0.0f);
 	camera.SetRotation(0.0f, 0.0f, 0.0f);

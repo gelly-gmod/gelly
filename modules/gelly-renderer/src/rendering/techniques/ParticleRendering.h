@@ -9,8 +9,8 @@
 struct PerFrameCBuffer {
 	XMFLOAT2 res;
 	XMFLOAT2 padding;  // Required for 16-byte alignment.
-	XMFLOAT4X4 view;
 	XMFLOAT4X4 projection;
+	XMFLOAT4X4 view;
 };
 
 /**

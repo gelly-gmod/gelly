@@ -1,5 +1,7 @@
 #include <detail/Camera.h>
 
+#include <cstdio>
+
 Camera::Camera() : view{}, projection{} {
 	XMStoreFloat4x4(&view, XMMatrixIdentity());
 	XMStoreFloat4x4(&projection, XMMatrixIdentity());
@@ -15,10 +17,11 @@ void Camera::InvalidateView() {
 
 	XMStoreFloat4x4(
 		&view,
-		XMMatrixTranspose(
+		XMMatrixTranspose(XMMatrixInverse(
+			nullptr,
 			XMMatrixTranslationFromVector(pos) *
-			XMMatrixRotationRollPitchYawFromVector(rot)
-		)
+				XMMatrixRotationRollPitchYawFromVector(rot)
+		))
 	);
 }
 

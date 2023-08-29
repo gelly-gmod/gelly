@@ -46,7 +46,7 @@ int main() {
 		}
 
 		yaw += 0.01f;
-		renderer->camera.SetRotation(0.f, yaw, yaw);
+		renderer->camera.SetRotation(0.0f, fmodf(yaw, 360.f), 0.0f);
 		renderer->SetActiveParticles(31);
 		renderer->Render();
 		d3d9Renderer.Render();

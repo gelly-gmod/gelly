@@ -110,8 +110,8 @@ void ParticleRendering::RunForFrame(
 		PerFrameCBuffer perFrameData = {
 			.res = {rts->width, rts->height},
 			.padding = {},
-			.view = camera.GetViewMatrix(),
-			.projection = camera.GetProjectionMatrix()};
+			.projection = camera.GetProjectionMatrix(),
+			.view = camera.GetViewMatrix()};
 
 		perFrameCBuffer.Set(context, &perFrameData);
 	}
@@ -119,6 +119,10 @@ void ParticleRendering::RunForFrame(
 	// Clear the RTs
 	float emptyColor[4] = {0.f, 0.f, 0.f, 1.f};
 	context->ClearRenderTargetView(rts->normal.Get(), emptyColor);
+	// Clear the depth buffer
+	context->ClearDepthStencilView(
+		rts->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
+	);
 
 	// Bind the RTs
 	// TODO: implement normals
