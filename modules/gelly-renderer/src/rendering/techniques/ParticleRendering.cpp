@@ -56,7 +56,7 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 	inputLayout[0] = {
 		"SV_Position",
 		0,
-		DXGI_FORMAT_R32G32B32_FLOAT,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
 		0,
 		D3D11_APPEND_ALIGNED_ELEMENT,
 		D3D11_INPUT_PER_VERTEX_DATA,
@@ -76,10 +76,10 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 		// Random particle data
 		for (int i = 0; i < maxParticles; i++) {
 			initPositions[i] = {
-				(float)rand() / (float)RAND_MAX * 2.f,
-				(float)rand() / (float)RAND_MAX * 12.f,
-				(float)rand() / (float)RAND_MAX * 23.f,
-				0.0f};
+				rand() / (float)RAND_MAX,
+				rand() / (float)RAND_MAX,
+				rand() / (float)RAND_MAX,
+				1.f};
 		}
 
 		initData.pSysMem = initPositions;
@@ -117,13 +117,13 @@ void ParticleRendering::RunForFrame(
 	}
 
 	// Clear the RTs
-	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
+	float emptyColor[4] = {0.f, 0.f, 0.f, 1.f};
 	context->ClearRenderTargetView(rts->normal.Get(), emptyColor);
 
 	// Bind the RTs
 	// TODO: implement normals
 	ID3D11RenderTargetView *renderTargets[1] = {rts->normal.Get()};
-	context->OMSetRenderTargets(1, renderTargets, nullptr);
+	context->OMSetRenderTargets(1, renderTargets, rts->dsv.Get());
 
 	// Bind the particle buffer
 	UINT stride = sizeof(ParticlePoint);
@@ -139,6 +139,8 @@ void ParticleRendering::RunForFrame(
 	context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	context->GSSetShader(geometryShader.Get(), nullptr, 0);
 	context->PSSetShader(pixelShader.Get(), nullptr, 0);
+
+	perFrameCBuffer.BindToShaders(context, 0);
 
 	context->Draw(activeParticles, 0);
 	context->Flush();

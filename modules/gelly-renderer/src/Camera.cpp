@@ -10,8 +10,8 @@ Camera::Camera() : view{}, projection{} {
 // but DirectXMath uses row-major order.
 
 void Camera::InvalidateView() {
-	XMVECTOR pos = XMLoadFloat3(&position);
-	XMVECTOR rot = XMLoadFloat3(&rotation);
+	auto pos = XMLoadFloat3(&position);
+	auto rot = XMLoadFloat3(&rotation);
 
 	XMStoreFloat4x4(
 		&view,
@@ -45,7 +45,7 @@ void Camera::SetRotation(float x, float y, float z) {
 }
 
 void Camera::SetPerspective(float fov, float aspect, float nearZ, float farZ) {
-	perspective = {fov, aspect, nearZ, farZ};
+	perspective = {XMConvertToRadians(fov), aspect, nearZ, farZ};
 	InvalidateProjection();
 }
 

@@ -37,6 +37,66 @@ RendererResources::RendererResources(
 		   &normalRTVDesc,
 		   gbuffer.normalRTV.GetAddressOf()
 	   ));
+
+	// Create depth stencil buffer
+
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+	depthStencilDesc.Width = params.width;
+	depthStencilDesc.Height = params.height;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+	DX("Failed to create depth buffer",
+	   device->CreateTexture2D(
+		   &depthStencilDesc, nullptr, depthStencil.buffer.GetAddressOf()
+	   ));
+
+	// Stencil state
+	D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc;
+	ZeroMemory(&depthStencilStateDesc, sizeof(depthStencilStateDesc));
+	// MENTAL RECAP: THIS MAKES EVERYTHING BLACK. WHY?
+	depthStencilStateDesc.DepthEnable = true;
+	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+
+	depthStencilStateDesc.StencilEnable = true;
+	depthStencilStateDesc.StencilReadMask = 0xFF;
+	depthStencilStateDesc.StencilWriteMask = 0xFF;
+
+	depthStencilStateDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilStateDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	depthStencilStateDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilStateDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilStateDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	DX("Failed to create depth stencil state",
+	   device->CreateDepthStencilState(
+		   &depthStencilStateDesc, depthStencil.state.GetAddressOf()
+	   ));
+
+	// Depth stencil view
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+
+	DX("Failed to create depth stencil view",
+	   device->CreateDepthStencilView(
+		   depthStencil.buffer.Get(), &dsvDesc, depthStencil.view.GetAddressOf()
+	   ));
 }
 
 GellyRenderer::GellyRenderer(const RendererInitParams &params)
@@ -70,7 +130,7 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 	resources = new RendererResources(device.Get(), params);
 
 	camera.SetPerspective(
-		0.5, (float)params.width / (float)params.height, 0.01f, 1000.0f
+		45, (float)params.width / (float)params.height, 1.f, 100.0f
 	);
 	camera.SetPosition(0.0f, 0.0f, 0.0f);
 	camera.SetRotation(0.0f, 0.0f, 0.0f);
@@ -96,11 +156,18 @@ void GellyRenderer::Render() {
 	viewport.TopLeftY = 0;
 
 	deviceContext->RSSetViewports(1, &viewport);
+	deviceContext->RSSetState(rasterizerState.Get());
+
+	// Set depth state
+	deviceContext->OMSetDepthStencilState(
+		resources->depthStencil.state.Get(), 1
+	);
 
 	TechniqueRTs rts{// float2 for compatability with SHADERed.
 					 .width = static_cast<float>(params.width),
 					 .height = static_cast<float>(params.height),
-					 .normal = resources->gbuffer.normalRTV.Get()};
+					 .normal = resources->gbuffer.normalRTV.Get(),
+					 .dsv = resources->depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts, camera);

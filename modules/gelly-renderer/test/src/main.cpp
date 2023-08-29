@@ -38,13 +38,16 @@ int main() {
 	GellyRenderer *renderer = GellyRenderer_Create(gellyParams);
 
 	bool quit = false;
+	float yaw = 0.f;
 	while (!quit) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) quit = true;
 		}
 
-		renderer->SetActiveParticles(10);
+		yaw += 0.01f;
+		renderer->camera.SetRotation(0.f, yaw, yaw);
+		renderer->SetActiveParticles(31);
 		renderer->Render();
 		d3d9Renderer.Render();
 #ifdef _DEBUG

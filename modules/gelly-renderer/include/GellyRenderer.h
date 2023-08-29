@@ -34,6 +34,12 @@ public:
 		ComPtr<ID3D11RenderTargetView> normalRTV;
 	} gbuffer;
 
+	struct {
+		ComPtr<ID3D11DepthStencilView> view;
+		ComPtr<ID3D11Texture2D> buffer;
+		ComPtr<ID3D11DepthStencilState> state;
+	} depthStencil;
+
 	RendererResources(ID3D11Device *device, const RendererInitParams &params);
 	~RendererResources() = default;
 };
@@ -49,7 +55,6 @@ private:
 	ComPtr<ID3D11Buffer> particles;
 
 	RendererResources *resources;
-	Camera camera;
 	RendererInitParams params;
 
 	struct {
@@ -64,6 +69,8 @@ private:
 	void InitializePipeline();
 
 public:
+	Camera camera;
+
 	/**
 	 * This retrieves the D3D11 buffer which contains the particle data.
 	 * @note This is meant for doing GPU-GPU copying with FleX.

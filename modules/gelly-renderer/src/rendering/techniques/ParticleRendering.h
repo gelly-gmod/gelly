@@ -33,7 +33,7 @@ private:
 	ConstantBuffer<PerFrameCBuffer> perFrameCBuffer;
 
 public:
-	int activeParticles;
+	int activeParticles{};
 
 	ParticleRendering(ID3D11Device *device, int maxParticles);
 	~ParticleRendering() override = default;
