@@ -77,6 +77,8 @@ public:
 	 * @return
 	 */
 	[[nodiscard]] ID3D11Buffer *GetD3DParticleBuffer() const;
+	[[nodiscard]] ID3D11Device *GetD3DDevice() const;
+
 	void Render();
 
 #ifdef _DEBUG

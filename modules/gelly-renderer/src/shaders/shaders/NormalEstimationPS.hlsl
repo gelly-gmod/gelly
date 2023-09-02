@@ -42,7 +42,7 @@ float3 EstimateNormal(float2 i) {
 	}
 	
 	// Construct the normal vector
-	float3 gradient = float3(ddxDepth, ddyDepth, 0.001f);
+	float3 gradient = float3(ddxDepth, ddyDepth, 0.01f);
 	
 	// Invert the gradient to get the normal vector (assuming positive depth is towards the camera).
 	float3 normal = gradient;
@@ -55,5 +55,4 @@ float3 EstimateNormal(float2 i) {
 
 float4 main(VS_OUTPUT input) : SV_TARGET {
 	return float4(EstimateNormal(input.Texcoord), 1.0f);
-	// return float4(depth.Sample(DepthSampler, input.Texcoord));
 }

@@ -1,62 +1,50 @@
+#include "MeshConvert.h"
+// clang-format off
 #include <stdexcept>
 #include <BSPParser.h>
-#include "MeshConvert.h"
 #include <GellyScene.h>
+// clang-format on
 
-MeshUploadInfo MeshConvert_LoadBSP(uint8_t* data, size_t dataSize) {
-    BSPMap parsedMap(data, dataSize, false); // FleX considers CCW triangles to be front-facing, so we need to flip them
-    if (!parsedMap.IsValid()) {
-        throw std::runtime_error("Invalid map data");
-    }
+MeshUploadInfo MeshConvert_LoadBSP(uint8_t *data, size_t dataSize) {
+	BSPMap parsedMap(data, dataSize);  // FleX considers CCW triangles to be
+									   // front-facing, so we need to flip them
+	if (!parsedMap.IsValid()) {
+		throw std::runtime_error("Invalid map data");
+	}
 
-    MeshUploadInfo info{};
-    info.vertexCount = static_cast<int>(parsedMap.GetNumTris()) * 3;
-    info.indexCount = info.vertexCount;
+	// MENTAL RECAP: THIS IS NOT COLLIDING WITH PARTICLES CORRECTLY! ITS ALL
+	// MESSED UP.
 
-    info.vertices = new Vec3[info.vertexCount];
-    info.indices = new int[info.indexCount];
+	MeshUploadInfo info{};
+	info.vertexCount = static_cast<int>(parsedMap.GetNumTris()) * 3;
+	info.indexCount = info.vertexCount;
 
-    memcpy(info.vertices, parsedMap.GetVertices(), sizeof(Vec3) * info.vertexCount);
+	info.vertices = new Vec3[info.vertexCount];
+	info.indices = new int[info.indexCount];
 
-    for (int i = 0; i < info.indexCount; i++) {
-        info.indices[i] = i;
-    }
+	memcpy(
+		info.vertices, parsedMap.GetVertices(), sizeof(Vec3) * info.vertexCount
+	);
 
-    Vec3 upper = Vec3{0, 0, 0};
-    Vec3 lower = Vec3{0, 0, 0};
+	for (int i = 0; i < info.indexCount; i += 3) {
+		info.indices[i] = i + 2;
+		info.indices[i + 1] = i + 1;
+		info.indices[i + 2] = i;
+	}
 
-    for (int i = 0; i < info.vertexCount; i++) {
-        Vec3 vertex = info.vertices[i];
-        if (vertex.x > upper.x) {
-            upper.x = vertex.x;
-        }
-        if (vertex.y > upper.y) {
-            upper.y = vertex.y;
-        }
-        if (vertex.z > upper.z) {
-            upper.z = vertex.z;
-        }
-        if (vertex.x < lower.x) {
-            lower.x = vertex.x;
-        }
-        if (vertex.y < lower.y) {
-            lower.y = vertex.y;
-        }
-        if (vertex.z < lower.z) {
-            lower.z = vertex.z;
-        }
-    }
+	Vec3 upper = Vec3{16384, 16384, 16384};
+	Vec3 lower = Vec3{-16384, -16384, -16384};
 
-    info.upper = upper;
-    info.lower = lower;
+	info.upper = upper;
+	info.lower = lower;
 
-    return info;
+	return info;
 }
 
-void MeshConvert_FreeBSP(MeshUploadInfo& info) {
-    delete[] info.vertices;
-    delete[] info.indices;
+void MeshConvert_FreeBSP(MeshUploadInfo &info) {
+	delete[] info.vertices;
+	delete[] info.indices;
 
-    info.vertices = nullptr;
-    info.indices = nullptr;
+	info.vertices = nullptr;
+	info.indices = nullptr;
 }

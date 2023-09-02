@@ -8,15 +8,14 @@ class Camera {
 private:
 	XMFLOAT4X4 view{};
 	XMFLOAT4X4 projection{};
-	XMFLOAT3 position{};
-	XMFLOAT3 rotation{};
-	/**
-	 * The x component is the field of view in radians.
-	 * The y component is the aspect ratio.
-	 * The z component is the near plane.
-	 * The w component is the far plane.
-	 */
-	XMVECTOR perspective{};
+	XMFLOAT3 eye{};
+	XMFLOAT3 direction{};
+
+	float fov;
+	float width;
+	float height;
+	float nearZ;
+	float farZ;
 
 	void InvalidateView();
 	void InvalidateProjection();
@@ -27,14 +26,13 @@ public:
 
 	void SetPosition(float x, float y, float z);
 	/**
-	 * @note The given angles are expected to be in radians.
-	 * @param x Rotation around the x axis.
-	 * @param y Rotation around the y axis.
-	 * @param z Rotation around the z axis.
+	 * @note Expected to be the forward vector of the camera.
 	 */
-	void SetRotation(float x, float y, float z);
+	void SetDirection(float x, float y, float z);
 
-	void SetPerspective(float fov, float aspect, float nearZ, float farZ);
+	void SetPerspective(
+		float fov, float width, float height, float nearZ, float farZ
+	);
 
 	[[nodiscard]] XMFLOAT4X4 GetViewMatrix() const;
 	[[nodiscard]] XMFLOAT4X4 GetProjectionMatrix() const;

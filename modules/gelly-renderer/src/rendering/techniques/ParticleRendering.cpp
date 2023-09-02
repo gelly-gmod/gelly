@@ -117,7 +117,7 @@ void ParticleRendering::RunForFrame(
 	}
 
 	// Clear the RTs
-	float emptyColor[4] = {0.f, 0.f, 0.f, 1.f};
+	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
 	context->ClearRenderTargetView(rts->normal.Get(), emptyColor);
 	// Clear the depth buffer
 	context->ClearDepthStencilView(

@@ -1,47 +1,141 @@
 #include "Gelly.h"
+
 #include <GMFS.h>
 
-// TODO: MENTAL RECAP: THIS SHIT IS JUST EXITING. WHY? I DONT KNOW.
-Gelly::Gelly(const GellyInitParams &params) :
-    scene(GellyEngine_CreateScene(params.maxParticles, params.maxColliders)),
-    renderer(GellyRenderer_Create({
-        .maxParticles = params.maxParticles,
-        .width = params.width,
-        .height = params.height,
-        .sharedTextures = params.sharedTextures
-    })) {
-    scene->RegisterD3DBuffer(renderer->GetD3DParticleBuffer(), params.maxParticles, sizeof(Vec4));
+// Doesn't work on the main thraed.
+Gelly::Gelly(const GellyInitParams &params)
+	: scene(nullptr),
+	  renderer(nullptr),
+	  mainToThread(0),
+	  threadToMain(0),
+	  thread(&Gelly::InitThreaded, this, params),
+	  message(nullptr) {
+	thread.detach();
 }
 
 Gelly::~Gelly() {
-    GellyRenderer_Destroy(renderer);
-    GellyEngine_DestroyScene(scene);
+	GellyRenderer_Destroy(renderer);
+	GellyEngine_DestroyScene(scene);
 }
 
 void Gelly::LoadMap(const char *mapName) {
-    char fullMapPath[256];
-    sprintf_s(fullMapPath, "maps/%s.bsp", mapName);
+	char fullMapPath[256];
+	sprintf_s(fullMapPath, "maps/%s.bsp", mapName);
 
-    if (!FileSystem::Exists(fullMapPath)) {
-        return;
-    }
+	if (!FileSystem::Exists(fullMapPath, "GAME")) {
+		return;
+	}
 
-    FileHandle_t file = FileSystem::Open(fullMapPath, "rb");
-    uint32_t size = FileSystem::Size(file);
-    auto* buffer = static_cast<uint8_t *>(malloc(size));
-    FileSystem::Read(buffer, FileSystem::Size(file), file);
-    scene->AddBSP(mapName, buffer, size);
-    free(buffer);
-    FileSystem::Close(file);
+	FileHandle_t file = FileSystem::Open(fullMapPath, "rb");
+	uint32_t size = FileSystem::Size(file);
+	auto *buffer = static_cast<uint8_t *>(malloc(size));
+	FileSystem::Read(buffer, FileSystem::Size(file), file);
+	scene->EnterGPUWork();
+	scene->AddBSP(mapName, buffer, size);
+	scene->colliders.Update();
+	scene->ExitGPUWork();
+	free(buffer);
+	FileSystem::Close(file);
 }
 
 void Gelly::Update(float deltaTime) {
-    scene->EnterGPUWork();
-    scene->colliders.Update();
-    scene->ExitGPUWork();
-    scene->Update(deltaTime);
+	scene->EnterGPUWork();
+	scene->colliders.Update();
+	scene->ExitGPUWork();
+	scene->Update(deltaTime);
 }
 
 void Gelly::Render() {
-    renderer->Render();
+	renderer->SetActiveParticles(scene->GetCurrentParticleCount());
+	renderer->Render();
+}
+
+void Gelly::AddParticle(Vec4 position, Vec3 velocity) {
+	scene->EnterGPUWork();
+	scene->AddParticle(position, velocity);
+	scene->ExitGPUWork();
 };
+
+void Gelly::SetupCamera(
+	float fov, float width, float height, float nearZ, float farZ
+) {
+	renderer->camera.SetPerspective(fov, width, height, nearZ, farZ);
+}
+
+void Gelly::SyncCamera(Vec3 position, Vec3 dir) {
+	renderer->camera.SetPosition(position.x, position.y, position.z);
+	renderer->camera.SetDirection(dir.x, dir.y, dir.z);
+}
+
+[[noreturn]] void Gelly::InitThreaded(
+	Gelly *gelly, const GellyInitParams &params
+) {
+	RendererInitParams rendererParams{
+		.maxParticles = params.maxParticles,
+		.width = params.width,
+		.height = params.height,
+		.sharedTextures = params.sharedTextures};
+
+	gelly->renderer = GellyRenderer_Create(rendererParams);
+	gelly->scene = GellyEngine_CreateScene(
+		params.maxParticles,
+		params.maxColliders,
+		gelly->renderer->GetD3DDevice()
+	);
+	gelly->scene->RegisterD3DBuffer(
+		gelly->renderer->GetD3DParticleBuffer(),
+		params.maxParticles,
+		sizeof(Vec4)
+	);
+
+	while (true) {
+		// Wait for a signal
+		gelly->mainToThread.acquire();
+		// Process the message
+		gelly->ProcessMessage();
+		// Signal the main thread that we're done
+		gelly->threadToMain.release();
+	}
+}
+
+void Gelly::SendGellyMessage(GellyMessage &newMessage) {
+	message = &newMessage;
+	mainToThread.release();
+	threadToMain.acquire();
+	message = nullptr;
+}
+
+void Gelly::ProcessMessage() {
+	switch (message->type) {
+		case GellyMessage::LoadMap:
+			LoadMap(message->loadMap.mapName);
+			break;
+		case GellyMessage::Update:
+			Update(message->update.deltaTime);
+			break;
+		case GellyMessage::Render:
+			Render();
+			break;
+		case GellyMessage::AddParticle:
+			AddParticle(
+				message->addParticle.position, message->addParticle.velocity
+			);
+			break;
+		case GellyMessage::SetupCamera:
+			SetupCamera(
+				message->setupCamera.fov,
+				message->setupCamera.width,
+				message->setupCamera.height,
+				message->setupCamera.nearZ,
+				message->setupCamera.farZ
+			);
+			break;
+		case GellyMessage::SyncCamera:
+			SyncCamera(
+				message->syncCamera.position, message->syncCamera.direction
+			);
+			break;
+		default:
+			break;
+	}
+}

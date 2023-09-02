@@ -1,3 +1,8 @@
+// Basic particle splatting geometry shader
+// References:
+// https://github.com/NVIDIAGameWorks/FleX/blob/master/demo/d3d/shaders/pointPS.hlsl
+// https://stackoverflow.com/questions/8608844/resizing-point-sprites-based-on-distance-from-the-camera
+
 cbuffer cbPerFrame : register(b0) {
 	float2 res;
 	float2 padding;
@@ -8,46 +13,42 @@ cbuffer cbPerFrame : register(b0) {
 #endif
 };
 
-
 struct GS_OUTPUT {
 	float4 Position : SV_Position;
 	float4 Center : CENTER;
 	float2 Texcoord : TEXCOORD;
-	float Depth : DEPTH;
 };
 
-struct VS_INPUT {
-	float4 Position : SV_Position;
+struct VS_OUTPUT {
+	// We don't require a position output, but most renderers will shriek if it's missing
+	float4 Pos : SV_Position;
+	// This is what the GS consumes primarily, and it's just this vertex's position in view space to prevent things like the size being affected by the camera's position or distortion.
+	float4 ViewPos : VIEWPOS;
 };
 
-[maxvertexcount(4)]
-void main(point VS_INPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
-	float scale = 0.1f;
+static const float2 corners[4] = {
+	float2(0.0, 1.0), float2(0.0, 0.0), float2(1.0, 1.0), float2(1.0, 0.0)
+};
+
+float4 ToClip(in float4 pos) {
+    return mul(pos, matProj);
+}
+
+[maxvertexcount(4)] void main(
+	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
+) {
+	float particleScale = 8.f;
+
+	for (int i = 0; i < 4; i++) {
+		float2 corner = corners[i];
+
+		GS_OUTPUT output = (GS_OUTPUT)0;
+		float4 cornerViewPos = input[0].ViewPos;
+		cornerViewPos.xy += particleScale * (corner - float2(0.5, 0.5));
+		output.Position = ToClip(cornerViewPos);
+		output.Center = input[0].ViewPos;
+		output.Texcoord = corner;
 	
-#ifdef SHADERED
-	float4 origin = mul(mul(input[0].Position, matGeo), matView);
-#else
-	float4 origin = mul(input[0].Position, matView);
-#endif
-
-    float2 topLeft = float2(-scale, -scale);
-    float2 topRight = float2(scale, -scale);
-    float2 bottomLeft = float2(-scale, scale);
-    float2 bottomRight = float2(scale, scale);
-    
-    
-	GS_OUTPUT output = (GS_OUTPUT)0;
-	output.Center = origin;
-	output.Position = mul(origin + float4(topLeft, 0.0f, 0.0f), matProj);
-	output.Texcoord = float2(0, 0);
-	stream.Append(output);
-	output.Position = mul(origin + float4(topRight, 0.0f, 0.0f), matProj);
-	output.Texcoord = float2(1, 0);
-	stream.Append(output);
-	output.Position = mul(origin + float4(bottomLeft, 0.0f, 0.0f), matProj);
-	output.Texcoord = float2(0, 1);
-	stream.Append(output);
-	output.Position = mul(origin + float4(bottomRight, 0.0f, 0.0f), matProj);
-	output.Texcoord = float2(1, 1);
-	stream.Append(output);
+		stream.Append(output);
+	}
 }

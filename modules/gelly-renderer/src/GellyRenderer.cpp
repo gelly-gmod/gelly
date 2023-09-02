@@ -107,7 +107,7 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 	  pipeline({}) {
 	D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_1};
 
-	UINT flags = 0;
+	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
 #ifdef _DEBUG
 	flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -130,10 +130,11 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 	resources = new RendererResources(device.Get(), params);
 
 	camera.SetPerspective(
-		80, (float)params.width / (float)params.height, 1.0f, 100.0f
+		80, (float)params.width, (float)params.height, 1.0f, 100.0f
 	);
+	
+	camera.SetDirection(0.0f, 0.0f, 1.0f);
 	camera.SetPosition(0.0f, 0.0f, 0.0f);
-	camera.SetRotation(0.0f, 0.0f, 0.0f);
 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
@@ -210,13 +211,15 @@ void GellyRenderer::PrintDebugMessages() {
 void GellyRenderer::InitializePipeline() {
 	auto *particleRendering =
 		new ParticleRendering(device.Get(), params.maxParticles);
-	particles = particleRendering->GetParticleBuffer();
+	particles.Attach(particleRendering->GetParticleBuffer());
 	pipeline.particleRendering = particleRendering;
 }
 
 void GellyRenderer::SetActiveParticles(int newActiveParticles) {
 	activeParticles = newActiveParticles;
 }
+
+ID3D11Device *GellyRenderer::GetD3DDevice() const { return device.Get(); }
 
 GellyRenderer *GellyRenderer_Create(const RendererInitParams &params) {
 	return new GellyRenderer(params);

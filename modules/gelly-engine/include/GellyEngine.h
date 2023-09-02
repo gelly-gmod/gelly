@@ -3,8 +3,10 @@
 
 #include "GellyScene.h"
 
-GellyScene *GellyEngine_CreateScene(int maxParticles, int maxColliders);
+GellyScene *GellyEngine_CreateScene(
+	int maxParticles, int maxColliders, void *d3d11Device = nullptr
+);
 
 void GellyEngine_DestroyScene(GellyScene *scene);
 
-#endif //GELLY_GELLYENGINE_H
+#endif	// GELLY_GELLYENGINE_H
