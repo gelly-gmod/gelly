@@ -1,42 +1,45 @@
 #include <GellyRenderer.h>
 
 #include "detail/ErrorHandling.h"
+#include "rendering/techniques/NormalSmoothing.h"
 #include "rendering/techniques/ParticleRendering.h"
+
+#define GET_SHARED_RESOURCE(handlePath)                            \
+	ID3D11Resource *handlePath##Resource = nullptr;                \
+	DX("Failed to open the texture in D3D11 from D3D9!",           \
+	   device->OpenSharedResource(                                 \
+		   *params.sharedTextures.handlePath,                      \
+		   __uuidof(ID3D11Resource),                               \
+		   (void **)&handlePath##Resource                          \
+	   ));                                                         \
+	DX("Failed to query D3D11Texture2D from the shared resource!", \
+	   handlePath##Resource->QueryInterface(                       \
+		   __uuidof(ID3D11Texture2D),                              \
+		   (void **)gbuffer.handlePath.GetAddressOf()              \
+	   ));                                                         \
+	DX("Failed to release the shared resource!",                   \
+	   handlePath##Resource->Release());
+
+#define MAKE_SHARED_RTV(name, fmt)                                           \
+	D3D11_RENDER_TARGET_VIEW_DESC name##Desc;                                \
+	name##Desc.Format = fmt;                                                 \
+	name##Desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;                \
+	name##Desc.Texture2D.MipSlice = 0;                                       \
+	DX("Failed to make " #name " RTV",                                       \
+	   device->CreateRenderTargetView(                                       \
+		   gbuffer.name.Get(), &name##Desc, gbuffer.name##RTV.GetAddressOf() \
+	   ));
 
 RendererResources::RendererResources(
 	ID3D11Device *device, const RendererInitParams &params
 )
-	: gbuffer({.normal = nullptr}) {
-	ID3D11Resource *normalResource = nullptr;
-	DX("Failed to open the texture in D3D11 from D3D9!",
-	   device->OpenSharedResource(
-		   *params.sharedTextures.normal,
-		   __uuidof(ID3D11Resource),
-		   (void **)&normalResource
-	   ));
+	: gbuffer({.depth = nullptr, .normal = nullptr}) {
+	GET_SHARED_RESOURCE(normal)
+	GET_SHARED_RESOURCE(depth)
 
-	DX("Failed to query D3D11Texture2D from the shared resource!",
-	   normalResource->QueryInterface(
-		   __uuidof(ID3D11Texture2D), (void **)gbuffer.normal.GetAddressOf()
-	   ));
-
-	DX("Failed to release the shared resource!", normalResource->Release());
-
-	// Create render target views for the gbuffer textures
-
-	D3D11_RENDER_TARGET_VIEW_DESC normalRTVDesc;
-	ZeroMemory(&normalRTVDesc, sizeof(normalRTVDesc));
-
-	normalRTVDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	normalRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	normalRTVDesc.Texture2D.MipSlice = 0;
-
-	DX("Failed to make normal RTV",
-	   device->CreateRenderTargetView(
-		   gbuffer.normal.Get(),
-		   &normalRTVDesc,
-		   gbuffer.normalRTV.GetAddressOf()
-	   ));
+	MAKE_SHARED_RTV(normal, DXGI_FORMAT_R16G16B16A16_FLOAT)
+	// Soon we'll encode stuff like colors maybe into the extra 3 channels.
+	MAKE_SHARED_RTV(depth, DXGI_FORMAT_R16G16B16A16_FLOAT)
 
 	// Create depth stencil buffer
 
@@ -62,9 +65,9 @@ RendererResources::RendererResources(
 	D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc;
 	ZeroMemory(&depthStencilStateDesc, sizeof(depthStencilStateDesc));
 	// MENTAL RECAP: THIS MAKES EVERYTHING BLACK. WHY?
-	depthStencilStateDesc.DepthEnable = false;
+	depthStencilStateDesc.DepthEnable = true;
 	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_GREATER;
+	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
 	depthStencilStateDesc.StencilEnable = false;
 	depthStencilStateDesc.StencilReadMask = 0xFF;
@@ -126,13 +129,13 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 		   deviceContext.GetAddressOf()
 	   ));
 
-	InitializePipeline();
 	resources = new RendererResources(device.Get(), params);
+	InitializePipeline();
 
 	camera.SetPerspective(
 		80, (float)params.width, (float)params.height, 1.0f, 100.0f
 	);
-	
+
 	camera.SetDirection(0.0f, 0.0f, 1.0f);
 	camera.SetPosition(0.0f, 0.0f, 0.0f);
 
@@ -167,11 +170,13 @@ void GellyRenderer::Render() {
 	TechniqueRTs rts{// float2 for compatability with SHADERed.
 					 .width = static_cast<float>(params.width),
 					 .height = static_cast<float>(params.height),
+					 .depth = resources->gbuffer.depthRTV.Get(),
 					 .normal = resources->gbuffer.normalRTV.Get(),
 					 .dsv = resources->depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts, camera);
+	pipeline.normalEstimation->RunForFrame(deviceContext.Get(), &rts, camera);
 }
 
 ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
@@ -213,6 +218,15 @@ void GellyRenderer::InitializePipeline() {
 		new ParticleRendering(device.Get(), params.maxParticles);
 	particles.Attach(particleRendering->GetParticleBuffer());
 	pipeline.particleRendering = particleRendering;
+
+	auto *normalEstimation = new NormalSmoothing(
+		device.Get(),
+		params.width,
+		params.height,
+		resources->gbuffer.depth.Get()
+	);
+
+	pipeline.normalEstimation = normalEstimation;
 }
 
 void GellyRenderer::SetActiveParticles(int newActiveParticles) {

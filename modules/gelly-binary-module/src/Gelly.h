@@ -3,9 +3,13 @@
 
 #include <GellyEngine.h>
 #include <GellyRenderer.h>
+#include <d3d9.h>
+#include <wrl.h>
 
 #include <mutex>
 #include <semaphore>
+
+using namespace Microsoft::WRL;
 
 struct GellyInitParams {
 	int maxParticles;
@@ -44,11 +48,44 @@ struct GellyMessage {
 	};
 };
 
+class RendererCompositor {
+private:
+	IDirect3DDevice9 *device;
+	ComPtr<IDirect3DVertexBuffer9> screenQuad;
+	// no declaration needed, we use FVF instead
+
+	struct NDCVertex {
+		// It's not in viewport space, but in NDC space.
+
+		static const DWORD FVF = D3DFVF_XYZW | D3DFVF_TEX1;
+		float x, y, z, w;
+		float u, v;
+	};
+
+	ComPtr<IDirect3DVertexShader9> vertexShader;
+	ComPtr<IDirect3DPixelShader9> pixelShader;
+
+	// We're not using a ComPtr here because this is meant to be owned
+	// by Gelly. There should be nothing happening with the ref count.
+	IDirect3DTexture9 *depthTexture;
+
+	void CreateScreenQuad();
+	void CreateShaders();
+	void BindShaderResources();
+
+public:
+	explicit RendererCompositor(
+		IDirect3DDevice9 *device, IDirect3DTexture9 *depthTexture
+	);
+	~RendererCompositor() = default;
+	void Composite();
+};
+
 /**
  * Gelly is a threaded wrapper of GellyScene and GellyRenderer.
- * It integrates both of them together, but uses a separate thread for any of
- * the work due to how Garry's Mod works. (it simply doesn't work on the main
- * thread)
+ * It integrates both of them together, but uses a separate thread for any
+ * of the work due to how Garry's Mod works. (it simply doesn't work on the
+ * main thread)
  */
 class Gelly {
 private:
@@ -85,7 +122,13 @@ private:
 	void Render();
 
 public:
-	explicit Gelly(const GellyInitParams &params);
+	RendererCompositor compositor;
+
+	explicit Gelly(
+		const GellyInitParams &params,
+		IDirect3DDevice9 *device,
+		IDirect3DTexture9 *depthTexture
+	);
 	/**
 	 * Initializes Gelly on a separate thread. This is called in the
 	 * constructor, but ran on a different thread due to technical limitations.

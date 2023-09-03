@@ -16,7 +16,7 @@ Camera::Camera() : view{}, projection{} {
 void Camera::InvalidateView() {
 	// Source engine view calculation, see here:
 	// https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/se2007/game/client/view.cpp#L191
-	
+
 	auto pos = XMLoadFloat3(&eye);
 	auto dir = XMLoadFloat3(&direction);
 	auto upWorld = XMVectorSet(0.f, 0.f, 1.f, 1.f);
@@ -44,6 +44,9 @@ void Camera::InvalidateView() {
 	matCamInverse.m[3][3] = 1.0F;
 
 	XMStoreFloat4x4(&view, (XMLoadFloat4x4(&matCamInverse)));
+	XMStoreFloat4x4(
+		&invView, XMMatrixInverse(nullptr, XMLoadFloat4x4(&matCamInverse))
+	);
 }
 
 void Camera::InvalidateProjection() {
@@ -63,6 +66,9 @@ void Camera::InvalidateProjection() {
 	matProjection.m[3][2] = -1;
 
 	XMStoreFloat4x4(&projection, (XMLoadFloat4x4(&matProjection)));
+	XMStoreFloat4x4(
+		&invProjection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&matProjection))
+	);
 }
 
 void Camera::SetPosition(float x, float y, float z) {
@@ -90,3 +96,7 @@ void Camera::SetPerspective(
 XMFLOAT4X4 Camera::GetViewMatrix() const { return view; }
 
 XMFLOAT4X4 Camera::GetProjectionMatrix() const { return projection; }
+
+XMFLOAT4X4 Camera::GetInvProjectionMatrix() const { return invProjection; }
+
+XMFLOAT4X4 Camera::GetInvViewMatrix() const { return invView; }

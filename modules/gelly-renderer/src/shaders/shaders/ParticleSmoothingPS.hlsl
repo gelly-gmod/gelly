@@ -5,8 +5,8 @@ cbuffer cbPerFrame : register(b0) {
 	float2 padding;
 	float4x4 matProj;
 	float4x4 matView;
+	float4x4 matInvProj;
 };
-
 
 Texture2D depth : register(t0);
 
@@ -40,8 +40,8 @@ float GaussianWeight(float2 i, float2 j, float stdDev) {
 * From equation 3
 */
 float ComputeFilterWeight(float2 i, float2 j, float stdDev, float upperDepth) {
-	float depth_i = depth.Sample(DepthSampler, i).x;
-	float depth_j = depth.Sample(DepthSampler, j).x;
+	float depth_i = depth.Sample(DepthSampler, i).a;
+	float depth_j = depth.Sample(DepthSampler, j).a;
 	
 	if (depth_j > depth_i + upperDepth) {
 		return 0.f;
@@ -73,25 +73,26 @@ float GetFilterSize(float worldSize, float depth) {
 	return 3 * o_i;
 }
 
-float FilterDepth(float2 i, float upper, float lower, float stdDev) {
+float3 FilterDepth(float2 i, float upper, float lower, float stdDev) {
 	// i can be considered the origin of the filter
 	float2 pixel_i = res * i;
-	float numerator = 0;
-	float denominator = 0;
-	float depth_i = depth.Sample(DepthSampler, i).x;
+	float3 numerator = float3(0, 0, 0);
+	float3 denominator = 0;
+	float depth_i = depth.Sample(DepthSampler, i).a;
 	
 	if (depth_i == 0) {
-		return 0;
+		return float3(0, 0, 0);
 	}
 	
-	float filterSize = 3.f;
+	int filterSize = 5;
 	for (int y = -filterSize; y <= filterSize; y++) {
 		for (int x = -filterSize; x <= filterSize; x++) {
 			float2 j = (pixel_i + float2(x, y)) / res;
 			float weight = ComputeFilterWeight(i, j, stdDev, upper);
 			float clamped = Clamping(depth.Sample(DepthSampler, i).x, depth.Sample(DepthSampler, j).x, upper, lower);
-			
-			numerator += weight * clamped;
+			float4 depth_j = depth.Sample(DepthSampler, j);
+
+			numerator += depth_j.xyz * weight;
 			denominator += weight;
 		}
 	}
@@ -100,6 +101,16 @@ float FilterDepth(float2 i, float upper, float lower, float stdDev) {
 }
 
 float4 main(VS_OUTPUT input) : SV_TARGET {
-	float newDepth = FilterDepth(input.Texcoord, 0.5, -0.1, 0.05);
-	return float4(newDepth);	
+	float depth_i = depth.Sample(DepthSampler, input.Texcoord).a;
+	
+	if (depth_i == 0) {
+		return float4(0, 0, 0, 0);
+	}
+
+	float3 newNormal = depth.Sample(DepthSampler, input.Texcoord).xyz;
+	float3 testDir = mul(float4(0.3, 0.5, 0.9, 0.f), matView).xyz;
+	testDir = normalize(testDir);
+	float lighting = saturate(dot(newNormal, testDir)) * 0.7f;
+
+	return float4(lighting, lighting, lighting, 1.f);
 }

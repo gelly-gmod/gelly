@@ -8,6 +8,9 @@ class Camera {
 private:
 	XMFLOAT4X4 view{};
 	XMFLOAT4X4 projection{};
+	XMFLOAT4X4 invProjection{};
+	XMFLOAT4X4 invView{};
+
 	XMFLOAT3 eye{};
 	XMFLOAT3 direction{};
 
@@ -36,6 +39,8 @@ public:
 
 	[[nodiscard]] XMFLOAT4X4 GetViewMatrix() const;
 	[[nodiscard]] XMFLOAT4X4 GetProjectionMatrix() const;
+	[[nodiscard]] XMFLOAT4X4 GetInvProjectionMatrix() const;
+	[[nodiscard]] XMFLOAT4X4 GetInvViewMatrix() const;
 };
 
 #endif	// GELLY_CAMERA_H

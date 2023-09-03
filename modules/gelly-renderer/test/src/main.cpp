@@ -33,6 +33,7 @@ int main() {
 		.width = 840,
 		.height = 640,
 		.sharedTextures = {
+			.depth = d3d9Renderer.GetInputDepthSharedHandle(),
 			.normal = d3d9Renderer.GetInputNormalSharedHandle()}};
 
 	GellyRenderer *renderer = GellyRenderer_Create(gellyParams);
@@ -46,7 +47,7 @@ int main() {
 		}
 
 		yaw += 0.01f;
-		renderer->camera.SetRotation(0.0f, fmodf(yaw, 360.f), 0.0f);
+		renderer->camera.SetDirection(sinf(yaw), 0.f, cosf(yaw));
 		renderer->SetActiveParticles(31);
 		renderer->Render();
 		d3d9Renderer.Render();

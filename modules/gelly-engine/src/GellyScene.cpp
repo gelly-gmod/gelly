@@ -34,14 +34,14 @@ GellyScene::GellyScene(
 
 	params->gravity[0] = 0.0f;
 	params->gravity[1] = 0.0f;
-	params->gravity[2] = -10.0f;
+	params->gravity[2] = -60.0f;
 
 	params->wind[0] = 0.0f;
 	params->wind[1] = 0.0f;
 	params->wind[2] = 0.0f;
 
-	params->radius = 11.15f;
-	params->viscosity = 60.f;
+	params->radius = 10.15f;
+	params->viscosity = 2.f;
 	params->dynamicFriction = 0.2f;
 	params->staticFriction = 0.0f;
 	params->particleFriction =
@@ -75,9 +75,9 @@ GellyScene::GellyScene(
 	params->relaxationFactor = 1.0f;
 	params->solidPressure = 1.0f;
 	params->adhesion = 0.0f;
-	params->cohesion = 0.05f;
+	params->cohesion = 0.01f;
 	params->surfaceTension = 0.0f;
-	params->vorticityConfinement = 0.0f;
+	params->vorticityConfinement = 50.0f;
 	params->buoyancy = 1.0f;
 	params->diffuseThreshold = 100.0f;
 	params->diffuseBuoyancy = 1.0f;

@@ -11,6 +11,7 @@ cbuffer cbPerFrame : register(b0) {
 #ifdef SHADERED
 	float4x4 matGeo;
 #endif
+	float4x4 matInvProj;
 };
 
 struct GS_OUTPUT {
@@ -37,7 +38,12 @@ float4 ToClip(in float4 pos) {
 [maxvertexcount(4)] void main(
 	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
 ) {
+	// TODO: Make this a parameter in the per-frame constant buffer.
+	#ifdef SHADERED
+	float particleScale = 0.3f;
+	#else
 	float particleScale = 8.f;
+	#endif
 
 	for (int i = 0; i < 4; i++) {
 		float2 corner = corners[i];

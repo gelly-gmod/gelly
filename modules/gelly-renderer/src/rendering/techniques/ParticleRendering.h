@@ -1,17 +1,11 @@
 #ifndef GELLY_PARTICLERENDERING_H
 #define GELLY_PARTICLERENDERING_H
 
+#include "PerFrameCBuffer.h"
 #include "detail/Camera.h"
 #include "detail/ConstantBuffer.h"
 #include "detail/DataTypes.h"
 #include "rendering/Technique.h"
-
-struct PerFrameCBuffer {
-	XMFLOAT2 res;
-	XMFLOAT2 padding;  // Required for 16-byte alignment.
-	XMFLOAT4X4 projection;
-	XMFLOAT4X4 view;
-};
 
 /**
  * This technique renders the bound points as circular point-sprites and

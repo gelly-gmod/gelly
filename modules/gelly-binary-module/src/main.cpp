@@ -54,6 +54,15 @@ LUA_FUNCTION(Gelly_LoadMap) {
 	return 0;
 }
 
+LUA_FUNCTION(Gelly_Composite) {
+	LUA->CheckType(1, Gelly_id);
+	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
+
+	gelly->compositor.Composite();
+
+	return 0;
+}
+
 LUA_FUNCTION(Gelly_Update) {
 	LUA->CheckType(1, Gelly_id);
 	LUA->CheckType(2, Type::Number);
@@ -159,16 +168,23 @@ LUA_FUNCTION(gelly_Create) {
 	// We're going to manually create the textures and apply our override
 
 	CREATE_SOURCE_TEXTURE(Normal);
+	CREATE_SOURCE_TEXTURE(Depth);
+
 	params.sharedTextures = TextureOverride::sharedTextures;
 
 	// Create a Gelly
-	auto *gelly = new Gelly(params);
+	auto *gelly = new Gelly(
+		params, TextureOverride::device, TextureOverride::textures.depth
+	);
 	LUA->PushUserType_Value(gelly, Gelly_id);
 
-	return 2;
+	return 3;
 }
 
 GMOD_MODULE_OPEN() {
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+	
 	try {
 		TextureOverride::Initialize();
 		FileSystem::LoadFileSystem();
@@ -187,6 +203,7 @@ GMOD_MODULE_OPEN() {
 	LUA->PushCFunction(Gelly_gc);
 	LUA->SetField(-2, "__gc");
 	SET_C_FUNC(Gelly, LoadMap);
+	SET_C_FUNC(Gelly, Composite);
 	SET_C_FUNC(Gelly, Update);
 	SET_C_FUNC(Gelly, Render);
 	SET_C_FUNC(Gelly, AddParticle);

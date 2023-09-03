@@ -3,6 +3,7 @@ cbuffer cbPerFrame : register(b0) {
 	float2 padding;
 	float4x4 matProj;
 	float4x4 matView;
+	float4x4 matInvProj;
 };
 
 Texture2D depth : register(t0);
@@ -23,36 +24,39 @@ bool InvalidPartialDerivative(float x)
     return isnan(x) || isinf(x) || x > 0.2f;
 }
 
-float3 EstimateNormal(float2 i) {
-	if (depth.Sample(DepthSampler, i).a == 0.0f) {
-		return float3(0);
+float3 ReconstructViewPosition(float2 texcoord)
+{
+	float z = depth.Sample(DepthSampler, texcoord).r;
+	if (z == 0.0f)
+	{
+		return float3(0.0f, 0.0f, 0.0f);
 	}
-	
-	float depthLeft = depth.Sample(DepthSampler, i - float2(1.0 / res.x, 0)).x;
-	float depthRight = depth.Sample(DepthSampler, i + float2(1.0 / res.x, 0)).x;
-	float depthUp = depth.Sample(DepthSampler, i - float2(0, 1.0 / res.y)).x;
-	float depthDown = depth.Sample(DepthSampler, i + float2(0, 1.0 / res.y)).x;
-	
-	// Calculate finite differences in the x and y directions
-	float ddxDepth = depthRight - depthLeft;
-	float ddyDepth = depthDown - depthUp;
-	
-	if (InvalidPartialDerivative(ddxDepth) || InvalidPartialDerivative(ddyDepth)) {
-		discard;
+
+	// We need to go back from viewport transform to view space.
+	// That's basically: viewport -> ndc -> clip -> view
+	float2 projTexCoord = (texcoord * 2.0f) - 1.0f;
+	float4 position = float4(projTexCoord, z, 1.0f);
+	position = mul(position, matInvProj);
+	position /= position.w;
+
+	return position.xyz;
+}
+
+float4 EstimateNormal(float2 i) {
+	float4 normal = depth.Sample(DepthSampler, i);
+	if (normal.a == 0.f) {
+		return float4(0.f, 0.f, 0.f, 0.f);
 	}
-	
-	// Construct the normal vector
-	float3 gradient = float3(ddxDepth, ddyDepth, 0.01f);
-	
-	// Invert the gradient to get the normal vector (assuming positive depth is towards the camera).
-	float3 normal = gradient;
-	
-	// Optionally, normalize the normal vector to ensure it's a unit vector.
-	normal = normalize(normal);
-	
-	return normal;
+
+	normal.x *= -1.0f;
+	normal.y *= -1.0f;
+
+	float3 viewDir = normalize(float4(0.4, 0.6, 0.3, 1.0f));
+	float lightLevel = dot(normal.xyz, viewDir) * 0.4f;
+
+	return float4(lightLevel, lightLevel, lightLevel, 1.f);
 }
 
 float4 main(VS_OUTPUT input) : SV_TARGET {
-	return float4(EstimateNormal(input.Texcoord), 1.0f);
+	return EstimateNormal(input.Texcoord);
 }

@@ -76,9 +76,9 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 		// Random particle data
 		for (int i = 0; i < maxParticles; i++) {
 			initPositions[i] = {
-				rand() / (float)RAND_MAX,
-				rand() / (float)RAND_MAX,
-				rand() / (float)RAND_MAX,
+				rand() / (float)RAND_MAX * 4.f,
+				rand() / (float)RAND_MAX * 4.f,
+				rand() / (float)RAND_MAX * 4.f,
 				1.f};
 		}
 
@@ -111,22 +111,24 @@ void ParticleRendering::RunForFrame(
 			.res = {rts->width, rts->height},
 			.padding = {},
 			.projection = camera.GetProjectionMatrix(),
-			.view = camera.GetViewMatrix()};
+			.view = camera.GetViewMatrix(),
+			.invProj = camera.GetInvProjectionMatrix(),
+			.invView = camera.GetInvViewMatrix(),
+		};
 
 		perFrameCBuffer.Set(context, &perFrameData);
 	}
 
 	// Clear the RTs
 	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
-	context->ClearRenderTargetView(rts->normal.Get(), emptyColor);
+	context->ClearRenderTargetView(rts->depth.Get(), emptyColor);
 	// Clear the depth buffer
 	context->ClearDepthStencilView(
 		rts->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
 	);
 
 	// Bind the RTs
-	// TODO: implement normals
-	ID3D11RenderTargetView *renderTargets[1] = {rts->normal.Get()};
+	ID3D11RenderTargetView *renderTargets[1] = {rts->depth.Get()};
 	context->OMSetRenderTargets(1, renderTargets, rts->dsv.Get());
 
 	// Bind the particle buffer
@@ -148,6 +150,17 @@ void ParticleRendering::RunForFrame(
 
 	context->Draw(activeParticles, 0);
 	context->Flush();
+
+	// So, turns out from some real testing, residue from this technique
+	// can actually *really* corrupt the other techniques.
+	// We must unbind anything that we binded.
+
+	// Unbind the shaders
+	context->VSSetShader(nullptr, nullptr, 0);
+	context->GSSetShader(nullptr, nullptr, 0);
+	context->PSSetShader(nullptr, nullptr, 0);
+
+	context->OMSetRenderTargets(0, nullptr, nullptr);
 }
 
 ID3D11Buffer *ParticleRendering::GetParticleBuffer() const {

@@ -72,6 +72,8 @@
 						<value>0</value>
 					</row>
 				</variable>
+				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
+				<variable type="float4x4" name="matInvView" invert="true" system="View" />
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -84,7 +86,7 @@
 				<item value="Position" semantic="POSITION" />
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
-			<rendertexture name="DepthSmooth" />
+			<rendertexture />
 			<items>
 				<item name="ScreenQuadNDC" type="geometry">
 					<type>ScreenQuadNDC</type>
@@ -97,14 +99,40 @@
 			<itemvalues />
 			<variables>
 				<variable type="float2" name="res" system="ViewportSize" />
-				<variable type="float4x4" name="matProj" system="Projection" />
 				<variable type="float2" name="padding">
 					<row>
 						<value>0</value>
 						<value>0</value>
 					</row>
 				</variable>
+				<variable type="float4x4" name="matProj" system="Projection" />
 				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float4x4" name="matInvProj">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
@@ -137,26 +165,28 @@
 						<value>0</value>
 					</row>
 				</variable>
+				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
 			</variables>
 			<macros />
 		</pass>
 	</pipeline>
 	<objects>
-		<object type="rendertexture" name="Depth" format="R16G16B16A16_FLOAT" rsize="1.000000,1.000000" clear="true">
+		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="ParticleSmoothing" />
+		</object>
+		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="NormalEstimation" />
 		</object>
-		<object type="rendertexture" name="DepthSmooth" format="R16G16B16A16_FLOAT" rsize="1.000000,1.000000" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="pinned" name="padding" owner="ParticleRender" />
+		<entry type="pinned" name="padding" owner="ParticleSmoothing" />
 		<entry type="camera" fp="true">
-			<positionX>-6.72224426</positionX>
-			<positionY>2.13347721</positionY>
-			<positionZ>-2.29579282</positionZ>
-			<yaw>-1544.19299</yaw>
-			<pitch>344.845886</pitch>
+			<positionX>-0.0425809808</positionX>
+			<positionY>0.959816813</positionY>
+			<positionZ>0.928537488</positionZ>
+			<yaw>-7511.02539</yaw>
+			<pitch>354.856049</pitch>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />
