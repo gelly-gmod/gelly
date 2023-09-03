@@ -34,23 +34,23 @@ GellyScene::GellyScene(
 
 	params->gravity[0] = 0.0f;
 	params->gravity[1] = 0.0f;
-	params->gravity[2] = -60.0f;
+	params->gravity[2] = -10.0f;
 
 	params->wind[0] = 0.0f;
 	params->wind[1] = 0.0f;
 	params->wind[2] = 0.0f;
 
-	params->radius = 10.15f;
-	params->viscosity = 2.f;
-	params->dynamicFriction = 0.2f;
-	params->staticFriction = 0.0f;
+	params->radius = 5.15f;
+	params->viscosity = 0.01f;
+	params->dynamicFriction = 0.1f;
+	params->staticFriction = 0.1f;
 	params->particleFriction =
-		1.0f;  // scale friction between particles by default
+		0.1f;  // scale friction between particles by default
 	params->freeSurfaceDrag = 0.0f;
 	params->drag = 0.0f;
-	params->lift = 1.0f;
-	params->numIterations = 4;
-	params->fluidRestDistance = 6.f;
+	params->lift = 0.0f;
+	params->numIterations = 3;
+	params->fluidRestDistance = 3.8f;
 	params->solidRestDistance = 11.f;
 
 	params->anisotropyScale = 1.0f;
@@ -60,13 +60,13 @@ GellyScene::GellyScene(
 
 	params->dissipation = 0.0f;
 	params->damping = 0.0f;
-	params->particleCollisionMargin = 0.2f;
-	params->shapeCollisionMargin = 0.0f;
+	params->particleCollisionMargin = 1.f;
+	params->shapeCollisionMargin = 1.0f;
 	params->collisionDistance = params->fluidRestDistance *
-								1.2f;  // Needed for tri-particle intersection
+								3.f;  // Needed for tri-particle intersection
 	params->sleepThreshold = 0.0f;
 	params->shockPropagation = 0.0f;
-	params->restitution = 0.0f;
+	params->restitution = 1.0f;
 
 	params->maxSpeed = FLT_MAX;
 	params->maxAcceleration = 100.0f;  // approximately 10x gravity
@@ -75,9 +75,9 @@ GellyScene::GellyScene(
 	params->relaxationFactor = 1.0f;
 	params->solidPressure = 1.0f;
 	params->adhesion = 0.0f;
-	params->cohesion = 0.01f;
+	params->cohesion = 0.05f;
 	params->surfaceTension = 0.0f;
-	params->vorticityConfinement = 50.0f;
+	params->vorticityConfinement = 85.0f;
 	params->buoyancy = 1.0f;
 	params->diffuseThreshold = 100.0f;
 	params->diffuseBuoyancy = 1.0f;

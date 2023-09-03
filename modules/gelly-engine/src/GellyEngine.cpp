@@ -18,6 +18,7 @@ GellyScene *GellyEngine_CreateScene(
 		desc.enableExtensions = true;
 		desc.computeType = eNvFlexD3D11;
 		desc.renderDevice = d3d11Device;
+		desc.runOnRenderContext = false;
 		
 		library = NvFlexInit(120, flexErrorCallback, &desc);
 	}

@@ -184,7 +184,7 @@ LUA_FUNCTION(gelly_Create) {
 GMOD_MODULE_OPEN() {
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
-	
+
 	try {
 		TextureOverride::Initialize();
 		FileSystem::LoadFileSystem();

@@ -225,7 +225,7 @@ void RendererCompositor::BindShaderResources() {
 
 	// Bind depth texture
 	DX("Failed to set texture", device->SetTexture(0, depthTexture));
-	
+
 	// Bind sampler
 	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 	device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
