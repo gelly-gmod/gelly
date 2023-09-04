@@ -46,17 +46,17 @@ float3 NudgeParticleByNormal(float3 viewCenter, float3 normal) {
 }
 
 float GetViewLinearDepth(float3 viewPosition) {
-	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
+	float4 clipPosition = mul(float4(viewPosition, 1.0f), matInvProj);
 	float ndcDepth = clipPosition.z / clipPosition.w;
 
 	// TODO: make this a parameter in the per-frame constant buffer.
 	float nearZ = 3;
 	float farZ = 28377.919921875;
-	return LinearizeDepth(ndcDepth, nearZ, farZ);
+	return -viewPosition.z;
 }
 
 float GetViewDepth(float3 viewPosition) {
-	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
+	float4 clipPosition = mul(float4(viewPosition, 1.0f), matInvProj);
 	return clipPosition.z / clipPosition.w;
 }
 
@@ -69,7 +69,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	float3 viewParticlePosition = NudgeParticleByNormal(input.Center.xyz, normal);
 
 	PS_OUTPUT output = (PS_OUTPUT)0;
-	output.DepthCol = float4(GetViewLinearDepth(viewParticlePosition), 0.0f, 0.0f, 1.0f);
+	output.DepthCol = float4(1.f, 1.f, 1.f, GetViewLinearDepth(viewParticlePosition));
 	output.Depth = GetViewDepth(viewParticlePosition);
 
 	return output;

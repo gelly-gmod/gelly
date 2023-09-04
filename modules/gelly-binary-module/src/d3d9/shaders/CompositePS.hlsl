@@ -21,11 +21,7 @@ PS_OUTPUT main(VS_INPUT input) {
         discard;
     }
 
-    float zfar = 28377.919921875;
-    float znear = 3; // From GMod
-
-    float linearDepth = LinearizeDepth(depth.a, znear, zfar);
-    output.Col = float4(linearDepth, 0.f, 0.f, 1.0f);
+    output.Col = float4(depth.xyz, 1.0f);
     output.Depth = depth.a;
     return output;
 }
