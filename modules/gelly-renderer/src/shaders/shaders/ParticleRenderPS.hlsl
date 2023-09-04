@@ -22,43 +22,55 @@ float LinearizeDepth(float z, float near, float far) {
 	return (2.0f * near) / (far + near - z * (far - near));
 }
 
+bool CalculateNormal(float2 texcoord, out float3 normal) {
+	float2 ndcNormal = texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0);
+	float mag = dot(ndcNormal, ndcNormal);
+
+	if (mag > 1.0f) {
+		return false;
+	}
+
+	normal = float3(ndcNormal, sqrt(1.0f - mag));
+	return true;
+}
+
+float3 NudgeParticleByNormal(float3 viewCenter, float3 normal) {
+	// TODO: Make this a parameter in the per-frame constant buffer.
+	#ifdef SHADERED
+		float particleScale = 0.3f;
+	#else
+		float particleScale = 6.f;
+	#endif
+
+	return viewCenter + normal * particleScale;
+}
+
+float GetViewLinearDepth(float3 viewPosition) {
+	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
+	float ndcDepth = clipPosition.z / clipPosition.w;
+
+	// TODO: make this a parameter in the per-frame constant buffer.
+	float nearZ = 3;
+	float farZ = 28377.919921875;
+	return LinearizeDepth(ndcDepth, nearZ, farZ);
+}
+
+float GetViewDepth(float3 viewPosition) {
+	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
+	return clipPosition.z / clipPosition.w;
+}
+
 PS_OUTPUT main(GS_OUTPUT input) {
-	// Project the center of the sphere to the screen
-	float2 normal = input.Texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0);
-	float mag = dot(normal, normal);
-
-	if (mag > 1.0) {
+	float3 normal;
+	if (!CalculateNormal(input.Texcoord, normal)) {
 		discard;
 	}
 
-// TODO: Make this a parameter in the per-frame constant buffer.
-#ifdef SHADERED
-	float particleScale = 0.3f;
-#else
-	float particleScale = 6.f;
-#endif
-
-	float3 fullNormal = float3(normal, sqrt(1.0f - mag));
-	fullNormal.y *= -1.0f;
-
-	// Check for when the normal is invalid
-	if (isnan(fullNormal.x) || isnan(fullNormal.y) || isnan(fullNormal.z)) {
-		discard;
-	}
-
-	float4 pointOnSphere =
-		input.Center + float4(fullNormal, 0.0) * particleScale;
-
-	float zfar = 28377.919921875;
-	float znear = 3;  // From GMod
-	float depthOnSphere = pointOnSphere.y;
+	float3 viewParticlePosition = NudgeParticleByNormal(input.Center.xyz, normal);
 
 	PS_OUTPUT output = (PS_OUTPUT)0;
-
-	float linearDepth = LinearizeDepth(-pointOnSphere.z, znear, zfar);
-
-	output.DepthCol = float4(linearDepth, 0.f, 0.f, 1.f);
-	output.Depth = pointOnSphere.z / pointOnSphere.w;
+	output.DepthCol = float4(GetViewLinearDepth(viewParticlePosition), 0.0f, 0.0f, 1.0f);
+	output.Depth = GetViewDepth(viewParticlePosition);
 
 	return output;
 }
