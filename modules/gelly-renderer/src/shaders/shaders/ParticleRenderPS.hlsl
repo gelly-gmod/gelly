@@ -18,6 +18,10 @@ struct PS_OUTPUT {
 	float Depth : SV_Depth;
 };
 
+float LinearizeDepth(float z, float near, float far) {
+	return (2.0f * near) / (far + near - z * (far - near));
+}
+
 PS_OUTPUT main(GS_OUTPUT input) {
 	// Project the center of the sphere to the screen
 	float2 normal = input.Texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0);
@@ -27,23 +31,34 @@ PS_OUTPUT main(GS_OUTPUT input) {
 		discard;
 	}
 
-	// TODO: Make this a parameter in the per-frame constant buffer.
-	#ifdef SHADERED
+// TODO: Make this a parameter in the per-frame constant buffer.
+#ifdef SHADERED
 	float particleScale = 0.3f;
-	#else
-	float particleScale = 8.f;
-	#endif
+#else
+	float particleScale = 6.f;
+#endif
 
 	float3 fullNormal = float3(normal, sqrt(1.0f - mag));
 	fullNormal.y *= -1.0f;
-	
-	float4 pointOnSphere = input.Center + float4(fullNormal, 0.0) * particleScale;
-	pointOnSphere = mul(pointOnSphere, matProj);
 
-	float depthOnSphere = pointOnSphere.z / pointOnSphere.w;
-	PS_OUTPUT output;
-	output.DepthCol = float4(fullNormal, pointOnSphere.z);
-	output.Depth = depthOnSphere;
+	// Check for when the normal is invalid
+	if (isnan(fullNormal.x) || isnan(fullNormal.y) || isnan(fullNormal.z)) {
+		discard;
+	}
+
+	float4 pointOnSphere =
+		input.Center + float4(fullNormal, 0.0) * particleScale;
+
+	float zfar = 28377.919921875;
+	float znear = 3;  // From GMod
+	float depthOnSphere = pointOnSphere.y;
+
+	PS_OUTPUT output = (PS_OUTPUT)0;
+
+	float linearDepth = LinearizeDepth(-pointOnSphere.z, znear, zfar);
+
+	output.DepthCol = float4(linearDepth, 0.f, 0.f, 1.f);
+	output.Depth = pointOnSphere.z / pointOnSphere.w;
 
 	return output;
 }

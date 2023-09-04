@@ -1,6 +1,8 @@
-#include "GellyScene.h"
-
+// clang-format off
+// This specific order is caused by NvFlexExt.h being stupid.
 #include <memory>
+#include "GellyScene.h"
+// clang-format on
 
 #include "MeshConvert.h"
 
@@ -41,7 +43,7 @@ GellyScene::GellyScene(
 	params->wind[2] = 0.0f;
 
 	params->radius = 5.15f;
-	params->viscosity = 0.01f;
+	params->viscosity = 0.f;
 	params->dynamicFriction = 0.1f;
 	params->staticFriction = 0.1f;
 	params->particleFriction =
@@ -75,9 +77,9 @@ GellyScene::GellyScene(
 	params->relaxationFactor = 1.0f;
 	params->solidPressure = 1.0f;
 	params->adhesion = 0.0f;
-	params->cohesion = 0.05f;
+	params->cohesion = 0.02f;
 	params->surfaceTension = 0.0f;
-	params->vorticityConfinement = 85.0f;
+	params->vorticityConfinement = 25.0f;
 	params->buoyancy = 1.0f;
 	params->diffuseThreshold = 100.0f;
 	params->diffuseBuoyancy = 1.0f;
@@ -210,3 +212,5 @@ void GellyScene::RegisterD3DBuffer(
 	d3dParticleBuffer =
 		NvFlexRegisterD3DBuffer(library, buffer, elementCount, elementStride);
 }
+
+void GellyScene::Clear() { currentParticleCount = 0; }

@@ -20,7 +20,15 @@ struct GellyInitParams {
 };
 
 struct GellyMessage {
-	enum Type { LoadMap, Update, Render, AddParticle, SetupCamera, SyncCamera };
+	enum Type {
+		LoadMap,
+		Update,
+		Render,
+		AddParticle,
+		SetupCamera,
+		SyncCamera,
+		Clear
+	};
 
 	Type type;
 	union {
@@ -69,9 +77,30 @@ private:
 	// by Gelly. There should be nothing happening with the ref count.
 	IDirect3DTexture9 *depthTexture;
 
+	// We have to make sure to look like we were never here to the rest of the
+	// game, so we store every single previous value of any function we called.
+
+	struct {
+		_D3DTEXTUREADDRESS addressU1;
+		_D3DTEXTUREADDRESS addressV1;
+		_D3DTEXTUREFILTERTYPE magFilter1;
+		_D3DTEXTUREFILTERTYPE minFilter1;
+		_D3DTEXTUREFILTERTYPE mipFilter1;
+
+		IDirect3DVertexShader9 *vertexShader;
+		IDirect3DPixelShader9 *pixelShader;
+		IDirect3DVertexBuffer9 *streamSource;
+		IDirect3DBaseTexture9 *texture0;
+		UINT streamOffset;
+		UINT streamStride;
+		DWORD fvf;
+		DWORD lighting;
+	} previous{};
+
 	void CreateScreenQuad();
 	void CreateShaders();
 	void BindShaderResources();
+	void RestorePreviousState();
 
 public:
 	explicit RendererCompositor(
@@ -119,6 +148,7 @@ private:
 		float fov, float width, float height, float nearZ, float farZ
 	);
 	void SyncCamera(Vec3 position, Vec3 dir);
+	void Clear();
 	void Render();
 
 public:

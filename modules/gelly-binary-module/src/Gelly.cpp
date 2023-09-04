@@ -75,6 +75,8 @@ void Gelly::SyncCamera(Vec3 position, Vec3 dir) {
 	renderer->camera.SetDirection(dir.x, dir.y, dir.z);
 }
 
+void Gelly::Clear() { scene->Clear(); }
+
 [[noreturn]] void Gelly::InitThreaded(
 	Gelly *gelly, const GellyInitParams &params
 ) {
@@ -142,6 +144,9 @@ void Gelly::ProcessMessage() {
 			SyncCamera(
 				message->syncCamera.position, message->syncCamera.direction
 			);
+			break;
+		case GellyMessage::Clear:
+			Clear();
 			break;
 		default:
 			break;
@@ -211,6 +216,34 @@ RendererCompositor::RendererCompositor(
 }
 
 void RendererCompositor::BindShaderResources() {
+	// Copy all the original values into our previous buffer.
+	device->GetStreamSource(
+		0,
+		&previous.streamSource,
+		&previous.streamOffset,
+		&previous.streamStride
+	);
+	device->GetFVF(&previous.fvf);
+	device->GetVertexShader(&previous.vertexShader);
+	device->GetPixelShader(&previous.pixelShader);
+	device->GetSamplerState(
+		0, D3DSAMP_ADDRESSU, reinterpret_cast<DWORD *>(&previous.addressU1)
+	);
+	device->GetSamplerState(
+		0, D3DSAMP_ADDRESSV, reinterpret_cast<DWORD *>(&previous.addressV1)
+	);
+	device->GetSamplerState(
+		0, D3DSAMP_MAGFILTER, reinterpret_cast<DWORD *>(&previous.magFilter1)
+	);
+	device->GetSamplerState(
+		0, D3DSAMP_MINFILTER, reinterpret_cast<DWORD *>(&previous.minFilter1)
+	);
+	device->GetSamplerState(
+		0, D3DSAMP_MIPFILTER, reinterpret_cast<DWORD *>(&previous.mipFilter1)
+	);
+	device->GetTexture(0, &previous.texture0);
+	device->GetRenderState(D3DRS_LIGHTING, &previous.lighting);
+
 	// Bind vertex buffer
 	DX("Failed to set stream source",
 	   device->SetStreamSource(0, screenQuad.Get(), 0, sizeof(NDCVertex)));
@@ -227,27 +260,62 @@ void RendererCompositor::BindShaderResources() {
 	DX("Failed to set texture", device->SetTexture(0, depthTexture));
 
 	// Bind sampler
+	// Our sampler must sample pixel perfect.
 	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 	device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
 
-	device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+	DX("Failed to set render state",
+	   device->SetRenderState(D3DRS_LIGHTING, FALSE));
+}
+
+void RendererCompositor::RestorePreviousState() {
+	if (previous.streamSource) {
+		DX("Failed to restore stream source",
+		   device->SetStreamSource(
+			   0,
+			   previous.streamSource,
+			   previous.streamOffset,
+			   previous.streamStride
+		   ));
+	}
+
+	if (previous.vertexShader) {
+		DX("Failed to restore vertex shader",
+		   device->SetVertexShader(previous.vertexShader));
+	}
+
+	if (previous.pixelShader) {
+		DX("Failed to restore pixel shader",
+		   device->SetPixelShader(previous.pixelShader));
+	}
+
+	if (previous.texture0) {
+		DX("Failed to restore texture",
+		   device->SetTexture(0, previous.texture0));
+	}
+
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(0, D3DSAMP_ADDRESSU, previous.addressU1));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(0, D3DSAMP_ADDRESSV, previous.addressV1));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(0, D3DSAMP_MAGFILTER, previous.magFilter1));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(0, D3DSAMP_MINFILTER, previous.minFilter1));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(0, D3DSAMP_MIPFILTER, previous.mipFilter1));
+	DX("Failed to set render state",
+	   device->SetRenderState(D3DRS_LIGHTING, previous.lighting));
 }
 
 void RendererCompositor::Composite() {
 	BindShaderResources();
-	// Set up our very specific render state
-	DX("Failed to set render state",
-	   device->SetRenderState(D3DRS_LIGHTING, FALSE));
 	DX("Failed to draw!", device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2));
-	// Reset render state
-	DX("Failed to set render state",
-	   device->SetRenderState(D3DRS_LIGHTING, TRUE));
-	// We don't present here because GMod will do it for us.
+	// Restore, giving back control to GMod.
+	// This is essential because of technical limitations that force us to
+	// arbitrarily set up our own rendering pipeline.
+	RestorePreviousState();
 }

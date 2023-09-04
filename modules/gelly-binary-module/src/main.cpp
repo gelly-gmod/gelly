@@ -54,6 +54,17 @@ LUA_FUNCTION(Gelly_LoadMap) {
 	return 0;
 }
 
+LUA_FUNCTION(Gelly_Clear) {
+	LUA->CheckType(1, Gelly_id);
+	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
+
+	GellyMessage clearMessage{};
+	clearMessage.type = GellyMessage::Clear;
+	gelly->SendGellyMessage(clearMessage);
+
+	return 0;
+}
+
 LUA_FUNCTION(Gelly_Composite) {
 	LUA->CheckType(1, Gelly_id);
 	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
@@ -209,6 +220,7 @@ GMOD_MODULE_OPEN() {
 	SET_C_FUNC(Gelly, AddParticle);
 	SET_C_FUNC(Gelly, SetupCamera);
 	SET_C_FUNC(Gelly, SyncCamera);
+	SET_C_FUNC(Gelly, Clear);
 	LUA->Pop();
 
 	return 0;
