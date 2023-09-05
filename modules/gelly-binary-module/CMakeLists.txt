@@ -19,16 +19,32 @@ elseif (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "x86")
     set_target_properties(gelly_binary_module PROPERTIES OUTPUT_NAME gmcl_gelly_win32)
 endif ()
 
-function(add_shader shader_name)
-    message(STATUS "Adding shader ${shader_name}")
-    set(shader_path src/d3d9/shaders/${shader_name}.hlsl)
-    set(output_path ${CMAKE_CURRENT_SOURCE_DIR}/src/generated/${shader_name}.embed.hlsl)
+add_custom_command(
+        TARGET gelly_binary_module
+        PRE_BUILD # Source code references the generated files, so we need to generate them before compiling
+        COMMAND ${CMAKE_COMMAND}
+        -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -DLOCAL_SHADER_PATH="src/d3d9/shaders"
+        -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} # Passthrough since this variable isn't set when we run this CMake script.
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PreprocessShaders.cmake
+        COMMENT "Preprocessing D3D9 shaders..."
+)
 
-    # Prepares the shader for embedding by adding R"===()===" around the shader code
-    file(READ ${shader_path} shader_code)
-    set(shader_code "R\"===(${shader_code})===\"")
-    file(WRITE ${output_path} "${shader_code}")
-endfunction()
+add_custom_command(
+        TARGET gelly_binary_module
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+        -DFLEX_PATH=${FLEX_PATH}
+        -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} # Passthrough since this variable isn't set when we run this CMake script.
+        -DRELEASE_DIR=${CMAKE_BINARY_DIR}/release
+        -DCMAKE_HOST_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyFleXDLLs.cmake
+        COMMENT "Copying FleX DLLs..."
+)
 
-add_shader(CompositeVS)
-add_shader(CompositePS)
+set_target_properties(gelly_binary_module
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/release"
+        )

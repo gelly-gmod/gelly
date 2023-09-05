@@ -30,11 +30,13 @@ target_link_libraries(gelly_renderer PUBLIC d3d9.lib d3d11.lib d3dcompiler.lib)
 target_include_directories(gelly_renderer PUBLIC include src)
 target_include_directories(gelly_renderer PRIVATE src)
 
-add_shader(NDCQuadVS)
-add_shader(NormalEstimationPS)
-add_shader(NormalEstimationVS)
-add_shader(ParticleRenderGS)
-add_shader(ParticleRenderPS)
-add_shader(ParticleRenderVS)
-add_shader(ParticleSmoothingPS)
-add_shader(ParticleSmoothingVS)
+add_custom_command(
+        TARGET gelly_renderer
+        PRE_BUILD # Source code references the generated files, so we need to generate them before compiling
+        COMMAND ${CMAKE_COMMAND}
+        -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+        -DLOCAL_SHADER_PATH="src/shaders/shaders"
+        -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} # Passthrough since this variable isn't set when we run this CMake script.
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PreprocessShaders.cmake
+        COMMENT "Preprocessing D3D11 shaders..."
+)

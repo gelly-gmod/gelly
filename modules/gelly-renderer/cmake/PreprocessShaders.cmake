@@ -1,0 +1,11 @@
+include(PreprocessShader)
+
+message(STATUS "Building D3D11 shaders")
+add_shader(NDCQuadVS)
+add_shader(NormalEstimationPS)
+add_shader(NormalEstimationVS)
+add_shader(ParticleRenderGS)
+add_shader(ParticleRenderPS)
+add_shader(ParticleRenderVS)
+add_shader(ParticleSmoothingPS)
+add_shader(ParticleSmoothingVS)
