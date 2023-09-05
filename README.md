@@ -79,7 +79,7 @@ Gelly.**
 **KNOWN BUG: Gelly crashes each shutdown of GMod.**
 
 There's no user-facing addon yet, so you'll have to use a test script to use Gelly in GMod. You can find the test script
-in the `test-script` branch. I'd recommend copying it to your lua folder and running it in game
+in the `lua` folder. I'd recommend copying it to your lua folder and running it in game
 by `lua_openscript_cl gelly_test_script.lua`
 
 Test script controls:
