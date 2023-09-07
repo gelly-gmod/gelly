@@ -4,6 +4,8 @@
 #include <d3d11.h>
 #include <wrl.h>
 
+#include "detail/GBuffer.h"
+
 using namespace Microsoft::WRL;
 
 /**
@@ -14,8 +16,7 @@ struct TechniqueRTs {
 	float width;
 	float height;
 
-	ComPtr<ID3D11RenderTargetView> depth;
-	ComPtr<ID3D11RenderTargetView> normal;
+	GBuffer *gbuffer;
 	ComPtr<ID3D11DepthStencilView> dsv;
 };
 

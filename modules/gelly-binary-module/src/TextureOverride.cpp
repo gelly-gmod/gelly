@@ -98,19 +98,16 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 	}
 
 	HANDLE shared_handle = nullptr;
-	HANDLE **target_handle_ptr = nullptr;
-	IDirect3DTexture9 **target_texture_ptr = nullptr;
+	d3d9::Texture **target_texture_ptr = nullptr;
 
 	D3DFORMAT texFormat = format;
 	switch (target) {
 		case TextureOverrideTarget::Normal:
-			target_handle_ptr = &sharedTextures.normal;
-			target_texture_ptr = &textures.normal;
+			target_texture_ptr = &sharedTextures.normal;
 			texFormat = D3DFMT_A16B16G16R16F;
 			break;
 		case TextureOverrideTarget::Depth:
-			target_handle_ptr = &sharedTextures.depth;
-			target_texture_ptr = &textures.depth;
+			target_texture_ptr = &sharedTextures.depth;
 			texFormat = D3DFMT_A16B16G16R16F;
 			break;
 		default:
@@ -134,8 +131,9 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 		return result;
 	}
 
-	*target_texture_ptr = target_texture;
-	*target_handle_ptr = new HANDLE(shared_handle);
+	*target_texture_ptr = new d3d9::Texture(
+		target_texture, shared_handle, (int)width, (int)height, texFormat
+	);
 
 	// Give caller the texture we created.
 	*texture = target_texture;
@@ -147,7 +145,6 @@ static D3DCreateTexture createTexturePtr = nullptr;
 namespace TextureOverride {
 D3DCreateTexture originalCreateTexture = nullptr;
 SharedTextures sharedTextures{};
-Textures textures{};
 TextureOverrideTarget target = TextureOverrideTarget::None;
 IDirect3DDevice9 *device = nullptr;
 }  // namespace TextureOverride
@@ -178,6 +175,16 @@ void TextureOverride::Initialize() {
 void TextureOverride::Shutdown() {
 	MH_DisableHook(createTexturePtr);
 	MH_Uninitialize();
+
+	if (sharedTextures.normal != nullptr) {
+		delete sharedTextures.normal;
+		sharedTextures.normal = nullptr;
+	}
+
+	if (sharedTextures.depth != nullptr) {
+		delete sharedTextures.depth;
+		sharedTextures.depth = nullptr;
+	}
 }
 
 void TextureOverride::Enable(TextureOverrideTarget overrideTarget) {

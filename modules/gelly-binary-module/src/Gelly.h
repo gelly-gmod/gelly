@@ -75,7 +75,7 @@ private:
 
 	// We're not using a ComPtr here because this is meant to be owned
 	// by Gelly. There should be nothing happening with the ref count.
-	IDirect3DTexture9 *depthTexture;
+	SharedTextures gbuffer;
 
 	// We have to make sure to look like we were never here to the rest of the
 	// game, so we store every single previous value of any function we called.
@@ -104,7 +104,7 @@ private:
 
 public:
 	explicit RendererCompositor(
-		IDirect3DDevice9 *device, IDirect3DTexture9 *depthTexture
+		IDirect3DDevice9 *device, SharedTextures *gbuffer
 	);
 	~RendererCompositor() = default;
 	void Composite();
@@ -154,11 +154,7 @@ private:
 public:
 	RendererCompositor compositor;
 
-	explicit Gelly(
-		const GellyInitParams &params,
-		IDirect3DDevice9 *device,
-		IDirect3DTexture9 *depthTexture
-	);
+	explicit Gelly(GellyInitParams &params, IDirect3DDevice9 *device);
 	/**
 	 * Initializes Gelly on a separate thread. This is called in the
 	 * constructor, but ran on a different thread due to technical limitations.

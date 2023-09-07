@@ -10,16 +10,8 @@ private:
 	ComPtr<ID3D11PixelShader> pixelShader;
 	ConstantBuffer<PerFrameCBuffer> perFrameCBuffer;
 
-	ComPtr<ID3D11ShaderResourceView> depthSRV;
-	ComPtr<ID3D11SamplerState> depthSampler;
-
 public:
-	NormalSmoothing(
-		ID3D11Device *device,
-		int depthWidth,
-		int depthHeight,
-		ID3D11Resource *depth
-	);
+	explicit NormalSmoothing(ID3D11Device *device);
 	~NormalSmoothing() override = default;
 
 	void RunForFrame(

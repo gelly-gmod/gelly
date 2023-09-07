@@ -1,6 +1,7 @@
 #ifndef GELLY_GELLYRENDERER_H
 #define GELLY_GELLYRENDERER_H
 
+#include <GellyD3D.h>
 #include <d3d11.h>
 #include <directxmath.h>
 #include <windows.h>
@@ -9,7 +10,7 @@
 #include "detail/Camera.h"
 #include "detail/ConstantBuffer.h"
 #include "detail/DataTypes.h"
-#include "detail/Shader.h"
+#include "detail/GBuffer.h"
 #include "rendering/Technique.h"
 #include "rendering/techniques/NormalSmoothing.h"
 #include "rendering/techniques/ParticleRendering.h"
@@ -18,8 +19,8 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 struct SharedTextures {
-	HANDLE *depth;
-	HANDLE *normal;
+	d3d9::Texture *depth;
+	d3d9::Texture *normal;
 };
 
 struct RendererInitParams {
@@ -31,12 +32,7 @@ struct RendererInitParams {
 
 class RendererResources {
 public:
-	struct {
-		ComPtr<ID3D11Texture2D> depth;
-		ComPtr<ID3D11RenderTargetView> depthRTV;
-		ComPtr<ID3D11Texture2D> normal;
-		ComPtr<ID3D11RenderTargetView> normalRTV;
-	} gbuffer;
+	GBuffer gbuffer;
 
 	struct {
 		ComPtr<ID3D11DepthStencilView> view;

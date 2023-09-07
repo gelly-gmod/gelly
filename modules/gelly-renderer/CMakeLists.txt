@@ -20,15 +20,14 @@ endfunction()
 add_library(gelly_renderer STATIC
         include/GellyRenderer.h
         src/GellyRenderer.cpp include/detail/ErrorHandling.h
-        include/detail/Shader.h src/Shader.cpp
         src/Camera.cpp
         src/rendering/Technique.h
         src/rendering/techniques/ParticleRendering.cpp
-        src/rendering/techniques/ParticleRendering.h include/detail/DataTypes.h src/rendering/techniques/PerFrameCBuffer.h src/rendering/SSTechnique.cpp src/rendering/techniques/NormalSmoothing.cpp)
+        src/rendering/techniques/ParticleRendering.h include/detail/DataTypes.h src/rendering/techniques/PerFrameCBuffer.h src/rendering/SSTechnique.cpp src/rendering/techniques/NormalSmoothing.cpp include/detail/GBuffer.h)
 
-target_link_libraries(gelly_renderer PUBLIC d3d9.lib d3d11.lib d3dcompiler.lib)
-target_include_directories(gelly_renderer PUBLIC include src)
-target_include_directories(gelly_renderer PRIVATE src)
+target_link_libraries(gelly_renderer PUBLIC gelly_d3d9 d3d9.lib d3d11.lib d3dcompiler.lib)
+target_include_directories(gelly_renderer PRIVATE src include ../gelly-d3d9/include)
+target_include_directories(gelly_renderer PUBLIC src include ../gelly-d3d9/include)
 
 add_custom_target(
         GellyD3D11Shaders

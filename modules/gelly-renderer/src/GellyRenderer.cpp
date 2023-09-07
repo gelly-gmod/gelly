@@ -4,45 +4,14 @@
 #include "rendering/techniques/NormalSmoothing.h"
 #include "rendering/techniques/ParticleRendering.h"
 
-#define GET_SHARED_RESOURCE(handlePath)                            \
-	ID3D11Resource *handlePath##Resource = nullptr;                \
-	DX("Failed to open the texture in D3D11 from D3D9!",           \
-	   device->OpenSharedResource(                                 \
-		   *params.sharedTextures.handlePath,                      \
-		   __uuidof(ID3D11Resource),                               \
-		   (void **)&handlePath##Resource                          \
-	   ));                                                         \
-	DX("Failed to query D3D11Texture2D from the shared resource!", \
-	   handlePath##Resource->QueryInterface(                       \
-		   __uuidof(ID3D11Texture2D),                              \
-		   (void **)gbuffer.handlePath.GetAddressOf()              \
-	   ));                                                         \
-	DX("Failed to release the shared resource!",                   \
-	   handlePath##Resource->Release());
-
-#define MAKE_SHARED_RTV(name, fmt)                                           \
-	D3D11_RENDER_TARGET_VIEW_DESC name##Desc;                                \
-	name##Desc.Format = fmt;                                                 \
-	name##Desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;                \
-	name##Desc.Texture2D.MipSlice = 0;                                       \
-	DX("Failed to make " #name " RTV",                                       \
-	   device->CreateRenderTargetView(                                       \
-		   gbuffer.name.Get(), &name##Desc, gbuffer.name##RTV.GetAddressOf() \
-	   ));
-
 RendererResources::RendererResources(
 	ID3D11Device *device, const RendererInitParams &params
 )
-	: gbuffer({.depth = nullptr, .normal = nullptr}) {
-	GET_SHARED_RESOURCE(normal)
-	GET_SHARED_RESOURCE(depth)
-
-	MAKE_SHARED_RTV(normal, DXGI_FORMAT_R16G16B16A16_FLOAT)
-	// Soon we'll encode stuff like colors maybe into the extra 3 channels.
-	MAKE_SHARED_RTV(depth, DXGI_FORMAT_R16G16B16A16_FLOAT)
-
+	: gbuffer(
+		  {.depth = d3d11::Texture(*params.sharedTextures.depth, device),
+		   .normal = d3d11::Texture(*params.sharedTextures.normal, device)}
+	  ) {
 	// Create depth stencil buffer
-
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 	depthStencilDesc.Width = params.width;
@@ -167,12 +136,11 @@ void GellyRenderer::Render() {
 		resources->depthStencil.state.Get(), 1
 	);
 
-	TechniqueRTs rts{// float2 for compatability with SHADERed.
-					 .width = static_cast<float>(params.width),
-					 .height = static_cast<float>(params.height),
-					 .depth = resources->gbuffer.depthRTV.Get(),
-					 .normal = resources->gbuffer.normalRTV.Get(),
-					 .dsv = resources->depthStencil.view.Get()};
+	TechniqueRTs rts{
+		.width = static_cast<float>(params.width),
+		.height = static_cast<float>(params.height),
+		.gbuffer = &resources->gbuffer,
+		.dsv = resources->depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts, camera);
@@ -219,12 +187,7 @@ void GellyRenderer::InitializePipeline() {
 	particles.Attach(particleRendering->GetParticleBuffer());
 	pipeline.particleRendering = particleRendering;
 
-	auto *normalEstimation = new NormalSmoothing(
-		device.Get(),
-		params.width,
-		params.height,
-		resources->gbuffer.depth.Get()
-	);
+	auto *normalEstimation = new NormalSmoothing(device.Get());
 
 	pipeline.normalEstimation = normalEstimation;
 }

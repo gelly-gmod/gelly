@@ -7,6 +7,7 @@
 // into thinking that we're creating a normal texture, but it's actually a
 // shared texture.
 
+#include <GellyD3D.h>
 #include <GellyRenderer.h>
 #include <MinHook.h>
 #include <d3d9.h>
@@ -20,15 +21,9 @@ enum class TextureOverrideTarget : unsigned short {
 	Depth,
 };
 
-struct Textures {
-	IDirect3DTexture9 *normal;
-	IDirect3DTexture9 *depth;
-};
-
 namespace TextureOverride {
 extern D3DCreateTexture originalCreateTexture;
 extern SharedTextures sharedTextures;
-extern Textures textures;
 extern TextureOverrideTarget target;
 extern IDirect3DDevice9 *device;
 

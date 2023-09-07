@@ -1,7 +1,8 @@
-#include "detail/Shader.h"
+#include "detail/d3d11/Shaders.h"
 
-#include "detail/ErrorHandling.h"
+#include "ErrorHandling.h"
 
+namespace d3d11 {
 ID3DBlob *compile_shader(
 	const ShaderCompileOptions &options, const char *profile
 ) {
@@ -46,7 +47,7 @@ ShaderCompileResult<ID3D11PixelShader> compile_pixel_shader(
 	const ShaderCompileOptions &options
 ) {
 	ID3D11PixelShader *shader;
-	ID3DBlob *shaderBlob = compile_shader(options, PIXEL_PROFILE);
+	ID3DBlob *shaderBlob = compile_shader(options, D3D11_PIXEL_PROFILE);
 
 	DX("Failed to create pixel shader",
 	   options.device->CreatePixelShader(
@@ -63,7 +64,7 @@ ShaderCompileResult<ID3D11VertexShader> compile_vertex_shader(
 	const ShaderCompileOptions &options
 ) {
 	ID3D11VertexShader *shader;
-	ID3DBlob *shaderBlob = compile_shader(options, VERTEX_PROFILE);
+	ID3DBlob *shaderBlob = compile_shader(options, D3D11_VERTEX_PROFILE);
 
 	DX("Failed to create vertex shader",
 	   options.device->CreateVertexShader(
@@ -80,7 +81,7 @@ ShaderCompileResult<ID3D11GeometryShader> compile_geometry_shader(
 	const ShaderCompileOptions &options
 ) {
 	ID3D11GeometryShader *shader;
-	ID3DBlob *shaderBlob = compile_shader(options, GEOMETRY_PROFILE);
+	ID3DBlob *shaderBlob = compile_shader(options, D3D11_GEOMETRY_PROFILE);
 
 	DX("Failed to create geometry shader",
 	   options.device->CreateGeometryShader(
@@ -92,3 +93,4 @@ ShaderCompileResult<ID3D11GeometryShader> compile_geometry_shader(
 
 	return {shaderBlob, shader};
 }
+};	// namespace d3d11

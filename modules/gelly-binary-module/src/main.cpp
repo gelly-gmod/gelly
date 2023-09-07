@@ -38,6 +38,7 @@ LUA_FUNCTION(Gelly_gc) {
 	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
 
 	delete gelly;
+	
 	return 0;
 }
 
@@ -184,9 +185,7 @@ LUA_FUNCTION(gelly_Create) {
 	params.sharedTextures = TextureOverride::sharedTextures;
 
 	// Create a Gelly
-	auto *gelly = new Gelly(
-		params, TextureOverride::device, TextureOverride::textures.normal
-	);
+	auto *gelly = new Gelly(params, TextureOverride::device);
 	LUA->PushUserType_Value(gelly, Gelly_id);
 
 	return 3;

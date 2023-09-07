@@ -1,4 +1,4 @@
-#include "D3D9Shader.h"
+#include "detail/d3d9/Shaders.h"
 
 #include <d3dcompiler.h>
 #include <wrl.h>
@@ -48,7 +48,7 @@ IDirect3DPixelShader9 *d3d9::compile_pixel_shader(
 ) {
 	// ComPtr will take care of cleaning up the shader blob
 	ComPtr<ID3DBlob> shaderBlob;
-	shaderBlob.Attach(compile_shader(options, PIXEL_PROFILE));
+	shaderBlob.Attach(compile_shader(options, D3D9_PIXEL_PROFILE));
 
 	IDirect3DPixelShader9 *shader;
 	DX("Failed to create pixel shader",
@@ -63,7 +63,7 @@ IDirect3DVertexShader9 *d3d9::compile_vertex_shader(
 	const ShaderCompileOptions &options
 ) {
 	ComPtr<ID3DBlob> shaderBlob;
-	shaderBlob.Attach(compile_shader(options, VERTEX_PROFILE));
+	shaderBlob.Attach(compile_shader(options, D3D9_VERTEX_PROFILE));
 
 	IDirect3DVertexShader9 *shader;
 	DX("Failed to create vertex shader",

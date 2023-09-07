@@ -1,11 +1,14 @@
 #include "SSTechnique.h"
 
+#include <GellyD3D.h>
+
 #include "detail/ErrorHandling.h"
-#include "detail/Shader.h"
 
 const char *VERTEX_SHADER_SOURCE =
 #include "generated/NDCQuadVS.embed.hlsl"
 	;
+
+using namespace d3d11;
 
 SSTechnique::SSTechnique(ID3D11Device *device) {
 	// Compile the NDC quad vertex shader

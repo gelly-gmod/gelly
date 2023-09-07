@@ -3,17 +3,11 @@
 #include <GMFS.h>
 #include <d3d9.h>
 
-#include "d3d9/D3D9Shader.h"
-
 // Doesn't work on the main thraed.
-Gelly::Gelly(
-	const GellyInitParams &params,
-	IDirect3DDevice9 *device,
-	IDirect3DTexture9 *depthTexture
-)
+Gelly::Gelly(GellyInitParams &params, IDirect3DDevice9 *device)
 	: scene(nullptr),
 	  renderer(nullptr),
-	  compositor(device, depthTexture),
+	  compositor(device, &params.sharedTextures),
 	  mainToThread(0),
 	  threadToMain(0),
 	  thread(&Gelly::InitThreaded, this, params),
@@ -208,9 +202,9 @@ void RendererCompositor::CreateShaders() {
 }
 
 RendererCompositor::RendererCompositor(
-	IDirect3DDevice9 *device, IDirect3DTexture9 *depthTexture
+	IDirect3DDevice9 *device, SharedTextures *gbuffer
 )
-	: device(device), depthTexture(depthTexture) {
+	: device(device), gbuffer(*gbuffer) /* copies to our class instance */ {
 	CreateScreenQuad();
 	CreateShaders();
 }
@@ -256,16 +250,8 @@ void RendererCompositor::BindShaderResources() {
 	DX("Failed to set pixel shader (composite)",
 	   device->SetPixelShader(pixelShader.Get()));
 
-	// Bind depth texture
-	DX("Failed to set texture", device->SetTexture(0, depthTexture));
-
-	// Bind sampler
-	// Our sampler must sample pixel perfect.
-	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+	// Bind textures
+	gbuffer.normal->SetupAtStage(0, 0, device);
 
 	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_LIGHTING, FALSE));

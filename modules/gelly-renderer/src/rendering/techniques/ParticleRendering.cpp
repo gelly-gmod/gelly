@@ -1,6 +1,6 @@
 #include "ParticleRendering.h"
 
-#include <detail/Shader.h>
+#include <GellyD3D.h>
 
 #include "detail/ErrorHandling.h"
 
@@ -15,6 +15,8 @@ static const char *VERTEX_SHADER_SOURCE =
 static const char *GEOMETRY_SHADER_SOURCE =
 #include "generated/ParticleRenderGS.embed.hlsl"
 	;
+
+using namespace d3d11;
 
 #define INIT_OPTIONS_FOR_SHADER(source, shaderName, shaderEntryPoint) \
 	options.shader.buffer = (void *)source;                           \
@@ -121,16 +123,15 @@ void ParticleRendering::RunForFrame(
 
 	// Clear the RTs
 	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
-	context->ClearRenderTargetView(rts->depth.Get(), emptyColor);
+	rts->gbuffer->depth.Clear(context, emptyColor);
 	// Clear the depth buffer
 	context->ClearDepthStencilView(
 		rts->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
 	);
 
 	// Bind the RTs
-	ID3D11RenderTargetView *renderTargets[1] = {rts->depth.Get()};
-	context->OMSetRenderTargets(1, renderTargets, rts->dsv.Get());
-
+	rts->gbuffer->depth.SetAsRT(context, rts->dsv.Get());
+	
 	// Bind the particle buffer
 	UINT stride = sizeof(ParticlePoint);
 	UINT offset = 0;

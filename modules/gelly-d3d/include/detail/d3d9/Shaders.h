@@ -1,8 +1,8 @@
-#ifndef GELLY_D3D9SHADER_H
-#define GELLY_D3D9SHADER_H
+#ifndef GELLY_D3D9SHADERS_H
+#define GELLY_D3D9SHADERS_H
 
-#define PIXEL_PROFILE "ps_2_0"
-#define VERTEX_PROFILE "vs_2_0"
+#define D3D9_PIXEL_PROFILE "ps_2_0"
+#define D3D9_VERTEX_PROFILE "vs_2_0"
 
 #include <d3d9.h>
 #include <d3dcompiler.h>
@@ -26,4 +26,4 @@ IDirect3DVertexShader9 *compile_vertex_shader(
 );
 }  // namespace d3d9
 
-#endif	// GELLY_D3D9SHADER_H
+#endif	// GELLY_D3D9SHADERS_H

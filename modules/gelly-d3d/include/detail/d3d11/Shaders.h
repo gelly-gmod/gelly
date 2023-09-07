@@ -1,17 +1,17 @@
-#ifndef GELLY_SHADER_H
-#define GELLY_SHADER_H
+#ifndef GELLY_SHADERS_H
+#define GELLY_SHADERS_H
 
-#include <Windows.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <wrl.h>
 
 using namespace Microsoft::WRL;
 
-#define VERTEX_PROFILE "vs_5_0"
-#define PIXEL_PROFILE "ps_5_0"
-#define GEOMETRY_PROFILE "gs_5_0"
+#define D3D11_VERTEX_PROFILE "vs_5_0"
+#define D3D11_PIXEL_PROFILE "ps_5_0"
+#define D3D11_GEOMETRY_PROFILE "gs_5_0"
 
+namespace d3d11 {
 template <typename Shader>
 struct ShaderCompileResult {
 	ID3DBlob *shaderBlob;
@@ -38,5 +38,6 @@ ShaderCompileResult<ID3D11VertexShader> compile_vertex_shader(
 ShaderCompileResult<ID3D11GeometryShader> compile_geometry_shader(
 	const ShaderCompileOptions &options
 );
+}  // namespace d3d11
 
-#endif	// GELLY_SHADER_H
+#endif	// GELLY_SHADERS_H
