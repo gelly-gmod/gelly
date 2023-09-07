@@ -19,9 +19,8 @@ elseif (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "x86")
     set_target_properties(gelly_binary_module PROPERTIES OUTPUT_NAME gmcl_gelly_win32)
 endif ()
 
-add_custom_command(
-        TARGET gelly_binary_module
-        PRE_BUILD # Source code references the generated files, so we need to generate them before compiling
+add_custom_target(
+        GellyD3D9Shaders
         COMMAND ${CMAKE_COMMAND}
         -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
         -DLOCAL_SHADER_PATH="src/d3d9/shaders"
@@ -48,3 +47,5 @@ set_target_properties(gelly_binary_module
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/release"
         )
+
+add_dependencies(gelly_binary_module GellyD3D9Shaders)

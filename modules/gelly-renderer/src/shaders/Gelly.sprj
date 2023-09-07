@@ -19,8 +19,8 @@
 					<scaleY>0.157434046</scaleY>
 					<scaleZ>0.0889289379</scaleZ>
 					<x>-1.06012774</x>
-					<y>0.919799328</y>
-					<z>-0.0427309275</z>
+					<y>0.74258554</y>
+					<z>0.47531426</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere2" type="geometry">
@@ -79,14 +79,14 @@
 				<define name="SHADERED" active="true">1</define>
 			</macros>
 		</pass>
-		<pass name="ParticleSmoothing" type="shader" active="true" patchverts="1">
+		<pass name="ParticleSmoothing" type="shader" active="false" patchverts="1">
 			<shader type="vs" path="shaders\ParticleSmoothingVS.hlsl" entry="main" />
 			<shader type="ps" path="shaders\ParticleSmoothingPS.hlsl" entry="main" />
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
-			<rendertexture />
+			<rendertexture name="DepthSmooth" />
 			<items>
 				<item name="ScreenQuadNDC" type="geometry">
 					<type>ScreenQuadNDC</type>
@@ -173,20 +173,19 @@
 	<objects>
 		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="ParticleSmoothing" />
-		</object>
-		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="NormalEstimation" />
 		</object>
+		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
 		<entry type="pinned" name="padding" owner="ParticleSmoothing" />
 		<entry type="camera" fp="true">
-			<positionX>-0.0425809808</positionX>
-			<positionY>0.959816813</positionY>
-			<positionZ>0.928537488</positionZ>
-			<yaw>-7511.02539</yaw>
-			<pitch>354.856049</pitch>
+			<positionX>-2.68646407</positionX>
+			<positionY>0.969798148</positionY>
+			<positionZ>-2.05642295</positionZ>
+			<yaw>-8437.47656</yaw>
+			<pitch>349.358582</pitch>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

@@ -5,7 +5,6 @@ struct VS_INPUT {
 
 struct PS_OUTPUT {
     float4 Col : SV_TARGET0;
-    float Depth : SV_Depth;
 };
 
 sampler2D depthSampler : register(s0);
@@ -22,6 +21,5 @@ PS_OUTPUT main(VS_INPUT input) {
     }
 
     output.Col = float4(depth.xyz, 1.0f);
-    output.Depth = depth.a;
     return output;
 }

@@ -3,7 +3,7 @@
 #include "detail/Shader.h"
 
 const char *PIXEL_SHADER_SOURCE =
-#include "generated/ParticleSmoothingPS.embed.hlsl"
+#include "generated/NormalEstimationPS.embed.hlsl"
 	;
 
 NormalSmoothing::NormalSmoothing(
@@ -16,7 +16,7 @@ NormalSmoothing::NormalSmoothing(
 			{
 				.buffer = (void *)PIXEL_SHADER_SOURCE,
 				.size = strlen(PIXEL_SHADER_SOURCE),
-				.name = "ParticleSmoothingPS",
+				.name = "NormalEstimationPS",
 				.entryPoint = "main",
 			},
 		.defines = nullptr,

@@ -52,7 +52,7 @@ float GetViewLinearDepth(float3 viewPosition) {
 	// TODO: make this a parameter in the per-frame constant buffer.
 	float nearZ = 3;
 	float farZ = 28377.919921875;
-	return -viewPosition.z;
+	return LinearizeDepth(ndcDepth, nearZ, farZ);
 }
 
 float GetViewDepth(float3 viewPosition) {
@@ -69,7 +69,8 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	float3 viewParticlePosition = NudgeParticleByNormal(input.Center.xyz, normal);
 
 	PS_OUTPUT output = (PS_OUTPUT)0;
-	output.DepthCol = float4(1.f, 1.f, 1.f, GetViewLinearDepth(viewParticlePosition));
+	float linearDepth = GetViewLinearDepth(viewParticlePosition);
+	output.DepthCol = float4(linearDepth, linearDepth, linearDepth, linearDepth);
 	output.Depth = GetViewDepth(viewParticlePosition);
 
 	return output;

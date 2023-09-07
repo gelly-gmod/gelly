@@ -4,6 +4,7 @@ cbuffer cbPerFrame : register(b0) {
 	float4x4 matProj;
 	float4x4 matView;
 	float4x4 matInvProj;
+	float4x4 matInvView;
 };
 
 Texture2D depth : register(t0);
@@ -42,19 +43,25 @@ float3 ReconstructViewPosition(float2 texcoord)
 	return position.xyz;
 }
 
+float GetDepth(float2 texcoord)
+{
+	return depth.Sample(DepthSampler, texcoord).a;
+}
+
 float4 EstimateNormal(float2 i) {
-	float4 normal = depth.Sample(DepthSampler, i);
-	if (normal.a == 0.f) {
-		return float4(0.f, 0.f, 0.f, 0.f);
+	float4 depthCol = depth.Sample(DepthSampler, i);
+	if (depthCol.a == 0.0f) {
+		return float4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
+	
+	float ddx_depth = ddx(GetDepth(i));
+	float ddy_depth = ddy(GetDepth(i));
 
-	normal.x *= -1.0f;
-	normal.y *= -1.0f;
+	float gradient_z = 0.01f;
+	float3 gradient = float3(-ddx_depth * res.x, -ddy_depth * res.y, gradient_z);
+	float3 normal = normalize(gradient);
 
-	float3 viewDir = normalize(float4(0.4, 0.6, 0.3, 1.0f));
-	float lightLevel = dot(normal.xyz, viewDir) * 0.4f;
-
-	return float4(lightLevel, lightLevel, lightLevel, 1.f);
+	return float4(normal * 0.5f + 0.5f, 1.0f);
 }
 
 float4 main(VS_OUTPUT input) : SV_TARGET {

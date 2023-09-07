@@ -30,9 +30,8 @@ target_link_libraries(gelly_renderer PUBLIC d3d9.lib d3d11.lib d3dcompiler.lib)
 target_include_directories(gelly_renderer PUBLIC include src)
 target_include_directories(gelly_renderer PRIVATE src)
 
-add_custom_command(
-        TARGET gelly_renderer
-        PRE_BUILD # Source code references the generated files, so we need to generate them before compiling
+add_custom_target(
+        GellyD3D11Shaders
         COMMAND ${CMAKE_COMMAND}
         -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
         -DLOCAL_SHADER_PATH="src/shaders/shaders"
@@ -40,3 +39,5 @@ add_custom_command(
         -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PreprocessShaders.cmake
         COMMENT "Preprocessing D3D11 shaders..."
 )
+
+add_dependencies(gelly_renderer GellyD3D11Shaders)

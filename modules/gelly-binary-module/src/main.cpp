@@ -185,7 +185,7 @@ LUA_FUNCTION(gelly_Create) {
 
 	// Create a Gelly
 	auto *gelly = new Gelly(
-		params, TextureOverride::device, TextureOverride::textures.depth
+		params, TextureOverride::device, TextureOverride::textures.normal
 	);
 	LUA->PushUserType_Value(gelly, Gelly_id);
 
