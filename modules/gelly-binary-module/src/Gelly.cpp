@@ -251,8 +251,9 @@ void RendererCompositor::BindShaderResources() {
 	   device->SetPixelShader(pixelShader.Get()));
 
 	// Bind textures
-	gbuffer.normal->SetupAtStage(0, 0, device);
-
+	gbuffer.depth->SetupAtStage(0, 0, device);
+	gbuffer.normal->SetupAtStage(1, 1, device);
+	
 	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_LIGHTING, FALSE));
 }

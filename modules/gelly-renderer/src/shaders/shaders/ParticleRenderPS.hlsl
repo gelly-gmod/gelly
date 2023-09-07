@@ -56,8 +56,16 @@ float GetViewLinearDepth(float3 viewPosition) {
 }
 
 float GetViewDepth(float3 viewPosition) {
-	float4 clipPosition = mul(float4(viewPosition, 1.0f), matInvProj);
+	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
 	return clipPosition.z / clipPosition.w;
+}
+
+float GetRasterizedDepth(float3 viewPosition) {
+	float depth_eye = viewPosition.z;
+	float nearZ = 3;
+	float farZ = 28377.919921875;
+
+	return -((farZ + nearZ) / (farZ - nearZ) * depth_eye - (2 * farZ * nearZ) / (farZ - nearZ)) / -depth_eye;
 }
 
 PS_OUTPUT main(GS_OUTPUT input) {
@@ -70,7 +78,8 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float linearDepth = GetViewLinearDepth(viewParticlePosition);
-	output.DepthCol = float4(linearDepth, linearDepth, linearDepth, linearDepth);
+	float rasterizedDepth = GetRasterizedDepth(viewParticlePosition);
+	output.DepthCol = float4(rasterizedDepth, linearDepth, linearDepth, linearDepth);
 	output.Depth = GetViewDepth(viewParticlePosition);
 
 	return output;
