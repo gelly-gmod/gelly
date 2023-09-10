@@ -25,7 +25,7 @@ namespace TextureOverride {
 extern D3DCreateTexture originalCreateTexture;
 extern SharedTextures sharedTextures;
 extern TextureOverrideTarget target;
-extern IDirect3DDevice9 *device;
+extern IDirect3DDevice9Ex *device;
 
 /**
  * Initializes MinHook, grabs the D3D9 vtable, and sets up the detour.

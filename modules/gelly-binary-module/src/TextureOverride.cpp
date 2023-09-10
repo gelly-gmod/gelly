@@ -18,7 +18,7 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 	HANDLE *sharedHandle
 ) {
 	using namespace TextureOverride;
-	
+
 	if (target == TextureOverrideTarget::None) {
 		// This shouldn't happen as the hook should be disabled.
 		return originalCreateTexture(
@@ -83,11 +83,12 @@ namespace TextureOverride {
 D3DCreateTexture originalCreateTexture = nullptr;
 SharedTextures sharedTextures{};
 TextureOverrideTarget target = TextureOverrideTarget::None;
-IDirect3DDevice9 *device = nullptr;
+IDirect3DDevice9Ex *device = nullptr;
 }  // namespace TextureOverride
 
 void TextureOverride::Initialize() {
-	IDirect3DDevice9 *dev = GetD3DDevice();
+	IDirect3DDevice9Ex *dev = GetD3DDevice();
+	device = dev;
 
 	if (dev == nullptr) {
 		throw std::runtime_error("Failed to get the D3D9 device.");

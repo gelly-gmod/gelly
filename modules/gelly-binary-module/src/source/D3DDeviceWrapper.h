@@ -16,6 +16,6 @@ public:
 // D3DDevice's location is at BaseShaderAPIDLL + 0x9A9E0
 // It's a global class that contains a pointer to the IDirect3DDevice9
 
-IDirect3DDevice9 *GetD3DDevice();
+IDirect3DDevice9Ex *GetD3DDevice();
 
 #endif	// GELLY_D3DDEVICEWRAPPER_H

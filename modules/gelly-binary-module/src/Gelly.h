@@ -58,7 +58,7 @@ struct GellyMessage {
 
 class RendererCompositor {
 private:
-	IDirect3DDevice9 *device;
+	IDirect3DDevice9Ex *device;
 	ComPtr<IDirect3DVertexBuffer9> screenQuad;
 	// no declaration needed, we use FVF instead
 
@@ -122,7 +122,7 @@ public:
 	} debugConstants{};
 
 	explicit RendererCompositor(
-		IDirect3DDevice9 *device, SharedTextures *gbuffer
+		IDirect3DDevice9Ex *device, SharedTextures *gbuffer
 	);
 	~RendererCompositor() = default;
 	void Composite();
@@ -172,7 +172,7 @@ public:
 	void Render();
 	RendererCompositor compositor;
 
-	explicit Gelly(GellyInitParams &params, IDirect3DDevice9 *device);
+	explicit Gelly(GellyInitParams &params, IDirect3DDevice9Ex *device);
 	/**
 	 * Initializes Gelly on a separate thread. This is called in the
 	 * constructor, but ran on a different thread due to technical limitations.

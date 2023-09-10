@@ -4,7 +4,7 @@
 #include <d3d9.h>
 
 // Doesn't work on the main thraed.
-Gelly::Gelly(GellyInitParams &params, IDirect3DDevice9 *device)
+Gelly::Gelly(GellyInitParams &params, IDirect3DDevice9Ex *device)
 	: scene(nullptr),
 	  renderer(nullptr),
 	  compositor(device, &params.sharedTextures),
@@ -202,7 +202,7 @@ void RendererCompositor::CreateShaders() {
 }
 
 RendererCompositor::RendererCompositor(
-	IDirect3DDevice9 *device, SharedTextures *gbuffer
+	IDirect3DDevice9Ex *device, SharedTextures *gbuffer
 )
 	: device(device), gbuffer(*gbuffer) /* copies to our class instance */ {
 	CreateScreenQuad();
