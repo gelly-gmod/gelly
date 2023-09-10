@@ -100,3 +100,7 @@ XMFLOAT4X4 Camera::GetProjectionMatrix() const { return projection; }
 XMFLOAT4X4 Camera::GetInvProjectionMatrix() const { return invProjection; }
 
 XMFLOAT4X4 Camera::GetInvViewMatrix() const { return invView; }
+
+XMFLOAT3 Camera::GetPosition() const { return eye; }
+
+XMFLOAT3 Camera::GetDirection() const { return direction; }

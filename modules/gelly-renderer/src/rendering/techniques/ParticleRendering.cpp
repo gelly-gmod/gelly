@@ -116,6 +116,8 @@ void ParticleRendering::RunForFrame(
 			.view = camera.GetViewMatrix(),
 			.invProj = camera.GetInvProjectionMatrix(),
 			.invView = camera.GetInvViewMatrix(),
+			.eye = camera.GetPosition(),
+			.padding2 = {},
 		};
 
 		perFrameCBuffer.Set(context, &perFrameData);
@@ -131,7 +133,7 @@ void ParticleRendering::RunForFrame(
 
 	// Bind the RTs
 	rts->gbuffer->depth.SetAsRT(context, rts->dsv.Get());
-	
+
 	// Bind the particle buffer
 	UINT stride = sizeof(ParticlePoint);
 	UINT offset = 0;

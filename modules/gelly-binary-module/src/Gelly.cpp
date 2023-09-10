@@ -236,7 +236,28 @@ void RendererCompositor::BindShaderResources() {
 		0, D3DSAMP_MIPFILTER, reinterpret_cast<DWORD *>(&previous.mipFilter1)
 	);
 	device->GetTexture(0, &previous.texture0);
+	device->GetSamplerState(
+		1, D3DSAMP_ADDRESSU, reinterpret_cast<DWORD *>(&previous.addressU2)
+	);
+	device->GetSamplerState(
+		1, D3DSAMP_ADDRESSV, reinterpret_cast<DWORD *>(&previous.addressV2)
+	);
+	device->GetSamplerState(
+		1, D3DSAMP_MAGFILTER, reinterpret_cast<DWORD *>(&previous.magFilter2)
+	);
+	device->GetSamplerState(
+		1, D3DSAMP_MINFILTER, reinterpret_cast<DWORD *>(&previous.minFilter2)
+	);
+	device->GetSamplerState(
+		1, D3DSAMP_MIPFILTER, reinterpret_cast<DWORD *>(&previous.mipFilter2)
+	);
+	device->GetTexture(1, &previous.texture1);
+
 	device->GetRenderState(D3DRS_LIGHTING, &previous.lighting);
+	device->GetRenderState(D3DRS_ZENABLE, &previous.ztest);
+	device->GetRenderState(D3DRS_ALPHABLENDENABLE, &previous.alphaBlend);
+
+	device->GetPixelShaderConstantF(0, previous.constant0, 1);
 
 	// Bind vertex buffer
 	DX("Failed to set stream source",
@@ -247,15 +268,24 @@ void RendererCompositor::BindShaderResources() {
 	// Bind shaders
 	DX("Failed to set vertex shader (composite)",
 	   device->SetVertexShader(vertexShader.Get()));
+	float constants[4] = {debugConstants.zCutoff, 0.f, 0.f, 0.f};
+	DX("Failed to set pixel shader constants",
+	   device->SetPixelShaderConstantF(0, constants, 1));
 	DX("Failed to set pixel shader (composite)",
 	   device->SetPixelShader(pixelShader.Get()));
 
 	// Bind textures
 	gbuffer.depth->SetupAtStage(0, 0, device);
 	gbuffer.normal->SetupAtStage(1, 1, device);
-	
+
 	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_LIGHTING, FALSE));
+	DX("Failed to set render state",
+	   device->SetRenderState(D3DRS_ZENABLE, TRUE));
+	DX("Failed to set render state",
+	   device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+	DX("Failed to set render state",
+	   device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 }
 
 void RendererCompositor::RestorePreviousState() {
@@ -275,6 +305,9 @@ void RendererCompositor::RestorePreviousState() {
 	}
 
 	if (previous.pixelShader) {
+		DX("Failed to set pixel shader constants",
+		   device->SetPixelShaderConstantF(0, previous.constant0, 1));
+
 		DX("Failed to restore pixel shader",
 		   device->SetPixelShader(previous.pixelShader));
 	}
@@ -282,6 +315,11 @@ void RendererCompositor::RestorePreviousState() {
 	if (previous.texture0) {
 		DX("Failed to restore texture",
 		   device->SetTexture(0, previous.texture0));
+	}
+
+	if (previous.texture1) {
+		DX("Failed to restore texture",
+		   device->SetTexture(1, previous.texture1));
 	}
 
 	DX("Failed to restore sampler state",
@@ -294,8 +332,24 @@ void RendererCompositor::RestorePreviousState() {
 	   device->SetSamplerState(0, D3DSAMP_MINFILTER, previous.minFilter1));
 	DX("Failed to restore sampler state",
 	   device->SetSamplerState(0, D3DSAMP_MIPFILTER, previous.mipFilter1));
+
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(1, D3DSAMP_ADDRESSU, previous.addressU2));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(1, D3DSAMP_ADDRESSV, previous.addressV2));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(1, D3DSAMP_MAGFILTER, previous.magFilter2));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(1, D3DSAMP_MINFILTER, previous.minFilter2));
+	DX("Failed to restore sampler state",
+	   device->SetSamplerState(1, D3DSAMP_MIPFILTER, previous.mipFilter2));
+
 	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_LIGHTING, previous.lighting));
+	DX("Failed to set render state",
+	   device->SetRenderState(D3DRS_ZENABLE, previous.ztest));
+	DX("Failed to set  render state",
+	   device->SetRenderState(D3DRS_ALPHABLENDENABLE, previous.alphaBlend));
 }
 
 void RendererCompositor::Composite() {

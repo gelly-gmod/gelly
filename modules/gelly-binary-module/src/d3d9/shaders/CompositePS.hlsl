@@ -8,6 +8,8 @@ struct PS_OUTPUT {
     float Depth : SV_Depth;
 };
 
+float4 debugConstants : register(c0);
+
 sampler2D depthSampler : register(s0);
 sampler2D normalSampler : register(s1);
 
@@ -22,9 +24,17 @@ PS_OUTPUT main(VS_INPUT input) {
         discard;
     }
 
-    float4 normal = tex2D(normalSampler, input.Tex);
+    if (depth.r == debugConstants.x) {
+        output.Col = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    } else if (depth.r < debugConstants.x) {
+        output.Col = float4(1.0f, 0.0f, 0.0f, 1.0f);
+    } else {
+        output.Col = float4(0.0f, 1.0f, 0.0f, 1.0f);
+    }
 
-    output.Col = float4(normal.xyz, 1.0f);
+	float nearZ = 3;
+	float farZ = 28377.919921875;
+	// Output rasterized depth since we're compositing the depth buffer of the particles
     output.Depth = depth.r;
     return output;
 }

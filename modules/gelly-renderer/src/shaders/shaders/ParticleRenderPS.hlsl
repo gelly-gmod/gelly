@@ -5,6 +5,8 @@ cbuffer cbPerFrame : register(b0) {
 	float4x4 matView;
 	float4x4 matInvProj;
 	float4x4 matInvView;
+	float3 eye;
+	float padding2;
 };
 
 struct GS_OUTPUT {
@@ -15,7 +17,7 @@ struct GS_OUTPUT {
 
 struct PS_OUTPUT {
 	float4 DepthCol : SV_TARGET;
-	float Depth : SV_Depth;
+	float Depth : SV_DEPTH;
 };
 
 float LinearizeDepth(float z, float near, float far) {
@@ -57,15 +59,12 @@ float GetViewLinearDepth(float3 viewPosition) {
 
 float GetViewDepth(float3 viewPosition) {
 	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
+	// The hardware gets the depth from the clip space position, so we have to do the same.
 	return clipPosition.z / clipPosition.w;
 }
 
 float GetRasterizedDepth(float3 viewPosition) {
-	float depth_eye = viewPosition.z;
-	float nearZ = 3;
-	float farZ = 28377.919921875;
-
-	return -((farZ + nearZ) / (farZ - nearZ) * depth_eye - (2 * farZ * nearZ) / (farZ - nearZ)) / -depth_eye;
+	return -viewPosition.z;
 }
 
 PS_OUTPUT main(GS_OUTPUT input) {
@@ -75,7 +74,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	}
 
 	float3 viewParticlePosition = NudgeParticleByNormal(input.Center.xyz, normal);
-
+	
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float linearDepth = GetViewLinearDepth(viewParticlePosition);
 	float rasterizedDepth = GetRasterizedDepth(viewParticlePosition);

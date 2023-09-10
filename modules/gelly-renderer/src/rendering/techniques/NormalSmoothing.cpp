@@ -38,6 +38,8 @@ void NormalSmoothing::RunForFrame(
 			.view = camera.GetViewMatrix(),
 			.invProj = camera.GetInvProjectionMatrix(),
 			.invView = camera.GetInvViewMatrix(),
+			.eye = camera.GetPosition(),
+			.padding2 = {},
 		};
 
 		perFrameCBuffer.Set(context, &perFrameData);

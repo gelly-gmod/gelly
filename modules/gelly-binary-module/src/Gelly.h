@@ -87,14 +87,25 @@ private:
 		_D3DTEXTUREFILTERTYPE minFilter1;
 		_D3DTEXTUREFILTERTYPE mipFilter1;
 
+		_D3DTEXTUREADDRESS addressU2;
+		_D3DTEXTUREADDRESS addressV2;
+		_D3DTEXTUREFILTERTYPE magFilter2;
+		_D3DTEXTUREFILTERTYPE minFilter2;
+		_D3DTEXTUREFILTERTYPE mipFilter2;
+
 		IDirect3DVertexShader9 *vertexShader;
 		IDirect3DPixelShader9 *pixelShader;
 		IDirect3DVertexBuffer9 *streamSource;
 		IDirect3DBaseTexture9 *texture0;
+		IDirect3DBaseTexture9 *texture1;
 		UINT streamOffset;
 		UINT streamStride;
 		DWORD fvf;
 		DWORD lighting;
+		DWORD ztest;
+		DWORD alphaBlend;
+
+		float constant0[4];
 	} previous{};
 
 	void CreateScreenQuad();
@@ -103,6 +114,13 @@ private:
 	void RestorePreviousState();
 
 public:
+	struct {
+		/**
+		 * Determines what Z value to render a debug color at.
+		 */
+		float zCutoff;
+	} debugConstants{};
+
 	explicit RendererCompositor(
 		IDirect3DDevice9 *device, SharedTextures *gbuffer
 	);
@@ -149,9 +167,9 @@ private:
 	);
 	void SyncCamera(Vec3 position, Vec3 dir);
 	void Clear();
-	void Render();
 
 public:
+	void Render();
 	RendererCompositor compositor;
 
 	explicit Gelly(GellyInitParams &params, IDirect3DDevice9 *device);

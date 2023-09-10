@@ -6,6 +6,7 @@
 
 #include "Gelly.h"
 #include "TextureOverride.h"
+#include "source/IRenderView.h"
 
 #define IMAGE_FORMAT_RGBA16161616F 24
 #define TEXTUREFLAGS_RENDERTARGET 32768
@@ -14,8 +15,17 @@
 	LUA->PushCFunction(parent##_##name); \
 	LUA->SetField(-2, #name);
 
+#define LUA_RUNTIME_ERROR_START() try {
+#define LUA_RUNTIME_ERROR_END()           \
+	}                                     \
+	catch (const std::runtime_error &e) { \
+		LUA->ThrowError(e.what());        \
+	}
+
 #define CREATE_SOURCE_TEXTURE(texType)                       \
+	LUA_RUNTIME_ERROR_START()                                \
 	TextureOverride::Enable(TextureOverrideTarget::texType); \
+	LUA_RUNTIME_ERROR_END()                                  \
 	LUA->PushSpecial(SPECIAL_GLOB);                          \
 	LUA->GetField(-1, "GetRenderTargetEx");                  \
 	LUA->PushString("__Gelly_" #texType "RT");               \
@@ -28,17 +38,48 @@
 	LUA->PushNumber(IMAGE_FORMAT_RGBA16161616F);             \
 	LUA->Call(8, 1);                                         \
 	LUA->Remove(-2);                                         \
-	TextureOverride::Disable();
+	LUA_RUNTIME_ERROR_START()                                \
+	TextureOverride::Disable();                              \
+	LUA_RUNTIME_ERROR_END()
 
 using namespace GarrysMod::Lua;
 static int Gelly_id = 0;
+static Gelly *gellyInstance = nullptr;
+static IVRenderView_SceneBeginFn originalSceneBegin = nullptr;
+
+void __fastcall IVRenderView_SceneBeginHook(
+	IVRenderView *thisptr,
+	void *edx,
+	void *worldLists,
+	unsigned long flags,
+	float waterZAdjust
+) {
+	printf("DrawWorld\n");
+	originalSceneBegin(thisptr, edx, worldLists, flags, waterZAdjust);
+
+	if (gellyInstance) {
+		gellyInstance->Render();
+		gellyInstance->compositor.Composite();
+	}
+}
 
 LUA_FUNCTION(Gelly_gc) {
 	LUA->CheckType(1, Gelly_id);
 	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
 
 	delete gelly;
-	
+
+	return 0;
+}
+
+LUA_FUNCTION(Gelly_SetDebugZ) {
+	LUA->CheckType(1, Gelly_id);
+	LUA->CheckType(2, Type::Number);
+	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
+
+	gelly->compositor.debugConstants.zCutoff =
+		static_cast<float>(LUA->GetNumber(2));
+
 	return 0;
 }
 
@@ -184,9 +225,26 @@ LUA_FUNCTION(gelly_Create) {
 
 	params.sharedTextures = TextureOverride::sharedTextures;
 
+	if (params.sharedTextures.normal == nullptr ||
+		params.sharedTextures.depth == nullptr) {
+		LUA->ThrowError("Failed to create shared textures");
+	}
+
+	if (!TextureOverride::device) {
+		LUA->ThrowError("Failed to create device");
+	}
+
 	// Create a Gelly
 	auto *gelly = new Gelly(params, TextureOverride::device);
 	LUA->PushUserType_Value(gelly, Gelly_id);
+
+	gellyInstance = gelly;
+
+	//	try {
+	//		HookSceneBegin(IVRenderView_SceneBeginHook, &originalSceneBegin);
+	//	} catch (const std::runtime_error &e) {
+	//		LUA->ThrowError(e.what());
+	//	}
 
 	return 3;
 }
@@ -220,6 +278,7 @@ GMOD_MODULE_OPEN() {
 	SET_C_FUNC(Gelly, SetupCamera);
 	SET_C_FUNC(Gelly, SyncCamera);
 	SET_C_FUNC(Gelly, Clear);
+	SET_C_FUNC(Gelly, SetDebugZ);
 	LUA->Pop();
 
 	return 0;
