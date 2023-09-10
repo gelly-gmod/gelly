@@ -18,8 +18,7 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 	HANDLE *sharedHandle
 ) {
 	using namespace TextureOverride;
-	TextureOverride::device = device;
-
+	
 	if (target == TextureOverrideTarget::None) {
 		// This shouldn't happen as the hook should be disabled.
 		return originalCreateTexture(
