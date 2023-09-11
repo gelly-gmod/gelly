@@ -115,10 +115,7 @@ private:
 
 public:
 	struct {
-		/**
-		 * Determines what Z value to render a debug color at.
-		 */
-		float zCutoff;
+		float zValue = 0.f;
 	} debugConstants{};
 
 	explicit RendererCompositor(

@@ -46,7 +46,7 @@ IDirect3DDevice9Ex *GetD3DDevice() {
 		return nullptr;
 	}
 
-	D3DDeviceWrapper *d3dDeviceWrapper =
+	auto *d3dDeviceWrapper =
 		(D3DDeviceWrapper *)(baseShaderAPIDLL + D3DDeviceWrapperOffset);
 	if (!d3dDeviceWrapper) {
 		return nullptr;

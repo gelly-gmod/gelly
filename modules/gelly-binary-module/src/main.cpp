@@ -72,12 +72,12 @@ LUA_FUNCTION(Gelly_gc) {
 	return 0;
 }
 
-LUA_FUNCTION(Gelly_SetDebugZ) {
+LUA_FUNCTION(Gelly_SetDebugZValue) {
 	LUA->CheckType(1, Gelly_id);
 	LUA->CheckType(2, Type::Number);
 	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
 
-	gelly->compositor.debugConstants.zCutoff =
+	gelly->compositor.debugConstants.zValue =
 		static_cast<float>(LUA->GetNumber(2));
 
 	return 0;
@@ -278,7 +278,7 @@ GMOD_MODULE_OPEN() {
 	SET_C_FUNC(Gelly, SetupCamera);
 	SET_C_FUNC(Gelly, SyncCamera);
 	SET_C_FUNC(Gelly, Clear);
-	SET_C_FUNC(Gelly, SetDebugZ);
+	SET_C_FUNC(Gelly, SetDebugZValue);
 	LUA->Pop();
 
 	return 0;

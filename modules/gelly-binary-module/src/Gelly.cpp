@@ -268,7 +268,7 @@ void RendererCompositor::BindShaderResources() {
 	// Bind shaders
 	DX("Failed to set vertex shader (composite)",
 	   device->SetVertexShader(vertexShader.Get()));
-	float constants[4] = {debugConstants.zCutoff, 0.f, 0.f, 0.f};
+	float constants[4] = {debugConstants.zValue, 0.f, 0.f, 0.f};
 	DX("Failed to set pixel shader constants",
 	   device->SetPixelShaderConstantF(0, constants, 1));
 	DX("Failed to set pixel shader (composite)",

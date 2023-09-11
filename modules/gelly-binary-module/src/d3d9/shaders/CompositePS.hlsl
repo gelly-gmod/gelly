@@ -17,24 +17,26 @@ float LinearizeDepth(float z, float near, float far) {
     return (2.0f * near) / (far + near - z * (far - near));
 }
 
+float SampleGradient(float min, float max, float value) {
+    float range = max - min;
+    float sample = (value - min) / range;
+    return sample;
+}
+
 PS_OUTPUT main(VS_INPUT input) {
     PS_OUTPUT output;
-    float4 depth = tex2D(depthSampler, input.Tex);
-    if (depth.r <= 0.01f) {
+    // Remember that D3D10 and above use 0, 0 as the top left of the screen, while
+    // D3D9 uses -.5, -.5 as the top left of the screen.
+
+    float2 nudged = input.Tex;
+    float4 depth = tex2D(depthSampler, nudged);
+    float reconstructedDepth = depth.x;
+    if (reconstructedDepth <= 0.01f) {
         discard;
     }
 
-    if (depth.r == debugConstants.x) {
-        output.Col = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    } else if (depth.r < debugConstants.x) {
-        output.Col = float4(1.0f, 0.0f, 0.0f, 1.0f);
-    } else {
-        output.Col = float4(0.0f, 1.0f, 0.0f, 1.0f);
-    }
+    output.Depth = reconstructedDepth;
+    output.Col = float4(reconstructedDepth, reconstructedDepth, reconstructedDepth, 1.0f);
 
-	float nearZ = 3;
-	float farZ = 28377.919921875;
-	// Output rasterized depth since we're compositing the depth buffer of the particles
-    output.Depth = depth.r;
     return output;
 }
