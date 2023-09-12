@@ -68,3 +68,5 @@ void d3d11::Texture::Clear(ID3D11DeviceContext *context, const float color[4])
 	const {
 	context->ClearRenderTargetView(rtv.Get(), color);
 }
+
+ID3D11RenderTargetView *d3d11::Texture::GetRTV() const { return rtv.Get(); }

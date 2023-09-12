@@ -8,7 +8,10 @@ RendererResources::RendererResources(
 	ID3D11Device *device, const RendererInitParams &params
 )
 	: gbuffer(
-		  {.depth = d3d11::Texture(*params.sharedTextures.depth, device),
+		  {.depth_low =
+			   d3d11::Texture(*params.sharedTextures.depth_low, device),
+		   .depth_high =
+			   d3d11::Texture(*params.sharedTextures.depth_high, device),
 		   .normal = d3d11::Texture(*params.sharedTextures.normal, device)}
 	  ) {
 	// Create depth stencil buffer

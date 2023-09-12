@@ -12,6 +12,7 @@ cbuffer cbPerFrame : register(b0) {
 	float4x4 matGeo;
 #endif
 	float4x4 matInvProj;
+	float4x4 matInvView;
 };
 
 struct GS_OUTPUT {
@@ -33,27 +34,32 @@ struct VS_OUTPUT {
 static const float2 corners[4] = {
 	float2(0.0, 1.0), float2(0.0, 0.0), float2(1.0, 1.0), float2(1.0, 0.0)};
 
-float4 ToClip(in float4 pos) { return mul(float4(pos.xyz, 1), matProj); }
+static const float4x4 matViewProj = mul(matView, matProj);
+
+float4 ToClip(in float4 pos) { return mul(float4(pos.xyz, 1.f), matProj); }
 
 [maxvertexcount(4)] void main(
 	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
 ) {
 // TODO: Make this a parameter in the per-frame constant buffer.
 #ifdef SHADERED
-	float particleScale = 0.3f;
+	float particleScale = 0.01f;
 #else
-	float particleScale = 6.f;
+	float particleScale = 4.f;
 #endif
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; ++i) {
 		float2 corner = corners[i];
 
 		GS_OUTPUT output = (GS_OUTPUT)0;
-		float4 cornerViewPos = input[0].ViewPos;
-		cornerViewPos.xy += particleScale * (corner - float2(0.5, 0.5));
-		output.Position = ToClip(cornerViewPos);
-		output.Center = input[0].ViewPos;
-		output.Texcoord = corner;
+
+		float4 pos = input[0].ViewPos;
+		pos.xy += (corner - float2(0.5f, 0.5f)) * particleScale;
+		pos = ToClip(pos);
+
+		output.Position = pos;
+		output.Center = input[0].Pos;
+		output.Texcoord = float2(corner.x, 1.0f - corner.y);
 
 		stream.Append(output);
 	}

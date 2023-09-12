@@ -19,7 +19,8 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 struct SharedTextures {
-	d3d9::Texture *depth;
+	d3d9::Texture *depth_low;
+	d3d9::Texture *depth_high;
 	d3d9::Texture *normal;
 };
 

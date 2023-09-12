@@ -54,13 +54,12 @@ void Camera::InvalidateProjection() {
 	// https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/hammer/camera.cpp#L343
 
 	XMFLOAT4X4 matProjection{};
-	XMStoreFloat4x4(&matProjection, XMMatrixIdentity());
 
 	float w = 2.f * nearZ * tanf(fov * M_PI / 360.f);
 	float h = (w * height) / width;
 
-	matProjection.m[0][0] = 2 * nearZ / w;
-	matProjection.m[1][1] = 2 * nearZ / h;
+	matProjection.m[0][0] = 2.f * nearZ / w;
+	matProjection.m[1][1] = 2.f * nearZ / h;
 	matProjection.m[2][2] = farZ / (nearZ - farZ);
 	matProjection.m[2][3] = (nearZ * farZ) / (nearZ - farZ);
 	matProjection.m[3][2] = -1;

@@ -221,12 +221,14 @@ LUA_FUNCTION(gelly_Create) {
 	// We're going to manually create the textures and apply our override
 
 	CREATE_SOURCE_TEXTURE(Normal);
-	CREATE_SOURCE_TEXTURE(Depth);
+	CREATE_SOURCE_TEXTURE(DepthHigh);
+	CREATE_SOURCE_TEXTURE(DepthLow);
 
 	params.sharedTextures = TextureOverride::sharedTextures;
 
 	if (params.sharedTextures.normal == nullptr ||
-		params.sharedTextures.depth == nullptr) {
+		params.sharedTextures.depth_low == nullptr ||
+		params.sharedTextures.depth_high == nullptr) {
 		LUA->ThrowError("Failed to create shared textures");
 	}
 

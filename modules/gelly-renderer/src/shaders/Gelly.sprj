@@ -8,16 +8,16 @@
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 			</inputlayout>
-			<rendertexture name="Depth" />
+			<rendertexture />
 			<items>
 				<item name="Sphere" type="geometry">
 					<type>Sphere</type>
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.127043724</scaleX>
-					<scaleY>0.157434046</scaleY>
-					<scaleZ>0.0889289379</scaleZ>
+					<scaleX>0.229669809</scaleX>
+					<scaleY>0.121384442</scaleY>
+					<scaleZ>0.213156879</scaleZ>
 					<x>-1.06012774</x>
 					<y>0.74258554</y>
 					<z>0.47531426</z>
@@ -28,9 +28,11 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<x>-2.36555099</x>
-					<y>-0.253191888</y>
-					<z>3.35891414</z>
+					<scaleY>0.949999988</scaleY>
+					<scaleZ>1.09000003</scaleZ>
+					<x>-2.27030301</x>
+					<y>-0.0919656456</y>
+					<z>3.63128304</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere3" type="geometry">
@@ -54,7 +56,7 @@
 					<scaleX>0.0735212564</scaleX>
 					<scaleY>0.081156373</scaleY>
 					<scaleZ>0.0818047523</scaleZ>
-					<x>-1.14088988</x>
+					<x>-2.00834465</x>
 					<y>0.598043263</y>
 					<z>-1.15938067</z>
 					<topology>PointList</topology>
@@ -74,6 +76,18 @@
 				</variable>
 				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
 				<variable type="float4x4" name="matInvView" invert="true" system="View" />
+				<variable type="float3" name="eye">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float" name="padding2">
+					<row>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -136,7 +150,7 @@
 			</variables>
 			<macros />
 		</pass>
-		<pass name="NormalEstimation" type="shader" active="true" patchverts="1">
+		<pass name="NormalEstimation" type="shader" active="false" patchverts="1">
 			<shader type="vs" path="shaders\NormalEstimationVS.hlsl" entry="main" />
 			<shader type="ps" path="shaders\NormalEstimationPS.hlsl" entry="main" />
 			<inputlayout>
@@ -166,6 +180,32 @@
 					</row>
 				</variable>
 				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
+				<variable type="float4x4" name="matInvView">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
@@ -179,13 +219,17 @@
 	</objects>
 	<cameras />
 	<settings>
+		<entry type="property" name="Sphere" item="pipe" />
 		<entry type="pinned" name="padding" owner="ParticleSmoothing" />
+		<entry type="pinned" name="eye" owner="ParticleRender" />
+		<entry type="pinned" name="padding2" owner="ParticleRender" />
+		<entry type="pinned" name="matInvView" owner="NormalEstimation" />
 		<entry type="camera" fp="true">
-			<positionX>-2.68646407</positionX>
-			<positionY>0.969798148</positionY>
-			<positionZ>-2.05642295</positionZ>
-			<yaw>-8437.47656</yaw>
-			<pitch>349.358582</pitch>
+			<positionX>-1.01472998</positionX>
+			<positionY>0.745926797</positionY>
+			<positionZ>0.183160394</positionZ>
+			<yaw>-10266.5615</yaw>
+			<pitch>363.80426</pitch>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

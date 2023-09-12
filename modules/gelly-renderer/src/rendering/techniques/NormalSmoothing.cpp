@@ -59,8 +59,8 @@ void NormalSmoothing::RunForFrame(
 
 	BindNDCQuad(context);
 	context->PSSetShader(pixelShader.Get(), nullptr, 0);
-	rts->gbuffer->depth.SetAsSR(context, 0);
-	rts->gbuffer->depth.SetSampler(context, 0);
+	rts->gbuffer->depth_low.SetAsSR(context, 0);
+	rts->gbuffer->depth_low.SetSampler(context, 0);
 
 	perFrameCBuffer.BindToShaders(context, 0);
 

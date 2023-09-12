@@ -26,8 +26,10 @@ public:
 		const;
 	void SetAsSR(ID3D11DeviceContext *context, int slot) const;
 	void SetSampler(ID3D11DeviceContext *context, int slot) const;
-	
+
 	void Clear(ID3D11DeviceContext *context, const float color[4]) const;
+
+	ID3D11RenderTargetView *GetRTV() const;
 };
 }  // namespace d3d11
 

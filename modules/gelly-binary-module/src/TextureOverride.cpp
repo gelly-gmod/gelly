@@ -43,8 +43,12 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 			target_texture_ptr = &sharedTextures.normal;
 			texFormat = D3DFMT_A16B16G16R16F;
 			break;
-		case TextureOverrideTarget::Depth:
-			target_texture_ptr = &sharedTextures.depth;
+		case TextureOverrideTarget::DepthLow:
+			target_texture_ptr = &sharedTextures.depth_low;
+			texFormat = D3DFMT_A16B16G16R16F;
+			break;
+		case TextureOverrideTarget::DepthHigh:
+			target_texture_ptr = &sharedTextures.depth_high;
 			texFormat = D3DFMT_A16B16G16R16F;
 			break;
 		default:
@@ -127,9 +131,14 @@ void TextureOverride::Shutdown() {
 		sharedTextures.normal = nullptr;
 	}
 
-	if (sharedTextures.depth != nullptr) {
-		delete sharedTextures.depth;
-		sharedTextures.depth = nullptr;
+	if (sharedTextures.depth_low != nullptr) {
+		delete sharedTextures.depth_low;
+		sharedTextures.depth_low = nullptr;
+	}
+
+	if (sharedTextures.depth_high != nullptr) {
+		delete sharedTextures.depth_high;
+		sharedTextures.depth_high = nullptr;
 	}
 }
 

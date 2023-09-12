@@ -16,7 +16,8 @@ struct GS_OUTPUT {
 };
 
 struct PS_OUTPUT {
-	float4 DepthCol : SV_TARGET;
+	float4 DepthLowCol : SV_TARGET0;
+	float4 DepthHighCol : SV_TARGET1;
 	float Depth : SV_DEPTH;
 };
 
@@ -36,6 +37,14 @@ bool CalculateNormal(float2 texcoord, out float3 normal) {
 	return true;
 }
 
+#define BREAKPOINT 0.5f
+float2 SplitFloat(float value) {
+	float lowerRange = clamp(value, 0, BREAKPOINT) / BREAKPOINT;
+	float upperRange = clamp(value - BREAKPOINT, 0, 1 - BREAKPOINT) / (1 - BREAKPOINT);
+
+	return float2(upperRange, lowerRange);
+}
+
 float3 NudgeParticleByNormal(float3 viewCenter, float3 normal) {
 	// TODO: Make this a parameter in the per-frame constant buffer.
 	#ifdef SHADERED
@@ -52,7 +61,7 @@ float GetViewLinearDepth(float3 viewPosition) {
 	float ndcDepth = clipPosition.z / clipPosition.w;
 
 	// TODO: make this a parameter in the per-frame constant buffer.
-	float nearZ = 3;
+	float nearZ = 3;	
 	float farZ = 28377.919921875;
 	return LinearizeDepth(ndcDepth, nearZ, farZ);
 }
@@ -73,14 +82,13 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	if (!CalculateNormal(input.Texcoord, normal)) {
 		discard;
 	}
-
-	float3 viewParticlePosition = NudgeParticleByNormal(input.Center.xyz, normal);
 	
 	PS_OUTPUT output = (PS_OUTPUT)0;
-	float linearDepth = GetViewLinearDepth(viewParticlePosition);
-	float rasterizedDepth = GetRasterizedDepth(viewParticlePosition);
-	output.DepthCol = float4(rasterizedDepth, 0.f, 0.f, 0.f);
-	output.Depth = GetViewDepth(viewParticlePosition);
+	float rasterizedDepth = GetRasterizedDepth(input.Center);
+	float2 depth = SplitFloat(rasterizedDepth);
+	output.DepthHighCol = float4(depth.x, 0.f, 0.f, 0.f);
+	output.DepthLowCol = float4(input.Texcoord, 1.f, 1.f);
+	output.Depth = GetViewDepth(input.Center);
 
 	return output;
 }

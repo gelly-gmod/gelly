@@ -4,7 +4,8 @@
 #include <GellyD3D.h>
 
 struct GBuffer {
-	d3d11::Texture depth;
+	d3d11::Texture depth_low;
+	d3d11::Texture depth_high;
 	d3d11::Texture normal;
 };
 

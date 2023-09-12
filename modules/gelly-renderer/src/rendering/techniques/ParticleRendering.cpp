@@ -125,14 +125,20 @@ void ParticleRendering::RunForFrame(
 
 	// Clear the RTs
 	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
-	rts->gbuffer->depth.Clear(context, emptyColor);
+	rts->gbuffer->depth_low.Clear(context, emptyColor);
+	rts->gbuffer->depth_high.Clear(context, emptyColor);
 	// Clear the depth buffer
 	context->ClearDepthStencilView(
 		rts->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
 	);
 
 	// Bind the RTs
-	rts->gbuffer->depth.SetAsRT(context, rts->dsv.Get());
+	ID3D11RenderTargetView *rtViews[] = {
+		rts->gbuffer->depth_low.GetRTV(),
+		rts->gbuffer->depth_high.GetRTV(),
+	};
+
+	context->OMSetRenderTargets(2, rtViews, rts->dsv.Get());
 
 	// Bind the particle buffer
 	UINT stride = sizeof(ParticlePoint);

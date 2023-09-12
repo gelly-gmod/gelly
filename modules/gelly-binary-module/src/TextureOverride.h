@@ -18,7 +18,8 @@ typedef HRESULT(WINAPI *
 enum class TextureOverrideTarget : unsigned short {
 	None,
 	Normal,
-	Depth,
+	DepthLow,
+	DepthHigh
 };
 
 namespace TextureOverride {
