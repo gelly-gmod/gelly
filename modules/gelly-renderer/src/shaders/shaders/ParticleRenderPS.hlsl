@@ -1,3 +1,5 @@
+// References:
+// Section 3.1 of https://graphics.cs.kuleuven.be/publications/PSIRPBSD/PSIRPBSD_paper.pdf
 cbuffer cbPerFrame : register(b0) {
 	float2 res;
 	float2 padding;
@@ -37,7 +39,7 @@ bool CalculateNormal(float2 texcoord, out float3 normal) {
 	return true;
 }
 
-#define BREAKPOINT 0.5f
+#define BREAKPOINT 0.98f
 float2 SplitFloat(float value) {
 	float lowerRange = clamp(value, 0, BREAKPOINT) / BREAKPOINT;
 	float upperRange = clamp(value - BREAKPOINT, 0, 1 - BREAKPOINT) / (1 - BREAKPOINT);
@@ -66,14 +68,11 @@ float GetViewLinearDepth(float3 viewPosition) {
 	return LinearizeDepth(ndcDepth, nearZ, farZ);
 }
 
-float GetViewDepth(float3 viewPosition) {
-	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
-	// The hardware gets the depth from the clip space position, so we have to do the same.
+float GetViewDepth(float4 clipPosition) {
 	return clipPosition.z / clipPosition.w;
 }
 
-float GetRasterizedDepth(float3 viewPosition) {
-	float4 clipPosition = mul(float4(viewPosition, 1.0f), matProj);
+float GetRasterizedDepth(float4 clipPosition) {
 	return clipPosition.z / clipPosition.w;
 }
 
@@ -82,13 +81,13 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	if (!CalculateNormal(input.Texcoord, normal)) {
 		discard;
 	}
-	
+
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float rasterizedDepth = GetRasterizedDepth(input.Center);
 	float2 depth = SplitFloat(rasterizedDepth);
 	output.DepthHighCol = float4(depth.x, 0.f, 0.f, 0.f);
-	output.DepthLowCol = float4(input.Texcoord, 1.f, 1.f);
-	output.Depth = GetViewDepth(input.Center);
+	output.DepthLowCol = float4(depth.y, 0.f, 1.f, 1.f);
+	output.Depth =  GetViewDepth(input.Center);
 
 	return output;
 }
