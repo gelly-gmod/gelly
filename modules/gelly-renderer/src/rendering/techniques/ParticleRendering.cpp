@@ -5,15 +5,15 @@
 #include "detail/ErrorHandling.h"
 
 static const char *PIXEL_SHADER_SOURCE =
-#include "generated/ParticleRenderPS.embed.hlsl"
+#include "shaders/d3d11/ParticleRender.ps.embed.hlsl"
 	;
 
 static const char *VERTEX_SHADER_SOURCE =
-#include "generated/ParticleRenderVS.embed.hlsl"
+#include "shaders/d3d11/ParticleRender.vs.embed.hlsl"
 	;
 
 static const char *GEOMETRY_SHADER_SOURCE =
-#include "generated/ParticleRenderGS.embed.hlsl"
+#include "shaders/d3d11/ParticleRender.gs.embed.hlsl"
 	;
 
 using namespace d3d11;
@@ -33,21 +33,21 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 	};
 
 	INIT_OPTIONS_FOR_SHADER(
-		PIXEL_SHADER_SOURCE, "ParticleRenderPS.hlsl", "main"
+		PIXEL_SHADER_SOURCE, "ParticleRender.ps.hlsl", "main"
 	);
 	auto pixelShaderResult = compile_pixel_shader(options);
 	// .Attach has to be used to prevent releasing the underlying resource.
 	pixelShader.Attach(pixelShaderResult.shader);
 
 	INIT_OPTIONS_FOR_SHADER(
-		VERTEX_SHADER_SOURCE, "ParticleRenderVS.hlsl", "main"
+		VERTEX_SHADER_SOURCE, "ParticleRender.vs.hlsl", "main"
 	);
 	auto vertexShaderResult = compile_vertex_shader(options);
 	vertexShader.Attach(vertexShaderResult.shader);
 	vertexShaderBlob.Attach(vertexShaderResult.shaderBlob);
 
 	INIT_OPTIONS_FOR_SHADER(
-		GEOMETRY_SHADER_SOURCE, "ParticleRenderGS.hlsl", "main"
+		GEOMETRY_SHADER_SOURCE, "ParticleRender.gs.hlsl", "main"
 	);
 
 	auto geometryShaderResult = compile_geometry_shader(options);

@@ -171,11 +171,11 @@ void RendererCompositor::CreateScreenQuad() {
 }
 
 const char *COMPOSITE_PS_SOURCE =
-#include "generated/CompositePS.embed.hlsl"
+#include "shaders/d3d9/Composite.ps.embed.hlsl"
 	;
 
 const char *COMPOSITE_VS_SOURCE =
-#include "generated/CompositeVS.embed.hlsl"
+#include "shaders/d3d9/Composite.vs.embed.hlsl"
 	;
 
 #define INIT_OPTIONS_FOR_SHADER(source, shaderName, shaderEntryPoint) \
@@ -191,12 +191,12 @@ void RendererCompositor::CreateShaders() {
 		.defines = nullptr,
 	};
 
-	INIT_OPTIONS_FOR_SHADER(COMPOSITE_PS_SOURCE, "CompositePS.hlsl", "main");
+	INIT_OPTIONS_FOR_SHADER(COMPOSITE_PS_SOURCE, "Composite.ps", "main");
 	auto pixelShaderResult = d3d9::compile_pixel_shader(options);
 	// .Attach has to be used to prevent releasing the underlying resource.
 	pixelShader.Attach(pixelShaderResult);
 
-	INIT_OPTIONS_FOR_SHADER(COMPOSITE_VS_SOURCE, "CompositeVS.hlsl", "main");
+	INIT_OPTIONS_FOR_SHADER(COMPOSITE_VS_SOURCE, "Composite.vs", "main");
 	auto vertexShaderResult = d3d9::compile_vertex_shader(options);
 	vertexShader.Attach(vertexShaderResult);
 }

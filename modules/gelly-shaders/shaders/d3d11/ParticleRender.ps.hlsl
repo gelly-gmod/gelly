@@ -81,7 +81,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	if (!CalculateNormal(input.Texcoord, normal)) {
 		discard;
 	}
-
+	
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float rasterizedDepth = GetRasterizedDepth(input.Center);
 	float2 depth = SplitFloat(rasterizedDepth);

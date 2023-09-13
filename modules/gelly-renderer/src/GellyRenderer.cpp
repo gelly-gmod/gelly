@@ -1,7 +1,6 @@
 #include <GellyRenderer.h>
 
 #include "detail/ErrorHandling.h"
-#include "rendering/techniques/NormalSmoothing.h"
 #include "rendering/techniques/ParticleRendering.h"
 
 RendererResources::RendererResources(
@@ -147,7 +146,6 @@ void GellyRenderer::Render() {
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts, camera);
-	pipeline.normalEstimation->RunForFrame(deviceContext.Get(), &rts, camera);
 }
 
 ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
@@ -189,10 +187,6 @@ void GellyRenderer::InitializePipeline() {
 		new ParticleRendering(device.Get(), params.maxParticles);
 	particles.Attach(particleRendering->GetParticleBuffer());
 	pipeline.particleRendering = particleRendering;
-
-	auto *normalEstimation = new NormalSmoothing(device.Get());
-
-	pipeline.normalEstimation = normalEstimation;
 }
 
 void GellyRenderer::SetActiveParticles(int newActiveParticles) {

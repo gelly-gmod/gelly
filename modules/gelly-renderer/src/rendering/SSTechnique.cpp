@@ -5,7 +5,7 @@
 #include "detail/ErrorHandling.h"
 
 const char *VERTEX_SHADER_SOURCE =
-#include "generated/NDCQuadVS.embed.hlsl"
+#include "shaders/d3d11/NDCQuad.vs.embed.hlsl"
 	;
 
 using namespace d3d11;
@@ -18,7 +18,7 @@ SSTechnique::SSTechnique(ID3D11Device *device) {
 			{
 				.buffer = (void *)VERTEX_SHADER_SOURCE,
 				.size = strlen(VERTEX_SHADER_SOURCE),
-				.name = "NDCQuadVS",
+				.name = "NDCQuad.vs",
 				.entryPoint = "main",
 			},
 		.defines = nullptr,

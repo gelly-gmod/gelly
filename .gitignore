@@ -1,3 +1,8 @@
+# CLion-specific files
 cmake-build-*
-# For the renderer which automates shader embedding
+
+# For any resources that are embedded
 generated
+
+# Shaders
+*.embed.hlsl

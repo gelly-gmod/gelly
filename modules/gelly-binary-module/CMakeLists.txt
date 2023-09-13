@@ -11,6 +11,7 @@ target_include_directories(gelly_binary_module PRIVATE
         ../gelly-engine/include
         ../gelly-renderer/include
         ../gelly-d3d9/include
+        ../gelly-shaders/
         )
 target_link_libraries(gelly_binary_module PRIVATE minhook gelly_d3d9 gelly_engine gelly_renderer GMFS d3d9.lib dxguid.lib)
 # The dlls are named gmcl_<module_name>_<arch>.dll
@@ -19,16 +20,6 @@ if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "AMD64")
 elseif (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "x86")
     set_target_properties(gelly_binary_module PROPERTIES OUTPUT_NAME gmcl_gelly_win32)
 endif ()
-
-add_custom_target(
-        GellyD3D9Shaders
-        COMMAND ${CMAKE_COMMAND}
-        -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-        -DLOCAL_SHADER_PATH="src/d3d9/shaders"
-        -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} # Passthrough since this variable isn't set when we run this CMake script.
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PreprocessShaders.cmake
-        COMMENT "Preprocessing D3D9 shaders..."
-)
 
 add_custom_command(
         TARGET gelly_binary_module

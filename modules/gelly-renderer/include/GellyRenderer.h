@@ -12,7 +12,6 @@
 #include "detail/DataTypes.h"
 #include "detail/GBuffer.h"
 #include "rendering/Technique.h"
-#include "rendering/techniques/NormalSmoothing.h"
 #include "rendering/techniques/ParticleRendering.h"
 
 using namespace Microsoft::WRL;
@@ -60,7 +59,6 @@ private:
 
 	struct {
 		ParticleRendering *particleRendering;
-		NormalSmoothing *normalEstimation;
 	} pipeline;
 
 	int activeParticles{};
