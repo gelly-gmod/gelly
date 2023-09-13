@@ -1,5 +1,6 @@
 include(PreprocessShader)
 
+
 set(D3D11_SHADER_NAMES
         NDCQuad.vs
         ParticleRender.gs
@@ -7,6 +8,8 @@ set(D3D11_SHADER_NAMES
         ParticleRender.vs
         )
 
-preprocess_shaders("${D3D11_SHADER_NAMES}")
+set(D3D11_SHADER_INCLUDES
+        ParticleRenderStages
+        )
 
-# TODO: UPDATE ANYTHING USING SHADERS TO THIS NEW SYSTEM
+preprocess_shaders("${D3D11_SHADER_NAMES}" "${D3D11_SHADER_INCLUDES}")

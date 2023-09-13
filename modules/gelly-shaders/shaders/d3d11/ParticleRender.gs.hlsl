@@ -1,3 +1,5 @@
+#include "ParticleRenderStages.hlsli"
+
 // Basic particle splatting geometry shader
 // References:
 // https://github.com/NVIDIAGameWorks/FleX/blob/master/demo/d3d/shaders/pointPS.hlsl
