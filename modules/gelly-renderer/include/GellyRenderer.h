@@ -34,12 +34,6 @@ class RendererResources {
 public:
 	GBuffer gbuffer;
 
-	struct {
-		ComPtr<ID3D11DepthStencilView> view;
-		ComPtr<ID3D11Texture2D> buffer;
-		ComPtr<ID3D11DepthStencilState> state;
-	} depthStencil;
-
 	RendererResources(ID3D11Device *device, const RendererInitParams &params);
 	~RendererResources() = default;
 };
@@ -55,6 +49,12 @@ private:
 	ComPtr<ID3D11Buffer> particles;
 
 	RendererResources *resources;
+	struct {
+		ComPtr<ID3D11DepthStencilView> view;
+		ComPtr<ID3D11Texture2D> buffer;
+		ComPtr<ID3D11DepthStencilState> state;
+	} depthStencil;
+
 	RendererInitParams params;
 
 	struct {
@@ -67,6 +67,7 @@ private:
 	 * Initializes the techniques and their resources.
 	 */
 	void InitializePipeline();
+	void InitializeDepthStencil();
 
 public:
 	Camera camera;

@@ -12,7 +12,56 @@ RendererResources::RendererResources(
 		   .depth_high =
 			   d3d11::Texture(*params.sharedTextures.depth_high, device),
 		   .normal = d3d11::Texture(*params.sharedTextures.normal, device)}
-	  ) {
+	  ) {}
+
+GellyRenderer::GellyRenderer(const RendererInitParams &params)
+	: device(nullptr),
+	  deviceContext(nullptr),
+	  resources(nullptr),
+	  params(params),
+	  pipeline({}) {
+	D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_1};
+
+	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
+#ifdef _DEBUG
+	flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+	DX("Failed to create the D3D11 device.",
+	   D3D11CreateDevice(
+		   nullptr,
+		   D3D_DRIVER_TYPE_HARDWARE,
+		   nullptr,
+		   flags,
+		   featureLevel,
+		   1,
+		   D3D11_SDK_VERSION,
+		   device.GetAddressOf(),
+		   nullptr,
+		   deviceContext.GetAddressOf()
+	   ));
+
+	resources = new RendererResources(device.Get(), params);
+	InitializeDepthStencil();
+	InitializePipeline();
+
+	camera.SetPerspective(
+		80, (float)params.width, (float)params.height, 1.0f, 100.0f
+	);
+
+	camera.SetDirection(0.0f, 0.0f, 1.0f);
+	camera.SetPosition(0.0f, 0.0f, 0.0f);
+
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	device->CreateRasterizerState(
+		&rasterizerDesc, rasterizerState.GetAddressOf()
+	);
+}
+
+void GellyRenderer::InitializeDepthStencil() {
 	// Create depth stencil buffer
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
@@ -73,52 +122,6 @@ RendererResources::RendererResources(
 	   ));
 }
 
-GellyRenderer::GellyRenderer(const RendererInitParams &params)
-	: device(nullptr),
-	  deviceContext(nullptr),
-	  resources(nullptr),
-	  params(params),
-	  pipeline({}) {
-	D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_1};
-
-	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
-#ifdef _DEBUG
-	flags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-	DX("Failed to create the D3D11 device.",
-	   D3D11CreateDevice(
-		   nullptr,
-		   D3D_DRIVER_TYPE_HARDWARE,
-		   nullptr,
-		   flags,
-		   featureLevel,
-		   1,
-		   D3D11_SDK_VERSION,
-		   device.GetAddressOf(),
-		   nullptr,
-		   deviceContext.GetAddressOf()
-	   ));
-
-	resources = new RendererResources(device.Get(), params);
-	InitializePipeline();
-
-	camera.SetPerspective(
-		80, (float)params.width, (float)params.height, 1.0f, 100.0f
-	);
-
-	camera.SetDirection(0.0f, 0.0f, 1.0f);
-	camera.SetPosition(0.0f, 0.0f, 0.0f);
-
-	D3D11_RASTERIZER_DESC rasterizerDesc;
-	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
-	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	rasterizerDesc.CullMode = D3D11_CULL_NONE;
-	device->CreateRasterizerState(
-		&rasterizerDesc, rasterizerState.GetAddressOf()
-	);
-}
-
 void GellyRenderer::Render() {
 	// Set up the viewport
 	D3D11_VIEWPORT viewport;
@@ -134,15 +137,13 @@ void GellyRenderer::Render() {
 	deviceContext->RSSetState(rasterizerState.Get());
 
 	// Set depth state
-	deviceContext->OMSetDepthStencilState(
-		resources->depthStencil.state.Get(), 1
-	);
+	deviceContext->OMSetDepthStencilState(depthStencil.state.Get(), 1);
 
 	TechniqueRTs rts{
 		.width = static_cast<float>(params.width),
 		.height = static_cast<float>(params.height),
 		.gbuffer = &resources->gbuffer,
-		.dsv = resources->depthStencil.view.Get()};
+		.dsv = depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts, camera);
