@@ -30,14 +30,6 @@ struct RendererInitParams {
 	SharedTextures sharedTextures;
 };
 
-class RendererResources {
-public:
-	GBuffer gbuffer;
-
-	RendererResources(ID3D11Device *device, const RendererInitParams &params);
-	~RendererResources() = default;
-};
-
 class GellyRenderer {
 private:
 #ifdef _DEBUG
@@ -48,7 +40,8 @@ private:
 	ComPtr<ID3D11RasterizerState> rasterizerState;
 	ComPtr<ID3D11Buffer> particles;
 
-	RendererResources *resources;
+	GBuffer gbuffer;
+
 	struct {
 		ComPtr<ID3D11DepthStencilView> view;
 		ComPtr<ID3D11Texture2D> buffer;
@@ -68,6 +61,7 @@ private:
 	 */
 	void InitializePipeline();
 	void InitializeDepthStencil();
+	void InitializeGBuffer();
 
 public:
 	Camera camera;

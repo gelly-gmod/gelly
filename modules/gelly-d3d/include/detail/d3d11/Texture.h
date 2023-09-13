@@ -20,6 +20,8 @@ private:
 
 public:
 	Texture(const d3d9::Texture &d3d9Texture, ID3D11Device *device);
+	// Default constructor for when we don't have the D3D9 texture yet.
+	Texture() = default;
 	~Texture() = default;
 
 	void SetAsRT(ID3D11DeviceContext *context, ID3D11DepthStencilView *dsv)
@@ -29,7 +31,7 @@ public:
 
 	void Clear(ID3D11DeviceContext *context, const float color[4]) const;
 
-	ID3D11RenderTargetView *GetRTV() const;
+	[[nodiscard]] ID3D11RenderTargetView *GetRTV() const;
 };
 }  // namespace d3d11
 

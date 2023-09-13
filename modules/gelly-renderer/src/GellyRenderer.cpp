@@ -3,23 +3,8 @@
 #include "detail/ErrorHandling.h"
 #include "rendering/techniques/ParticleRendering.h"
 
-RendererResources::RendererResources(
-	ID3D11Device *device, const RendererInitParams &params
-)
-	: gbuffer(
-		  {.depth_low =
-			   d3d11::Texture(*params.sharedTextures.depth_low, device),
-		   .depth_high =
-			   d3d11::Texture(*params.sharedTextures.depth_high, device),
-		   .normal = d3d11::Texture(*params.sharedTextures.normal, device)}
-	  ) {}
-
 GellyRenderer::GellyRenderer(const RendererInitParams &params)
-	: device(nullptr),
-	  deviceContext(nullptr),
-	  resources(nullptr),
-	  params(params),
-	  pipeline({}) {
+	: device(nullptr), deviceContext(nullptr), params(params), pipeline({}) {
 	D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_1};
 
 	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
@@ -41,7 +26,7 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 		   deviceContext.GetAddressOf()
 	   ));
 
-	resources = new RendererResources(device.Get(), params);
+	InitializeGBuffer();
 	InitializeDepthStencil();
 	InitializePipeline();
 
@@ -59,6 +44,17 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 	device->CreateRasterizerState(
 		&rasterizerDesc, rasterizerState.GetAddressOf()
 	);
+}
+
+void GellyRenderer::InitializeGBuffer() {
+	gbuffer.depth_low =
+		d3d11::Texture(*params.sharedTextures.depth_low, device.Get());
+
+	gbuffer.depth_high =
+		d3d11::Texture(*params.sharedTextures.depth_high, device.Get());
+
+	gbuffer.normal =
+		d3d11::Texture(*params.sharedTextures.normal, device.Get());
 }
 
 void GellyRenderer::InitializeDepthStencil() {
@@ -142,7 +138,7 @@ void GellyRenderer::Render() {
 	TechniqueRTs rts{
 		.width = static_cast<float>(params.width),
 		.height = static_cast<float>(params.height),
-		.gbuffer = &resources->gbuffer,
+		.gbuffer = &gbuffer,
 		.dsv = depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
@@ -153,10 +149,7 @@ ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
 	return particles.Get();
 }
 
-GellyRenderer::~GellyRenderer() {
-	delete resources;
-	delete pipeline.particleRendering;
-}
+GellyRenderer::~GellyRenderer() { delete pipeline.particleRendering; }
 
 #ifdef _DEBUG
 void GellyRenderer::PrintDebugMessages() {
