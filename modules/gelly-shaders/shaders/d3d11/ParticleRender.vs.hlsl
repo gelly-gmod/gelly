@@ -1,3 +1,5 @@
+#include "ParticleRenderStages.hlsli"
+
 cbuffer cbPerFrame : register(b0) {
 	float2 res;
 	float2 padding;
@@ -7,12 +9,6 @@ cbuffer cbPerFrame : register(b0) {
 	float4x4 matGeo;
 #endif
 	float4x4 matInvProj;
-};
-
-struct VS_OUTPUT {
-	float4 Pos : SV_Position;
-	// This is what the GS consumes primarily, and it's just this vertex's position in view space to prevent things like the size being affected by the camera's position or distortion.
-	float4 ViewPos : VIEWPOS;
 };
 
 VS_OUTPUT main(float4 pos : SV_Position) {

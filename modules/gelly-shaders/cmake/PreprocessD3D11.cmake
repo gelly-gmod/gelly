@@ -1,6 +1,5 @@
 include(PreprocessShader)
 
-
 set(D3D11_SHADER_NAMES
         NDCQuad.vs
         ParticleRender.gs

@@ -19,22 +19,6 @@ cbuffer cbPerFrame : register(b0) {
 	float4x4 matInvView;
 };
 
-struct GS_OUTPUT {
-	float4 Position : SV_Position;
-	float4 Center : CENTER;
-	float2 Texcoord : TEXCOORD;
-};
-
-struct VS_OUTPUT {
-	// We don't require a position output, but most renderers will shriek if
-	// it's missing
-	float4 Pos : SV_Position;
-	// This is what the GS consumes primarily, and it's just this vertex's
-	// position in view space to prevent things like the size being affected by
-	// the camera's position or distortion.
-	centroid noperspective float4 ViewPos : VIEWPOS;
-};
-
 static const float2 corners[4] = {
 	float2(0.0, 1.0), float2(0.0, 0.0), float2(1.0, 1.0), float2(1.0, 0.0)};
 

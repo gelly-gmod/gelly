@@ -1,3 +1,5 @@
+#include "ParticleRenderStages.hlsli"
+
 // References:
 // Section 3.1 of https://graphics.cs.kuleuven.be/publications/PSIRPBSD/PSIRPBSD_paper.pdf
 cbuffer cbPerFrame : register(b0) {
@@ -9,18 +11,6 @@ cbuffer cbPerFrame : register(b0) {
 	float4x4 matInvView;
 	float3 eye;
 	float padding2;
-};
-
-struct GS_OUTPUT {
-	float4 Position : SV_Position;
-	float4 Center : CENTER;
-	float2 Texcoord : TEXCOORD;
-};
-
-struct PS_OUTPUT {
-	float4 DepthLowCol : SV_TARGET0;
-	float4 DepthHighCol : SV_TARGET1;
-	float Depth : SV_DEPTH;
 };
 
 float LinearizeDepth(float z, float near, float far) {
