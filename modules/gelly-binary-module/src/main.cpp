@@ -195,6 +195,21 @@ LUA_FUNCTION(Gelly_SyncCamera) {
 	return 0;
 }
 
+LUA_FUNCTION(Gelly_SetParticleRadius) {
+	LUA->CheckType(1, Gelly_id);
+	LUA->CheckType(2, Type::Number);
+
+	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
+	auto radius = static_cast<float>(LUA->GetNumber(2));
+
+	GellyMessage changeParticleRadiusMessage{};
+	changeParticleRadiusMessage.type = GellyMessage::SetParticleRadius;
+	changeParticleRadiusMessage.setParticleRadius.radius = radius;
+	gelly->SendGellyMessage(changeParticleRadiusMessage);
+
+	return 0;
+}
+
 LUA_FUNCTION(Gelly_Render) {
 	LUA->CheckType(1, Gelly_id);
 	auto *gelly = *LUA->GetUserType<Gelly *>(1, Gelly_id);
@@ -280,6 +295,7 @@ GMOD_MODULE_OPEN() {
 	SET_C_FUNC(Gelly, SetupCamera);
 	SET_C_FUNC(Gelly, SyncCamera);
 	SET_C_FUNC(Gelly, Clear);
+	SET_C_FUNC(Gelly, SetParticleRadius);
 	SET_C_FUNC(Gelly, SetDebugZValue);
 	LUA->Pop();
 

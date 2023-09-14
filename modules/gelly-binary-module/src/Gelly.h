@@ -27,7 +27,8 @@ struct GellyMessage {
 		AddParticle,
 		SetupCamera,
 		SyncCamera,
-		Clear
+		Clear,
+		SetParticleRadius,
 	};
 
 	Type type;
@@ -53,6 +54,9 @@ struct GellyMessage {
 			Vec3 position;
 			Vec3 direction;
 		} syncCamera;
+		struct {
+			float radius;
+		} setParticleRadius;
 	};
 };
 
@@ -164,6 +168,7 @@ private:
 	);
 	void SyncCamera(Vec3 position, Vec3 dir);
 	void Clear();
+	void SetParticleRadius(float radius);
 
 public:
 	void Render();

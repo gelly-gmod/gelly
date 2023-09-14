@@ -71,6 +71,11 @@ void Gelly::SyncCamera(Vec3 position, Vec3 dir) {
 
 void Gelly::Clear() { scene->Clear(); }
 
+void Gelly::SetParticleRadius(float radius) {
+	// TODO: Make this also change the FleX particle radius.
+	renderer->SetParticleRadius(radius);
+}
+
 [[noreturn]] void Gelly::InitThreaded(
 	Gelly *gelly, const GellyInitParams &params
 ) {
@@ -141,6 +146,9 @@ void Gelly::ProcessMessage() {
 			break;
 		case GellyMessage::Clear:
 			Clear();
+			break;
+		case GellyMessage::SetParticleRadius:
+			SetParticleRadius(message->setParticleRadius.radius);
 			break;
 		default:
 			break;
