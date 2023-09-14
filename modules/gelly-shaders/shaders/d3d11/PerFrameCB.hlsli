@@ -8,4 +8,6 @@ cbuffer cbPerFrame : register(b0) {
 #endif
 	float4x4 matInvProj;
 	float4x4 matInvView;
+	float3 eye;
+	float particleRadius;
 };

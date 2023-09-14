@@ -19,19 +19,13 @@ float4 ToClip(in float4 pos) { return mul(pos, matProj); }
 	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
 ) {
 // TODO: Make this a parameter in the per-frame constant buffer.
-#ifdef SHADERED
-	float particleScale = 0.01f;
-#else
-	float particleScale = 4.5f;
-#endif
-
 	GS_OUTPUT output = (GS_OUTPUT)0;
 
 	for (int i = 0; i < 4; ++i) {
 		float2 corner = corners[i];
 
 		float4 pos = input[0].ViewPos;
-		float2 cornerScaled = (corner - 0.5f) * particleScale;
+		float2 cornerScaled = (corner - 0.5f) * particleRadius;
 		pos.xy += cornerScaled.xy;
 
 		output.Position = ToClip(pos);
