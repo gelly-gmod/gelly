@@ -1,8 +1,7 @@
 include(PreprocessShader)
+include(GetAllShaders)
 
-set(D3D9_SHADER_NAMES
-        Composite.ps
-        Composite.vs
-        )
+find_hlsl_files("${SRC_DIR}/${LOCAL_SHADER_PATH}" D3D9_SHADER_NAMES)
+find_hlsli_files("${SRC_DIR}/${LOCAL_SHADER_PATH}" D3D9_SHADER_INCLUDES)
 
-preprocess_shaders("${D3D9_SHADER_NAMES}" "")
+preprocess_shaders("${D3D9_SHADER_NAMES}" "${D3D9_SHADER_INCLUDES}")
