@@ -5,7 +5,7 @@
 
 GellyRenderer::GellyRenderer(const RendererInitParams &params)
 	: device(nullptr), deviceContext(nullptr), params(params), pipeline({}) {
-	D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_1};
+	D3D_FEATURE_LEVEL featureLevel[1] = {D3D_FEATURE_LEVEL_11_0};
 
 	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
 #ifdef _DEBUG
