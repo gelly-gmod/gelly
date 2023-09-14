@@ -1,17 +1,5 @@
 #include "ParticleRenderStages.hlsli"
-
-// References:
-// Section 3.1 of https://graphics.cs.kuleuven.be/publications/PSIRPBSD/PSIRPBSD_paper.pdf
-cbuffer cbPerFrame : register(b0) {
-	float2 res;
-	float2 padding;
-	float4x4 matProj;
-	float4x4 matView;
-	float4x4 matInvProj;
-	float4x4 matInvView;
-	float3 eye;
-	float padding2;
-};
+#include "PerFrameCB.hlsli"
 
 float LinearizeDepth(float z, float near, float far) {
 	return (2.0f * near) / (far + near - z * (far - near));

@@ -15,11 +15,13 @@ function(build_include_sets includeNames)
 endfunction()
 
 function(preprocess_include_directive shader_content)
-    set(output_content "")
+    # Fed back into the foreach when multiple include directives are found
+    set(output_content ${shader_content})
     foreach (directive code IN ZIP_LISTS include_set_directive include_set_code)
+        message(STATUS "Replacing ${directive} with ${code}")
         # Undo cmake hack
         string(REPLACE "CMAKE_IS_STUPID" ";" code "${code}")
-        string(REPLACE "${directive}" "${code}" output_content "${shader_content}")
+        string(REPLACE "${directive}" "${code}" output_content "${output_content}")
     endforeach ()
     set(output_content ${output_content} PARENT_SCOPE)
 endfunction()

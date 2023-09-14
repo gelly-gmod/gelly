@@ -1,15 +1,5 @@
 #include "ParticleRenderStages.hlsli"
-
-cbuffer cbPerFrame : register(b0) {
-	float2 res;
-	float2 padding;
-	float4x4 matProj;
-	float4x4 matView;
-#ifdef SHADERED
-	float4x4 matGeo;
-#endif
-	float4x4 matInvProj;
-};
+#include "PerFrameCB.hlsli"
 
 VS_OUTPUT main(float4 pos : SV_Position) {
 	VS_OUTPUT output;
