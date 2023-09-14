@@ -69,7 +69,6 @@ void GellyRenderer::InitializeGBuffer() {
 }
 
 void GellyRenderer::InitializeDepthStencil() {
-	// Create depth stencil buffer
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
 	depthStencilDesc.Width = params.width;
@@ -88,34 +87,16 @@ void GellyRenderer::InitializeDepthStencil() {
 		   &depthStencilDesc, nullptr, depthStencil.buffer.GetAddressOf()
 	   ));
 
-	// Stencil state
 	D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc;
 	ZeroMemory(&depthStencilStateDesc, sizeof(depthStencilStateDesc));
-	// MENTAL RECAP: THIS MAKES EVERYTHING BLACK. WHY?
 	depthStencilStateDesc.DepthEnable = true;
 	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	depthStencilStateDesc.StencilEnable = false;
-	depthStencilStateDesc.StencilReadMask = 0xFF;
-	depthStencilStateDesc.StencilWriteMask = 0xFF;
-
-	depthStencilStateDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilStateDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	depthStencilStateDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilStateDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	depthStencilStateDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilStateDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	depthStencilStateDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	depthStencilStateDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	DX("Failed to create depth stencil state",
 	   device->CreateDepthStencilState(
 		   &depthStencilStateDesc, depthStencil.state.GetAddressOf()
 	   ));
-
-	// Depth stencil view
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
