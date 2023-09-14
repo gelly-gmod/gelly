@@ -42,7 +42,7 @@ private:
 
 	GBuffer gbuffer;
 	D3D11_VIEWPORT viewport;
-	
+
 	struct {
 		ComPtr<ID3D11DepthStencilView> view;
 		ComPtr<ID3D11Texture2D> buffer;
@@ -56,6 +56,7 @@ private:
 	} pipeline;
 
 	int activeParticles{};
+	float particleRadius{};
 
 	/**
 	 * Initializes the techniques and their resources.
@@ -82,7 +83,8 @@ public:
 #endif
 
 	void SetActiveParticles(int newActiveParticles);
-
+	void SetParticleRadius(float particleRadius);
+	
 	explicit GellyRenderer(const RendererInitParams &params);
 	~GellyRenderer();
 };

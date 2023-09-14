@@ -14,7 +14,7 @@ struct PerFrameCBuffer {
 	XMFLOAT4X4 invProj;
 	XMFLOAT4X4 invView;
 	XMFLOAT3 eye;
-	float padding2;	 // Required for 16-byte alignment.
+	float particleRadius;
 };
 
 #endif	// GELLY_PERFRAMECBUFFER_H

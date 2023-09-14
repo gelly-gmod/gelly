@@ -145,8 +145,7 @@ void GellyRenderer::Render() {
 		.invProj = camera.GetInvProjectionMatrix(),
 		.invView = camera.GetInvViewMatrix(),
 		.eye = camera.GetPosition(),
-		.padding2 = {},
-	};
+		.particleRadius = particleRadius};
 
 	TechniqueResources resources{
 		.perFrameCBData = &perFrameData,
@@ -198,6 +197,10 @@ void GellyRenderer::InitializePipeline() {
 
 void GellyRenderer::SetActiveParticles(int newActiveParticles) {
 	activeParticles = newActiveParticles;
+}
+
+void GellyRenderer::SetParticleRadius(float newParticleRadius) {
+	particleRadius = newParticleRadius;
 }
 
 ID3D11Device *GellyRenderer::GetD3DDevice() const { return device.Get(); }
