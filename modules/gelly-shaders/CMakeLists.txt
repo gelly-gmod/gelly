@@ -4,7 +4,7 @@ add_custom_target(
         -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
         -DLOCAL_SHADER_PATH="shaders/d3d11"
         -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} # Passthrough since this variable isn't set when we run this CMake script.
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PreprocessD3D11.cmake
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Preprocess.cmake
         COMMENT "Compiling D3D11 shaders..."
 )
 
@@ -14,6 +14,6 @@ add_custom_target(
         -DSRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
         -DLOCAL_SHADER_PATH="shaders/d3d9"
         -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} # Passthrough since this variable isn't set when we run this CMake script.
-        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PreprocessD3D9.cmake
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Preprocess.cmake
         COMMENT "Compiling D3D9 shaders..."
 )
