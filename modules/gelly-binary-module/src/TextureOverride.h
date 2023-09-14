@@ -12,38 +12,28 @@
 #include <MinHook.h>
 #include <d3d9.h>
 
-typedef HRESULT(WINAPI *
-					D3DCreateTexture)(IDirect3DDevice9 *, UINT, UINT, UINT, DWORD, D3DFORMAT, D3DPOOL, IDirect3DTexture9 **, HANDLE *);
-
-enum class TextureOverrideTarget : unsigned short {
-	None,
-	Normal,
-	DepthLow,
-	DepthHigh
-};
-
-namespace TextureOverride {
-extern D3DCreateTexture originalCreateTexture;
-extern SharedTextures sharedTextures;
-extern TextureOverrideTarget target;
-extern IDirect3DDevice9Ex *device;
+/**
+ * Creates the detours required for the system.
+ */
+void TextureOverride_Init();
+/**
+ * Removes the detours required for the system, and cleans up any resources.
+ * This is highly important, as the detours will cause crashes if they're not
+ * properly removed.
+ */
+void TextureOverride_Shutdown();
 
 /**
- * Initializes MinHook, grabs the D3D9 vtable, and sets up the detour.
- * This function is highly error-prone, so it's best to call it as early as
- * possible. It's also recommended to wrap this in a try-catch block since this
- * function will throw a std::runtime_error if it fails.
+ * Gets the texture that is currently being created and fills it into the
+ * provided pointer. This is *not* asynchronous, but the results also aren't
+ * available until the next texture creation. Usually this happens after you
+ * make a call to GetRenderTarget, and the provided pointer becomes valid.
+ * @param texture
+ * @param format Requested format. This won't always be obliged because you're
+ * limited to 3 formats. See the note.
+ * @note From the Microsoft documentation: "Only R10G10B10A2_UNORM,
+ * R16G16B16A16_FLOAT and R8G8B8A8_UNORM formats are allowed."
  */
-void Initialize();
-
-/**
- * Shuts down MinHook and removes the detour.
- */
-void Shutdown();
-
-void Enable(TextureOverrideTarget overrideTarget);
-
-void Disable();
-}  // namespace TextureOverride
+void TextureOverride_GetTexture(d3d9::Texture **texture, D3DFORMAT format);
 
 #endif	// GELLY_TEXTUREOVERRIDE_H

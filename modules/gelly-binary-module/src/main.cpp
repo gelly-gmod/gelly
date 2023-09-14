@@ -22,25 +22,20 @@
 		LUA->ThrowError(e.what());        \
 	}
 
-#define CREATE_SOURCE_TEXTURE(texType)                       \
-	LUA_RUNTIME_ERROR_START()                                \
-	TextureOverride::Enable(TextureOverrideTarget::texType); \
-	LUA_RUNTIME_ERROR_END()                                  \
-	LUA->PushSpecial(SPECIAL_GLOB);                          \
-	LUA->GetField(-1, "GetRenderTargetEx");                  \
-	LUA->PushString("__Gelly_" #texType "RT");               \
-	LUA->PushNumber(params.width);                           \
-	LUA->PushNumber(params.height);                          \
-	LUA->PushNumber(0);                                      \
-	LUA->PushNumber(0);                                      \
-	LUA->PushNumber(TEXTUREFLAGS_RENDERTARGET);              \
-	LUA->PushNumber(0);                                      \
-	LUA->PushNumber(IMAGE_FORMAT_RGBA16161616F);             \
-	LUA->Call(8, 1);                                         \
-	LUA->Remove(-2);                                         \
-	LUA_RUNTIME_ERROR_START()                                \
-	TextureOverride::Disable();                              \
-	LUA_RUNTIME_ERROR_END()
+#define CREATE_SOURCE_TEXTURE(texName)                                         \
+	TextureOverride_GetTexture(&sharedTextures.texName, D3DFMT_A16B16G16R16F); \
+	LUA->PushSpecial(SPECIAL_GLOB);                                            \
+	LUA->GetField(-1, "GetRenderTargetEx");                                    \
+	LUA->PushString("__Gelly_" #texName "RT");                                 \
+	LUA->PushNumber(params.width);                                             \
+	LUA->PushNumber(params.height);                                            \
+	LUA->PushNumber(0);                                                        \
+	LUA->PushNumber(0);                                                        \
+	LUA->PushNumber(TEXTUREFLAGS_RENDERTARGET);                                \
+	LUA->PushNumber(0);                                                        \
+	LUA->PushNumber(IMAGE_FORMAT_RGBA16161616F);                               \
+	LUA->Call(8, 1);                                                           \
+	LUA->Remove(-2);
 
 using namespace GarrysMod::Lua;
 static int Gelly_id = 0;
@@ -233,13 +228,13 @@ LUA_FUNCTION(gelly_Create) {
 	params.width = static_cast<int>(LUA->GetNumber(3));
 	params.height = static_cast<int>(LUA->GetNumber(4));
 
-	// We're going to manually create the textures and apply our override
+	SharedTextures sharedTextures{};
 
-	CREATE_SOURCE_TEXTURE(Normal);
-	CREATE_SOURCE_TEXTURE(DepthHigh);
-	CREATE_SOURCE_TEXTURE(DepthLow);
+	CREATE_SOURCE_TEXTURE(normal);
+	CREATE_SOURCE_TEXTURE(depth_low);
+	CREATE_SOURCE_TEXTURE(depth_high);
 
-	params.sharedTextures = TextureOverride::sharedTextures;
+	params.sharedTextures = sharedTextures;
 
 	if (params.sharedTextures.normal == nullptr ||
 		params.sharedTextures.depth_low == nullptr ||
@@ -247,21 +242,11 @@ LUA_FUNCTION(gelly_Create) {
 		LUA->ThrowError("Failed to create shared textures");
 	}
 
-	if (!TextureOverride::device) {
-		LUA->ThrowError("Failed to create device");
-	}
-
 	// Create a Gelly
-	auto *gelly = new Gelly(params, TextureOverride::device);
+	auto *gelly = new Gelly(params);
 	LUA->PushUserType_Value(gelly, Gelly_id);
 
 	gellyInstance = gelly;
-
-	//	try {
-	//		HookSceneBegin(IVRenderView_SceneBeginHook, &originalSceneBegin);
-	//	} catch (const std::runtime_error &e) {
-	//		LUA->ThrowError(e.what());
-	//	}
 
 	return 3;
 }
@@ -270,12 +255,10 @@ GMOD_MODULE_OPEN() {
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
 
-	try {
-		TextureOverride::Initialize();
-		FileSystem::LoadFileSystem();
-	} catch (const std::runtime_error &e) {
-		LUA->ThrowError(e.what());
-	}
+	LUA_RUNTIME_ERROR_START()
+	TextureOverride_Init();
+	FileSystem::LoadFileSystem();
+	LUA_RUNTIME_ERROR_END()
 
 	LUA->PushSpecial(SPECIAL_GLOB);
 	LUA->CreateTable();
@@ -303,6 +286,6 @@ GMOD_MODULE_OPEN() {
 }
 
 GMOD_MODULE_CLOSE() {
-	TextureOverride::Shutdown();
+	TextureOverride_Shutdown();
 	return 0;
 }

@@ -174,7 +174,7 @@ public:
 	void Render();
 	RendererCompositor compositor;
 
-	explicit Gelly(GellyInitParams &params, IDirect3DDevice9Ex *device);
+	explicit Gelly(GellyInitParams &params);
 	/**
 	 * Initializes Gelly on a separate thread. This is called in the
 	 * constructor, but ran on a different thread due to technical limitations.

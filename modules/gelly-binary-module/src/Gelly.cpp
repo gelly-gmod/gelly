@@ -3,11 +3,13 @@
 #include <GMFS.h>
 #include <d3d9.h>
 
+#include "source/D3DDeviceWrapper.h"
+
 // Doesn't work on the main thraed.
-Gelly::Gelly(GellyInitParams &params, IDirect3DDevice9Ex *device)
+Gelly::Gelly(GellyInitParams &params)
 	: scene(nullptr),
 	  renderer(nullptr),
-	  compositor(device, &params.sharedTextures),
+	  compositor(GetD3DDevice(), &params.sharedTextures),
 	  mainToThread(0),
 	  threadToMain(0),
 	  thread(&Gelly::InitThreaded, this, params),

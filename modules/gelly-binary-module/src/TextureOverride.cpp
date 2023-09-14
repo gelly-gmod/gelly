@@ -6,6 +6,16 @@
 
 #include "source/D3DDeviceWrapper.h"
 
+typedef HRESULT(WINAPI *
+					D3DCreateTexture)(IDirect3DDevice9 *, UINT, UINT, UINT, DWORD, D3DFORMAT, D3DPOOL, IDirect3DTexture9 **, HANDLE *);
+
+// We pass arguments globally since the hook can't take custom arguments.
+static d3d9::Texture **targetTexture = nullptr;
+static D3DFORMAT targetFormat = D3DFMT_UNKNOWN;
+
+static D3DCreateTexture originalCreateTexture = nullptr;
+static void *createTexturePtr = nullptr;
+
 static HRESULT WINAPI HookedD3DCreateTexture(
 	IDirect3DDevice9 *device,
 	UINT width,
@@ -17,54 +27,23 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 	IDirect3DTexture9 **texture,
 	HANDLE *sharedHandle
 ) {
-	using namespace TextureOverride;
-
-	if (target == TextureOverrideTarget::None) {
-		// This shouldn't happen as the hook should be disabled.
-		return originalCreateTexture(
-			device,
-			width,
-			height,
-			levels,
-			usage,
-			format,
-			pool,
-			texture,
-			sharedHandle
-		);
+	// Disable the hook so we don't override the wrong texture.
+	if (MH_DisableHook(createTexturePtr) != MH_OK) {
+		throw std::runtime_error("Failed to disable the CreateTexture hook.");
 	}
 
 	HANDLE shared_handle = nullptr;
-	d3d9::Texture **target_texture_ptr = nullptr;
 
-	D3DFORMAT texFormat = format;
-	switch (target) {
-		case TextureOverrideTarget::Normal:
-			target_texture_ptr = &sharedTextures.normal;
-			texFormat = D3DFMT_A16B16G16R16F;
-			break;
-		case TextureOverrideTarget::DepthLow:
-			target_texture_ptr = &sharedTextures.depth_low;
-			texFormat = D3DFMT_A16B16G16R16F;
-			break;
-		case TextureOverrideTarget::DepthHigh:
-			target_texture_ptr = &sharedTextures.depth_high;
-			texFormat = D3DFMT_A16B16G16R16F;
-			break;
-		default:
-			break;
-	}
-
-	IDirect3DTexture9 *target_texture = nullptr;
+	IDirect3DTexture9 *rawTexture = nullptr;
 	HRESULT result = originalCreateTexture(
 		device,
 		width,
 		height,
 		1,
 		D3DUSAGE_RENDERTARGET,
-		texFormat,
+		targetFormat,
 		D3DPOOL_DEFAULT,
-		&target_texture,
+		&rawTexture,
 		&shared_handle
 	);
 
@@ -72,27 +51,26 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 		return result;
 	}
 
-	*target_texture_ptr = new d3d9::Texture(
-		target_texture, shared_handle, (int)width, (int)height, texFormat
+	*targetTexture = new d3d9::Texture(
+		rawTexture, shared_handle, (int)width, (int)height, targetFormat
 	);
 
 	// Give caller the texture we created.
-	*texture = target_texture;
+	*texture = rawTexture;
 	return result;
 }
 
-static D3DCreateTexture createTexturePtr = nullptr;
+void TextureOverride_GetTexture(d3d9::Texture **texture, D3DFORMAT format) {
+	targetTexture = texture;
+	targetFormat = format;
 
-namespace TextureOverride {
-D3DCreateTexture originalCreateTexture = nullptr;
-SharedTextures sharedTextures{};
-TextureOverrideTarget target = TextureOverrideTarget::None;
-IDirect3DDevice9Ex *device = nullptr;
-}  // namespace TextureOverride
+	if (MH_EnableHook(createTexturePtr) != MH_OK) {
+		throw std::runtime_error("Failed to enable the CreateTexture hook.");
+	}
+}
 
-void TextureOverride::Initialize() {
+void TextureOverride_Init() {
 	IDirect3DDevice9Ex *dev = GetD3DDevice();
-	device = dev;
 
 	if (dev == nullptr) {
 		throw std::runtime_error("Failed to get the D3D9 device.");
@@ -106,52 +84,23 @@ void TextureOverride::Initialize() {
 
 	// We're going to hook IDirect3DDevice9::CreateTexture
 	// This function is at index 23 in the vtable.
-	createTexturePtr = reinterpret_cast<D3DCreateTexture>(d3d9VTable[23]);
+	createTexturePtr = d3d9VTable[23];
 
 	if (MH_CreateHook(
 			createTexturePtr,
-			&HookedD3DCreateTexture,
+			(LPVOID)&HookedD3DCreateTexture,
 			reinterpret_cast<void **>(&originalCreateTexture)
 		) != MH_OK) {
 		throw std::runtime_error("Failed to create the CreateTexture hook.");
 	}
 }
 
-void TextureOverride::Shutdown() {
+void TextureOverride_Shutdown() {
 	if (MH_DisableHook(createTexturePtr) != MH_OK) {
 		throw std::runtime_error("Failed to disable the CreateTexture hook.");
 	}
 
 	if (MH_Uninitialize() != MH_OK) {
 		throw std::runtime_error("Failed to uninitialize MinHook.");
-	}
-
-	if (sharedTextures.normal != nullptr) {
-		delete sharedTextures.normal;
-		sharedTextures.normal = nullptr;
-	}
-
-	if (sharedTextures.depth_low != nullptr) {
-		delete sharedTextures.depth_low;
-		sharedTextures.depth_low = nullptr;
-	}
-
-	if (sharedTextures.depth_high != nullptr) {
-		delete sharedTextures.depth_high;
-		sharedTextures.depth_high = nullptr;
-	}
-}
-
-void TextureOverride::Enable(TextureOverrideTarget overrideTarget) {
-	target = overrideTarget;
-	if (MH_EnableHook(createTexturePtr) != MH_OK) {
-		throw std::runtime_error("Failed to enable the CreateTexture hook.");
-	}
-}
-
-void TextureOverride::Disable() {
-	target = TextureOverrideTarget::None;
-	if (MH_DisableHook(createTexturePtr) != MH_OK) {
-		throw std::runtime_error("Failed to disable the CreateTexture hook.");
 	}
 }
