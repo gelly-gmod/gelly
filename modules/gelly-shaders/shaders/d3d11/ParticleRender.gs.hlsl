@@ -11,14 +11,9 @@
 static const float2 corners[4] = {
 	float2(0.0, 1.0), float2(0.0, 0.0), float2(1.0, 1.0), float2(1.0, 0.0)};
 
-static const float4x4 matViewProj = mul(matView, matProj);
-
-float4 ToClip(in float4 pos) { return mul(pos, matProj); }
-
 [maxvertexcount(4)] void main(
 	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
 ) {
-// TODO: Make this a parameter in the per-frame constant buffer.
 	GS_OUTPUT output = (GS_OUTPUT)0;
 
 	for (int i = 0; i < 4; ++i) {
@@ -28,8 +23,8 @@ float4 ToClip(in float4 pos) { return mul(pos, matProj); }
 		float2 cornerScaled = (corner - 0.5f) * particleRadius;
 		pos.xy += cornerScaled.xy;
 
-		output.Position = ToClip(pos);
-		output.Center = ToClip(pos);
+		output.Position = mul(pos, matProj);
+		output.Center = input[0].ViewPos; // we re-output this only because the pipeline will automatically do perspective divide and viewport transform which we dont want
 		output.Texcoord = float2(corner.x, 1.0f - corner.y);
 
 		stream.Append(output);

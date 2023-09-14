@@ -1,5 +1,6 @@
 struct GS_OUTPUT {
 	float4 Position : SV_Position;
+	// View-space center position of the particle
 	float4 Center : CENTER;
 	float2 Texcoord : TEXCOORD;
 };

@@ -1,10 +1,6 @@
 #include "ParticleRenderStages.hlsli"
 #include "PerFrameCB.hlsli"
 
-float LinearizeDepth(float z, float near, float far) {
-	return (2.0f * near) / (far + near - z * (far - near));
-}
-
 bool CalculateNormal(float2 texcoord, out float3 normal) {
 	float2 ndcNormal = texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0);
 	float mag = dot(ndcNormal, ndcNormal);
@@ -25,33 +21,8 @@ float2 SplitFloat(float value) {
 	return float2(upperRange, lowerRange);
 }
 
-float3 NudgeParticleByNormal(float3 viewCenter, float3 normal) {
-	// TODO: Make this a parameter in the per-frame constant buffer.
-	#ifdef SHADERED
-		float particleScale = 0.3f;
-	#else
-		float particleScale = 6.f;
-	#endif
-
-	return viewCenter + normal * particleScale;
-}
-
-float GetViewLinearDepth(float3 viewPosition) {
-	float4 clipPosition = mul(float4(viewPosition, 1.0f), matInvProj);
-	float ndcDepth = clipPosition.z / clipPosition.w;
-
-	// TODO: make this a parameter in the per-frame constant buffer.
-	float nearZ = 3;	
-	float farZ = 28377.919921875;
-	return LinearizeDepth(ndcDepth, nearZ, farZ);
-}
-
-float GetViewDepth(float4 clipPosition) {
-	return clipPosition.z / clipPosition.w;
-}
-
-float GetRasterizedDepth(float4 clipPosition) {
-	return clipPosition.z / clipPosition.w;
+float3 GetPointOnHemisphere(float3 viewCenter, float3 normal) {
+	return viewCenter + normal * particleRadius;
 }
 
 PS_OUTPUT main(GS_OUTPUT input) {
@@ -61,11 +32,14 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	}
 	
 	PS_OUTPUT output = (PS_OUTPUT)0;
-	float rasterizedDepth = GetRasterizedDepth(input.Center);
-	float2 depth = SplitFloat(rasterizedDepth);
+	float3 pointOnHemisphere = GetPointOnHemisphere(input.Center.xyz, normal);
+	float4 clipPoint = mul(float4(pointOnHemisphere, 1.f), matProj);
+	float clipDepth = clipPoint.z / clipPoint.w;
+
+	float2 depth = SplitFloat(clipDepth);
 	output.DepthHighCol = float4(depth.x, 0.f, 0.f, 0.f);
 	output.DepthLowCol = float4(depth.y, 0.f, 1.f, 1.f);
-	output.Depth =  GetViewDepth(input.Center);
+	output.Depth = clipDepth;
 
 	return output;
 }
