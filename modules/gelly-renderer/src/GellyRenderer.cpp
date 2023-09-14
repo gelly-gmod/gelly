@@ -55,6 +55,9 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 }
 
 void GellyRenderer::InitializeGBuffer() {
+	gbuffer.width = (float)params.width;
+	gbuffer.height = (float)params.height;
+
 	gbuffer.depth_low =
 		d3d11::Texture(*params.sharedTextures.depth_low, device.Get());
 
@@ -134,14 +137,25 @@ void GellyRenderer::Render() {
 	// Set depth state
 	deviceContext->OMSetDepthStencilState(depthStencil.state.Get(), 1);
 
-	TechniqueRTs rts{
-		.width = static_cast<float>(params.width),
-		.height = static_cast<float>(params.height),
+	PerFrameCBuffer perFrameData = {
+		.res = {gbuffer.width, gbuffer.height},
+		.padding = {},
+		.projection = camera.GetProjectionMatrix(),
+		.view = camera.GetViewMatrix(),
+		.invProj = camera.GetInvProjectionMatrix(),
+		.invView = camera.GetInvViewMatrix(),
+		.eye = camera.GetPosition(),
+		.padding2 = {},
+	};
+
+	TechniqueResources resources{
+		.perFrameCBData = &perFrameData,
+		.camera = &camera,
 		.gbuffer = &gbuffer,
 		.dsv = depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
-	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &rts, camera);
+	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &resources);
 }
 
 ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {

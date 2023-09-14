@@ -5,17 +5,16 @@
 #include <wrl.h>
 
 #include "detail/GBuffer.h"
+#include "techniques/PerFrameCBuffer.h"
 
 using namespace Microsoft::WRL;
 
 /**
- * This struct contains various render targets that can be used as outputs AND
- * inputs for a technique.
+ * This struct contains resources that are shared between all techniques.
  */
-struct TechniqueRTs {
-	float width;
-	float height;
-
+struct TechniqueResources {
+	PerFrameCBuffer *perFrameCBData;
+	Camera *camera;
 	GBuffer *gbuffer;
 	ComPtr<ID3D11DepthStencilView> dsv;
 };
@@ -37,7 +36,7 @@ public:
 	 * @param rts
 	 */
 	virtual void RunForFrame(
-		ID3D11DeviceContext *context, TechniqueRTs *rts, const Camera &camera
+		ID3D11DeviceContext *context, TechniqueResources *resources
 	) = 0;
 };
 

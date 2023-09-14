@@ -33,7 +33,7 @@ public:
 	~ParticleRendering() override = default;
 
 	void RunForFrame(
-		ID3D11DeviceContext *context, TechniqueRTs *rts, const Camera &camera
+		ID3D11DeviceContext *context, TechniqueResources *resources
 	) override;
 	[[nodiscard]] ID3D11Buffer *GetParticleBuffer() const;
 };

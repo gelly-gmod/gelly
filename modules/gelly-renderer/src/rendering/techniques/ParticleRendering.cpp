@@ -105,40 +105,28 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 }
 
 void ParticleRendering::RunForFrame(
-	ID3D11DeviceContext *context, TechniqueRTs *rts, const Camera &camera
+	ID3D11DeviceContext *context, TechniqueResources *resources
 ) {
 	// Upload the per-frame data
-	{
-		PerFrameCBuffer perFrameData = {
-			.res = {rts->width, rts->height},
-			.padding = {},
-			.projection = camera.GetProjectionMatrix(),
-			.view = camera.GetViewMatrix(),
-			.invProj = camera.GetInvProjectionMatrix(),
-			.invView = camera.GetInvViewMatrix(),
-			.eye = camera.GetPosition(),
-			.padding2 = {},
-		};
-
-		perFrameCBuffer.Set(context, &perFrameData);
-	}
+	perFrameCBuffer.Set(context, resources->perFrameCBData);
 
 	// Clear the RTs
+	GBuffer *gbuffer = resources->gbuffer;
 	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
-	rts->gbuffer->depth_low.Clear(context, emptyColor);
-	rts->gbuffer->depth_high.Clear(context, emptyColor);
+	gbuffer->depth_low.Clear(context, emptyColor);
+	gbuffer->depth_high.Clear(context, emptyColor);
 	// Clear the depth buffer
 	context->ClearDepthStencilView(
-		rts->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
+		resources->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
 	);
 
 	// Bind the RTs
 	ID3D11RenderTargetView *rtViews[] = {
-		rts->gbuffer->depth_low.GetRTV(),
-		rts->gbuffer->depth_high.GetRTV(),
+		gbuffer->depth_low.GetRTV(),
+		gbuffer->depth_high.GetRTV(),
 	};
 
-	context->OMSetRenderTargets(2, rtViews, rts->dsv.Get());
+	context->OMSetRenderTargets(2, rtViews, resources->dsv.Get());
 
 	// Bind the particle buffer
 	UINT stride = sizeof(ParticlePoint);
