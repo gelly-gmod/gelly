@@ -44,6 +44,14 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 	device->CreateRasterizerState(
 		&rasterizerDesc, rasterizerState.GetAddressOf()
 	);
+
+	ZeroMemory(&viewport, sizeof(viewport));
+	viewport.Width = (float)params.width;
+	viewport.Height = (float)params.height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
 }
 
 void GellyRenderer::InitializeGBuffer() {
@@ -120,15 +128,6 @@ void GellyRenderer::InitializeDepthStencil() {
 
 void GellyRenderer::Render() {
 	// Set up the viewport
-	D3D11_VIEWPORT viewport;
-	ZeroMemory(&viewport, sizeof(viewport));
-	viewport.Width = (float)params.width;
-	viewport.Height = (float)params.height;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-
 	deviceContext->RSSetViewports(1, &viewport);
 	deviceContext->RSSetState(rasterizerState.Get());
 

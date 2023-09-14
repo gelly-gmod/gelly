@@ -41,7 +41,8 @@ private:
 	ComPtr<ID3D11Buffer> particles;
 
 	GBuffer gbuffer;
-
+	D3D11_VIEWPORT viewport;
+	
 	struct {
 		ComPtr<ID3D11DepthStencilView> view;
 		ComPtr<ID3D11Texture2D> buffer;
