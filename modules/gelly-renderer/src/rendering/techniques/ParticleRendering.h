@@ -1,6 +1,8 @@
 #ifndef GELLY_PARTICLERENDERING_H
 #define GELLY_PARTICLERENDERING_H
 
+#include <GellyD3D.h>
+
 #include "PerFrameCBuffer.h"
 #include "detail/Camera.h"
 #include "detail/ConstantBuffer.h"
@@ -22,7 +24,7 @@ private:
 	ComPtr<ID3D11VertexShader> vertexShader;
 	ComPtr<ID3DBlob> vertexShaderBlob;
 	ComPtr<ID3D11GeometryShader> geometryShader;
-	ComPtr<ID3D11Buffer> particleBuffer;
+	d3d11::Buffer<ParticlePoint> particleBuffer;
 	ComPtr<ID3D11InputLayout> particleInputLayoutBuffer;
 	ConstantBuffer<PerFrameCBuffer> perFrameCBuffer;
 

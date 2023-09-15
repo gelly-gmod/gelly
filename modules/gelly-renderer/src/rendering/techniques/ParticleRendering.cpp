@@ -25,7 +25,8 @@ using namespace d3d11;
 	options.shader.entryPoint = shaderEntryPoint;
 
 ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
-	: perFrameCBuffer(device) {
+	: perFrameCBuffer(device),
+	  particleBuffer(device, maxParticles, nullptr, D3D11_BIND_VERTEX_BUFFER) {
 	ShaderCompileOptions options = {
 		.device = device,
 		.shader = {},
@@ -64,36 +65,6 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 		D3D11_INPUT_PER_VERTEX_DATA,
 		0};
 
-	{
-		D3D11_BUFFER_DESC bufferDesc;
-		ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-		bufferDesc.ByteWidth = sizeof(ParticlePoint) * maxParticles;
-		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.CPUAccessFlags = 0;
-
-		D3D11_SUBRESOURCE_DATA initData;
-		ZeroMemory(&initData, sizeof(initData));
-		auto *initPositions = new ParticlePoint[maxParticles];
-		// Random particle data
-		for (int i = 0; i < maxParticles; i++) {
-			initPositions[i] = {
-				rand() / (float)RAND_MAX * 4.f,
-				rand() / (float)RAND_MAX * 4.f,
-				rand() / (float)RAND_MAX * 4.f,
-				1.f};
-		}
-
-		initData.pSysMem = initPositions;
-
-		DX("Failed to make point buffer",
-		   device->CreateBuffer(
-			   &bufferDesc, &initData, particleBuffer.GetAddressOf()
-		   ));
-
-		delete[] initPositions;
-	}
-
 	DX("Failed to make particle input layout",
 	   device->CreateInputLayout(
 		   inputLayout,
@@ -124,13 +95,7 @@ void ParticleRendering::RunForFrame(
 	Texture *rtViews[2] = {&gbuffer->depth_low, &gbuffer->depth_high};
 	d3d11::SetMRT(context, 2, rtViews, resources->dsv.Get());
 
-	// Bind the particle buffer
-	UINT stride = sizeof(ParticlePoint);
-	UINT offset = 0;
-	context->IASetVertexBuffers(
-		0, 1, particleBuffer.GetAddressOf(), &stride, &offset
-	);
-
+	particleBuffer.SetAsVB(context, particleInputLayoutBuffer.Get(), 0);
 	context->IASetInputLayout(particleInputLayoutBuffer.Get());
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
