@@ -287,7 +287,6 @@ void RendererCompositor::BindShaderResources() {
 	// Bind textures
 	gbuffer.depth_low->SetupAtStage(0, 0, device);
 	gbuffer.depth_high->SetupAtStage(1, 1, device);
-	gbuffer.normal->SetupAtStage(2, 2, device);
 
 	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_LIGHTING, FALSE));

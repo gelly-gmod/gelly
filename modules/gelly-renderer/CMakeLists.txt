@@ -1,8 +1,6 @@
 option(BUILD_GELLY_RENDERER_TEST "Build Gelly Renderer Test" OFF)
 
 if (BUILD_GELLY_RENDERER_TEST)
-    message(STATUS "Copying shaders to test directory")
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test)
     add_subdirectory(test)
 endif ()
 

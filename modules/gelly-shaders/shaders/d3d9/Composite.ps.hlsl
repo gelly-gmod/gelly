@@ -12,7 +12,6 @@ float4 debugConstants : register(c0);
 
 sampler2D depthLowSampler : register(s0);
 sampler2D depthHighSampler : register(s1);
-sampler2D normalSampler : register(s2);
 
 float LinearizeDepth(float z, float near, float far) {
     return (2.0f * near) / (far + near - z * (far - near));
@@ -40,7 +39,13 @@ PS_OUTPUT main(VS_INPUT input) {
     }
 
     output.Depth = reconstructedDepth;
-    output.Col = float4(reconstructedDepth, reconstructedDepth, reconstructedDepth, 1.0f);
+    float nearZ = 3;
+	float farZ = 28377.919921875;
+    float linearDepth = LinearizeDepth(reconstructedDepth, nearZ, farZ);
+    // Make depth discontinuities more obvious
+    linearDepth = linearDepth * 3.f;
+    linearDepth = saturate(linearDepth);
+    output.Col = float4(0.f, 0.f, linearDepth, 1.f);
 
     return output;
 }
