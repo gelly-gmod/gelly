@@ -77,7 +77,8 @@ void d3d11::SetMRT(
 	d3d11::Texture **textures,
 	ID3D11DepthStencilView *dsv
 ) {
-	ID3D11RenderTargetView *rtViews[numTextures];
+	// 8 is just an arbitrary constant since we never have more than 8 textures.
+	ID3D11RenderTargetView *rtViews[8] = {};
 	for (int i = 0; i < numTextures; i++) {
 		rtViews[i] = textures[i]->GetRTV();
 	}
