@@ -121,12 +121,8 @@ void ParticleRendering::RunForFrame(
 	);
 
 	// Bind the RTs
-	ID3D11RenderTargetView *rtViews[] = {
-		gbuffer->depth_low.GetRTV(),
-		gbuffer->depth_high.GetRTV(),
-	};
-
-	context->OMSetRenderTargets(2, rtViews, resources->dsv.Get());
+	Texture *rtViews[2] = {&gbuffer->depth_low, &gbuffer->depth_high};
+	d3d11::SetMRT(context, 2, rtViews, resources->dsv.Get());
 
 	// Bind the particle buffer
 	UINT stride = sizeof(ParticlePoint);
@@ -148,16 +144,7 @@ void ParticleRendering::RunForFrame(
 	context->Draw(activeParticles, 0);
 	context->Flush();
 
-	// So, turns out from some real testing, residue from this technique
-	// can actually *really* corrupt the other techniques.
-	// We must unbind anything that we binded.
-
-	// Unbind the shaders
-	context->VSSetShader(nullptr, nullptr, 0);
-	context->GSSetShader(nullptr, nullptr, 0);
-	context->PSSetShader(nullptr, nullptr, 0);
-
-	context->OMSetRenderTargets(0, nullptr, nullptr);
+	d3d11::CleanupRTsAndShaders(context);
 }
 
 ID3D11Buffer *ParticleRendering::GetParticleBuffer() const {

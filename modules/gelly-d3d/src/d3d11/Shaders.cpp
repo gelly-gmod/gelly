@@ -1,6 +1,6 @@
 #include "detail/d3d11/Shaders.h"
 
-#include "ErrorHandling.h"
+#include "detail/d3d11/ErrorHandling.h"
 
 namespace d3d11 {
 ID3DBlob *compile_shader(

@@ -1,6 +1,6 @@
 #include "detail/d3d11/Texture.h"
 
-#include "ErrorHandling.h"
+#include "detail/d3d11/ErrorHandling.h"
 #include "detail/d3d9/Texture.h"
 
 namespace d3d11 {
@@ -70,3 +70,32 @@ void d3d11::Texture::Clear(ID3D11DeviceContext *context, const float color[4])
 }
 
 ID3D11RenderTargetView *d3d11::Texture::GetRTV() const { return rtv.Get(); }
+
+void d3d11::SetMRT(
+	ID3D11DeviceContext *context,
+	int numTextures,
+	d3d11::Texture **textures,
+	ID3D11DepthStencilView *dsv
+) {
+	ID3D11RenderTargetView *rtViews[numTextures];
+	for (int i = 0; i < numTextures; i++) {
+		rtViews[i] = textures[i]->GetRTV();
+	}
+
+	context->OMSetRenderTargets(numTextures, rtViews, dsv);
+}
+
+void d3d11::CleanupRTsAndShaders(ID3D11DeviceContext *context) {
+	context->OMSetRenderTargets(0, nullptr, nullptr);
+	context->PSSetShaderResources(0, 0, nullptr);
+	context->PSSetSamplers(0, 0, nullptr);
+	context->PSSetShader(nullptr, nullptr, 0);
+
+	context->VSSetShader(nullptr, nullptr, 0);
+	context->VSSetShaderResources(0, 0, nullptr);
+	context->VSSetSamplers(0, 0, nullptr);
+
+	context->GSSetShader(nullptr, nullptr, 0);
+	context->GSSetShaderResources(0, 0, nullptr);
+	context->GSSetSamplers(0, 0, nullptr);
+}
