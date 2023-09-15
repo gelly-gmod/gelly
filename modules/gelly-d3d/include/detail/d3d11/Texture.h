@@ -41,8 +41,6 @@ void SetMRT(
 	ID3D11DepthStencilView *dsv
 );
 
-void CleanupRTsAndShaders(ID3D11DeviceContext *context);
-
 }  // namespace d3d11
 
 #endif	// GELLY_D3D11TEXTURE_H

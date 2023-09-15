@@ -29,6 +29,9 @@ public:
 		D3D11_BIND_FLAG bindFlags
 	);
 
+	void SetAsVB(
+		ID3D11DeviceContext *context, ID3D11InputLayout *layout, int slot
+	) const;
 	[[nodiscard]] ID3D11Buffer *Get() const;
 };
 
@@ -56,6 +59,17 @@ Buffer<T>::Buffer(
 	   device->CreateBuffer(
 		   &desc, initData ? &data : nullptr, buffer.GetAddressOf()
 	   ));
+}
+
+template <typename T>
+void Buffer<T>::SetAsVB(
+	ID3D11DeviceContext *context, ID3D11InputLayout *layout, int slot
+) const {
+	UINT stride = sizeof(T);
+	UINT offset = 0;
+	ID3D11Buffer *bufferPtr = buffer.Get();
+	context->IASetVertexBuffers(slot, 1, &bufferPtr, &stride, &offset);
+	context->IASetInputLayout(layout);
 }
 
 template <typename T>
