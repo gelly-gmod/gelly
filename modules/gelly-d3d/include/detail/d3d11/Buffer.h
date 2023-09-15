@@ -26,7 +26,9 @@ public:
 		ID3D11Device *device,
 		int maxCapacity,
 		T *initData,
-		D3D11_BIND_FLAG bindFlags
+		D3D11_BIND_FLAG bindFlags,
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
+		UINT cpuAccessFlags = 0
 	);
 
 	void SetAsVB(
@@ -41,14 +43,16 @@ Buffer<T>::Buffer(
 	ID3D11Device *device,
 	int maxCapacity,
 	T *initData,
-	D3D11_BIND_FLAG bindFlags
+	D3D11_BIND_FLAG bindFlags,
+	D3D11_USAGE usage,
+	UINT cpuAccessFlags
 ) {
 	D3D11_BUFFER_DESC desc{};
 	ZeroMemory(&desc, sizeof(desc));
 	desc.ByteWidth = sizeof(T) * maxCapacity;
-	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.Usage = usage;
 	desc.BindFlags = bindFlags;
-	desc.CPUAccessFlags = 0;
+	desc.CPUAccessFlags = cpuAccessFlags;
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA data{};

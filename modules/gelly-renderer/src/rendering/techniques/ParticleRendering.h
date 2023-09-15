@@ -5,7 +5,6 @@
 
 #include "PerFrameCBuffer.h"
 #include "detail/Camera.h"
-#include "detail/ConstantBuffer.h"
 #include "detail/DataTypes.h"
 #include "rendering/Technique.h"
 
@@ -26,7 +25,7 @@ private:
 	ComPtr<ID3D11GeometryShader> geometryShader;
 	d3d11::Buffer<ParticlePoint> particleBuffer;
 	ComPtr<ID3D11InputLayout> particleInputLayoutBuffer;
-	ConstantBuffer<PerFrameCBuffer> perFrameCBuffer;
+	d3d11::ConstantBuffer<PerFrameCBuffer> perFrameCBuffer;
 
 public:
 	int activeParticles{};

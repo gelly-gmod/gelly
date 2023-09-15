@@ -8,6 +8,7 @@
 
 #include "detail/d3d11/Buffer.h"
 #include "detail/d3d11/Cleanup.h"
+#include "detail/d3d11/ConstantBuffer.h"
 #include "detail/d3d11/Shaders.h"
 #include "detail/d3d11/Texture.h"
 #include "detail/d3d9/Shaders.h"
