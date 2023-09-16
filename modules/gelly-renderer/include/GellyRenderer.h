@@ -41,7 +41,7 @@ private:
 	ComPtr<ID3D11Buffer> particles;
 
 	GBuffer gbuffer;
-	D3D11_VIEWPORT viewport;
+	D3D11_VIEWPORT viewport{};
 
 	struct {
 		ComPtr<ID3D11DepthStencilView> view;
@@ -84,7 +84,7 @@ public:
 
 	void SetActiveParticles(int newActiveParticles);
 	void SetParticleRadius(float particleRadius);
-	
+
 	explicit GellyRenderer(const RendererInitParams &params);
 	~GellyRenderer();
 };

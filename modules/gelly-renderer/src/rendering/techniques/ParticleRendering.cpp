@@ -26,7 +26,9 @@ using namespace d3d11;
 
 ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 	: perFrameCBuffer(device),
-	  particleBuffer(device, maxParticles, nullptr, D3D11_BIND_VERTEX_BUFFER) {
+	  particleBuffer(
+		  device, nullptr, maxParticles, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST
+	  ) {
 	ShaderCompileOptions options = {
 		.device = device,
 		.shader = {},
@@ -95,9 +97,7 @@ void ParticleRendering::RunForFrame(
 	Texture *rtViews[2] = {&gbuffer->depth_low, &gbuffer->depth_high};
 	d3d11::SetMRT(context, 2, rtViews, resources->dsv.Get());
 
-	particleBuffer.SetAsVB(context, particleInputLayoutBuffer.Get(), 0);
-	context->IASetInputLayout(particleInputLayoutBuffer.Get());
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	particleBuffer.SetAtSlot(context, 0, particleInputLayoutBuffer.Get());
 
 	// Bind the shaders
 	context->VSSetShader(vertexShader.Get(), nullptr, 0);
@@ -113,5 +113,5 @@ void ParticleRendering::RunForFrame(
 }
 
 ID3D11Buffer *ParticleRendering::GetParticleBuffer() const {
-	return particleBuffer.Get();
+	return particleBuffer.GetVertexBuffer();
 }
