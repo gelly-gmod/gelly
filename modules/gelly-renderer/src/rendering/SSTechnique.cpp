@@ -79,4 +79,5 @@ SSTechnique::SSTechnique(ID3D11Device *device)
 
 void SSTechnique::BindNDCQuad(ID3D11DeviceContext *context) {
 	vertexBuffer.SetAtSlot(context, 0, inputLayout.Get());
+	context->VSSetShader(vertexShader.Get(), nullptr, 0);
 }
