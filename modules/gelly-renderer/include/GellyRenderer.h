@@ -11,14 +11,14 @@
 #include "detail/ConstantBuffer.h"
 #include "detail/GBuffer.h"
 #include "rendering/Technique.h"
+#include "rendering/techniques/OutputEncoder.h"
 #include "rendering/techniques/ParticleRendering.h"
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
 struct SharedTextures {
-	d3d9::Texture *depth_low;
-	d3d9::Texture *depth_high;
+	d3d9::Texture *depth;
 	d3d9::Texture *normal;
 };
 
@@ -51,6 +51,7 @@ private:
 
 	struct {
 		ParticleRendering *particleRendering;
+		OutputEncoder *outputEncoder;
 	} pipeline;
 
 	int activeParticles{};

@@ -86,17 +86,14 @@ void ParticleRendering::RunForFrame(
 	// Clear the RTs
 	GBuffer *gbuffer = resources->gbuffer;
 	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
-	gbuffer->depth_low.Clear(context, emptyColor);
-	gbuffer->depth_high.Clear(context, emptyColor);
+	gbuffer->depth.Clear(context, emptyColor);
 	// Clear the depth buffer
 	context->ClearDepthStencilView(
 		resources->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
 	);
 
 	// Bind the RTs
-	Texture *rtViews[2] = {&gbuffer->depth_low, &gbuffer->depth_high};
-	d3d11::SetMRT(context, 2, rtViews, resources->dsv.Get());
-
+	gbuffer->depth.SetAsRT(context, resources->dsv.Get());
 	particleBuffer.SetAtSlot(context, 0, particleInputLayoutBuffer.Get());
 
 	// Bind the shaders

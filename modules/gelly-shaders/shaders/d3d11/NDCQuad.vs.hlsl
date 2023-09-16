@@ -1,15 +1,7 @@
+#include "NDCQuadStages.hlsli"
+
 // FYI: The other shaders are used in SHADERed, but not in Gelly.
 // This is the Gelly shader used for any technique that is screen-space.
-
-struct VS_INPUT {
-	float4 Position : SV_Position;
-	float2 Texcoord : TEXCOORD;
-};
-
-struct VS_OUTPUT {
-	float4 Position : SV_Position;
-	float2 Texcoord : TEXCOORD;
-};
 
 VS_OUTPUT main(VS_INPUT input) {
 	VS_OUTPUT output = (VS_OUTPUT)0;

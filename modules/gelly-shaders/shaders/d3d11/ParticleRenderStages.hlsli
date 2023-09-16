@@ -12,7 +12,6 @@ struct VS_OUTPUT {
 };
 
 struct PS_OUTPUT {
-	float4 DepthLowCol : SV_TARGET0;
-	float4 DepthHighCol : SV_TARGET1;
+	float4 DepthColor : SV_TARGET0;
 	float Depth : SV_DEPTH;
 };

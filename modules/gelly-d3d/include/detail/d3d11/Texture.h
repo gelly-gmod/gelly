@@ -20,6 +20,8 @@ private:
 
 public:
 	Texture(const d3d9::Texture &d3d9Texture, ID3D11Device *device);
+	Texture(int width, int height, DXGI_FORMAT format, ID3D11Device *device);
+	
 	// Default constructor for when we don't have the D3D9 texture yet.
 	Texture() = default;
 	~Texture() = default;

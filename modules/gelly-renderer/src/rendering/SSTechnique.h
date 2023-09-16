@@ -15,7 +15,7 @@
 class SSTechnique : public Technique {
 private:
 	struct Vertex {
-		float x, y, z;
+		float x, y, z, w;
 		float u, v;
 	};
 

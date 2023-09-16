@@ -29,9 +29,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	float4 clipPoint = mul(float4(pointOnHemisphere, 1.f), matProj);
 	float clipDepth = clipPoint.z / clipPoint.w;
 
-	float2 depth = SplitFloat(clipDepth);
-	output.DepthHighCol = float4(depth.x, 0.f, 0.f, 0.f);
-	output.DepthLowCol = float4(depth.y, 0.f, 1.f, 1.f);
+	output.DepthColor = float4(clipDepth, 0.f, 0.f, 0.f);
 	output.Depth = clipDepth;
 
 	return output;

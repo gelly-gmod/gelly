@@ -48,6 +48,61 @@ Texture::Texture(const d3d9::Texture &d3d9Texture, ID3D11Device *device)
 	DX("Failed to create sampler state",
 	   device->CreateSamplerState(&samplerDesc, &sampler));
 }
+
+Texture::Texture(
+	int width, int height, DXGI_FORMAT format, ID3D11Device *device
+)
+	: texture(nullptr), rtv(nullptr), srv(nullptr), sampler(nullptr) {
+	D3D11_TEXTURE2D_DESC textureDesc;
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+	textureDesc.Width = width;
+	textureDesc.Height = height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = format;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags =
+		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	DX("Failed to create texture",
+	   device->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf()));
+
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+	ZeroMemory(&rtvDesc, sizeof(rtvDesc));
+	rtvDesc.Format = format;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+
+	DX("Failed to create render target view",
+	   device->CreateRenderTargetView(
+		   texture.Get(), &rtvDesc, rtv.GetAddressOf()
+	   ));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	DX("Failed to create shader resource view",
+	   device->CreateShaderResourceView(
+		   texture.Get(), &srvDesc, srv.GetAddressOf()
+	   ));
+
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+	DX("Failed to create sampler state",
+	   device->CreateSamplerState(&samplerDesc, sampler.GetAddressOf()));
+}
+
 }  // namespace d3d11
 
 void d3d11::Texture::SetAsRT(

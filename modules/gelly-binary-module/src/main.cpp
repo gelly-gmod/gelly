@@ -231,14 +231,12 @@ LUA_FUNCTION(gelly_Create) {
 	SharedTextures sharedTextures{};
 
 	CREATE_SOURCE_TEXTURE(normal);
-	CREATE_SOURCE_TEXTURE(depth_low);
-	CREATE_SOURCE_TEXTURE(depth_high);
+	CREATE_SOURCE_TEXTURE(depth);
 
 	params.sharedTextures = sharedTextures;
 
 	if (params.sharedTextures.normal == nullptr ||
-		params.sharedTextures.depth_low == nullptr ||
-		params.sharedTextures.depth_high == nullptr) {
+		params.sharedTextures.depth == nullptr) {
 		LUA->ThrowError("Failed to create shared textures");
 	}
 

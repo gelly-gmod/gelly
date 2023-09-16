@@ -58,14 +58,22 @@ void GellyRenderer::InitializeGBuffer() {
 	gbuffer.width = (float)params.width;
 	gbuffer.height = (float)params.height;
 
-	gbuffer.depth_low =
-		d3d11::Texture(*params.sharedTextures.depth_low, device.Get());
+	gbuffer.output.depth =
+		d3d11::Texture(*params.sharedTextures.depth, device.Get());
 
-	gbuffer.depth_high =
-		d3d11::Texture(*params.sharedTextures.depth_high, device.Get());
-
-	gbuffer.normal =
+	gbuffer.output.normal =
 		d3d11::Texture(*params.sharedTextures.normal, device.Get());
+
+	gbuffer.depth = d3d11::Texture(
+		params.width, params.height, DXGI_FORMAT_R32_FLOAT, device.Get()
+	);
+
+	gbuffer.normal = d3d11::Texture(
+		params.width,
+		params.height,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		device.Get()
+	);
 }
 
 void GellyRenderer::InitializeDepthStencil() {
@@ -136,13 +144,17 @@ void GellyRenderer::Render() {
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &resources);
+	pipeline.outputEncoder->RunForFrame(deviceContext.Get(), &resources);
 }
 
 ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
 	return pipeline.particleRendering->GetParticleBuffer();
 }
 
-GellyRenderer::~GellyRenderer() { delete pipeline.particleRendering; }
+GellyRenderer::~GellyRenderer() {
+	delete pipeline.particleRendering;
+	delete pipeline.outputEncoder;
+}
 
 #ifdef _DEBUG
 void GellyRenderer::PrintDebugMessages() {
@@ -173,6 +185,9 @@ void GellyRenderer::InitializePipeline() {
 	auto *particleRendering =
 		new ParticleRendering(device.Get(), params.maxParticles);
 	pipeline.particleRendering = particleRendering;
+
+	auto *outputEncoder = new OutputEncoder(device.Get());
+	pipeline.outputEncoder = outputEncoder;
 }
 
 void GellyRenderer::SetActiveParticles(int newActiveParticles) {
