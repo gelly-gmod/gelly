@@ -1,6 +1,8 @@
 #ifndef GELLY_SSTECHNIQUE_H
 #define GELLY_SSTECHNIQUE_H
 
+#include <GellyD3D.h>
+
 #include "detail/Camera.h"
 #include "rendering/Technique.h"
 
@@ -12,10 +14,15 @@
  */
 class SSTechnique : public Technique {
 private:
+	struct Vertex {
+		float x, y, z;
+		float u, v;
+	};
+
 	ComPtr<ID3D11VertexShader> vertexShader;
-	ComPtr<ID3D10Blob> vertexShaderBlob;
+	ComPtr<ID3DBlob> vertexShaderBlob;
 	ComPtr<ID3D11InputLayout> inputLayout;
-	ComPtr<ID3D11Buffer> vertexBuffer;
+	d3d11::VertexBuffer<Vertex> vertexBuffer;
 
 protected:
 	void BindNDCQuad(ID3D11DeviceContext *context);

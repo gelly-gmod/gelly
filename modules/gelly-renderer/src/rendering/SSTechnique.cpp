@@ -10,7 +10,24 @@ const char *VERTEX_SHADER_SOURCE =
 
 using namespace d3d11;
 
-SSTechnique::SSTechnique(ID3D11Device *device) {
+static const float screenQuadVerts[] = {
+	-1.0f, -1.0f, 0.0f, 1.0f,  // xyzw
+	0.0f,  1.0f,			   // uv
+	-1.0f, 1.0f,  0.0f, 1.0f,  // xyzw
+	0.0f,  0.0f,			   // uv
+	1.0f,  -1.0f, 0.0f, 1.0f,  // xyzw
+	1.0f,  1.0f,			   // uv
+	1.0f,  1.0f,  0.0f, 1.0f,  // xyzw
+	1.0f,  0.0f,			   // uv
+};
+
+SSTechnique::SSTechnique(ID3D11Device *device)
+	: vertexBuffer(
+		  device,
+		  (Vertex *)screenQuadVerts,
+		  4,
+		  D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
+	  ) {
 	// Compile the NDC quad vertex shader
 	ShaderCompileOptions options = {
 		.device = device,
@@ -58,44 +75,8 @@ SSTechnique::SSTechnique(ID3D11Device *device) {
 		   vertexShaderBlob->GetBufferSize(),
 		   inputLayout.GetAddressOf()
 	   ));
-
-	// Create the vertex buffer
-	D3D11_BUFFER_DESC vertexBufferDesc{};
-	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(float) * 6 * 4;	 // xyzw, uv
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-
-	float vertices[] = {
-		-1.0f, -1.0f, 0.0f, 1.0f,  // xyzw
-		0.0f,  1.0f,			   // uv
-		-1.0f, 1.0f,  0.0f, 1.0f,  // xyzw
-		0.0f,  0.0f,			   // uv
-		1.0f,  -1.0f, 0.0f, 1.0f,  // xyzw
-		1.0f,  1.0f,			   // uv
-		1.0f,  1.0f,  0.0f, 1.0f,  // xyzw
-		1.0f,  0.0f,			   // uv
-	};
-
-	D3D11_SUBRESOURCE_DATA vertexBufferData{};
-	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-	vertexBufferData.pSysMem = vertices;
-
-	DX("Failed to create vertex buffer",
-	   device->CreateBuffer(
-		   &vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf()
-	   ));
 }
 
 void SSTechnique::BindNDCQuad(ID3D11DeviceContext *context) {
-	UINT stride = sizeof(float) * 6;
-	UINT offset = 0;
-	context->IASetVertexBuffers(
-		0, 1, vertexBuffer.GetAddressOf(), &stride, &offset
-	);
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	context->IASetInputLayout(inputLayout.Get());
-	context->VSSetShader(vertexShader.Get(), nullptr, 0);
+	vertexBuffer.SetAtSlot(context, 0, inputLayout.Get());
 }
