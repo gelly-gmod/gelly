@@ -10,6 +10,8 @@
 #include <unordered_map>
 #include <vector>
 
+// highly common types
+namespace gelly_engine {
 struct Vec4 {
 	float x, y, z, w;
 };
@@ -17,7 +19,9 @@ struct Vec4 {
 struct Vec3 {
 	float x, y, z;
 };
+}  // namespace gelly_engine
 
+using namespace gelly_engine;
 using Quat = Vec4;
 
 class GPUCriticalObject {

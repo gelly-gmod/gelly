@@ -5,8 +5,11 @@
 
 #include "PerFrameCBuffer.h"
 #include "detail/Camera.h"
-#include "detail/DataTypes.h"
 #include "rendering/Technique.h"
+
+struct ParticlePoint {
+	float x, y, z, w;
+};
 
 /**
  * This technique renders the bound points as circular point-sprites and

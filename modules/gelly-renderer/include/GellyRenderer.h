@@ -9,7 +9,6 @@
 
 #include "detail/Camera.h"
 #include "detail/ConstantBuffer.h"
-#include "detail/DataTypes.h"
 #include "detail/GBuffer.h"
 #include "rendering/Technique.h"
 #include "rendering/techniques/ParticleRendering.h"
