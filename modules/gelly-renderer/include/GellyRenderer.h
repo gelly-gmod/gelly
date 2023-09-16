@@ -38,7 +38,6 @@ private:
 	ComPtr<ID3D11Device> device;
 	ComPtr<ID3D11DeviceContext> deviceContext;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
-	ComPtr<ID3D11Buffer> particles;
 
 	GBuffer gbuffer;
 	D3D11_VIEWPORT viewport{};

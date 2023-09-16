@@ -139,7 +139,7 @@ void GellyRenderer::Render() {
 }
 
 ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
-	return particles.Get();
+	return pipeline.particleRendering->GetParticleBuffer();
 }
 
 GellyRenderer::~GellyRenderer() { delete pipeline.particleRendering; }
@@ -172,7 +172,6 @@ void GellyRenderer::PrintDebugMessages() {
 void GellyRenderer::InitializePipeline() {
 	auto *particleRendering =
 		new ParticleRendering(device.Get(), params.maxParticles);
-	particles.Attach(particleRendering->GetParticleBuffer());
 	pipeline.particleRendering = particleRendering;
 }
 
