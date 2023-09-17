@@ -1,6 +1,5 @@
 #include "ParticleRenderStages.hlsli"
 #include "PerFrameCB.hlsli"
-#include "SplitFloat.hlsli"
 
 bool CalculateNormal(float2 texcoord, out float3 normal) {
 	float2 ndcNormal = texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0);

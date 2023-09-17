@@ -2,13 +2,13 @@
 <project version="2">
 	<pipeline>
 		<pass name="ParticleRender" type="shader" active="true" patchverts="1">
-			<shader type="vs" path="shaders\ParticleRenderVS.hlsl" entry="main" />
-			<shader type="ps" path="shaders\ParticleRenderPS.hlsl" entry="main" />
-			<shader used="true" type="gs" path="shaders\ParticleRenderGS.hlsl" entry="main" />
+			<shader type="vs" path="ParticleRender.vs.hlsl" entry="main" />
+			<shader type="ps" path="ParticleRender.ps.hlsl" entry="main" />
+			<shader used="true" type="gs" path="ParticleRender.gs.hlsl" entry="main" />
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 			</inputlayout>
-			<rendertexture />
+			<rendertexture name="Depth" />
 			<items>
 				<item name="Sphere" type="geometry">
 					<type>Sphere</type>
@@ -40,166 +40,12 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.108716428</scaleX>
+					<scaleX>0.0470246673</scaleX>
 					<scaleY>0.0502393246</scaleY>
-					<scaleZ>0.308240652</scaleZ>
+					<scaleZ>0.0453407168</scaleZ>
 					<x>-1.01746655</x>
 					<y>0.804721832</y>
 					<z>-0.437661886</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere4" type="geometry">
-					<type>Sphere</type>
-					<width>2</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.0735212564</scaleX>
-					<scaleY>0.081156373</scaleY>
-					<scaleZ>0.0818047523</scaleZ>
-					<x>-2.00834465</x>
-					<y>0.598043263</y>
-					<z>-1.15938067</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere5" type="geometry">
-					<type>Sphere</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.229669809</scaleX>
-					<scaleY>0.121384442</scaleY>
-					<scaleZ>0.213156879</scaleZ>
-					<x>-1.06012774</x>
-					<y>0.74258554</y>
-					<z>0.47531426</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere6" type="geometry">
-					<type>Sphere</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.229669809</scaleX>
-					<scaleY>0.121384442</scaleY>
-					<scaleZ>0.213156879</scaleZ>
-					<x>-1.06012774</x>
-					<y>0.74258554</y>
-					<z>0.47531426</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere7" type="geometry">
-					<type>Cube</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleY>0.949999988</scaleY>
-					<scaleZ>1.09000003</scaleZ>
-					<x>-2.27030301</x>
-					<y>-0.0919656456</y>
-					<z>3.63128304</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere8" type="geometry">
-					<type>Sphere</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.108716428</scaleX>
-					<scaleY>0.0502393246</scaleY>
-					<scaleZ>0.308240652</scaleZ>
-					<x>-1.01746655</x>
-					<y>0.804721832</y>
-					<z>-0.437661886</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere9" type="geometry">
-					<type>Sphere</type>
-					<width>2</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.0735212564</scaleX>
-					<scaleY>0.081156373</scaleY>
-					<scaleZ>0.0818047523</scaleZ>
-					<x>-2.00834465</x>
-					<y>0.598043263</y>
-					<z>-1.15938067</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere10" type="geometry">
-					<type>Sphere</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.229669809</scaleX>
-					<scaleY>0.121384442</scaleY>
-					<scaleZ>0.213156879</scaleZ>
-					<x>-1.06012774</x>
-					<y>0.74258554</y>
-					<z>0.47531426</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere11" type="geometry">
-					<type>Sphere</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.229669809</scaleX>
-					<scaleY>0.121384442</scaleY>
-					<scaleZ>0.213156879</scaleZ>
-					<x>-1.06012774</x>
-					<y>0.74258554</y>
-					<z>0.47531426</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere12" type="geometry">
-					<type>Cube</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleY>0.949999988</scaleY>
-					<scaleZ>1.09000003</scaleZ>
-					<x>-2.27030301</x>
-					<y>-0.0919656456</y>
-					<z>3.63128304</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere13" type="geometry">
-					<type>Sphere</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.108716428</scaleX>
-					<scaleY>0.0502393246</scaleY>
-					<scaleZ>0.308240652</scaleZ>
-					<x>-1.01746655</x>
-					<y>0.804721832</y>
-					<z>-0.437661886</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere14" type="geometry">
-					<type>Sphere</type>
-					<width>2</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.0735212564</scaleX>
-					<scaleY>0.081156373</scaleY>
-					<scaleZ>0.0818047523</scaleZ>
-					<x>-2.00834465</x>
-					<y>0.598043263</y>
-					<z>-1.15938067</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="Sphere15" type="geometry">
-					<type>Sphere</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.229669809</scaleX>
-					<scaleY>0.121384442</scaleY>
-					<scaleZ>0.213156879</scaleZ>
-					<x>-1.06012774</x>
-					<y>0.74258554</y>
-					<z>0.47531426</z>
 					<topology>PointList</topology>
 				</item>
 			</items>
@@ -224,9 +70,9 @@
 						<value>0</value>
 					</row>
 				</variable>
-				<variable type="float" name="padding2">
+				<variable type="float" name="particleRadius">
 					<row>
-						<value>0</value>
+						<value>0.0199999996</value>
 					</row>
 				</variable>
 			</variables>
@@ -234,30 +80,17 @@
 				<define name="SHADERED" active="true">1</define>
 			</macros>
 		</pass>
-		<pass name="ParticleSmoothing" type="shader" active="false" patchverts="1">
-			<shader type="vs" path="shaders\ParticleSmoothingVS.hlsl" entry="main" />
-			<shader type="ps" path="shaders\ParticleSmoothingPS.hlsl" entry="main" />
+		<pass name="DepthSmoothing" type="shader" active="true" patchverts="1">
+			<shader type="vs" path="NDCQuad.vs.hlsl" entry="main" />
+			<shader type="ps" path="DepthSmoothing.ps.hlsl" entry="main" />
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
+				<item value="Normal" semantic="NORMAL" />
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
 			<rendertexture name="DepthSmooth" />
 			<items>
-				<item name="ScreenQuadNDC" type="geometry">
-					<type>ScreenQuadNDC</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<topology>TriangleList</topology>
-				</item>
-				<item name="ScreenQuadNDC2" type="geometry">
-					<type>ScreenQuadNDC</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<topology>TriangleList</topology>
-				</item>
-				<item name="ScreenQuadNDC4" type="geometry">
+				<item name="NDCQuad1" type="geometry">
 					<type>ScreenQuadNDC</type>
 					<width>1</width>
 					<height>1</height>
@@ -302,53 +135,6 @@
 						<value>0</value>
 					</row>
 				</variable>
-			</variables>
-			<macros />
-		</pass>
-		<pass name="NormalEstimation" type="shader" active="false" patchverts="1">
-			<shader type="vs" path="shaders\NormalEstimationVS.hlsl" entry="main" />
-			<shader type="ps" path="shaders\NormalEstimationPS.hlsl" entry="main" />
-			<inputlayout>
-				<item value="Position" semantic="POSITION" />
-				<item value="Normal" semantic="NORMAL" />
-				<item value="Texcoord" semantic="TEXCOORD0" />
-			</inputlayout>
-			<rendertexture />
-			<items>
-				<item name="ScreenQuadNDC1" type="geometry">
-					<type>ScreenQuadNDC</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<topology>TriangleList</topology>
-				</item>
-				<item name="ScreenQuadNDC3" type="geometry">
-					<type>ScreenQuadNDC</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<topology>TriangleList</topology>
-				</item>
-				<item name="ScreenQuadNDC5" type="geometry">
-					<type>ScreenQuadNDC</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<topology>TriangleList</topology>
-				</item>
-			</items>
-			<itemvalues />
-			<variables>
-				<variable type="float2" name="res" system="ViewportSize" />
-				<variable type="float4x4" name="matProj" system="Projection" />
-				<variable type="float4x4" name="matView" system="View" />
-				<variable type="float2" name="padding">
-					<row>
-						<value>0</value>
-						<value>0</value>
-					</row>
-				</variable>
-				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
 				<variable type="float4x4" name="matInvView">
 					<row>
 						<value>0</value>
@@ -375,29 +161,114 @@
 						<value>0</value>
 					</row>
 				</variable>
+				<variable type="float3" name="eye">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float" name="particleRadius">
+					<row>
+						<value>0</value>
+					</row>
+				</variable>
+			</variables>
+			<macros />
+		</pass>
+		<pass name="NormalEstimation" type="shader" active="true" patchverts="1">
+			<shader type="vs" path="NDCQuad.vs.hlsl" entry="main" />
+			<shader type="ps" path="NormalEstimation.ps.hlsl" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Normal" semantic="NORMAL" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture />
+			<items>
+				<item name="NDCQuad" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
+			<itemvalues />
+			<variables>
+				<variable type="float2" name="res" system="ViewportSize" />
+				<variable type="float2" name="padding">
+					<row>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float4x4" name="matInvProj" invert="true" system="ViewProjection" />
+				<variable type="float4x4" name="matInvView">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float3" name="eye">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float" name="particleRadius">
+					<row>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
 	</pipeline>
 	<objects>
 		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
-			<bind slot="0" name="ParticleSmoothing" />
+			<bind slot="0" name="DepthSmoothing" />
+		</object>
+		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="NormalEstimation" />
 		</object>
-		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="pinned" name="padding" owner="ParticleSmoothing" />
 		<entry type="pinned" name="eye" owner="ParticleRender" />
-		<entry type="pinned" name="padding2" owner="ParticleRender" />
+		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
+		<entry type="pinned" name="padding" owner="NormalEstimation" />
 		<entry type="pinned" name="matInvView" owner="NormalEstimation" />
+		<entry type="pinned" name="matInvProj" owner="DepthSmoothing" />
 		<entry type="camera" fp="true">
-			<positionX>-0.877328336</positionX>
-			<positionY>0.880305707</positionY>
-			<positionZ>0.144258901</positionZ>
-			<yaw>-9913.41309</yaw>
-			<pitch>354.590668</pitch>
+			<positionX>-0.685636044</positionX>
+			<positionY>0.888884008</positionY>
+			<positionZ>-0.686214447</positionZ>
+			<yaw>-12115.0898</yaw>
+			<pitch>347.441864</pitch>
 		</entry>
 		<entry type="clearcolor" r="0.0156862754" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />
