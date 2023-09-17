@@ -43,9 +43,18 @@
 					<scaleX>0.0470246673</scaleX>
 					<scaleY>0.0502393246</scaleY>
 					<scaleZ>0.0453407168</scaleZ>
-					<x>-1.01746655</x>
-					<y>0.804721832</y>
-					<z>-0.437661886</z>
+					<x>-1.1389755</x>
+					<y>0.961962581</y>
+					<z>-0.278835475</z>
+					<topology>PointList</topology>
+				</item>
+				<item name="fart" type="geometry">
+					<type>Circle</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<scaleX>0.0500000007</scaleX>
+					<scaleY>0.0599999987</scaleY>
 					<topology>PointList</topology>
 				</item>
 			</items>
@@ -206,32 +215,7 @@
 				<variable type="float4x4" name="matProj" system="Projection" />
 				<variable type="float4x4" name="matView" system="View" />
 				<variable type="float4x4" name="matInvProj" invert="true" system="ViewProjection" />
-				<variable type="float4x4" name="matInvView">
-					<row>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-					</row>
-					<row>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-					</row>
-					<row>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-					</row>
-					<row>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-					</row>
-				</variable>
+				<variable type="float4x4" name="matInvView" invert="true" system="View" />
 				<variable type="float3" name="eye">
 					<row>
 						<value>0</value>
@@ -261,14 +245,13 @@
 		<entry type="pinned" name="eye" owner="ParticleRender" />
 		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
 		<entry type="pinned" name="padding" owner="NormalEstimation" />
-		<entry type="pinned" name="matInvView" owner="NormalEstimation" />
 		<entry type="pinned" name="matInvProj" owner="DepthSmoothing" />
 		<entry type="camera" fp="true">
-			<positionX>-0.685636044</positionX>
-			<positionY>0.888884008</positionY>
-			<positionZ>-0.686214447</positionZ>
-			<yaw>-12115.0898</yaw>
-			<pitch>347.441864</pitch>
+			<positionX>-0.838942587</positionX>
+			<positionY>1.04382741</positionY>
+			<positionZ>-1.08346593</positionZ>
+			<yaw>-13891.9951</yaw>
+			<pitch>347.136963</pitch>
 		</entry>
 		<entry type="clearcolor" r="0.0156862754" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />
