@@ -12,10 +12,10 @@ SamplerState depthSampler {
     AddressV = Clamp;
 };
 
-float3 viewportToEyeSpace(float2 coord, float eyeDepth, float2 clipPosToEye) {
-	float2 uv = float2(coord.x * 2.0f - 1.0f, (1.0f - coord.y) * 2.0f - 1.0f) * clipPosToEye;
-	
-	return float3(-uv * eyeDepth, eyeDepth);
+float3 WorldPosFromDepth(float2 uv, float depth) {
+    float4 clipPos = float4(uv * 2.f - 1.f, depth, 1.0);
+    float4 viewPos = mul(clipPos, matInvProj);
+    return viewPos.xyz / viewPos.w;
 }
 
 float3 EstimateNormal(float3 clipOrigin, float2 texcoord) {
@@ -25,13 +25,19 @@ float3 EstimateNormal(float3 clipOrigin, float2 texcoord) {
 float3 P = reconstructPosition(uv, depth, InverseViewProjection);
 float3 normal = normalize(cross(ddx(P), ddy(P)));
 */  
-    // float depthCtr = depth.Sample(depthSampler, texcoord).r;
-    // float3 P = WorldPosFromDepth(texcoord, depthCtr);
-    // float3 Pdx = WorldPosFromDepth(texcoord + float2(texelSize.x, 0.f), depth.Sample(depthSampler, texcoord + float2(texelSize.x, 0.f)).r);
-    // float3 Pdy = WorldPosFromDepth(texcoord + float2(0.f, texelSize.y), depth.Sample(depthSampler, texcoord + float2(0.f, texelSize.y)).r);
-    // // Verify that these are correct, and that the normal is pointing in the right direction
+    float depthCtr = depth.Sample(depthSampler, texcoord).r;
+    float3 P = WorldPosFromDepth(texcoord, depthCtr);
+    float Dxy = depth.Sample(depthSampler, texcoord + float2(texelSize.x, 0.f)).r;
+    float Dyx = depth.Sample(depthSampler, texcoord + float2(0.f, texelSize.y)).r;
+    if (depthCtr == 1 || Dxy == 1 || Dyx == 1) {
+        discard;
+    }
 
-    // float3 normal = normalize(cross(Pdx - P, Pdy - P));
+    float3 Pdx = WorldPosFromDepth(texcoord + float2(texelSize.x, 0.f), Dxy);
+    float3 Pdy = WorldPosFromDepth(texcoord + float2(0.f, texelSize.y), Dyx);
+    // Verify that these are correct, and that the normal is pointing in the right direction
+
+    float3 normal = normalize(cross(Pdx - P, Pdy - P));
 
     // // Check for invalid depth
     // if (depthCtr == 0.f) {
@@ -112,54 +118,55 @@ float3 normal = normalize(cross(ddx(P), ddy(P)));
     */
 
 	// Do this outside of a shader in production...
-	float fov = radians(50.f);
-	float4x4 modelViewMatrix = mul(matGeo, matView);
-	float screenAspect = res.x / res.y;
-	float2 aspect = float2(1.0f / res.x, screenAspect / res.y);
-	float2 invTexScale = aspect;
-	float2 clipToEye = float2(tan(fov * 0.5f) * screenAspect, tan(fov * 0.5f));
+    //fov = 2.0*atan( 1.0/prjMatrix[1][1] ) * 180.0 / PI;
+	// float fov = 2.0 * atan(1.0 / matProj[1][1]) * 180.0 / 3.1415926535;
+	// float4x4 modelViewMatrix = mul(matGeo, matView);
+	// float screenAspect = res.x / res.y;
+	// float2 aspect = float2(1.0f / res.x, screenAspect / res.y);
+	// float2 invTexScale = aspect;
+	// float2 clipToEye = float2(tan(fov * 0.5f) * screenAspect, tan(fov * 0.5f));
 
-	float2 uvCoord = float2(texcoord.x, texcoord.y);
-	float eyeDepth = depth.Sample(depthSampler, uvCoord).r;
-	if (eyeDepth >= 0.9999999f) { // Use a proper epsilon
-		discard;
-	}
+	// float2 uvCoord = float2(texcoord.x, texcoord.y);
+	// float eyeDepth = depth.Sample(depthSampler, uvCoord).r;
+	// if (eyeDepth >= 0.9999999f) { // Use a proper epsilon
+	// 	discard;
+	// }
 
-    float3 eyePos = viewportToEyeSpace(uvCoord, eyeDepth, clipToEye);
+    // float3 eyePos = viewportToEyeSpace(uvCoord, eyeDepth, clipToEye);
 
-    float3 zl = eyePos - viewportToEyeSpace(
-		uvCoord - float2(invTexScale.x, 0.f),
-		depth.Sample(depthSampler, uvCoord - float2(invTexScale.x, 0.f)).r,
-		clipToEye
-	);
-    float3 zr = viewportToEyeSpace(
-		uvCoord + float2(invTexScale.x, 0.f),
-		depth.Sample(depthSampler, uvCoord + float2(invTexScale.x, 0.f)).r,
-		clipToEye
-	) - eyePos;
-    float3 zt = viewportToEyeSpace(
-		uvCoord + float2(0.f, invTexScale.y),
-		depth.Sample(depthSampler, uvCoord + float2(0.f, invTexScale.y)).r,
-		clipToEye
-	) - eyePos;
-    float3 zb = eyePos - viewportToEyeSpace(
-		uvCoord - float2(0.f, invTexScale.y),
-		depth.Sample(depthSampler, uvCoord - float2(0.f, invTexScale.y)).r,
-		clipToEye
-	);
+    // float3 zl = eyePos - viewportToEyeSpace(
+	// 	uvCoord - float2(invTexScale.x, 0.f),
+	// 	depth.Sample(depthSampler, uvCoord - float2(invTexScale.x, 0.f)).r,
+	// 	clipToEye
+	// );
+    // float3 zr = viewportToEyeSpace(
+	// 	uvCoord + float2(invTexScale.x, 0.f),
+	// 	depth.Sample(depthSampler, uvCoord + float2(invTexScale.x, 0.f)).r,
+	// 	clipToEye
+	// ) - eyePos;
+    // float3 zt = viewportToEyeSpace(
+	// 	uvCoord + float2(0.f, invTexScale.y),
+	// 	depth.Sample(depthSampler, uvCoord + float2(0.f, invTexScale.y)).r,
+	// 	clipToEye
+	// ) - eyePos;
+    // float3 zb = eyePos - viewportToEyeSpace(
+	// 	uvCoord - float2(0.f, invTexScale.y),
+	// 	depth.Sample(depthSampler, uvCoord - float2(0.f, invTexScale.y)).r,
+	// 	clipToEye
+	// );
 
-    float3 dx = zl;
-    float3 dy = zt;
+    // float3 dx = zl;
+    // float3 dy = zt;
 
-    if (abs(zr.z) < abs(zl.z))
-        dx = zr;
+    // if (abs(zr.z) < abs(zl.z))
+    //     dx = zr;
 
-    if (abs(zb.z) < abs(zt.z))
-        dy = zb;
+    // if (abs(zb.z) < abs(zt.z))
+    //     dy = zb;
 
-    float3 normal = normalize(cross(dy, dx));
+    // float3 normal = normalize(cross(dy, dx));
 
-    //return normal * 0.5 + 0.5;    
+    // return normal * 0.5 + 0.5;
     float4 lightDir = mul(mul(float4(normalize(float3(0.5, 0.5, 1)), 0.f), matGeo), matView);
     float NdotL = saturate(dot(normal, -lightDir.xyz));
     float3 color = NdotL * float3(0.8, 0.8, 0.8);

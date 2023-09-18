@@ -2,6 +2,8 @@
 #include "PerFrameCB.hlsli"
 
 bool CalculateNormal(float2 texcoord, out float3 normal) {
+	float aspectRatio = res.x / res.y;
+
 	float2 ndcNormal = texcoord * float2(2.0, -2.0) + float2(-1.0, 1.0);
 	float mag = dot(ndcNormal, ndcNormal);
 
@@ -9,7 +11,7 @@ bool CalculateNormal(float2 texcoord, out float3 normal) {
 		return false;
 	}
 
-	normal = float3(ndcNormal, sqrt(1.0f - mag));
+	normal = float3(ndcNormal, sqrt(1.f - mag));
 	return true;
 }
 
@@ -30,7 +32,17 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
 	float3 clipOrigin = mul(float4(input.Center.xyz, 1.f), matProj).xyz;
 
-	output.DepthColor = float4(clipDepth, clipDepth, clipDepth, clipDepth);
+/*
+    float z = dot(vec4(fragPos, 1.0), transpose(projectionMatrix)[2]);
+    float w = dot(vec4(fragPos, 1.0), transpose(projectionMatrix)[3]);
+    gl_FragDepth = 0.5 * (z / w + 1.0);
+	*/
+
+	float z = dot(float4(pointOnHemisphere, 1.f), transpose(matProj)[2]);
+	float w = dot(float4(pointOnHemisphere, 1.f), transpose(matProj)[3]);
+	clipDepth = 0.5 * (z / w + 1.0);
+	float dist = distance(clipPoint.xyz, clipOrigin);
+	output.DepthColor = float4(clipDepth, clipDepth, clipDepth, 1.f);
 	output.Depth = clipDepth;
 
 	return output;

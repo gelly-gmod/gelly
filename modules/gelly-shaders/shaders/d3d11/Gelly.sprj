@@ -28,8 +28,9 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleY>0.949999988</scaleY>
-					<scaleZ>1.09000003</scaleZ>
+					<scaleX>0.5</scaleX>
+					<scaleY>0.5</scaleY>
+					<scaleZ>0.5</scaleZ>
 					<x>-2.27030301</x>
 					<y>-0.0919656456</y>
 					<z>3.63128304</z>
@@ -72,16 +73,10 @@
 				</variable>
 				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
 				<variable type="float4x4" name="matInvView" invert="true" system="View" />
-				<variable type="float3" name="eye">
-					<row>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-					</row>
-				</variable>
+				<variable type="float3" name="eye" system="CameraPosition3" />
 				<variable type="float" name="particleRadius">
 					<row>
-						<value>0.0199999996</value>
+						<value>0.0599999987</value>
 					</row>
 				</variable>
 				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
@@ -215,7 +210,7 @@
 				</variable>
 				<variable type="float4x4" name="matProj" system="Projection" />
 				<variable type="float4x4" name="matView" system="View" />
-				<variable type="float4x4" name="matInvProj" invert="true" system="ViewProjection" />
+				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
 				<variable type="float4x4" name="matInvView" invert="true" system="View" />
 				<variable type="float3" name="eye">
 					<row>
@@ -230,6 +225,7 @@
 					</row>
 				</variable>
 				<variable type="float4x4" name="matGeo" system="GeometryTransform" />
+				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -240,23 +236,20 @@
 		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" r="1" g="1" b="1">
 			<bind slot="0" name="DepthSmoothing" />
 		</object>
-		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
+		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" r="1" g="1" b="1" a="1">
 			<bind slot="0" name="NormalEstimation" />
 		</object>
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="NormalEstimation" item="pipe" />
-		<entry type="pinned" name="eye" owner="ParticleRender" />
 		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
 		<entry type="pinned" name="padding" owner="NormalEstimation" />
-		<entry type="pinned" name="matInvProj" owner="DepthSmoothing" />
 		<entry type="camera" fp="true">
-			<positionX>-0.838942587</positionX>
-			<positionY>1.04382741</positionY>
-			<positionZ>-1.08346593</positionZ>
-			<yaw>-13891.9951</yaw>
-			<pitch>347.136963</pitch>
+			<positionX>-1.20706606</positionX>
+			<positionY>0.986260653</positionY>
+			<positionZ>-0.82489723</positionZ>
+			<yaw>-14572.1104</yaw>
+			<pitch>1078.98511</pitch>
 		</entry>
 		<entry type="clearcolor" r="0.0156862754" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

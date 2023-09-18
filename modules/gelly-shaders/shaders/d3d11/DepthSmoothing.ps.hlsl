@@ -17,7 +17,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float sum = 0.0f;
     float pixelSize = 1.f / res;
 
-    int filterSize = 1;
+    int filterSize = 4;
 
     for (int x = -filterSize; x <= filterSize; x++) {
         for (int y = -filterSize; y <= filterSize; y++) {

@@ -15,17 +15,16 @@ static const float2 corners[4] = {
 	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
 ) {
 	GS_OUTPUT output = (GS_OUTPUT)0;
+	output.Center = mul(mul(input[0].Pos, matGeo), matView); // we re-output this only because the pipeline will automatically do perspective divide and viewport transform which we dont want
 
 	for (int i = 0; i < 4; ++i) {
 		float2 corner = corners[i];
-
-		float4 pos = input[0].ViewPos;
+		float4 pos = mul(mul(input[0].Pos, matGeo), matView);
 		float2 cornerScaled = (corner - 0.5f) * particleRadius;
 		pos.xy += cornerScaled.xy;
 
 		output.Position = mul(pos, matProj);
-		output.Center = input[0].ViewPos; // we re-output this only because the pipeline will automatically do perspective divide and viewport transform which we dont want
-		output.Texcoord = float2(corner.x, 1.0f - corner.y);
+		output.Texcoord = float2(corner.x, 1.f - corner.y);
 
 		stream.Append(output);
 	}
