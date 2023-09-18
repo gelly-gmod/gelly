@@ -15,7 +15,8 @@ SamplerState depthSampler {
 float3 WorldPosFromDepth(float2 uv, float depth) {
     float4 clipPos = float4(uv * 2.f - 1.f, depth, 1.0);
     float4 viewPos = mul(clipPos, matInvProj);
-    return viewPos.xyz / viewPos.w;
+    float4 worldPos = mul(viewPos, matInvView);
+    return worldPos.xyz / viewPos.w;
 }
 
 float3 EstimateNormal(float3 clipOrigin, float2 texcoord) {
@@ -26,18 +27,23 @@ float3 P = reconstructPosition(uv, depth, InverseViewProjection);
 float3 normal = normalize(cross(ddx(P), ddy(P)));
 */  
     float depthCtr = depth.Sample(depthSampler, texcoord).r;
-    float3 P = WorldPosFromDepth(texcoord, depthCtr);
-    float Dxy = depth.Sample(depthSampler, texcoord + float2(texelSize.x, 0.f)).r;
-    float Dyx = depth.Sample(depthSampler, texcoord + float2(0.f, texelSize.y)).r;
-    if (depthCtr == 1 || Dxy == 1 || Dyx == 1) {
+    float3 Pdx = ddx(WorldPosFromDepth(texcoord, depthCtr));
+    float3 Pdy = ddy(WorldPosFromDepth(texcoord, depthCtr));
+    if (length(Pdx) > 1.f) {
         discard;
     }
 
-    float3 Pdx = WorldPosFromDepth(texcoord + float2(texelSize.x, 0.f), Dxy);
-    float3 Pdy = WorldPosFromDepth(texcoord + float2(0.f, texelSize.y), Dyx);
+    if (length(Pdy) > 1.f) {
+        discard;
+    }
+    float3 P = WorldPosFromDepth(texcoord, depthCtr);
+    // float Dxy = depth.Sample(depthSampler, texcoord + float2(texelSize.x, 0.f)).r;
+    // float Dyx = depth.Sample(depthSampler, texcoord + float2(0.f, texelSize.y)).r;
+    // float3 Pdx = WorldPosFromDepth(texcoord + float2(texelSize.x, 0.f), Dxy);
+    // float3 Pdy = WorldPosFromDepth(texcoord + float2(0.f, texelSize.y), Dyx);
     // Verify that these are correct, and that the normal is pointing in the right direction
 
-    float3 normal = normalize(cross(Pdx - P, Pdy - P));
+    float3 normal = normalize(cross(Pdx, Pdy));
 
     // // Check for invalid depth
     // if (depthCtr == 0.f) {
@@ -167,7 +173,7 @@ float3 normal = normalize(cross(ddx(P), ddy(P)));
     // float3 normal = normalize(cross(dy, dx));
 
     // return normal * 0.5 + 0.5;
-    float4 lightDir = mul(mul(float4(normalize(float3(0.5, 0.5, 1)), 0.f), matGeo), matView);
+    float3 lightDir = normalize(float3(0.5, 0.5, 1));
     float NdotL = saturate(dot(normal, -lightDir.xyz));
     float3 color = NdotL * float3(0.8, 0.8, 0.8);
     return color;

@@ -15,19 +15,22 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     // Simple gaussian blur
     float sum = 0.0f;
-    float pixelSize = 1.f / res;
+    float2 pixelSize = 1.f / res;
 
-    int filterSize = 4;
+    int filterSize = 5;
+    int samplesTaken = 0;
 
     for (int x = -filterSize; x <= filterSize; x++) {
         for (int y = -filterSize; y <= filterSize; y++) {
             float2 offset = float2(x, y) * pixelScale;
             float depth = depth.Sample(depthSampler, input.Texcoord + offset).r;
-            sum += depth;
+            depth = min(depth, 1.0f);
+                sum += depth;
+                samplesTaken++;
         }
     }
 
-    sum /= (filterSize * 2 + 1) * (filterSize * 2 + 1);
+    sum /= samplesTaken;
 
     output.SmoothedDepth = float4(sum, 0, 0, 0);
     return output;
