@@ -84,6 +84,7 @@
 						<value>0.0199999996</value>
 					</row>
 				</variable>
+				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -228,12 +229,15 @@
 						<value>0</value>
 					</row>
 				</variable>
+				<variable type="float4x4" name="matGeo" system="GeometryTransform" />
 			</variables>
-			<macros />
+			<macros>
+				<define name="SHADERED" active="true">1</define>
+			</macros>
 		</pass>
 	</pipeline>
 	<objects>
-		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
+		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" r="1" g="1" b="1">
 			<bind slot="0" name="DepthSmoothing" />
 		</object>
 		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
@@ -242,6 +246,7 @@
 	</objects>
 	<cameras />
 	<settings>
+		<entry type="property" name="NormalEstimation" item="pipe" />
 		<entry type="pinned" name="eye" owner="ParticleRender" />
 		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
 		<entry type="pinned" name="padding" owner="NormalEstimation" />
