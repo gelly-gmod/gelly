@@ -5,6 +5,7 @@ cbuffer cbPerFrame : register(b0) {
 	float4x4 matView;
 #ifdef SHADERED
 	float4x4 matGeo;
+	float4x4 matInvGeo;
 #endif
 	float4x4 matInvProj;
 	float4x4 matInvView;

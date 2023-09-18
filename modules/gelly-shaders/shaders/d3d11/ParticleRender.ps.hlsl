@@ -20,10 +20,7 @@ float3 GetPointOnHemisphere(float3 viewCenter, float3 normal) {
 PS_OUTPUT main(GS_OUTPUT input) {
 	float3 normal;
 	if (!CalculateNormal(input.Texcoord, normal)) {
-		PS_OUTPUT output = (PS_OUTPUT)0;
-		output.DepthColor = float4(0.f, 0.f, 0.f, 0.f);
-		output.Depth = 1.f;
-		return output;
+		discard;
 	}
 	
 	PS_OUTPUT output = (PS_OUTPUT)0;
@@ -33,7 +30,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
 	float3 clipOrigin = mul(float4(input.Center.xyz, 1.f), matProj).xyz;
 
-	output.DepthColor = float4(clipOrigin, clipDepth);
+	output.DepthColor = float4(clipDepth, clipDepth, clipDepth, clipDepth);
 	output.Depth = clipDepth;
 
 	return output;
