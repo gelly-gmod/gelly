@@ -1,6 +1,7 @@
 #ifndef GELLY_TECHNIQUE_H
 #define GELLY_TECHNIQUE_H
 
+#include <GellyD3D.h>
 #include <d3d11.h>
 #include <wrl.h>
 
@@ -13,7 +14,7 @@ using namespace Microsoft::WRL;
  * This struct contains resources that are shared between all techniques.
  */
 struct TechniqueResources {
-	PerFrameCBuffer *perFrameCBData;
+	d3d11::ConstantBuffer<PerFrameCBuffer> *perFrameCB;
 	Camera *camera;
 	GBuffer *gbuffer;
 	ComPtr<ID3D11DepthStencilView> dsv;

@@ -242,15 +242,14 @@
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Depth" item="rt" />
 		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
 		<entry type="pinned" name="padding" owner="NormalEstimation" />
 		<entry type="camera" fp="true">
-			<positionX>-0.939231515</positionX>
-			<positionY>0.970742345</positionY>
-			<positionZ>-0.621800542</positionZ>
-			<yaw>-14968.2754</yaw>
-			<pitch>1074.03357</pitch>
+			<positionX>0.214725077</positionX>
+			<positionY>0.658013642</positionY>
+			<positionZ>-1.47735536</positionZ>
+			<yaw>-14952.1914</yaw>
+			<pitch>1058.28674</pitch>
 		</entry>
 		<entry type="clearcolor" r="0.0156862754" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

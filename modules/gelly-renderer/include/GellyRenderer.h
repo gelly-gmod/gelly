@@ -8,9 +8,10 @@
 #include <wrl.h>
 
 #include "detail/Camera.h"
-#include "detail/ConstantBuffer.h"
 #include "detail/GBuffer.h"
 #include "rendering/Technique.h"
+#include "rendering/techniques/DepthSmoothing.h"
+#include "rendering/techniques/NormalEstimation.h"
 #include "rendering/techniques/OutputEncoder.h"
 #include "rendering/techniques/ParticleRendering.h"
 
@@ -51,8 +52,12 @@ private:
 
 	struct {
 		ParticleRendering *particleRendering;
+		DepthSmoothing *depthSmoothing;
+		NormalEstimation *normalEstimation;
 		OutputEncoder *outputEncoder;
 	} pipeline;
+
+	d3d11::ConstantBuffer<PerFrameCBuffer> perFrameCB;
 
 	int activeParticles{};
 	float particleRadius{};

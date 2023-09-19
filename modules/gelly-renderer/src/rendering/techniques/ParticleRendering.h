@@ -28,7 +28,6 @@ private:
 	ComPtr<ID3D11GeometryShader> geometryShader;
 	d3d11::VertexBuffer<ParticlePoint> particleBuffer;
 	ComPtr<ID3D11InputLayout> particleInputLayoutBuffer;
-	d3d11::ConstantBuffer<PerFrameCBuffer> perFrameCBuffer;
 
 public:
 	int activeParticles{};

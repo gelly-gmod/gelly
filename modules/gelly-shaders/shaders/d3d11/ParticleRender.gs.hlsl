@@ -15,11 +15,19 @@ static const float2 corners[4] = {
 	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
 ) {
 	GS_OUTPUT output = (GS_OUTPUT)0;
+	#ifdef SHADERED
 	output.Center = mul(mul(input[0].Pos, matGeo), matView); // we re-output this only because the pipeline will automatically do perspective divide and viewport transform which we dont want
-
+	#else
+	output.Center = mul(input[0].Pos, matView);
+	#endif
+	
 	for (int i = 0; i < 4; ++i) {
 		float2 corner = corners[i];
+		#ifdef SHADERED
 		float4 pos = mul(mul(input[0].Pos, matGeo), matView);
+		#else
+		float4 pos = mul(input[0].Pos, matView);
+		#endif
 		float2 cornerScaled = (corner - 0.5f) * particleRadius;
 		pos.xy += cornerScaled.xy;
 

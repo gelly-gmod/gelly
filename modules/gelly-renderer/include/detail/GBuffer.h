@@ -11,6 +11,7 @@ struct GBuffer {
 	// and have fixed formats.
 
 	d3d11::Texture depth;
+	d3d11::Texture filteredDepth;
 	d3d11::Texture normal;
 
 	struct {

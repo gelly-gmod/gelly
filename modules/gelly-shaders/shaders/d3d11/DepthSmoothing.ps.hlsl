@@ -19,13 +19,13 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     int filterSize = 5;
     int samplesTaken = 0;
-
+    
     for (int x = -filterSize; x <= filterSize; x++) {
         for (int y = -filterSize; y <= filterSize; y++) {
             float2 offset = float2(x, y) * pixelScale;
-            float depth = depth.Sample(depthSampler, input.Texcoord + offset).r;
-            depth = min(depth, 1.0f);
-                sum += depth;
+            float depthTap = depth.Sample(depthSampler, input.Texcoord + offset).r;
+            depthTap = min(depthTap, 1.0f);
+                sum += depthTap;
                 samplesTaken++;
         }
     }

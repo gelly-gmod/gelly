@@ -5,12 +5,12 @@ struct VS_INPUT {
 
 struct PS_OUTPUT {
     float4 Col : SV_TARGET0;
-    float Depth : SV_DEPTH;
 };
 
 float4 debugConstants : register(c0);
 
 sampler2D depthSampler : register(s0);
+sampler2D normalSampler : register(s1);
 
 float LinearizeDepth(float z, float near, float far) {
     return (2.0f * near) / (far + near - z * (far - near));
@@ -31,18 +31,7 @@ PS_OUTPUT main(VS_INPUT input) {
     float2 nudged = input.Tex;
     float4 depth = tex2D(depthSampler, nudged);
 
-    float reconstructedDepth = ReconstructBrokenFloat(depth.y, depth.x);
-    if (reconstructedDepth <= 0.01f) {
-        discard;
-    }
 
-    output.Depth = reconstructedDepth;
-    float nearZ = 3;
-	float farZ = 28377.919921875;
-    float linearDepth = LinearizeDepth(reconstructedDepth, nearZ, farZ);
-    // Make depth discontinuities more obvious
-    linearDepth = linearDepth * 3.f;
-    linearDepth = saturate(linearDepth);
-    output.Col = float4(0.f, 0.f, linearDepth, 1.f);
+    output.Col = float4(tex2D(normalSampler, nudged).xyz, 1.f);
     return output;
 }

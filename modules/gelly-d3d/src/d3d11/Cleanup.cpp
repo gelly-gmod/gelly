@@ -1,16 +1,27 @@
 #include <detail/d3d11/Cleanup.h>
 
-void d3d11::CleanupRTsAndShaders(ID3D11DeviceContext *context) {
-	context->OMSetRenderTargets(0, nullptr, nullptr);
-	context->PSSetShaderResources(0, 0, nullptr);
-	context->PSSetSamplers(0, 0, nullptr);
+void d3d11::CleanupRTsAndShaders(
+	ID3D11DeviceContext *context, int usedViews, int usedSamplers
+) {
+	ID3D11ShaderResourceView
+		*nullSRVs[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {nullptr};
+	ID3D11SamplerState *nullSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {
+		nullptr};
+	ID3D11RenderTargetView *nullRTVs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {
+		nullptr};
+
+	context->OMSetRenderTargets(
+		D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTVs, nullptr
+	);
+	context->PSSetShaderResources(0, usedViews, nullSRVs);
+	context->PSSetSamplers(0, usedSamplers, nullSamplers);
 	context->PSSetShader(nullptr, nullptr, 0);
 
 	context->VSSetShader(nullptr, nullptr, 0);
-	context->VSSetShaderResources(0, 0, nullptr);
-	context->VSSetSamplers(0, 0, nullptr);
+	context->VSSetShaderResources(0, usedViews, nullSRVs);
+	context->VSSetSamplers(0, usedSamplers, nullSamplers);
 
 	context->GSSetShader(nullptr, nullptr, 0);
-	context->GSSetShaderResources(0, 0, nullptr);
-	context->GSSetSamplers(0, 0, nullptr);
+	context->GSSetShaderResources(0, usedViews, nullSRVs);
+	context->GSSetSamplers(0, usedSamplers, nullSamplers);
 }

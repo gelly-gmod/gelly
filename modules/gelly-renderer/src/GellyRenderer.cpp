@@ -26,6 +26,7 @@ GellyRenderer::GellyRenderer(const RendererInitParams &params)
 		   deviceContext.GetAddressOf()
 	   ));
 
+	perFrameCB.Init(device.Get());
 	InitializeGBuffer();
 	InitializeDepthStencil();
 	InitializePipeline();
@@ -65,7 +66,17 @@ void GellyRenderer::InitializeGBuffer() {
 		d3d11::Texture(*params.sharedTextures.normal, device.Get());
 
 	gbuffer.depth = d3d11::Texture(
-		params.width, params.height, DXGI_FORMAT_R32_FLOAT, device.Get()
+		params.width,
+		params.height,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		device.Get()
+	);
+
+	gbuffer.filteredDepth = d3d11::Texture(
+		params.width,
+		params.height,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		device.Get()
 	);
 
 	gbuffer.normal = d3d11::Texture(
@@ -136,14 +147,18 @@ void GellyRenderer::Render() {
 		.eye = camera.GetPosition(),
 		.particleRadius = particleRadius};
 
+	perFrameCB.Set(deviceContext.Get(), &perFrameData);
+
 	TechniqueResources resources{
-		.perFrameCBData = &perFrameData,
+		.perFrameCB = &perFrameCB,
 		.camera = &camera,
 		.gbuffer = &gbuffer,
 		.dsv = depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &resources);
+	pipeline.depthSmoothing->RunForFrame(deviceContext.Get(), &resources);
+	pipeline.normalEstimation->RunForFrame(deviceContext.Get(), &resources);
 	pipeline.outputEncoder->RunForFrame(deviceContext.Get(), &resources);
 }
 
@@ -185,6 +200,12 @@ void GellyRenderer::InitializePipeline() {
 	auto *particleRendering =
 		new ParticleRendering(device.Get(), params.maxParticles);
 	pipeline.particleRendering = particleRendering;
+
+	auto *depthSmoothing = new DepthSmoothing(device.Get());
+	pipeline.depthSmoothing = depthSmoothing;
+
+	auto *normalEstimation = new NormalEstimation(device.Get());
+	pipeline.normalEstimation = normalEstimation;
 
 	auto *outputEncoder = new OutputEncoder(device.Get());
 	pipeline.outputEncoder = outputEncoder;

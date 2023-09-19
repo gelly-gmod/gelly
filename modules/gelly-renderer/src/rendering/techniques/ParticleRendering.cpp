@@ -25,8 +25,7 @@ using namespace d3d11;
 	options.shader.entryPoint = shaderEntryPoint;
 
 ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
-	: perFrameCBuffer(device),
-	  particleBuffer(
+	: particleBuffer(
 		  device, nullptr, maxParticles, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST
 	  ) {
 	ShaderCompileOptions options = {
@@ -80,9 +79,6 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 void ParticleRendering::RunForFrame(
 	ID3D11DeviceContext *context, TechniqueResources *resources
 ) {
-	// Upload the per-frame data
-	perFrameCBuffer.Set(context, resources->perFrameCBData);
-
 	// Clear the RTs
 	GBuffer *gbuffer = resources->gbuffer;
 	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
@@ -101,12 +97,12 @@ void ParticleRendering::RunForFrame(
 	context->GSSetShader(geometryShader.Get(), nullptr, 0);
 	context->PSSetShader(pixelShader.Get(), nullptr, 0);
 
-	perFrameCBuffer.BindToShaders(context, 0);
+	resources->perFrameCB->BindToShaders(context, 0);
 
 	context->Draw(activeParticles, 0);
 	context->Flush();
 
-	d3d11::CleanupRTsAndShaders(context);
+	d3d11::CleanupRTsAndShaders(context, 0, 0);
 }
 
 ID3D11Buffer *ParticleRendering::GetParticleBuffer() const {

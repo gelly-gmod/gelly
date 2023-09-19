@@ -12,23 +12,37 @@ private:
 	Buffer<Structure> buffer;
 
 public:
+	ConstantBuffer() = default;
 	explicit ConstantBuffer(ID3D11Device *device);
 	~ConstantBuffer() = default;
 
+	/**
+	 * Automatically called in the constructor with a device, but can be called
+	 * manually if you need to use the default constructor or have lost a
+	 * device.
+	 * @param device
+	 */
+	void Init(ID3D11Device *device);
 	void Set(ID3D11DeviceContext *context, Structure *newData);
 	void BindToShaders(ID3D11DeviceContext *context, int slot);
 };
 
 template <typename Structure>
-ConstantBuffer<Structure>::ConstantBuffer(ID3D11Device *device)
-	: buffer(
-		  device,
-		  1,
-		  nullptr,
-		  D3D11_BIND_CONSTANT_BUFFER,
-		  D3D11_USAGE_DYNAMIC,
-		  D3D11_CPU_ACCESS_WRITE
-	  ) {
+ConstantBuffer<Structure>::ConstantBuffer(ID3D11Device *device) {
+	Init(device);
+}
+
+template <typename Structure>
+void ConstantBuffer<Structure>::Init(ID3D11Device *device) {
+	buffer.Init(
+		device,
+		1,
+		nullptr,
+		D3D11_BIND_CONSTANT_BUFFER,
+		D3D11_USAGE_DYNAMIC,
+		D3D11_CPU_ACCESS_WRITE
+	);
+
 	static_assert(
 		(sizeof(Structure) % 16) == 0,
 		"Constant Buffer size must be 16-byte aligned"
