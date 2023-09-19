@@ -175,6 +175,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output;
     float4 posDepth = depth.Sample(depthSampler, input.Texcoord);
 
-    output.Normal = float4(EstimateNormal(posDepth.xyz, input.Texcoord), 1.0);
+    output.Normal = float4(EstimateNormal(posDepth, input.Texcoord), 1.f);
     return output;
 }
