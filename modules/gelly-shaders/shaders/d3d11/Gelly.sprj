@@ -15,12 +15,12 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.229669809</scaleX>
-					<scaleY>0.121384442</scaleY>
-					<scaleZ>0.213156879</scaleZ>
+					<scaleX>20.5699997</scaleX>
+					<scaleY>9.47999954</scaleY>
+					<scaleZ>27.7000008</scaleZ>
 					<x>-1.06012774</x>
 					<y>0.74258554</y>
-					<z>0.47531426</z>
+					<z>3.2650001</z>
 					<topology>PointList</topology>
 				</item>
 				<item name="Sphere2" type="geometry">
@@ -41,21 +41,12 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.0470246673</scaleX>
-					<scaleY>0.0502393246</scaleY>
-					<scaleZ>0.0453407168</scaleZ>
-					<x>-1.1389755</x>
-					<y>0.961962581</y>
-					<z>-0.278835475</z>
-					<topology>PointList</topology>
-				</item>
-				<item name="fart" type="geometry">
-					<type>Circle</type>
-					<width>1</width>
-					<height>1</height>
-					<depth>1</depth>
-					<scaleX>0.0399999991</scaleX>
-					<scaleY>0.0599999987</scaleY>
+					<scaleX>20.5699997</scaleX>
+					<scaleY>9.47999954</scaleY>
+					<scaleZ>27.7000008</scaleZ>
+					<x>-1.06012774</x>
+					<y>0.74258554</y>
+					<z>3.2650001</z>
 					<topology>PointList</topology>
 				</item>
 			</items>
@@ -76,7 +67,7 @@
 				<variable type="float3" name="eye" system="CameraPosition3" />
 				<variable type="float" name="particleRadius">
 					<row>
-						<value>0.0599999987</value>
+						<value>0.170000002</value>
 					</row>
 				</variable>
 				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
@@ -233,7 +224,7 @@
 		</pass>
 	</pipeline>
 	<objects>
-		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" r="1" g="1" b="1">
+		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
 			<bind slot="0" name="DepthSmoothing" />
 		</object>
 		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" r="1" g="1" b="1" a="1">
@@ -242,14 +233,15 @@
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
+		<entry type="property" name="Sphere" item="pipe" />
 		<entry type="pinned" name="padding" owner="NormalEstimation" />
+		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
 		<entry type="camera" fp="true">
-			<positionX>0.214725077</positionX>
-			<positionY>0.658013642</positionY>
-			<positionZ>-1.47735536</positionZ>
-			<yaw>-14952.1914</yaw>
-			<pitch>1058.28674</pitch>
+			<positionX>-6.64914131</positionX>
+			<positionY>8.09294319</positionY>
+			<positionZ>-13.0403767</positionZ>
+			<yaw>-15572.8564</yaw>
+			<pitch>1078.1366</pitch>
 		</entry>
 		<entry type="clearcolor" r="0.0156862754" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

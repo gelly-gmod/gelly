@@ -17,7 +17,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float sum = 0.0f;
     float2 pixelSize = 1.f / res;
 
-    int filterSize = 1;
+    int filterSize = 0;
     int samplesTaken = 0;
 
     for (int x = -filterSize; x <= filterSize; x++) {

@@ -15,7 +15,8 @@ SamplerState depthSampler {
 float3 WorldPosFromDepth(float2 uv, float depth) {
     float4 clipPos = float4(uv * 2.f - 1.f, depth, 1.0);
     float4 viewPos = mul(clipPos, matInvProj);
-    return viewPos.xyz / viewPos.w;
+    float4 worldPos = mul(viewPos, matInvView);
+    return worldPos.xyz / worldPos.w;
 }
 
 float3 EstimateNormal(float3 clipOrigin, float2 texcoord) {
@@ -32,7 +33,7 @@ float3 normal = normalize(cross(ddx(P), ddy(P)));
     // float Dxy = depth.Sample(depthSampler, texcoord + float2(texelSize.x, 0.f)).r;
     // float Dyx = depth.Sample(depthSampler, texcoord + float2(0.f, texelSize.y)).r;
     // float3 Pdx = WorldPosFromDepth(texcoord + float2(texelSize.x, 0.f), Dxy);
-    // float3 Pdy = WorldPosFromDepth(texcoord + float2(0.f, texelSize.y), Dyx);
+    // float3 Pdy = WorldPosFromDepth(texcoord + float2(0.f, texelSize.y), Dyx);.1
     // Verify that these are correct, and that the normal is pointing in the right direction
 
     float3 normal = normalize(cross(Pdx, Pdy));
@@ -164,10 +165,10 @@ float3 normal = normalize(cross(ddx(P), ddy(P)));
 
     // float3 normal = normalize(cross(dy, dx));
 
-    return normal * 0.5 + 0.5;
+    // return normal * 0.5 + 0.5;
     float3 lightDir = normalize(float3(0.1, -0.4, 1));
     float NdotL = saturate(dot(normal, -lightDir.xyz));
-    float3 color = NdotL * float3(0.8, 0.8, 0.8);
+    float3 color = NdotL * float3(1, 1, 1);
     return color;
 }
 

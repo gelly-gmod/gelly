@@ -1,39 +1,22 @@
 #include "ParticleRenderStages.hlsli"
 #include "PerFrameCB.hlsli"
 
-// Basic particle splatting geometry shader
-// References:
-// https://github.com/NVIDIAGameWorks/FleX/blob/master/demo/d3d/shaders/pointPS.hlsl
-// https://stackoverflow.com/questions/8608844/resizing-point-sprites-based-on-distance-from-the-camera
-// Mainly adapted from this paper:
-// https://graphics.cs.kuleuven.be/publications/PSIRPBSD/PSIRPBSD_paper.pdf
+const float2 corners[4] = {
+    float2(0.0, 1.0), float2(0.0, 0.0), float2(1.0, 1.0), float2(1.0, 0.0)
+};
 
-static const float2 corners[4] = {
-	float2(0.0, 1.0), float2(0.0, 0.0), float2(1.0, 1.0), float2(1.0, 0.0)};
+[maxvertexcount(4)]
+void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
+    for (int i = 0; i < 4; ++i) {
+        GS_OUTPUT output = (GS_OUTPUT)0;
+        float2 corner = corners[i];
+        float4 projectedPosition = input[0].ViewPos;
+        projectedPosition.xy += (corner - 0.5f) * particleRadius;
+        projectedPosition = mul(projectedPosition, matProj);
+        output.Position = projectedPosition;
+        output.Texcoord = float2(corner.x, 1.f - corner.y);
+        output.CenterViewPos = input[0].ViewPos;
 
-[maxvertexcount(4)] void main(
-	point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream
-) {
-	GS_OUTPUT output = (GS_OUTPUT)0;
-	#ifdef SHADERED
-	output.Center = mul(mul(input[0].Pos, matGeo), matView); // we re-output this only because the pipeline will automatically do perspective divide and viewport transform which we dont want
-	#else
-	output.Center = mul(input[0].Pos, matView);
-	#endif
-	
-	for (int i = 0; i < 4; ++i) {
-		float2 corner = corners[i];
-		#ifdef SHADERED
-		float4 pos = mul(mul(input[0].Pos, matGeo), matView);
-		#else
-		float4 pos = mul(input[0].Pos, matView);
-		#endif
-		float2 cornerScaled = (corner - 0.5f) * particleRadius;
-		pos.xy += cornerScaled.xy;
-
-		output.Position = mul(pos, matProj);
-		output.Texcoord = float2(corner.x, 1.f - corner.y);
-
-		stream.Append(output);
-	}
+        stream.Append(output);
+    }
 }
