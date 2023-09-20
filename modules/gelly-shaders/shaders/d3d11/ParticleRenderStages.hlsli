@@ -1,7 +1,7 @@
 struct GS_OUTPUT {
 	float4 Position : SV_Position;
 	float2 Texcoord : TEXCOORD0;
-	float4 CenterViewPos : TEXCOORD1;
+	float4 ViewPosition : TEXCOORD1;
 };
 
 struct VS_OUTPUT {
@@ -12,4 +12,5 @@ struct VS_OUTPUT {
 
 struct PS_OUTPUT {
 	float4 DepthColor : SV_TARGET0;
+	float Depth : SV_DEPTH;
 };

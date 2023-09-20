@@ -8,14 +8,14 @@
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 			</inputlayout>
-			<rendertexture name="Depth" />
+			<rendertexture />
 			<items>
 				<item name="Sphere" type="geometry">
 					<type>Sphere</type>
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>20.5699997</scaleX>
+					<scaleX>20.9500008</scaleX>
 					<scaleY>9.47999954</scaleY>
 					<scaleZ>27.7000008</scaleZ>
 					<x>-1.06012774</x>
@@ -41,7 +41,20 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>20.5699997</scaleX>
+					<scaleX>20.7900009</scaleX>
+					<scaleY>9.47999954</scaleY>
+					<scaleZ>27.7000008</scaleZ>
+					<x>-0.920000017</x>
+					<y>0.74258554</y>
+					<z>3.2650001</z>
+					<topology>PointList</topology>
+				</item>
+				<item name="Sphere4" type="geometry">
+					<type>Sphere</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<scaleX>20.9500008</scaleX>
 					<scaleY>9.47999954</scaleY>
 					<scaleZ>27.7000008</scaleZ>
 					<x>-1.06012774</x>
@@ -52,8 +65,6 @@
 			</items>
 			<itemvalues />
 			<variables>
-				<variable type="float4x4" name="matView" system="View" />
-				<variable type="float4x4" name="matProj" system="Projection" />
 				<variable type="float4x4" name="matGeo" system="GeometryTransform" />
 				<variable type="float2" name="res" system="ViewportSize" />
 				<variable type="float2" name="padding">
@@ -62,15 +73,68 @@
 						<value>0</value>
 					</row>
 				</variable>
-				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
-				<variable type="float4x4" name="matInvView" invert="true" system="View" />
 				<variable type="float3" name="eye" system="CameraPosition3" />
 				<variable type="float" name="particleRadius">
 					<row>
-						<value>0.170000002</value>
+						<value>2.55999994</value>
 					</row>
 				</variable>
 				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
+				<variable type="float3" name="dir" system="CameraDirection3" />
+				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float4x4" name="matInvProj">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="matInvView">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -100,6 +164,18 @@
 				<variable type="float2" name="padding">
 					<row>
 						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float3" name="eye">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float" name="particleRadius">
+					<row>
 						<value>0</value>
 					</row>
 				</variable>
@@ -157,22 +233,10 @@
 						<value>0</value>
 					</row>
 				</variable>
-				<variable type="float3" name="eye">
-					<row>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-					</row>
-				</variable>
-				<variable type="float" name="particleRadius">
-					<row>
-						<value>0</value>
-					</row>
-				</variable>
 			</variables>
 			<macros />
 		</pass>
-		<pass name="NormalEstimation" type="shader" active="true" patchverts="1">
+		<pass name="NormalEstimation" type="shader" active="true" patchverts="1" collapsed="true">
 			<shader type="vs" path="NDCQuad.vs.hlsl" entry="main" />
 			<shader type="ps" path="NormalEstimation.ps.hlsl" entry="main" />
 			<inputlayout>
@@ -199,17 +263,7 @@
 						<value>0</value>
 					</row>
 				</variable>
-				<variable type="float4x4" name="matProj" system="Projection" />
-				<variable type="float4x4" name="matView" system="View" />
-				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
-				<variable type="float4x4" name="matInvView" invert="true" system="View" />
-				<variable type="float3" name="eye">
-					<row>
-						<value>0</value>
-						<value>0</value>
-						<value>0</value>
-					</row>
-				</variable>
+				<variable type="float3" name="eye" system="CameraPosition3" />
 				<variable type="float" name="particleRadius">
 					<row>
 						<value>0</value>
@@ -217,6 +271,61 @@
 				</variable>
 				<variable type="float4x4" name="matGeo" system="GeometryTransform" />
 				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
+				<variable type="float3" name="dir" system="CameraDirection3" />
+				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float4x4" name="matInvProj">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="matInvView">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -233,15 +342,16 @@
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Sphere" item="pipe" />
 		<entry type="pinned" name="padding" owner="NormalEstimation" />
 		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
+		<entry type="pinned" name="matInvProj" owner="ParticleRender" />
+		<entry type="pinned" name="matInvView" owner="ParticleRender" />
 		<entry type="camera" fp="true">
-			<positionX>-6.64914131</positionX>
-			<positionY>8.09294319</positionY>
-			<positionZ>-13.0403767</positionZ>
-			<yaw>-15572.8564</yaw>
-			<pitch>1078.1366</pitch>
+			<positionX>-10.8066931</positionX>
+			<positionY>6.97365999</positionY>
+			<positionZ>-4.08164787</positionZ>
+			<yaw>-12911.3369</yaw>
+			<pitch>1294.46704</pitch>
 		</entry>
 		<entry type="clearcolor" r="0.0156862754" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />
