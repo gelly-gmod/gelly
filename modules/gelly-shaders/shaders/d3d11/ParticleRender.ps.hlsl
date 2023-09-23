@@ -18,11 +18,11 @@ PS_OUTPUT main(GS_OUTPUT input) {
     // We do this by finding the height of the point on the hemisphere.
     float height = normal.z;
     float4 viewPositionNudged = input.ViewPosition;
-    viewPositionNudged.z += height;
+    viewPositionNudged.xyz += normal;
 
     float4 clipPosition = mul(viewPositionNudged, matProj);
     float depth = clipPosition.z / clipPosition.w;
     output.DepthColor = float4(depth, 0, 0, 1.f);
-    output.Depth = 0.f;
+    output.Depth = depth;
     return output;
 }
