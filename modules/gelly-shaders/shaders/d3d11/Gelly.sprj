@@ -8,16 +8,16 @@
 			<inputlayout>
 				<item value="Position" semantic="POSITION" />
 			</inputlayout>
-			<rendertexture />
+			<rendertexture name="Depth" />
 			<items>
 				<item name="Sphere" type="geometry">
 					<type>Sphere</type>
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>20.9500008</scaleX>
-					<scaleY>9.47999954</scaleY>
-					<scaleZ>27.7000008</scaleZ>
+					<scaleX>6.13171625</scaleX>
+					<scaleY>4.92036438</scaleY>
+					<scaleZ>6.7036171</scaleZ>
 					<x>-1.06012774</x>
 					<y>0.74258554</y>
 					<z>3.2650001</z>
@@ -28,8 +28,8 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>0.5</scaleX>
-					<scaleY>0.5</scaleY>
+					<scaleX>-6.48828268</scaleX>
+					<scaleY>-2.98963547</scaleY>
 					<scaleZ>0.5</scaleZ>
 					<x>-2.27030301</x>
 					<y>-0.0919656456</y>
@@ -41,10 +41,10 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>20.7900009</scaleX>
-					<scaleY>9.47999954</scaleY>
-					<scaleZ>27.7000008</scaleZ>
-					<x>-0.920000017</x>
+					<scaleX>6.13171625</scaleX>
+					<scaleY>4.92036438</scaleY>
+					<scaleZ>6.7036171</scaleZ>
+					<x>-1.06012774</x>
 					<y>0.74258554</y>
 					<z>3.2650001</z>
 					<topology>PointList</topology>
@@ -63,11 +63,65 @@
 				<variable type="float3" name="eye" system="CameraPosition3" />
 				<variable type="float" name="particleRadius">
 					<row>
-						<value>2.55999994</value>
+						<value>1.62</value>
 					</row>
 				</variable>
 				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
 				<variable type="float3" name="dir" system="CameraDirection3" />
+				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float4x4" name="matInvProj">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="matInvView">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -88,6 +142,8 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
+					<scaleX>-5.98828268</scaleX>
+					<scaleY>-2.48963547</scaleY>
 					<topology>TriangleList</topology>
 				</item>
 			</items>
@@ -112,10 +168,64 @@
 						<value>0</value>
 					</row>
 				</variable>
+				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float4x4" name="matInvProj">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="matInvView">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
-		<pass name="NormalEstimation" type="shader" active="false" patchverts="1">
+		<pass name="NormalEstimation" type="shader" active="true" patchverts="1">
 			<shader type="vs" path="NDCQuad.vs.hlsl" entry="main" />
 			<shader type="ps" path="NormalEstimation.ps.hlsl" entry="main" />
 			<inputlayout>
@@ -130,6 +240,8 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
+					<scaleX>-5.98828268</scaleX>
+					<scaleY>-2.48963547</scaleY>
 					<topology>TriangleList</topology>
 				</item>
 			</items>
@@ -151,6 +263,10 @@
 				<variable type="float4x4" name="matGeo" system="GeometryTransform" />
 				<variable type="float4x4" name="matInvGeo" system="GeometryTransform" />
 				<variable type="float3" name="dir" system="CameraDirection3" />
+				<variable type="float4x4" name="matProj" system="Projection" />
+				<variable type="float4x4" name="matView" system="View" />
+				<variable type="float4x4" name="matInvProj" invert="true" system="Projection" />
+				<variable type="float4x4" name="matInvView" invert="true" system="View" />
 			</variables>
 			<macros>
 				<define name="SHADERED" active="true">1</define>
@@ -158,7 +274,7 @@
 		</pass>
 	</pipeline>
 	<objects>
-		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true">
+		<object type="rendertexture" name="Depth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" r="1" g="1" b="1" a="1">
 			<bind slot="0" name="DepthSmoothing" />
 		</object>
 		<object type="rendertexture" name="DepthSmooth" format="R32G32B32A32_FLOAT" rsize="1.000000,1.000000" clear="true" r="1" g="1" b="1" a="1">
@@ -170,11 +286,11 @@
 		<entry type="pinned" name="padding" owner="NormalEstimation" />
 		<entry type="pinned" name="particleRadius" owner="ParticleRender" />
 		<entry type="camera" fp="true">
-			<positionX>-89.846817</positionX>
-			<positionY>45.8127327</positionY>
-			<positionZ>52.752655</positionZ>
-			<yaw>-12797.6162</yaw>
-			<pitch>1289.76892</pitch>
+			<positionX>10.6046524</positionX>
+			<positionY>3.65444994</positionY>
+			<positionZ>-13.9380693</positionZ>
+			<yaw>-12630.4014</yaw>
+			<pitch>901.875854</pitch>
 		</entry>
 		<entry type="clearcolor" r="0.0156862754" g="0" b="0" a="0" />
 		<entry type="usealpha" val="false" />

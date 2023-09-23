@@ -17,13 +17,17 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float sum = 0.0f;
     float2 pixelSize = 1.f / res;
 
-    int filterSize = 1;
+    int filterSize = 4;
     int samplesTaken = 0;
 
     for (int x = -filterSize; x <= filterSize; x++) {
         for (int y = -filterSize; y <= filterSize; y++) {
             float2 offset = float2(x, y) * pixelScale;
             float depthTap = depth.Sample(depthSampler, input.Texcoord + offset).r;
+            if (depthTap == 1.0f) {
+                continue;
+            }
+
             depthTap = min(depthTap, 1.0f);
                 sum += depthTap;
                 samplesTaken++;
@@ -32,6 +36,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     sum /= samplesTaken;
 
-    output.SmoothedDepth = float4(sum, 0, 0, 0);
+    output.SmoothedDepth = float4(sum, 0, 0, 1);
     return output;
 }
