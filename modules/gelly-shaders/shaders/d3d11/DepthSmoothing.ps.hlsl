@@ -6,36 +6,72 @@ struct PS_OUTPUT {
 };
 
 static const float2 pixelScale = 1.f / res;
+static const int maxFilterSize = 4;
 
 Texture2D depth : register(t0);
 SamplerState depthSampler : register(s0);
 
-PS_OUTPUT main(VS_OUTPUT input) {
-    PS_OUTPUT output;
+// Narrow-range filter implementation.
 
-    // Simple gaussian blur
+float GetFilterSize(float z) {
+    // Authors of the paper use arbitrary scalars for the world filter size.
+    // Since in GMod, our particle scale has to be massive, I'm using a pretty small value compared to theirs.
+    float worldSize = 0.2 * particleRadius;
+
+    float numerator = res.y * worldSize;
+    float denominator = 2 * abs(z) * tan(fov / 2);
+
+    return 3 * (numerator / denominator);
+}
+
+float GaussianWeight(float2 i_coord, float2 j_coord, float standardDeviation) {
+    float power = -length(j_coord - i_coord);
+    power *= power;
+    power /= 2 * standardDeviation * standardDeviation;
+
+    return exp(power);
+}
+
+float Clamping(float z_i, float z_j, float low, float high) {
+    if (z_j >= z_i - high) {
+        return z_j;
+    }
+
+    return z_i - low;
+}
+
+float GetDepth(float2 coord) {
+    return depth.Sample(depthSampler, coord).r;
+}
+
+float NarrowRangeFilter(float2 coord, float low, float high) {
+    float z_i = GetDepth(coord);
+    int filterSize = GetFilterSize(z_i);
+
     float sum = 0.0f;
-    float2 pixelSize = 1.f / res;
+    float weightSum = 0.0f;
 
-    int filterSize = 4;
-    int samplesTaken = 0;
-
-    for (int x = -filterSize; x <= filterSize; x++) {
-        for (int y = -filterSize; y <= filterSize; y++) {
+    for (int x = -maxFilterSize; x <= maxFilterSize; x++) {
+        for (int y = -maxFilterSize; y <= maxFilterSize; y++) {
             float2 offset = float2(x, y) * pixelScale;
-            float depthTap = depth.Sample(depthSampler, input.Texcoord + offset).r;
-            if (depthTap == 1.0f) {
+            float z_j = GetDepth(coord + offset);
+
+            if (z_j == 1.0f) {
                 continue;
             }
 
-            depthTap = min(depthTap, 1.0f);
-                sum += depthTap;
-                samplesTaken++;
+            float weight = GaussianWeight(coord, coord + offset, filterSize);
+            sum += weight * Clamping(z_i, z_j, low, high);
+            weightSum += weight;
         }
     }
 
-    sum /= samplesTaken;
+    return sum / weightSum;
+}
 
-    output.SmoothedDepth = float4(sum, 0, 0, 1);
+PS_OUTPUT main(VS_OUTPUT input) {
+    PS_OUTPUT output;
+    float filteredDepth = NarrowRangeFilter(input.Texcoord, particleRadius * 0.1, particleRadius * 0.04);
+    output.SmoothedDepth = float4(filteredDepth, 0, 0, 1);
     return output;
 }
