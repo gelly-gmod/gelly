@@ -81,7 +81,7 @@ void ParticleRendering::RunForFrame(
 ) {
 	// Clear the RTs
 	GBuffer *gbuffer = resources->gbuffer;
-	float emptyColor[4] = {0.f, 0.f, 0.f, 0.f};
+	float emptyColor[4] = {1.f, 0.f, 0.f, 0.f};
 	gbuffer->depth.Clear(context, emptyColor);
 	// Clear the depth buffer
 	context->ClearDepthStencilView(

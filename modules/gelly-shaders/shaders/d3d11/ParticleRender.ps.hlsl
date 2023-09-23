@@ -22,7 +22,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     float4 clipPosition = mul(viewPositionNudged, matProj);
     float depth = clipPosition.z / clipPosition.w;
-    output.DepthColor = float4(depth, 0, 0, 1.f);
+    output.DepthColor = float4(viewPositionNudged.xyz, 1.0f);
     output.Depth = depth;
     return output;
 }

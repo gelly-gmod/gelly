@@ -139,7 +139,8 @@ void GellyRenderer::Render() {
 
 	PerFrameCBuffer perFrameData = {
 		.res = {gbuffer.width, gbuffer.height},
-		.padding = {},
+		.padding = 0.f,
+		.fov = camera.GetFOV(),
 		.projection = camera.GetProjectionMatrix(),
 		.view = camera.GetViewMatrix(),
 		.invProj = camera.GetInvProjectionMatrix(),

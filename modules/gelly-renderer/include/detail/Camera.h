@@ -42,7 +42,7 @@ public:
 	[[nodiscard]] XMFLOAT4X4 GetInvProjectionMatrix() const;
 	[[nodiscard]] XMFLOAT4X4 GetInvViewMatrix() const;
 	[[nodiscard]] XMFLOAT3 GetPosition() const;
-	[[nodiscard]] XMFLOAT3 GetDirection() const;
+	[[nodiscard]] float GetFOV() const;
 };
 
 #endif	// GELLY_CAMERA_H

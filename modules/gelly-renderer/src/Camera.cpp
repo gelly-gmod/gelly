@@ -14,59 +14,68 @@ Camera::Camera() : view{}, projection{} {
 // but DirectXMath uses row-major order.
 
 void Camera::InvalidateView() {
-	// Source engine view calculation, see here:
-	// https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/se2007/game/client/view.cpp#L191
+	// Old D3DX view matrix calculation:
+	// https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatrh
 
 	auto pos = XMLoadFloat3(&eye);
 	auto dir = XMLoadFloat3(&direction);
-	auto upWorld = XMVectorSet(0.f, 0.f, 1.f, 1.f);
+	auto upWorld = XMVectorSet(0.f, 0.f, 1.f, 0.f);
 	auto right = XMVector3Cross(dir, upWorld);
 	auto up = XMVector3Cross(right, dir);
 
-	// normalize before continuing
-	dir = XMVector3Normalize(dir);
-	right = XMVector3Normalize(right);
-	up = XMVector3Normalize(up);
+	XMFLOAT4 zaxis{};
+	XMStoreFloat4(
+		&zaxis, XMVector3Normalize(XMVectorSubtract(pos, XMVectorAdd(pos, dir)))
+	);
 
-	XMFLOAT4X4 matCamInverse{};
-	XMStoreFloat4x4(&matCamInverse, XMMatrixIdentity());
+	XMFLOAT4 xaxis{};
+	XMStoreFloat4(
+		&xaxis, XMVector3Normalize(XMVector3Cross(up, XMLoadFloat4(&zaxis)))
+	);
 
-	for (int i = 0; i < 3; ++i) {
-		matCamInverse.m[0][i] = XMVectorGetByIndex(right, i);
-		matCamInverse.m[1][i] = XMVectorGetByIndex(up, i);
-		matCamInverse.m[2][i] = -XMVectorGetByIndex(dir, i);
-		matCamInverse.m[3][i] = 0.0F;
-	}
+	XMFLOAT4 yaxis{};
+	XMStoreFloat4(
+		&yaxis, XMVector3Cross(XMLoadFloat4(&zaxis), XMLoadFloat4(&xaxis))
+	);
 
-	matCamInverse.m[0][3] = -XMVectorGetX(XMVector3Dot(right, pos));
-	matCamInverse.m[1][3] = -XMVectorGetX(XMVector3Dot(up, pos));
-	matCamInverse.m[2][3] = XMVectorGetX(XMVector3Dot(dir, pos));
-	matCamInverse.m[3][3] = 1.0F;
+	XMFLOAT4X4 matCam{};
+	XMStoreFloat4x4(&matCam, XMMatrixIdentity());
 
-	XMStoreFloat4x4(&view, (XMLoadFloat4x4(&matCamInverse)));
+	matCam.m[0][0] = xaxis.x;
+	matCam.m[1][0] = xaxis.y;
+	matCam.m[2][0] = xaxis.z;
+
+	matCam.m[0][1] = yaxis.x;
+	matCam.m[1][1] = yaxis.y;
+	matCam.m[2][1] = yaxis.z;
+
+	matCam.m[0][2] = zaxis.x;
+	matCam.m[1][2] = zaxis.y;
+	matCam.m[2][2] = zaxis.z;
+
+	matCam.m[3][0] = -XMVectorGetX(XMVector3Dot(XMLoadFloat4(&xaxis), pos));
+	matCam.m[3][1] = -XMVectorGetX(XMVector3Dot(XMLoadFloat4(&yaxis), pos));
+	matCam.m[3][2] = -XMVectorGetX(XMVector3Dot(XMLoadFloat4(&zaxis), pos));
+	matCam.m[3][3] = 1.f;
+
+	XMStoreFloat4x4(&view, XMMatrixTranspose(XMLoadFloat4x4(&matCam)));
 	XMStoreFloat4x4(
-		&invView, XMMatrixInverse(nullptr, XMLoadFloat4x4(&matCamInverse))
+		&invView,
+		XMMatrixTranspose(XMMatrixInverse(nullptr, XMLoadFloat4x4(&matCam)))
 	);
 }
 
 void Camera::InvalidateProjection() {
-	// Source engine projection calculation, see here:
-	// https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/hammer/camera.cpp#L343
-
-	XMFLOAT4X4 matProjection{};
-
+	// w and h are the width and height of near plane
 	float w = 2.f * nearZ * tanf(fov * M_PI / 360.f);
 	float h = (w * height) / width;
 
-	matProjection.m[0][0] = 2.f * nearZ / w;
-	matProjection.m[1][1] = 2.f * nearZ / h;
-	matProjection.m[2][2] = farZ / (nearZ - farZ);
-	matProjection.m[2][3] = (nearZ * farZ) / (nearZ - farZ);
-	matProjection.m[3][2] = -1;
-
-	XMStoreFloat4x4(&projection, (XMLoadFloat4x4(&matProjection)));
 	XMStoreFloat4x4(
-		&invProjection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&matProjection))
+		&projection,
+		XMMatrixPerspectiveFovRH(fov * M_PI / 360.f, w / h, nearZ, farZ)
+	);
+	XMStoreFloat4x4(
+		&invProjection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&projection))
 	);
 }
 
@@ -102,4 +111,4 @@ XMFLOAT4X4 Camera::GetInvViewMatrix() const { return invView; }
 
 XMFLOAT3 Camera::GetPosition() const { return eye; }
 
-XMFLOAT3 Camera::GetDirection() const { return direction; }
+float Camera::GetFOV() const { return fov; }

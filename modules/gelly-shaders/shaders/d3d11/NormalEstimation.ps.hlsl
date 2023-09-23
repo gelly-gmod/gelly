@@ -50,17 +50,35 @@ float3 EstimateNormal(float2 texcoord) {
     }
 
     float3 normal = normalize(cross(dpdx, dpdy));
-    // return normal * 0.5 + 0.5;
+    //return normal * 0.5 + 0.5;
     float3 lightStart = mul(float4(eye, 1), matView);
     float3 lightEnd = mul(float4(eye + float3(0.3, 0.4, -0.9), 1), matView);
     float3 lightDir = normalize(lightEnd - lightStart);
-    float NdotL = saturate(dot(normal, lightDir.xyz));
-    float3 color = NdotL * float3(0.3, 0.3, 0.9);
+    float diffuse = saturate(dot(normal, lightDir.xyz));
+    float specular = pow(saturate(dot(reflect(-lightDir, normal), normalize(eye - ce))), 16);
+    specular *= 4; // Increase specular intensity, just for fun and visualization purposes (this can determine if normals are correct)
+    specular = saturate(specular);
+
+    float3 diffuseColor = float3(0.3, 0.3, 0.9);
+    float3 specularColor = float3(1, 1, 1);
+
+    float3 color = diffuseColor * diffuse + specularColor * specular;
     return color;
 }
 
 PS_OUTPUT main(VS_OUTPUT input) {
+    float depthValue = depth.Sample(depthSampler, input.Texcoord).r;
+    if (depthValue == 1.f) {
+        // Again, r being 1.f is a signal that the pixel is empty.
+        discard;
+    }
+
+    if (depthValue <= 0.f) {
+        // We also don't want to estimate depth which is negative.
+        discard;
+    }
+
     PS_OUTPUT output;
-    output.Normal = float4(EstimateNormal(input.Texcoord), 1.0);
+    output.Normal = float4(EstimateNormal(input.Texcoord), 1.f);
     return output;
 }

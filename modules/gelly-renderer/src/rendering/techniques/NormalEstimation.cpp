@@ -27,7 +27,11 @@ void NormalEstimation::RunForFrame(
 	ID3D11DeviceContext *context, TechniqueResources *resources
 ) {
 	GBuffer *gbuffer = resources->gbuffer;
-	float clearColor[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+	float clearColor[4] = {1.0f, 1.0f, 1.0f, 0.0f};
+	context->ClearDepthStencilView(
+		resources->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
+	);
+
 	gbuffer->normal.Clear(context, clearColor);
 
 	context->PSSetShader(pixelShader.Get(), nullptr, 0);
