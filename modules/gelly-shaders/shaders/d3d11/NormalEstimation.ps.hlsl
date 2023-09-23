@@ -17,7 +17,8 @@ float3 WorldPosFromDepth(float2 uv, float depth) {
     float4 clipPos = float4(uv * 2.f - 1.f, depth, 1.0);
     float4 viewPos = mul(clipPos, matInvProj);
     viewPos /= viewPos.w;
-    return viewPos.xyz;
+    float4 worldPos = mul(viewPos, matInvView);
+    return worldPos.xyz;
 }
 
 float3 EstimateNormal(float2 texcoord) {
@@ -53,7 +54,7 @@ float3 EstimateNormal(float2 texcoord) {
     //return normal * 0.5 + 0.5;
     float3 lightStart = mul(float4(eye, 1), matView);
     float3 lightEnd = mul(float4(eye + float3(0.3, 0.4, -0.9), 1), matView);
-    float3 lightDir = normalize(lightEnd - lightStart);
+    float3 lightDir = normalize(float3(0.3, 0.4, -0.9));
     float diffuse = saturate(dot(normal, lightDir.xyz));
     float specular = pow(saturate(dot(reflect(-lightDir, normal), normalize(eye - ce))), 16);
     specular *= 4; // Increase specular intensity, just for fun and visualization purposes (this can determine if normals are correct)
