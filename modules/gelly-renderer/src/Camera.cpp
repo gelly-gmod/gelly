@@ -66,16 +66,23 @@ void Camera::InvalidateView() {
 }
 
 void Camera::InvalidateProjection() {
-	// w and h are the width and height of near plane
-	float fovRadians = fov * (float)M_PI / 360.f;
-	float w = 2.f * nearZ * tanf(fovRadians);
+	// Source engine projection calculation, see here:
+	// https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/hammer/camera.cpp#L343
+
+	XMFLOAT4X4 matProjection{};
+
+	float w = 2.f * nearZ * tanf(fov * (float)M_PI / 360.f);
 	float h = (w * height) / width;
 
+	matProjection.m[0][0] = 2.f * nearZ / w;
+	matProjection.m[1][1] = 2.f * nearZ / h;
+	matProjection.m[2][2] = farZ / (nearZ - farZ);
+	matProjection.m[2][3] = (nearZ * farZ) / (nearZ - farZ);
+	matProjection.m[3][2] = -1;
+
+	XMStoreFloat4x4(&projection, (XMLoadFloat4x4(&matProjection)));
 	XMStoreFloat4x4(
-		&projection, XMMatrixPerspectiveFovRH(fovRadians, w / h, nearZ, farZ)
-	);
-	XMStoreFloat4x4(
-		&invProjection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&projection))
+		&invProjection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&matProjection))
 	);
 }
 

@@ -5,6 +5,7 @@ struct VS_INPUT {
 
 struct PS_OUTPUT {
     float4 Col : SV_TARGET0;
+    float Depth : SV_DEPTH;
 };
 
 float4 debugConstants : register(c0);
@@ -30,8 +31,16 @@ PS_OUTPUT main(VS_INPUT input) {
 
     float2 nudged = input.Tex;
     float4 depth = tex2D(depthSampler, nudged);
+    float3 normal = tex2D(normalSampler, nudged).xyz;
 
+    float3 lightDir = normalize(float3(-0.3, -0.4, 0.9));
+    float diffuse = saturate(dot(normal, lightDir.xyz));
 
-    output.Col = float4(tex2D(normalSampler, nudged).xyz, 1);
+    float3 diffuseColor = float3(0.3, 0.3, 0.9);
+
+    float3 color = diffuseColor * diffuse;
+
+    output.Col = float4(color, 1);
+    output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
     return output;
 }
