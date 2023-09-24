@@ -50,11 +50,9 @@ float3 EstimateNormal(float2 texcoord) {
         return float3(0, 0, 0);
     }
 
-    float3 normal = normalize(cross(dpdx, dpdy));
+    float3 normal = -normalize(cross(dpdx, dpdy));
     //return normal * 0.5 + 0.5;
-    float3 lightStart = mul(float4(eye, 1), matView);
-    float3 lightEnd = mul(float4(eye + float3(0.3, 0.4, -0.9), 1), matView);
-    float3 lightDir = normalize(float3(0.3, 0.4, -0.9));
+    float3 lightDir = normalize(float3(-0.3, -0.4, 0.9));
     float diffuse = saturate(dot(normal, lightDir.xyz));
     float specular = pow(saturate(dot(reflect(-lightDir, normal), normalize(eye - ce))), 16);
     specular *= 4; // Increase specular intensity, just for fun and visualization purposes (this can determine if normals are correct)

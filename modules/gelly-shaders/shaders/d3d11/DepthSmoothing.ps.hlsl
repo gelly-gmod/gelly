@@ -101,7 +101,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
     // We have to convert back to clip-space depth.
     // Our depth texture stores the position of the pixel in view-space.
     float4 clipPoint = float4(depth.SampleLevel(depthSampler, input.Texcoord, 0).xyz, 1);
-    clipPoint.z = filteredDepth;
+    clipPoint.z = -filteredDepth;
     clipPoint = mul(clipPoint, matProj);
 
     filteredDepth = clipPoint.z / clipPoint.w;
