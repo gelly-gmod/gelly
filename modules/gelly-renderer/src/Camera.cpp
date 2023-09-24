@@ -67,12 +67,12 @@ void Camera::InvalidateView() {
 
 void Camera::InvalidateProjection() {
 	// w and h are the width and height of near plane
-	float w = 2.f * nearZ * tanf(fov * M_PI / 360.f);
+	float fovRadians = fov * (float)M_PI / 360.f;
+	float w = 2.f * nearZ * tanf(fovRadians);
 	float h = (w * height) / width;
 
 	XMStoreFloat4x4(
-		&projection,
-		XMMatrixPerspectiveFovRH(fov * M_PI / 360.f, w / h, nearZ, farZ)
+		&projection, XMMatrixPerspectiveFovRH(fovRadians, w / h, nearZ, farZ)
 	);
 	XMStoreFloat4x4(
 		&invProjection, XMMatrixInverse(nullptr, XMLoadFloat4x4(&projection))
