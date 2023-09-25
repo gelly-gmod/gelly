@@ -259,7 +259,7 @@ float filter2D(float pixelDepth)
 */
 
 static const int fixedFilterRadius = 8;
-static const int u_FilterSize = 32;
+static const int u_FilterSize = 16;
 static const float thresholdRatio = 0.5;
 static const float clampRatio = 1;
 
@@ -307,7 +307,7 @@ float Filter1D(VS_OUTPUT input, float pixelDepth, int filterDirection) {
     }
 
     float threshold = particleRadius * thresholdRatio;
-    float ratio = res.y / 2.0 / tan(fov / 2);
+    float ratio = res.y / 2.0 / tan(radians(fov) / 2);
     float K = -u_FilterSize * ratio * particleRadius * 0.1f;
     int filterSize = min(maxFilterSize, int(ceil(K / pixelDepth)));
     
