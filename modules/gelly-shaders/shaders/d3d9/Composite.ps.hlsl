@@ -33,14 +33,8 @@ PS_OUTPUT main(VS_INPUT input) {
     float4 depth = tex2D(depthSampler, nudged);
     float3 normal = tex2D(normalSampler, nudged).xyz;
 
-    float3 lightDir = normalize(float3(-0.3, -0.4, 0.9));
-    float diffuse = saturate(dot(normal, lightDir.xyz));
 
-    float3 diffuseColor = float3(0.3, 0.3, 0.9);
-
-    float3 color = diffuseColor * diffuse;
-
-    output.Col = float4(color, 1);
+    output.Col = float4(normal, 1);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
     return output;
 }
