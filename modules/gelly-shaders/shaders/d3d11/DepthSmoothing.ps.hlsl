@@ -106,10 +106,10 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     PS_OUTPUT output;
     float filteredDepth;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         filteredDepth += BiGaussFilter2D(input, depth.SampleLevel(depthSampler, input.Texcoord, 0).z);
     }
-    filteredDepth /= 4;
+    filteredDepth /= 3;
 
     // We have to convert back to clip-space depth.
     // Our depth texture stores the position of the pixel in view-space.

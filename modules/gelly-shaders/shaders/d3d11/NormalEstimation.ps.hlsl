@@ -5,6 +5,16 @@ struct PS_OUTPUT {
     float4 Normal : SV_TARGET0;
 };
 
+// Outside medium is always air, so that has an IOR of 1.0
+// Inside medium is always water, so that has an IOR of 1.33
+static const float IOR_AIR = 1.0;
+static const float IOR_WATER = 1.33;
+static const float R0 = pow((IOR_AIR - IOR_WATER) / (IOR_AIR + IOR_WATER), 2.0);
+
+float ComputeFresnel(float cosTheta) {
+    return R0 + (1.0f - R0) * pow(1.0f - cosTheta, 5.0);
+}
+
 Texture2D depth : register(t0);
 SamplerState depthSampler {
     Filter = MIN_MAG_LINEAR_MIP_POINT;
@@ -57,12 +67,12 @@ float4 EstimateNormal(float2 texcoord) {
     float3 halfDir = normalize(lightDir + viewerDir);
 
     float diffuse = saturate(dot(normal, lightDir.xyz));
-    float specular = pow(max(0.0f, dot(halfDir, normal)), 25.f);
 
-    float4 diffuseColor = float4(0.3, 0.3, 0.9, 0.2);
+    float4 diffuseColor = float4(0.3, 0.3, 0.9, 1);
     float4 specularColor = float4(1, 1, 1, 1);
+    float fresnel = ComputeFresnel(saturate(dot(normal, viewerDir)));
 
-    float4 color = diffuseColor * diffuse + specularColor * specular;
+    float4 color = specularColor * fresnel + diffuseColor * (1.f - fresnel);
     return color;
 }
 
