@@ -61,7 +61,7 @@ float4 EstimateNormal(float2 texcoord) {
     }
 
     float3 normal = -normalize(cross(dpdx, dpdy));
-    //return normal * 0.5 + 0.5;
+    // return float4(normal * 0.5 + 0.5, 1.f);
     float3 lightDir = normalize(float3(-0.3, -0.4, 0.9));
     float3 viewerDir = normalize(eye - ce);
     float3 halfDir = normalize(lightDir + viewerDir);

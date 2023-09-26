@@ -18,7 +18,8 @@ PS_OUTPUT main(GS_OUTPUT input) {
     // We do this by finding the height of the point on the hemisphere.
     float height = normal.z;
     float4 viewPositionNudged = input.ViewPosition;
-    viewPositionNudged.xyz += normal;
+    // .. this is bad, but it appears to work.
+    viewPositionNudged.xyz += normal * (particleRadius / 2.0f);
 
     float4 clipPosition = mul(viewPositionNudged, matProj);
     float depth = clipPosition.z / clipPosition.w;
