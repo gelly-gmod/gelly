@@ -1,64 +1,7 @@
 #include "Compositor.h"
 
-void Compositor::CreateScreenQuad() {
-	device->CreateVertexBuffer(
-		6 * sizeof(NDCVertex),
-		0,
-		NDCVertex::FVF,
-		D3DPOOL_DEFAULT,
-		screenQuad.GetAddressOf(),
-		nullptr
-	);
-
-	NDCVertex *vertices;
-	screenQuad->Lock(0, 0, reinterpret_cast<void **>(&vertices), 0);
-
-	vertices[0] = {-1.f, -1.f, 0.f, 1.f, 0.f, 1.f};
-	vertices[1] = {-1.f, 1.f, 0.f, 1.f, 0.f, 0.f};
-	vertices[2] = {1.f, -1.f, 0.f, 1.f, 1.f, 1.f};
-	vertices[3] = {1.f, -1.f, 0.f, 1.f, 1.f, 1.f};
-	vertices[4] = {-1.f, 1.f, 0.f, 1.f, 0.f, 0.f};
-	vertices[5] = {1.f, 1.f, 0.f, 1.f, 1.f, 0.f};
-
-	screenQuad->Unlock();
-}
-
-const char *COMPOSITE_PS_SOURCE =
-#include "shaders/d3d9/Composite.ps.embed.hlsl"
-	;
-
-const char *COMPOSITE_VS_SOURCE =
-#include "shaders/d3d9/FullScreenQuad.vs.embed.hlsl"
-	;
-
-#define INIT_OPTIONS_FOR_SHADER(source, shaderName, shaderEntryPoint) \
-	options.shader.buffer = (void *)source;                           \
-	options.shader.size = strlen(source);                             \
-	options.shader.name = shaderName;                                 \
-	options.shader.entryPoint = shaderEntryPoint;
-
-void Compositor::CreateShaders() {
-	d3d9::ShaderCompileOptions options = {
-		.device = device,
-		.shader = {},
-		.defines = nullptr,
-	};
-
-	INIT_OPTIONS_FOR_SHADER(COMPOSITE_PS_SOURCE, "Composite.ps", "main");
-	auto pixelShaderResult = d3d9::compile_pixel_shader(options);
-	// .Attach has to be used to prevent releasing the underlying resource.
-	pixelShader.Attach(pixelShaderResult);
-
-	INIT_OPTIONS_FOR_SHADER(COMPOSITE_VS_SOURCE, "Composite.vs", "main");
-	auto vertexShaderResult = d3d9::compile_vertex_shader(options);
-	vertexShader.Attach(vertexShaderResult);
-}
-
 Compositor::Compositor(IDirect3DDevice9Ex *device, SharedTextures *gbuffer)
-	: device(device), gbuffer(*gbuffer), compositePass(device) {
-	CreateScreenQuad();
-	CreateShaders();
-}
+	: device(device), gbuffer(*gbuffer), compositePass(device){};
 
 void Compositor::SaveState() {
 	// Copy all the original values into our previous buffer.

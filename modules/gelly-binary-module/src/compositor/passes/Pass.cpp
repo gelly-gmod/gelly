@@ -65,7 +65,11 @@ void Pass::ExecutePass(IDirect3DDevice9 *device) {
 	device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2);
 }
 
-Pass::Pass(IDirect3DDevice9 *device, const char *pixelShaderSource) {
-	CreateShaders(device, pixelShaderSource);
+Pass::Pass(
+	IDirect3DDevice9 *device,
+	const char *pixelShaderName,
+	const char *pixelShaderSource
+) {
+	CreateShaders(device, pixelShaderName, pixelShaderSource);
 	CreateScreenQuad(device);
 }
