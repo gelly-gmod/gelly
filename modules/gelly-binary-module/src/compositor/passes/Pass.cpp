@@ -57,6 +57,11 @@ void Pass::BindShadersAndQuad(IDirect3DDevice9 *device) {
 	device->SetStreamSource(0, screenQuad.Get(), 0, sizeof(ScreenQuadVertex));
 }
 
+void Pass::ExecutePass(IDirect3DDevice9 *device) {
+	BindShadersAndQuad(device);
+	device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2);
+}
+
 Pass::Pass(IDirect3DDevice9 *device, const char *pixelShaderSource) {
 	CreateShaders(device, pixelShaderSource);
 	CreateScreenQuad(device);

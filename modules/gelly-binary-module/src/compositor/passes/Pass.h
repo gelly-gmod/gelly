@@ -36,6 +36,7 @@ private:
 
 protected:
 	void BindShadersAndQuad(IDirect3DDevice9 *device);
+	void ExecutePass(IDirect3DDevice9 *device);
 
 public:
 	Pass(IDirect3DDevice9 *device, const char *pixelShaderSource);
