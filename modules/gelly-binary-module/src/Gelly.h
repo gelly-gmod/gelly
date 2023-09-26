@@ -9,6 +9,8 @@
 #include <mutex>
 #include <semaphore>
 
+#include "compositor/Compositor.h"
+
 using namespace Microsoft::WRL;
 
 struct GellyInitParams {
