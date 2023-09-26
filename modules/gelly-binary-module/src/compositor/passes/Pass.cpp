@@ -1,6 +1,6 @@
 #include "Pass.h"
 
-const char *COMPOSITE_VS_SOURCE =
+const char *FULLSCREEN_VS_SOURCE =
 #include "shaders/d3d9/FullScreenQuad.vs.embed.hlsl"
 	;
 
@@ -11,7 +11,9 @@ const char *COMPOSITE_VS_SOURCE =
 	options.shader.entryPoint = shaderEntryPoint;
 
 void Pass::CreateShaders(
-	IDirect3DDevice9 *device, const char *pixelShaderSource
+	IDirect3DDevice9 *device,
+	const char *pixelShaderName,
+	const char *pixelShaderSource
 ) {
 	d3d9::ShaderCompileOptions options = {
 		.device = device,
@@ -19,12 +21,13 @@ void Pass::CreateShaders(
 		.defines = nullptr,
 	};
 
-	INIT_OPTIONS_FOR_SHADER(COMPOSITE_VS_SOURCE, "FullScreenQuad.vs", "main");
+	INIT_OPTIONS_FOR_SHADER(FULLSCREEN_VS_SOURCE, "FullScreenQuad.vs", "main");
 	auto vertexShaderResult = d3d9::compile_vertex_shader(options);
 	vertexShader.Attach(vertexShaderResult);
 
-	INIT_OPTIONS_FOR_SHADER(pixelShaderSource, "FullScreenQuad.ps", "main");
+	INIT_OPTIONS_FOR_SHADER(pixelShaderSource, pixelShaderName, "main");
 	auto pixelShaderResult = d3d9::compile_pixel_shader(options);
+	pixelShader.Attach(pixelShaderResult);
 }
 
 void Pass::CreateScreenQuad(IDirect3DDevice9 *device) {

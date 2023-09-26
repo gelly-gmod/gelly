@@ -32,14 +32,22 @@ private:
 	ComPtr<IDirect3DPixelShader9> pixelShader;
 
 	void CreateScreenQuad(IDirect3DDevice9 *device);
-	void CreateShaders(IDirect3DDevice9 *device, const char *pixelShaderSource);
+	void CreateShaders(
+		IDirect3DDevice9 *device,
+		const char *pixelShaderName,
+		const char *pixelShaderSource
+	);
 
 protected:
 	void BindShadersAndQuad(IDirect3DDevice9 *device);
 	void ExecutePass(IDirect3DDevice9 *device);
 
 public:
-	Pass(IDirect3DDevice9 *device, const char *pixelShaderSource);
+	Pass(
+		IDirect3DDevice9 *device,
+		const char *pixelShaderName,
+		const char *pixelShaderSource
+	);
 	~Pass() = default;
 
 	virtual void Render(PassResources *resources) = 0;

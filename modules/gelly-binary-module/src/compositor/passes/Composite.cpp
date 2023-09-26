@@ -5,7 +5,7 @@ const char *COMPOSITE_PS_SOURCE =
 	;
 
 Composite::Composite(IDirect3DDevice9 *device)
-	: Pass(device, COMPOSITE_PS_SOURCE){};
+	: Pass(device, "Composite.ps", COMPOSITE_PS_SOURCE){};
 
 void Composite::Render(PassResources *resources) {
 	auto *gbuffer = resources->gbuffer;

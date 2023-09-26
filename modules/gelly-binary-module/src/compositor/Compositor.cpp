@@ -28,7 +28,7 @@ const char *COMPOSITE_PS_SOURCE =
 	;
 
 const char *COMPOSITE_VS_SOURCE =
-#include "shaders/d3d9/Composite.vs.embed.hlsl"
+#include "shaders/d3d9/FullScreenQuad.vs.embed.hlsl"
 	;
 
 #define INIT_OPTIONS_FOR_SHADER(source, shaderName, shaderEntryPoint) \
@@ -171,13 +171,20 @@ void Compositor::RestorePreviousState() {
 	   device->SetRenderState(D3DRS_LIGHTING, previous.lighting));
 	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_ZENABLE, previous.ztest));
-	DX("Failed to set  render state",
+	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_ALPHABLENDENABLE, previous.alphaBlend));
 }
 
 void Compositor::Composite() {
 	SaveState();
-	DX("Failed to draw!", device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2));
+
+	PassResources resources{
+		.device = device,
+		.gbuffer = &gbuffer,
+	};
+
+	compositePass.Render(&resources);
+
 	// Restore, giving back control to GMod.
 	// This is essential because of technical limitations that force us to
 	// arbitrarily set up our own rendering pipeline.
