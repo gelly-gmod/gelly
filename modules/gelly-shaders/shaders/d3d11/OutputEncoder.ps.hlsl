@@ -18,7 +18,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     float depth = InternalDepth.Sample(InternalDepthSampler, input.Texcoord).r;
     output.EncodedDepth = float4(SplitFloat(depth), 1.f, 1.f);
-    output.EncodedNormal = float4(InternalNormal.Sample(InternalNormalSampler, input.Texcoord).rgb, 1.f);
+    output.EncodedNormal = float4(InternalNormal.Sample(InternalNormalSampler, input.Texcoord).rgba);
 
     return output;
 }

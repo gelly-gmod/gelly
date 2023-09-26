@@ -295,7 +295,7 @@ void RendererCompositor::BindShaderResources() {
 	DX("Failed to set render state",
 	   device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 	DX("Failed to set render state",
-	   device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+	   device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 }
 
 void RendererCompositor::RestorePreviousState() {

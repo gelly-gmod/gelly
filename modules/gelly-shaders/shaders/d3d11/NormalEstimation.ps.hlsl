@@ -59,8 +59,8 @@ float4 EstimateNormal(float2 texcoord) {
     float diffuse = saturate(dot(normal, lightDir.xyz));
     float specular = pow(max(0.0f, dot(halfDir, normal)), 25.f);
 
-    float4 diffuseColor = float3(0.3, 0.3, 0.9, 0.2);
-    float4 specularColor = float3(1, 1, 1, 1);
+    float4 diffuseColor = float4(0.3, 0.3, 0.9, 0.2);
+    float4 specularColor = float4(1, 1, 1, 1);
     // FAFSA
 
     float4 color = diffuseColor * diffuse + specularColor * specular;
