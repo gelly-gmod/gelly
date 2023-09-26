@@ -55,7 +55,7 @@ void Compositor::CreateShaders() {
 }
 
 Compositor::Compositor(IDirect3DDevice9Ex *device, SharedTextures *gbuffer)
-	: device(device), gbuffer(*gbuffer) /* copies to our class instance */ {
+	: device(device), gbuffer(*gbuffer), compositePass(device) {
 	CreateScreenQuad();
 	CreateShaders();
 }

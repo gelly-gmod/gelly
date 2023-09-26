@@ -5,7 +5,7 @@
 
 class Composite : Pass {
 public:
-	Composite(IDirect3DDevice9 *device);
+	explicit Composite(IDirect3DDevice9 *device);
 	~Composite() = default;
 
 	void Render(PassResources *resources) override;

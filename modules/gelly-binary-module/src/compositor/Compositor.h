@@ -5,10 +5,15 @@
 #include <d3d9.h>
 #include <wrl.h>
 
+#include "passes/Composite.h"
+#include "passes/Pass.h"
+
 using namespace Microsoft::WRL;
 
 class Compositor {
 	IDirect3DDevice9Ex *device;
+	Composite compositePass;
+
 	ComPtr<IDirect3DVertexBuffer9> screenQuad;
 	// no declaration needed, we use FVF instead
 
