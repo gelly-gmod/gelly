@@ -75,7 +75,8 @@ void Gelly::Clear() { scene->Clear(); }
 
 void Gelly::SetParticleRadius(float radius) {
 	// TODO: Make this also change the FleX particle radius.
-	renderer->SetParticleRadius(radius);
+	scene->params->radius = radius;
+	renderer->SetParticleRadius(radius * 2.f);
 }
 
 [[noreturn]] void Gelly::InitThreaded(
