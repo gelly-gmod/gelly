@@ -53,13 +53,15 @@ float3 EstimateNormal(float2 texcoord) {
     float3 normal = -normalize(cross(dpdx, dpdy));
     //return normal * 0.5 + 0.5;
     float3 lightDir = normalize(float3(-0.3, -0.4, 0.9));
+    float3 viewerDir = normalize(eye - ce);
+    float3 halfDir = normalize(lightDir + viewerDir);
+
     float diffuse = saturate(dot(normal, lightDir.xyz));
-    float specular = pow(saturate(dot(reflect(-lightDir, normal), normalize(eye - ce))), 16);
-    specular *= 4; // Increase specular intensity, just for fun and visualization purposes (this can determine if normals are correct)
-    specular = saturate(specular);
+    float specular = pow(max(0.0f, dot(halfDir, normal)), 25.f);
 
     float3 diffuseColor = float3(0.3, 0.3, 0.9);
     float3 specularColor = float3(1, 1, 1);
+    // FAFSA
 
     float3 color = diffuseColor * diffuse + specularColor * specular;
     return color;
