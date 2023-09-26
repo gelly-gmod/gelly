@@ -65,7 +65,7 @@ class Compositor {
 
 	void CreateScreenQuad();
 	void CreateShaders();
-	void BindShaderResources();
+	void SaveState();
 	void RestorePreviousState();
 
 public:

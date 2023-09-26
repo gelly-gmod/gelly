@@ -60,7 +60,7 @@ Compositor::Compositor(IDirect3DDevice9Ex *device, SharedTextures *gbuffer)
 	CreateShaders();
 }
 
-void Compositor::BindShaderResources() {
+void Compositor::SaveState() {
 	// Copy all the original values into our previous buffer.
 	device->GetStreamSource(
 		0,
@@ -109,34 +109,6 @@ void Compositor::BindShaderResources() {
 	device->GetRenderState(D3DRS_ALPHABLENDENABLE, &previous.alphaBlend);
 
 	device->GetPixelShaderConstantF(0, previous.constant0, 1);
-
-	// Bind vertex buffer
-	DX("Failed to set stream source",
-	   device->SetStreamSource(0, screenQuad.Get(), 0, sizeof(NDCVertex)));
-
-	DX("Failed to set FVF", device->SetFVF(NDCVertex::FVF));
-
-	// Bind shaders
-	DX("Failed to set vertex shader (composite)",
-	   device->SetVertexShader(vertexShader.Get()));
-	float constants[4] = {debugConstants.zValue, 0.f, 0.f, 0.f};
-	DX("Failed to set pixel shader constants",
-	   device->SetPixelShaderConstantF(0, constants, 1));
-	DX("Failed to set pixel shader (composite)",
-	   device->SetPixelShader(pixelShader.Get()));
-
-	// Bind textures
-	gbuffer.depth->SetupAtStage(0, 0, device);
-	gbuffer.normal->SetupAtStage(1, 1, device);
-
-	DX("Failed to set render state",
-	   device->SetRenderState(D3DRS_LIGHTING, FALSE));
-	DX("Failed to set render state",
-	   device->SetRenderState(D3DRS_ZENABLE, TRUE));
-	DX("Failed to set render state",
-	   device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
-	DX("Failed to set render state",
-	   device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 }
 
 void Compositor::RestorePreviousState() {
@@ -204,7 +176,7 @@ void Compositor::RestorePreviousState() {
 }
 
 void Compositor::Composite() {
-	BindShaderResources();
+	SaveState();
 	DX("Failed to draw!", device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2));
 	// Restore, giving back control to GMod.
 	// This is essential because of technical limitations that force us to
