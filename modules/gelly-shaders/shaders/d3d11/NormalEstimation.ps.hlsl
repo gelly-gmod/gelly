@@ -21,7 +21,7 @@ float3 WorldPosFromDepth(float2 uv, float depth) {
     return worldPos.xyz;
 }
 
-float3 EstimateNormal(float2 texcoord) {
+float4 EstimateNormal(float2 texcoord) {
     float2 texelSize = 1.f / res;
     float c0 = depth.Sample(depthSampler, texcoord).r;
     float l2 = depth.Sample(depthSampler, texcoord - texelSize * 2).r;
@@ -47,7 +47,7 @@ float3 EstimateNormal(float2 texcoord) {
     
     // Checks if the derivative is valid
     if (length(dpdx) < 0.0001 || length(dpdy) < 0.0001) {
-        return float3(0, 0, 0);
+        return float4(0, 0, 0, 0);
     }
 
     float3 normal = -normalize(cross(dpdx, dpdy));
@@ -59,11 +59,11 @@ float3 EstimateNormal(float2 texcoord) {
     float diffuse = saturate(dot(normal, lightDir.xyz));
     float specular = pow(max(0.0f, dot(halfDir, normal)), 25.f);
 
-    float3 diffuseColor = float3(0.3, 0.3, 0.9);
-    float3 specularColor = float3(1, 1, 1);
+    float4 diffuseColor = float3(0.3, 0.3, 0.9, 0.2);
+    float4 specularColor = float3(1, 1, 1, 1);
     // FAFSA
 
-    float3 color = diffuseColor * diffuse + specularColor * specular;
+    float4 color = diffuseColor * diffuse + specularColor * specular;
     return color;
 }
 
@@ -80,6 +80,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
     }
 
     PS_OUTPUT output;
-    output.Normal = float4(EstimateNormal(input.Texcoord), 1.f);
+    output.Normal = EstimateNormal(input.Texcoord);
     return output;
 }

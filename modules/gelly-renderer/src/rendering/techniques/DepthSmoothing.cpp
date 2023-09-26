@@ -26,13 +26,12 @@ DepthSmoothing::DepthSmoothing(ID3D11Device *device) : SSTechnique(device) {
 void DepthSmoothing::RunForFrame(
 	ID3D11DeviceContext *context, TechniqueResources *resources
 ) {
-	// THIS FUCKS EVERYTHING UP! WHY?
 	GBuffer *gbuffer = resources->gbuffer;
 	float clearColor[4] = {1.0f, 0.0f, 0.0f, 0.0f};
 	context->ClearDepthStencilView(
 		resources->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0
 	);
-	
+
 	gbuffer->filteredDepth.Clear(context, clearColor);
 
 	context->PSSetShader(pixelShader.Get(), nullptr, 0);
