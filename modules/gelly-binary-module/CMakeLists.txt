@@ -3,7 +3,7 @@ add_subdirectory(vendor/minhook)
 add_subdirectory(vendor/GMFS)
 
 add_library(gelly_binary_module SHARED
-        src/main.cpp src/TextureOverride.h src/TextureOverride.cpp src/Gelly.h src/Gelly.cpp src/source/IRenderView.h src/source/Interface.h src/source/IRenderView.cpp src/source/D3DDeviceWrapper.h src/source/D3DDeviceWrapper.cpp src/compositor/Compositor.cpp src/compositor/Compositor.h)
+        src/main.cpp src/TextureOverride.h src/TextureOverride.cpp src/Gelly.h src/Gelly.cpp src/source/IRenderView.h src/source/Interface.h src/source/IRenderView.cpp src/source/D3DDeviceWrapper.h src/source/D3DDeviceWrapper.cpp src/compositor/Compositor.cpp src/compositor/Compositor.h src/compositor/passes/Pass.cpp src/compositor/passes/Pass.h src/compositor/passes/Composite.cpp src/compositor/passes/Composite.h)
 target_include_directories(gelly_binary_module PRIVATE
         vendor/gmod-module-base/include
         vendor/minhook/include
