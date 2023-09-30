@@ -4,9 +4,12 @@ This folder contains the shaders used by Gelly for each platform (D3D9, D3D11).
 
 # D3D9
 
-These shaders are written in HLSL and are targeted for Shader Model 2.0. It's best to not use any fancy features or make giant shaders, as there is a good chance the compiler will fail to compile them.
+These shaders are written in HLSL and are targeted for Shader Model 3.0. It's best to not use any fancy features or make giant shaders, as there is a good chance the compiler will fail to compile them.
 
 These shaders are also written differently than D3D11 shaders. In D3D9, we have no ability to render geometry or do anything fancy like D3D11, basically it's just screen space. This, paired with the lack of flexible uniforms like in D3D11 (constant buffer), there is no per-frame constant buffer. Instead, each shader manually specifies it's own expected constants.
+
+Understand the key differences between D3D9 and D3D11, and you'll be fine.
+Here's a wikipedia [article](https://en.wikipedia.org/wiki/High-Level_Shader_Language#Pixel_shader_comparison) showing the difference between SM 3.0 (d3d9) and SM 5.0 (d3d11).
 
 # D3D11
 
