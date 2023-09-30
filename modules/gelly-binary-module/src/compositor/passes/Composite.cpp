@@ -9,9 +9,10 @@ Composite::Composite(IDirect3DDevice9 *device)
 
 void Composite::Render(PassResources *resources) {
 	auto *gbuffer = resources->gbuffer;
+	auto gellyGBuffer = resources->gbuffer->shared;
 
-	gbuffer->depth->SetupAtStage(0, 0, resources->device);
-	gbuffer->normal->SetupAtStage(1, 0, resources->device);
+	gellyGBuffer.depth->SetupAtStage(0, 0, resources->device);
+	gbuffer->framebuffer.SetupAtStage(1, 0, resources->device);
 
 	ExecutePass(resources->device);
 }

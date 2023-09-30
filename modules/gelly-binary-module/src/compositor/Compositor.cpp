@@ -1,7 +1,29 @@
 #include "Compositor.h"
 
-Compositor::Compositor(IDirect3DDevice9Ex *device, SharedTextures *gbuffer)
-	: device(device), gbuffer(*gbuffer), compositePass(device){};
+static PassGBuffer CreateGBuffer(
+	IDirect3DDevice9Ex *device,
+	int width,
+	int height,
+	SharedTextures *sharedTextures
+) {
+	auto format = D3DFMT_A8R8G8B8;
+	auto usage = D3DUSAGE_RENDERTARGET;
+
+	return {
+		.framebuffer = d3d9::Texture(device, width, height, format, usage),
+		.shared = *sharedTextures,
+	};
+}
+
+Compositor::Compositor(
+	IDirect3DDevice9Ex *device,
+	int width,
+	int height,
+	SharedTextures *sharedTextures
+)
+	: device(device),
+	  gbuffer(CreateGBuffer(device, width, height, sharedTextures)),
+	  compositePass(device){};
 
 void Compositor::SaveState() {
 	// Copy all the original values into our previous buffer.
@@ -118,9 +140,19 @@ void Compositor::RestorePreviousState() {
 	   device->SetRenderState(D3DRS_ALPHABLENDENABLE, previous.alphaBlend));
 }
 
+void Compositor::UpdateFramebufferCopy() {
+	IDirect3DSurface9 *framebufferSurface = nullptr;
+	DX("Failed to get backbuffer",
+	   device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &framebufferSurface)
+	);
+
+	gbuffer.framebuffer.DuplicateSurface(device, framebufferSurface);
+}
+
 void Compositor::Composite() {
 	SaveState();
-
+	UpdateFramebufferCopy();
+	
 	PassResources resources{
 		.device = device,
 		.gbuffer = &gbuffer,

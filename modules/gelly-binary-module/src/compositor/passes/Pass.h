@@ -6,12 +6,9 @@
 #include <d3d9.h>
 #include <wrl.h>
 
-using namespace Microsoft::WRL;
+#include "../PassResources.h"
 
-struct PassResources {
-	IDirect3DDevice9 *device;
-	SharedTextures *gbuffer;
-};
+using namespace Microsoft::WRL;
 
 /**
  * A strictly screen-space rendering pass.

@@ -26,9 +26,17 @@ public:
 		int height,
 		D3DFORMAT format
 	);
+	Texture(
+		IDirect3DDevice9 *device,
+		int width,
+		int height,
+		D3DFORMAT format,
+		DWORD usage
+	);
 	~Texture() = default;
 
 	void SetupAtStage(int stage, int sampler, IDirect3DDevice9 *device) const;
+	void DuplicateSurface(IDirect3DDevice9 *device, IDirect3DSurface9 *surface);
 	[[nodiscard]] IDirect3DTexture9 *Get() const;
 };
 }  // namespace d3d9

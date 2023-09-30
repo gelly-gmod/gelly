@@ -31,9 +31,9 @@ PS_OUTPUT main(VS_INPUT input) {
 
     float2 nudged = input.Tex;
     float4 depth = tex2D(depthSampler, nudged);
-    float4 normal = tex2D(normalSampler, nudged).rgba;
+    float3 normal = tex2D(normalSampler, nudged).rgb;
 
-    output.Col = normal;
+    output.Col = float4(normal, 1);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
     return output;
 }

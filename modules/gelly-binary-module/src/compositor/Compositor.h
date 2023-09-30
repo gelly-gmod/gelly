@@ -5,18 +5,20 @@
 #include <d3d9.h>
 #include <wrl.h>
 
+#include "PassResources.h"
 #include "passes/Composite.h"
 #include "passes/Pass.h"
 
 using namespace Microsoft::WRL;
 
 class Compositor {
+private:
 	IDirect3DDevice9Ex *device;
 	Composite compositePass;
 
 	// We're not using a ComPtr here because this is meant to be owned
 	// by Gelly. There should be nothing happening with the ref count.
-	SharedTextures gbuffer;
+	PassGBuffer gbuffer;
 
 	// We have to make sure to look like we were never here to the rest of the
 	// game, so we store every single previous value of any function we called.
@@ -51,13 +53,19 @@ class Compositor {
 
 	void SaveState();
 	void RestorePreviousState();
+	void UpdateFramebufferCopy();
 
 public:
 	struct {
 		float zValue = 0.f;
 	} debugConstants{};
 
-	explicit Compositor(IDirect3DDevice9Ex *device, SharedTextures *gbuffer);
+	explicit Compositor(
+		IDirect3DDevice9Ex *device,
+		int width,
+		int height,
+		SharedTextures *sharedTextures
+	);
 	~Compositor() = default;
 	void Composite();
 };

@@ -9,7 +9,9 @@
 Gelly::Gelly(GellyInitParams &params)
 	: scene(nullptr),
 	  renderer(nullptr),
-	  compositor(GetD3DDevice(), &params.sharedTextures),
+	  compositor(
+		  GetD3DDevice(), params.width, params.height, &params.sharedTextures
+	  ),
 	  mainToThread(0),
 	  threadToMain(0),
 	  thread(&Gelly::InitThreaded, this, params),
