@@ -1,7 +1,7 @@
 #include "Composite.h"
 
-#include <DirectXMath.h>
 #include <GellyD3D.h>
+#include <directxmath.h>
 
 const char *COMPOSITE_PS_SOURCE =
 #include "shaders/d3d9/Composite.ps.embed.hlsl"

@@ -20,6 +20,9 @@ private:
 	// by Gelly. There should be nothing happening with the ref count.
 	PassGBuffer gbuffer;
 
+	// For finding the view and projection matrices.
+	Camera camera;
+
 	// We have to make sure to look like we were never here to the rest of the
 	// game, so we store every single previous value of any function we called.
 
