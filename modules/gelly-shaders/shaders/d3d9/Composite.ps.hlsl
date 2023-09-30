@@ -8,7 +8,8 @@ struct PS_OUTPUT {
     float Depth : SV_DEPTH;
 };
 
-float4 debugConstants : register(c0);
+float4x4 matView : register(c0);
+float4x4 matProj : register(c4);
 
 sampler2D depthSampler : register(s0);
 sampler2D normalSampler : register(s1);
