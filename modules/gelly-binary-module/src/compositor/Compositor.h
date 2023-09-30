@@ -48,7 +48,8 @@ private:
 		DWORD ztest;
 		DWORD alphaBlend;
 
-		float constant0[4];
+		// We're just going to store the entire constant buffer here.
+		float constants[64 * 4];
 	} previous{};
 
 	void SaveState();

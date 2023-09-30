@@ -10,6 +10,8 @@ struct PS_OUTPUT {
 
 float4x4 matView : register(c0);
 float4x4 matProj : register(c4);
+float4x4 matInvView : register(c8);
+float4x4 matInvProj : register(c12);
 
 sampler2D depthSampler : register(s0);
 sampler2D normalSampler : register(s1);
@@ -34,7 +36,12 @@ PS_OUTPUT main(VS_INPUT input) {
     float4 depth = tex2D(depthSampler, nudged);
     float3 normal = tex2D(normalSampler, nudged).rgb;
 
-    output.Col = float4(normal, 1);
+    float4 pos = float4(nudged.x * 2 - 1, nudged.y * 2 - 1, depth.x, 1);
+    pos = mul(pos, matInvProj);
+    pos.xyz /= pos.w;
+    pos = mul(pos, matInvView);
+
+    output.Col = float4(pos.xyz, 1);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
     return output;
 }

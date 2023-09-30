@@ -73,7 +73,7 @@ void Compositor::SaveState() {
 	device->GetRenderState(D3DRS_ZENABLE, &previous.ztest);
 	device->GetRenderState(D3DRS_ALPHABLENDENABLE, &previous.alphaBlend);
 
-	device->GetPixelShaderConstantF(0, previous.constant0, 1);
+	device->GetPixelShaderConstantF(0, previous.constants, 64);
 }
 
 void Compositor::RestorePreviousState() {
@@ -92,10 +92,10 @@ void Compositor::RestorePreviousState() {
 		   device->SetVertexShader(previous.vertexShader));
 	}
 
-	if (previous.pixelShader) {
-		DX("Failed to set pixel shader constants",
-		   device->SetPixelShaderConstantF(0, previous.constant0, 1));
+	DX("Failed to set pixel shader constants",
+	   device->SetPixelShaderConstantF(0, previous.constants, 64));
 
+	if (previous.pixelShader) {
 		DX("Failed to restore pixel shader",
 		   device->SetPixelShader(previous.pixelShader));
 	}
@@ -152,7 +152,7 @@ void Compositor::UpdateFramebufferCopy() {
 void Compositor::Composite() {
 	SaveState();
 	UpdateFramebufferCopy();
-	
+
 	PassResources resources{
 		.device = device,
 		.gbuffer = &gbuffer,

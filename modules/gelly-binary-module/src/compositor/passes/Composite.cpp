@@ -15,7 +15,7 @@ void Composite::Render(PassResources *resources) {
 	auto gellyGBuffer = resources->gbuffer->shared;
 
 	gellyGBuffer.depth->SetupAtStage(0, 0, resources->device);
-	gbuffer->framebuffer.SetupAtStage(1, 0, resources->device);
+	gbuffer->framebuffer.SetupAtStage(1, 1, resources->device);
 
 	D3DMATRIX view;
 	resources->device->GetTransform(D3DTS_VIEW, &view);

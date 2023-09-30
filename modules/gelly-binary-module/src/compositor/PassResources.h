@@ -7,7 +7,7 @@ struct PassGBuffer {
 };
 
 struct PassResources {
-	IDirect3DDevice9 *device;
+	IDirect3DDevice9Ex *device;
 	PassGBuffer *gbuffer;
 };
 

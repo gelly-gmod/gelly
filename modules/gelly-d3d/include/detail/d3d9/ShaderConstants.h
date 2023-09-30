@@ -5,11 +5,11 @@
 
 namespace d3d9 {
 void SetConstantVectors(
-	IDirect3DDevice9 *device, int reg, float *vector, int count
+	IDirect3DDevice9Ex *device, int reg, float *vector, int count
 );
 
 void SetConstantMatrix(
-	IDirect3DDevice9 *device, int reg, const D3DMATRIX &matrix
+	IDirect3DDevice9Ex *device, int reg, const D3DMATRIX &matrix
 );
 }  // namespace d3d9
 

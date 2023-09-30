@@ -1,8 +1,8 @@
 #ifndef GELLY_D3D9SHADERS_H
 #define GELLY_D3D9SHADERS_H
 
-#define D3D9_PIXEL_PROFILE "ps_2_0"
-#define D3D9_VERTEX_PROFILE "vs_2_0"
+#define D3D9_PIXEL_PROFILE "ps_3_0"
+#define D3D9_VERTEX_PROFILE "vs_3_0"
 
 #include <d3d9.h>
 #include <d3dcompiler.h>
