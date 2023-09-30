@@ -27,3 +27,6 @@
 [submodule "modules/gelly-binary-module/vendor/GMFS"]
 	path = modules/gelly-binary-module/vendor/GMFS
 	url = https://github.com/Derpius/GMFS.git
+[submodule "modules/gelly-binary-module/vendor/DirectXMath"]
+	path = modules/gelly-binary-module/vendor/DirectXMath
+	url = https://github.com/microsoft/DirectXMath.git
