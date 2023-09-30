@@ -1,7 +1,7 @@
 #ifndef GELLY_PASSRESOURCES_H
 #define GELLY_PASSRESOURCES_H
 
-#include <GellyRenderer.h>
+#include <source/CViewSetup.h>
 
 struct PassGBuffer {
 	d3d9::Texture framebuffer;
@@ -11,7 +11,7 @@ struct PassGBuffer {
 struct PassResources {
 	IDirect3DDevice9Ex *device;
 	PassGBuffer *gbuffer;
-	Camera *camera;
+	CViewSetup *viewSetup;
 };
 
 #endif	// GELLY_PASSRESOURCES_H

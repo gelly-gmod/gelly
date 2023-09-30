@@ -229,63 +229,7 @@ LUA_FUNCTION(gelly_Create) {
 	LUA->PushUserType_Value(gelly, Gelly_id);
 
 	gellyInstance = gelly;
-
-	CViewSetup setup{};
-	GetClientViewSetup(setup);
-
-	printf("game fov: %.1f\n", setup.fov);
-	printf("game width: %d\n", setup.width);
-	printf("game height: %d\n", setup.height);
-
-	printf(
-		"cam pos: [%.1f, %.1f, %.1f]\n",
-		setup.origin.x,
-		setup.origin.y,
-		setup.origin.z
-	);
-	printf(
-		"cam angles: [%.1f, %.1f, %.1f]\n",
-		setup.angles.x,
-		setup.angles.y,
-		setup.angles.z
-	);
-
-	printf("cam near: %.1f\n", setup.zNear);
-	printf("cam far: %.1f\n", setup.zFar);
-
-	printf("cam view matrix:\n");
-
-	VMatrix viewMatrix{};
-	VMatrix projMatrix{};
-	VMatrix viewProjMatrix{};
-	VMatrix viewProjClipMatrix{};
-
-	GetMatricesFromView(
-		setup, &viewMatrix, &projMatrix, &viewProjMatrix, &viewProjClipMatrix
-	);
-
-	for (int i = 0; i < 4; i++) {
-		printf("[");
-		for (int j = 0; j < 4; j++) {
-			printf("%.1f,", viewMatrix.m[i][j]);
-		}
-		printf("]\n");
-
-		printf("\n");
-	}
-
-	printf("cam proj matrix:\n");
-
-	for (int i = 0; i < 4; i++) {
-		printf("[");
-		for (int j = 0; j < 4; j++) {
-			printf("%.1f,", projMatrix.m[i][j]);
-		}
-		printf("]\n");
-
-		printf("\n");
-	}
-
+	
 	return 3;
 }
 

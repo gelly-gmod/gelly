@@ -1,5 +1,7 @@
 #include "Compositor.h"
 
+#include "source/IBaseClientDLL.h"
+
 static PassGBuffer CreateGBuffer(
 	IDirect3DDevice9Ex *device,
 	int width,
@@ -153,9 +155,13 @@ void Compositor::Composite() {
 	SaveState();
 	UpdateFramebufferCopy();
 
+	CViewSetup viewSetup{};
+	GetClientViewSetup(viewSetup);
+
 	PassResources resources{
 		.device = device,
 		.gbuffer = &gbuffer,
+		.viewSetup = &viewSetup,
 	};
 
 	compositePass.Render(&resources);

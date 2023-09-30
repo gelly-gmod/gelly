@@ -9,6 +9,7 @@ target_include_directories(gelly_binary_module PRIVATE
         vendor/minhook/include
         vendor/GMFS
         vendor/DirectXMath/Inc
+        src
         ../gelly-engine/include
         ../gelly-renderer/include
         ../gelly-d3d9/include

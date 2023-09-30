@@ -61,19 +61,7 @@ float4 EstimateNormal(float2 texcoord) {
     }
 
     float3 normal = -normalize(cross(dpdx, dpdy));
-    // return float4(normal * 0.5 + 0.5, 1.f);
-    float3 lightDir = normalize(float3(-0.3, -0.4, 0.9));
-    float3 viewerDir = normalize(eye - ce);
-    float3 halfDir = normalize(lightDir + viewerDir);
-
-    float diffuse = saturate(dot(normal, lightDir.xyz));
-
-    float4 diffuseColor = float4(0.3, 0.3, 0.9, 1);
-    float4 specularColor = float4(1, 1, 1, 1);
-    float fresnel = ComputeFresnel(saturate(dot(normal, viewerDir)));
-
-    float4 color = specularColor * fresnel + diffuseColor * (1.f - fresnel);
-    return color;
+    return float4(normal, 1);
 }
 
 PS_OUTPUT main(VS_OUTPUT input) {
