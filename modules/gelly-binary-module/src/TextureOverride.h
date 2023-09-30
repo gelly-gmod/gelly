@@ -12,6 +12,8 @@
 #include <MinHook.h>
 #include <d3d9.h>
 
+#include "hooking/VTable.h"
+
 /**
  * Creates the detours required for the system.
  */

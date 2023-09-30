@@ -9,14 +9,19 @@
 typedef HRESULT(WINAPI *
 					D3DCreateTexture)(IDirect3DDevice9 *, UINT, UINT, UINT, DWORD, D3DFORMAT, D3DPOOL, IDirect3DTexture9 **, HANDLE *);
 
+static VTable D3DDeviceVTable;
+
 // We pass arguments globally since the hook can't take custom arguments.
 static d3d9::Texture **targetTexture = nullptr;
 static D3DFORMAT targetFormat = D3DFMT_UNKNOWN;
 
 static D3DCreateTexture originalCreateTexture = nullptr;
-static void *createTexturePtr = nullptr;
 
-static HRESULT WINAPI HookedD3DCreateTexture(
+DEFINE_VMT_HOOK(CreateTexture, 23, D3DCreateTexture);
+VMT_HOOK_BODY(
+	CreateTexture,
+	WINAPI,
+	HRESULT,
 	IDirect3DDevice9 *device,
 	UINT width,
 	UINT height,
@@ -27,15 +32,15 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 	IDirect3DTexture9 **texture,
 	HANDLE *sharedHandle
 ) {
-	// Disable the hook so we don't override the wrong texture.
-	if (MH_DisableHook(createTexturePtr) != MH_OK) {
-		throw std::runtime_error("Failed to disable the CreateTexture hook.");
-	}
+	// We automatically disable here so that the hook doesn't get called again.
+	// Relieves a little burden off of Lua.
+	DISABLE_VMT_HOOK(D3DDeviceVTable, CreateTexture);
 
 	HANDLE shared_handle = nullptr;
 
 	IDirect3DTexture9 *rawTexture = nullptr;
-	HRESULT result = originalCreateTexture(
+	HRESULT result = VMT_HOOK_CALL_ORIG(
+		CreateTexture,
 		device,
 		width,
 		height,
@@ -57,6 +62,7 @@ static HRESULT WINAPI HookedD3DCreateTexture(
 
 	// Give caller the texture we created.
 	*texture = rawTexture;
+
 	return result;
 }
 
@@ -64,9 +70,7 @@ void TextureOverride_GetTexture(d3d9::Texture **texture, D3DFORMAT format) {
 	targetTexture = texture;
 	targetFormat = format;
 
-	if (MH_EnableHook(createTexturePtr) != MH_OK) {
-		throw std::runtime_error("Failed to enable the CreateTexture hook.");
-	}
+	ENABLE_VMT_HOOK(D3DDeviceVTable, CreateTexture);
 }
 
 void TextureOverride_Init() {
@@ -80,25 +84,12 @@ void TextureOverride_Init() {
 		throw std::runtime_error("Failed to initialize MinHook.");
 	}
 
-	void **d3d9VTable = *reinterpret_cast<void ***>(dev);
-
-	// We're going to hook IDirect3DDevice9::CreateTexture
-	// This function is at index 23 in the vtable.
-	createTexturePtr = d3d9VTable[23];
-
-	if (MH_CreateHook(
-			createTexturePtr,
-			(LPVOID)&HookedD3DCreateTexture,
-			reinterpret_cast<void **>(&originalCreateTexture)
-		) != MH_OK) {
-		throw std::runtime_error("Failed to create the CreateTexture hook.");
-	}
+	D3DDeviceVTable.Init(reinterpret_cast<void ***>(dev), 119);
+	APPLY_VMT_HOOK(D3DDeviceVTable, CreateTexture);
 }
 
 void TextureOverride_Shutdown() {
-	if (MH_DisableHook(createTexturePtr) != MH_OK) {
-		throw std::runtime_error("Failed to disable the CreateTexture hook.");
-	}
+	REMOVE_VMT_HOOK(D3DDeviceVTable, CreateTexture);
 
 	if (MH_Uninitialize() != MH_OK) {
 		throw std::runtime_error("Failed to uninitialize MinHook.");
