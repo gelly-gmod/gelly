@@ -1,6 +1,8 @@
 #ifndef GELLY_IBASECLIENTDLL_H
 #define GELLY_IBASECLIENTDLL_H
 
+#include <windows.h>
+
 #include "CViewSetup.h"
 #include "MathTypes.h"
 
@@ -24,7 +26,6 @@ typedef void typedescription_t;
 typedef void CStandardRecvProxies;
 typedef void XUSER_CONTEXT;
 typedef unsigned int uint;
-typedef uint HANDLE;
 typedef void IFileList;
 typedef void CMouthInfo;
 typedef void CRenamedRecvTableInfo;
