@@ -15,8 +15,6 @@ static VTable D3DDeviceVTable;
 static d3d9::Texture **targetTexture = nullptr;
 static D3DFORMAT targetFormat = D3DFMT_UNKNOWN;
 
-static D3DCreateTexture originalCreateTexture = nullptr;
-
 DEFINE_VMT_HOOK(CreateTexture, 23, D3DCreateTexture);
 VMT_HOOK_BODY(
 	CreateTexture,
