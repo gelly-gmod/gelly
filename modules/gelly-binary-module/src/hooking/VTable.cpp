@@ -8,21 +8,20 @@
 	OutputDebugStringA(MH_StatusToString(status)); \
 	assert(status == MH_OK);
 
-void VTable::Init(void ***classInstance, int vtableSize) {
+void VTable::Init(void **vtable, int vtableSize) {
 #ifdef _DEBUG
-	assert(classInstance != nullptr);
+	assert(vtable != nullptr);
 	assert(vtableSize > 0);
 #endif
 
 	vtableCopy = static_cast<void **>(malloc(vtableSize * sizeof(void *)));
-	memcpy(vtableCopy, *classInstance, vtableSize * sizeof(void *));
+	memcpy(vtableCopy, vtable, vtableSize * sizeof(void *));
 
 	size = vtableSize;
 }
 
-VTable::VTable(void ***classInstance, int size)
-	: vtableCopy(nullptr), size(size) {
-	Init(classInstance, size);
+VTable::VTable(void **vtable, int size) : vtableCopy(nullptr), size(size) {
+	Init(vtable, size);
 }
 
 VTable::VTable() : vtableCopy(nullptr), size(0) {}

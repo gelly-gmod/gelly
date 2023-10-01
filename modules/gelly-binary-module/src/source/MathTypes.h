@@ -13,4 +13,16 @@ struct VMatrix {
 	float m[4][4];
 };
 
+struct matrix3x4_t {
+	float m[3][4];
+};
+
+struct Vector4D {
+	float x, y, z, w;
+};
+
+struct Vector2D {
+	float x, y;
+};
+
 #endif	// GELLY_MATHTYPES_H

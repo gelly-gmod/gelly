@@ -17,6 +17,7 @@ float4 eyePos : register(c16);
 sampler2D depthSampler : register(s0);
 sampler2D normalSampler : register(s1);
 sampler2D frameSampler : register(s2);
+samplerCUBE cubeSampler : register(s3);
 
 float LinearizeDepth(float z, float near, float far) {
     return (2.0f * near) / (far + near - z * (far - near));
@@ -44,17 +45,20 @@ PS_OUTPUT main(VS_INPUT input) {
     pos = mul(pos, transpose(matInvView));
 
     float3 viewDir = normalize(pos.xyz - eyePos.xyz);
-    float3 refracted = refract(-viewDir, normal, 1.333f);
+    // float3 refracted = refract(-viewDir, normal, 1.333f);
 
-    float3 refractedPos = pos.xyz + refracted * 0.34f;
-    float4 refractedPosView = mul(float4(refractedPos, 1), transpose(matView));
-    float4 refractedPosProj = mul(refractedPosView, transpose(matProj));
-    refractedPosProj.xyz /= refractedPosProj.w;
-    float2 refractedPosUV = float2(refractedPosProj.x * 0.5f + 0.5f, -refractedPosProj.y * 0.5f + 0.5f);
+    // float3 refractedPos = pos.xyz + refracted * 0.34f;
+    // float4 refractedPosView = mul(float4(refractedPos, 1), transpose(matView));
+    // float4 refractedPosProj = mul(refractedPosView, transpose(matProj));
+    // refractedPosProj.xyz /= refractedPosProj.w;
+    // float2 refractedPosUV = float2(refractedPosProj.x * 0.5f + 0.5f, -refractedPosProj.y * 0.5f + 0.5f);
 
-    float4 refractedColor = tex2D(frameSampler, refractedPosUV);
+    // float4 refractedColor = tex2D(frameSampler, refractedPosUV);
 
-    output.Col = float4(refractedColor.xyz, 1);
+    float3 reflected = reflect(viewDir, normal);
+    float3 reflectColor = texCUBE(cubeSampler, normal).rgb;
+
+    output.Col = float4(reflectColor.xyz * 2, 1);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
     return output;
 }

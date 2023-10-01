@@ -9,11 +9,36 @@
 typedef HRESULT(WINAPI *
 					D3DCreateTexture)(IDirect3DDevice9 *, UINT, UINT, UINT, DWORD, D3DFORMAT, D3DPOOL, IDirect3DTexture9 **, HANDLE *);
 
+// STDMETHOD(SetTexture)(THIS_ DWORD Stage,IDirect3DBaseTexture9* pTexture)
+// PURE;
+
+typedef HRESULT(WINAPI *
+					D3DSetTexture)(IDirect3DDevice9 *, DWORD, IDirect3DBaseTexture9 *);
+
 static VTable D3DDeviceVTable;
 
 // We pass arguments globally since the hook can't take custom arguments.
 static d3d9::Texture **targetTexture = nullptr;
 static D3DFORMAT targetFormat = D3DFMT_UNKNOWN;
+static IDirect3DBaseTexture9 *cubemapTexture = nullptr;
+static bool cubemapFindingEnabled = true;
+
+DEFINE_VMT_HOOK(SetTexture, 65, D3DSetTexture);
+VMT_HOOK_BODY(
+	SetTexture,
+	WINAPI,
+	HRESULT,
+	IDirect3DDevice9 *device,
+	DWORD stage,
+	IDirect3DBaseTexture9 *texture
+) {
+	if (cubemapFindingEnabled && texture &&
+		texture->GetType() == D3DRTYPE_CUBETEXTURE) {
+		cubemapTexture = texture;
+	}
+
+	VMT_HOOK_END_ORIGINAL(SetTexture, device, stage, texture);
+}
 
 DEFINE_VMT_HOOK(CreateTexture, 23, D3DCreateTexture);
 VMT_HOOK_BODY(
@@ -82,14 +107,25 @@ void TextureOverride_Init() {
 		throw std::runtime_error("Failed to initialize MinHook.");
 	}
 
-	D3DDeviceVTable.Init(reinterpret_cast<void ***>(dev), 119);
+	D3DDeviceVTable.Init(*reinterpret_cast<void ***>(dev), 119);
 	APPLY_VMT_HOOK(D3DDeviceVTable, CreateTexture);
+	APPLY_VMT_HOOK(D3DDeviceVTable, SetTexture);
+	ENABLE_VMT_HOOK(D3DDeviceVTable, SetTexture);
 }
 
 void TextureOverride_Shutdown() {
 	REMOVE_VMT_HOOK(D3DDeviceVTable, CreateTexture);
+	REMOVE_VMT_HOOK(D3DDeviceVTable, SetTexture);
 
 	if (MH_Uninitialize() != MH_OK) {
 		throw std::runtime_error("Failed to uninitialize MinHook.");
 	}
+}
+
+IDirect3DBaseTexture9 *TextureOverride_GetCubemapTexture() {
+	return cubemapTexture;
+}
+
+void TextureOverride_ToggleCubemapFinding(bool enable) {
+	cubemapFindingEnabled = enable;
 }

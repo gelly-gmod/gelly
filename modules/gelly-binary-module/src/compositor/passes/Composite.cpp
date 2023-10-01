@@ -3,7 +3,10 @@
 #include <GellyD3D.h>
 #include <directxmath.h>
 #include <source/IBaseClientDLL.h>
+#include <source/IMaterialSystem.h>
 #include <source/IVRenderView.h>
+
+#include "TextureOverride.h"
 
 const char *COMPOSITE_PS_SOURCE =
 #include "shaders/d3d9/Composite.ps.embed.hlsl"
@@ -13,13 +16,22 @@ Composite::Composite(IDirect3DDevice9 *device)
 	: Pass(device, "Composite.ps", COMPOSITE_PS_SOURCE){};
 
 void Composite::Render(PassResources *resources) {
+	if (!TextureOverride_GetCubemapTexture()) {
+		return;
+	}
+
 	auto *gbuffer = resources->gbuffer;
 	auto gellyGBuffer = resources->gbuffer->shared;
 
 	gellyGBuffer.depth->SetupAtStage(0, 0, resources->device);
 	gellyGBuffer.normal->SetupAtStage(1, 1, resources->device);
 	gbuffer->framebuffer.SetupAtStage(2, 2, resources->device);
-	
+
+	TextureOverride_ToggleCubemapFinding(false);
+	auto *cubemap = TextureOverride_GetCubemapTexture();
+	DX("Failed to set texture", resources->device->SetTexture(3, cubemap));
+	TextureOverride_ToggleCubemapFinding(true);
+
 	D3DMATRIX view{};
 	D3DMATRIX projection{};
 	VMatrix _unusedViewProj{};

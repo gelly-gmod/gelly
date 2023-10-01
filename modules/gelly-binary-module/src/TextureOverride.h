@@ -7,6 +7,9 @@
 // into thinking that we're creating a normal texture, but it's actually a
 // shared texture.
 
+// Also, we capture the cubemap textures that are created by the engine and the
+// current one used.
+
 #include <GellyD3D.h>
 #include <GellyRenderer.h>
 #include <MinHook.h>
@@ -37,5 +40,19 @@ void TextureOverride_Shutdown();
  * R16G16B16A16_FLOAT and R8G8B8A8_UNORM formats are allowed."
  */
 void TextureOverride_GetTexture(d3d9::Texture **texture, D3DFORMAT format);
+
+/**
+ * Returns the current cubemap texture that is being rendered.
+ * @note Can be null.
+ */
+IDirect3DBaseTexture9 *TextureOverride_GetCubemapTexture();
+
+/**
+ * Toggles whether or not we should be finding cubemap textures. This is
+ * crucial if you're using the cubemap texture for anything, as it will
+ * trigger the texture override to find the cubemap texture, causing a loop.
+ * @param enable
+ */
+void TextureOverride_ToggleCubemapFinding(bool enable);
 
 #endif	// GELLY_TEXTUREOVERRIDE_H

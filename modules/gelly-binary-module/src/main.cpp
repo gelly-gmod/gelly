@@ -6,7 +6,9 @@
 
 #include "Gelly.h"
 #include "TextureOverride.h"
+#include "source/CShaderAPIDX8.h"
 #include "source/IBaseClientDLL.h"
+#include "source/IMaterialSystem.h"
 #include "source/IVRenderView.h"
 
 #define IMAGE_FORMAT_RGBA16161616F 24
@@ -229,8 +231,39 @@ LUA_FUNCTION(gelly_Create) {
 	LUA->PushUserType_Value(gelly, Gelly_id);
 
 	gellyInstance = gelly;
-	
+
+	void ***matVftable = reinterpret_cast<void ***>(GetMaterialSystem());
+	void **vftable = *(matVftable + sizeof(uintptr_t));
+
+	// GetDisplayAdapterCount is at 43
+	// SpewDriverInfo at 53
+	//	auto spewDriverInfo =
+	//		reinterpret_cast<int (*)(IMaterialSystem *)>(vftable[43]);
+	//
+	//	VTable matVtable = VTable(vftable, 200);
+	//
+	//	matVtable.CallOriginal<void>(197, GetMaterialSystem(), true);
+
+	GetShaderAPIDX8();
+
 	return 3;
+}
+
+LUA_FUNCTION(gelly_Test) {
+	LUA->CheckType(1, Type::Texture);
+
+	CTexture *tex = LUA->GetUserType<CTexture>(1, Type::Texture);
+
+	const char *name = GetCTextureName(tex);
+	printf("name: %s\n", name);
+
+	auto d3dTex = GetD3DTexture(tex);
+
+	printf("d3dTex: %p\n", d3dTex);
+	auto handle = GetCTextureHandle(tex);
+	printf("handle: %d\n", handle);
+
+	return 0;
 }
 
 GMOD_MODULE_OPEN() {
@@ -245,6 +278,7 @@ GMOD_MODULE_OPEN() {
 	LUA->PushSpecial(SPECIAL_GLOB);
 	LUA->CreateTable();
 	SET_C_FUNC(gelly, Create);
+	SET_C_FUNC(gelly, Test);
 	LUA->SetField(-2, "gelly");
 
 	Gelly_id = LUA->CreateMetaTable("Gelly");

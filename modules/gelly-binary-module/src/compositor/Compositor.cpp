@@ -69,7 +69,10 @@ void Compositor::SaveState() {
 	device->GetSamplerState(
 		1, D3DSAMP_MIPFILTER, reinterpret_cast<DWORD *>(&previous.mipFilter2)
 	);
+
 	device->GetTexture(1, &previous.texture1);
+	device->GetTexture(2, &previous.texture2);
+	device->GetTexture(3, &previous.texture3);
 
 	device->GetRenderState(D3DRS_LIGHTING, &previous.lighting);
 	device->GetRenderState(D3DRS_ZENABLE, &previous.ztest);
@@ -110,6 +113,16 @@ void Compositor::RestorePreviousState() {
 	if (previous.texture1) {
 		DX("Failed to restore texture",
 		   device->SetTexture(1, previous.texture1));
+	}
+
+	if (previous.texture2) {
+		DX("Failed to restore texture",
+		   device->SetTexture(2, previous.texture2));
+	}
+
+	if (previous.texture3) {
+		DX("Failed to restore texture",
+		   device->SetTexture(3, previous.texture3));
 	}
 
 	DX("Failed to restore sampler state",

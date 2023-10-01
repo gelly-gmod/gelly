@@ -34,17 +34,33 @@ private:
 	int size;
 
 public:
-	VTable(void ***classInstance, int size);
+	VTable(void **vtable, int size);
 	VTable();
 	~VTable();
 
-	void Init(void ***classInstance, int vtableSize);
+	void Init(void **vtable, int vtableSize);
 
 	[[nodiscard]] void **GetVTable() const;
 	void Hook(int index, void *hook, void **original);
 	void EnableHook(int index) const;
 	void DisableHook(int index) const;
 	void Unhook(int index) const;
+
+	template <typename ReturnType, typename... Args>
+	ReturnType CallOriginal(int index, void *classInstance, Args... args) {
+		return reinterpret_cast<
+			ReturnType(__fastcall *)(void *, Args...)>(vtableCopy[index])(
+			classInstance, args...
+		);
+	}
+
+	template <typename ReturnType, typename... Args>
+	ReturnType CallOriginalCdecl(int index, void *classInstance, Args... args) {
+		return reinterpret_cast<
+			ReturnType(__cdecl *)(void *, Args...)>(vtableCopy[index])(
+			classInstance, args...
+		);
+	}
 };
 
 #endif	// GELLY_VTABLE_H

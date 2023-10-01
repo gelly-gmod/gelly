@@ -19,7 +19,7 @@ private:
 	// We're not using a ComPtr here because this is meant to be owned
 	// by Gelly. There should be nothing happening with the ref count.
 	PassGBuffer gbuffer;
-	
+
 	// We have to make sure to look like we were never here to the rest of the
 	// game, so we store every single previous value of any function we called.
 
@@ -41,6 +41,8 @@ private:
 		IDirect3DVertexBuffer9 *streamSource;
 		IDirect3DBaseTexture9 *texture0;
 		IDirect3DBaseTexture9 *texture1;
+		IDirect3DBaseTexture9 *texture2;
+		IDirect3DBaseTexture9 *texture3;
 		UINT streamOffset;
 		UINT streamStride;
 		DWORD fvf;
