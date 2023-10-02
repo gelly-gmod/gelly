@@ -56,7 +56,7 @@ PS_OUTPUT main(VS_INPUT input) {
     // float4 refractedColor = tex2D(frameSampler, refractedPosUV);
 
     float3 reflected = reflect(viewDir, normal);
-    float3 reflectColor = texCUBE(cubeSampler, normal).rgb;
+    float3 reflectColor = texCUBE(cubeSampler, reflected).rgb;
 
     output.Col = float4(reflectColor.xyz * 2, 1);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);

@@ -1,6 +1,7 @@
 #include "CShaderAPIDX8.h"
 
 #include <cassert>
+#include <cstdio>
 
 #include "Interface.h"
 #include "hooking/VTable.h"
@@ -27,9 +28,19 @@ CShaderAPIDX8 GetShaderAPIDX8() {
 	return shaderAPIDX8;
 }
 
+#pragma optimize("", off)
 IDirect3DBaseTexture9 *GetD3DTexture(CTexture *texture) {
 	auto handle = GetCTextureHandle(texture);
-	return shaderAPIVTable.CallOriginal<IDirect3DBaseTexture9 *>(
+	auto d3dTexture = shaderAPIVTable.CallOriginal<IDirect3DBaseTexture9 *>(
 		GetD3DTextureIndex, shaderAPIDX8, handle
 	);
+
+	void **vtable = shaderAPIVTable.GetVTable();
+	auto test = vtable[GetD3DTextureIndex];
+
+	printf("d3dTexture: %p\n", d3dTexture);
+	printf("thisPtr: %p\n", shaderAPIDX8);
+	printf("test: %p\n", test);
+
+	return d3dTexture;
 }

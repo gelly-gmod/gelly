@@ -49,7 +49,7 @@ public:
 	template <typename ReturnType, typename... Args>
 	ReturnType CallOriginal(int index, void *classInstance, Args... args) {
 		return reinterpret_cast<
-			ReturnType(__fastcall *)(void *, Args...)>(vtableCopy[index])(
+			ReturnType(__thiscall *)(void *, Args...)>(vtableCopy[index])(
 			classInstance, args...
 		);
 	}
