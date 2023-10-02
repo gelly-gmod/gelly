@@ -15,8 +15,12 @@ private:
 	size_t size;
 
 public:
-	Library(const char *name);
+	explicit Library(const char *name);
+	Library();
 	~Library() = default;
+
+	void Init(const char *name);
+	[[nodiscard]] bool IsInitialized() const;
 
 	/**
 	 * Scans for a pattern in the entire library's data.

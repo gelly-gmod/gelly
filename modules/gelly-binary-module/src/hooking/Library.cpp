@@ -31,7 +31,6 @@ void GetModuleAddrAndSize(
 
 	do {
 		if (strcmp(module_entry.szModule, moduleName) == 0) {
-			CloseHandle(snapshot);
 			(*addr) = (uintptr_t)module_entry.modBaseAddr;
 			(*size) = module_entry.modBaseSize;
 		}
@@ -41,12 +40,20 @@ void GetModuleAddrAndSize(
 }
 
 Library::Library(const char *name) : base_address(0), size(0) {
-	GetModuleAddrAndSize(name, &base_address, &size);
+	Init(name);
 #ifdef _DEBUG
 	assert(base_address != 0);
 	assert(size != 0);
 #endif
 }
+
+Library::Library() : base_address(0), size(0) {}
+
+void Library::Init(const char *name) {
+	GetModuleAddrAndSize(name, &base_address, &size);
+}
+
+bool Library::IsInitialized() const { return base_address != 0 && size != 0; }
 
 uintptr_t Library::Scan(const char *pattern) const {
 	// Basic scan algorithm, start at byte zero, check pattern, if match, return
@@ -74,7 +81,7 @@ uintptr_t Library::Scan(const char *pattern) const {
 	uintptr_t endAddress = base_address + size;
 
 	while (address < endAddress) {
-		bool match = false;
+		bool match = true;
 
 		for (int i = 0; i < patternBytes.size(); i++) {
 			PatternByte patternByte = patternBytes[i];
@@ -84,8 +91,8 @@ uintptr_t Library::Scan(const char *pattern) const {
 				continue;
 			}
 
-			if (patternByte.byte == byte) {
-				match = true;
+			if (patternByte.byte != byte) {
+				match = false;
 				break;
 			}
 		}
