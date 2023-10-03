@@ -250,9 +250,7 @@ LUA_FUNCTION(gelly_Create) {
 }
 
 LUA_FUNCTION(gelly_Test) {
-	LUA->CheckType(1, Type::Texture);
-
-	CTexture *tex = LUA->GetUserType<CTexture>(1, Type::Texture);
+	CTexture *tex = GetLocalCubemap();
 
 	const char *name = GetCTextureName(tex);
 	printf("name: %s\n", name);
@@ -261,8 +259,11 @@ LUA_FUNCTION(gelly_Test) {
 
 	printf("d3dTex: %p\n", d3dTex);
 	auto handle = GetCTextureHandle(tex);
-	printf("handle: %d\n", handle);
+	printf("handle: %llu\n", handle);
 
+	printf("d3dTex type: %d\n", d3dTex->GetType());
+	//	auto matSys = GetMaterialSystem();
+	//	printf("matSys: %p\n", matSys);
 	return 0;
 }
 

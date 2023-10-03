@@ -9,7 +9,9 @@ static Library materialsystemLib;
 static const char *GetTextureHandleSignature =
 	"48 89 5c 24 08 48 89 74 24 10 57 48 83 ec 20 33 ff 8b da";
 
-typedef ShaderAPITextureHandle_t(__thiscall *GetTextureHandleFn)(void *, int);
+typedef ShaderAPITextureHandle_t(__thiscall *GetTextureHandleFn)(
+	void *, void *, int
+);
 
 ShaderAPITextureHandle_t GetCTextureHandle(CTexture *texture) {
 	if (!materialsystemLib.IsInitialized()) {
@@ -27,7 +29,7 @@ ShaderAPITextureHandle_t GetCTextureHandle(CTexture *texture) {
 		GetTextureHandleSignature
 	);
 
-	return getTextureHandle(texture, 0);
+	return getTextureHandle(texture, nullptr, 0);
 }
 // TODO: FIX TEXTURE HANDLE, THE VTABLE IS NOT RIGHT FOR THIS USE SIG
 const char *GetCTextureName(CTexture *texture) {

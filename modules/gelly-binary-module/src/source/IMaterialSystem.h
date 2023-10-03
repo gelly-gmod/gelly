@@ -3,6 +3,7 @@
 
 #include <windows.h>
 
+#include "CTexture.h"
 #include "MathTypes.h"
 
 // Abandon all hope, ye who enter past this point
@@ -1561,6 +1562,7 @@ public:
 
 #define MATERIAL_SYSTEM_INTERFACE_VERSION "VMaterialSystem080"
 
+CTexture *GetLocalCubemap();
 IMaterialSystem *GetMaterialSystem();
 IMatRenderContext *GetRenderContext();
 

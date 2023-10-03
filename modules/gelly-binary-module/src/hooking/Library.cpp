@@ -4,6 +4,66 @@
 #include <cassert>
 #include <vector>
 
+#include "MinHook.h"
+
+#define DEBUG_ASSERT_MH(status)                    \
+	OutputDebugStringA(MH_StatusToString(status)); \
+	assert(status == MH_OK);
+
+HookedFunction::HookedFunction(
+	void *originalAddress, void *hookAddress, void **originalFn
+)
+	: originalAddress(originalAddress), hookAddress(hookAddress) {
+	Init(originalAddress, hookAddress, originalFn);
+}
+
+HookedFunction::HookedFunction()
+	: originalAddress(nullptr), hookAddress(nullptr) {}
+
+HookedFunction::~HookedFunction() { Remove(); }
+
+void HookedFunction::Init(
+	void *originalAddress, void *hookAddress, void **originalFn
+) {
+#ifdef _DEBUG
+	assert(originalAddress != nullptr);
+	assert(hookAddress != nullptr);
+	assert(originalFn != nullptr);
+#endif
+
+	this->originalAddress = originalAddress;
+	this->hookAddress = hookAddress;
+
+	MH_STATUS status = MH_CreateHook(originalAddress, hookAddress, originalFn);
+#ifdef _DEBUG
+	DEBUG_ASSERT_MH(status);
+#endif
+}
+
+void *HookedFunction::GetOriginalAddress() const { return originalAddress; }
+void *HookedFunction::GetHookAddress() const { return hookAddress; }
+
+void HookedFunction::Enable() const {
+	MH_STATUS status = MH_EnableHook(originalAddress);
+#ifdef _DEBUG
+	DEBUG_ASSERT_MH(status);
+#endif
+}
+
+void HookedFunction::Disable() const {
+	MH_STATUS status = MH_DisableHook(originalAddress);
+#ifdef _DEBUG
+	DEBUG_ASSERT_MH(status);
+#endif
+}
+
+void HookedFunction::Remove() const {
+	MH_STATUS status = MH_RemoveHook(originalAddress);
+#ifdef _DEBUG
+	DEBUG_ASSERT_MH(status);
+#endif
+}
+
 struct PatternByte {
 	bool wildcard;
 	uint8_t byte;
@@ -103,4 +163,21 @@ uintptr_t Library::Scan(const char *pattern) const {
 
 		address++;
 	}
+}
+
+bool Library::HookFunction(
+	const char *pattern,
+	void *hook,
+	void **original,
+	HookedFunction &hookedFunction
+) const {
+	uintptr_t address = Scan(pattern);
+
+	if (address == 0) {
+		return false;
+	}
+
+	hookedFunction.Init((void *)address, hook, original);
+
+	return true;
 }

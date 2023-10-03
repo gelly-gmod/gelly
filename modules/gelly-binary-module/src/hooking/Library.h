@@ -6,6 +6,29 @@
 #include <TlHelp32.h>
 // clang-format on
 
+class HookedFunction {
+private:
+	/**
+	 * The original address of the function.
+	 */
+	void *originalAddress;
+	void *hookAddress;
+
+public:
+	HookedFunction(void *originalAddress, void *hookAddress, void **originalFn);
+	HookedFunction();
+	~HookedFunction();
+
+	void Init(void *originalAddress, void *hookAddress, void **originalFn);
+
+	[[nodiscard]] void *GetOriginalAddress() const;
+	[[nodiscard]] void *GetHookAddress() const;
+
+	void Enable() const;
+	void Disable() const;
+	void Remove() const;
+};
+
 class Library {
 private:
 	uintptr_t base_address;
@@ -40,6 +63,13 @@ public:
 	Fn FindFunction(const char *pattern) {
 		return reinterpret_cast<Fn>(Scan(pattern));
 	}
+
+	bool HookFunction(
+		const char *pattern,
+		void *hook,
+		void **original,
+		HookedFunction &hookedFunction
+	) const;
 };
 
 #endif	// GELLY_LIBRARY_H
