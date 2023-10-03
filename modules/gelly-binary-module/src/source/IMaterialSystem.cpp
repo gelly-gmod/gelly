@@ -1,15 +1,12 @@
 #include "IMaterialSystem.h"
 
 #include <cassert>
-#include <cstdio>
 
-#include "CTexture.h"
 #include "Interface.h"
 #include "hooking/Library.h"
 
 static IMaterialSystem *materialSystem = nullptr;
 static Library materialSystemLib;
-static HookedFunction GetLocalCubemapHook;
 
 // Particularly long because this function is pretty simple so we don't want to
 // get it confused with something else.
@@ -18,21 +15,6 @@ static const char *GetLocalCubemapSignature =
 	"c8 48 85 c0 75 07 48 8d 8b f0 24 00 00";
 
 typedef CTexture *(__thiscall *GetLocalCubemapFn)(void *);
-static GetLocalCubemapFn GetLocalCubemapFnOrig;
-//
-// CTexture *GetLocalCubemapFnHk(void *thisPtr) {
-//	printf("GetLocalCubemapFn\n");
-//	printf("thisPtr: %p\n", thisPtr);
-//	printf("materialSystem: %p\n", materialSystem);
-//
-//	CTexture *tex = GetLocalCubemapFnOrig(thisPtr);
-//	printf("tex: %p\n", tex);
-//
-//	auto texName = GetCTextureName(tex);
-//	printf("texName: %s\n", texName);
-//
-//	return tex;
-//}
 
 void EnsureMaterialSystem() {
 	if (materialSystem == nullptr) {
@@ -41,14 +23,6 @@ void EnsureMaterialSystem() {
 		);
 
 		materialSystemLib.Init("materialsystem.dll");
-		//		materialSystemLib.HookFunction(
-		//			GetLocalCubemapSignature,
-		//			reinterpret_cast<void *>(GetLocalCubemapFnHk),
-		//			reinterpret_cast<void **>(&GetLocalCubemapFnOrig),
-		//			GetLocalCubemapHook
-		//		);
-		//
-		//		GetLocalCubemapHook.Enable();
 	}
 
 #ifdef _DEBUG

@@ -18,20 +18,14 @@ ShaderAPITextureHandle_t GetCTextureHandle(CTexture *texture) {
 		materialsystemLib.Init("materialsystem.dll");
 	}
 
-	// Spawn a really cheap VTable to call the function we need.
-	//	VTable textureVTable(*texture, 43);
-	//
-	//	return textureVTable.CallOriginal<ShaderAPITextureHandle_t>(
-	//		GetTextureHandleIndex, texture, 0, 0  // 0th frame
-	//	);
-
 	auto getTextureHandle = materialsystemLib.FindFunction<GetTextureHandleFn>(
 		GetTextureHandleSignature
 	);
 
 	return getTextureHandle(texture, nullptr, 0);
 }
-// TODO: FIX TEXTURE HANDLE, THE VTABLE IS NOT RIGHT FOR THIS USE SIG
+
+// TODO: Refactor to signature scanning.
 const char *GetCTextureName(CTexture *texture) {
 	VTable textureVTable(*texture, 43);
 
