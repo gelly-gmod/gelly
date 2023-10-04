@@ -6,7 +6,7 @@ struct PS_OUTPUT {
 };
 
 static const float2 pixelScale = 1.f / res;
-static const int maxFilterSize = 5;
+static const int maxFilterSize = 7;
 
 Texture2D depth : register(t0);
 SamplerState depthSampler
@@ -16,10 +16,10 @@ SamplerState depthSampler
     AddressV = Wrap;
 };
 
-static const int targetFilterSize = 5;
-static const float thresholdRatio = 2;
+static const int targetFilterSize = 7;
+static const float thresholdRatio = 10.0;
 // The amount of times that the filter is ran. This is a tuning parameter, and the bilateral gaussian filter can lose its ability to preserve edges if this is too high.
-static const int iterations = 1;
+static const int iterations = 3;
 
 float ComputeWeight(float2 r, float twoSigma2) {
     return exp(-dot(r, r) / twoSigma2);
@@ -37,7 +37,7 @@ float BiGaussFilter2D(VS_OUTPUT input, float pixelDepth) {
 
     float ratio = res.y / 2.0 / tan(45.0 / 2.0);
     float K = -targetFilterSize * ratio * particleRadius * 0.1f;
-    int filterSize = min(maxFilterSize, int(ceil(K / pixelDepth)));
+    int filterSize = min(maxFilterSize, int(ceil(K / (pixelDepth * 0.01))));
 
     float sigma = filterSize / 3.0f;
     float twoSigma2 = 2.0f * sigma * sigma;
@@ -79,10 +79,6 @@ float BiGaussFilter2D(VS_OUTPUT input, float pixelDepth) {
                 continue;
             }
 
-            float deltaDepth = abs(sampleDepth.x - pixelDepth);
-            if (deltaDepth > threshold) {
-                continue;
-            }
 
             rDepth = sampleDepth - float4(pixelDepth, pixelDepth, pixelDepth, pixelDepth);
             w4_r = float4(ComputeWeight(blurRadius * r, twoSigma2), ComputeWeight(blurRadius * r, twoSigma2), ComputeWeight(blurRadius * r, twoSigma2), ComputeWeight(blurRadius * r, twoSigma2));

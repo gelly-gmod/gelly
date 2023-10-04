@@ -58,7 +58,7 @@ GellyScene::GellyScene(
 	params->anisotropyScale = 1.0f;
 	params->anisotropyMin = 0.1f;
 	params->anisotropyMax = 2.0f;
-	params->smoothing = 1.0f;
+	params->smoothing = 2.2f;
 
 	params->dissipation = 0.0f;
 	params->damping = 0.0f;
