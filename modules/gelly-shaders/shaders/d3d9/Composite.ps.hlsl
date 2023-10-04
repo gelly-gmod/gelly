@@ -32,6 +32,16 @@ float ReconstructBrokenFloat(float low, float high) {
     return low * BREAKPOINT + high * (1.f - BREAKPOINT);
 }
 
+// Outside medium is always air, so that has an IOR of 1.0
+// Inside medium is always water, so that has an IOR of 1.33
+static const float IOR_AIR = 1.0;
+static const float IOR_WATER = 1.33;
+static const float R0 = pow((IOR_AIR - IOR_WATER) / (IOR_AIR + IOR_WATER), 2.0);
+
+float ComputeFresnel(float cosTheta) {
+    return R0 + (1.0f - R0) * pow(1.0f - cosTheta, 5.0);
+}
+
 PS_OUTPUT main(VS_INPUT input) {
     PS_OUTPUT output;
 
@@ -39,12 +49,12 @@ PS_OUTPUT main(VS_INPUT input) {
     float4 depth = tex2D(depthSampler, nudged);
     float3 normal = tex2D(normalSampler, nudged).rgb;
 
-    float4 pos = float4(nudged.x * 2 - 1, (1.f - nudged.y) * 2 - 1, ReconstructBrokenFloat(depth.y, depth.x), 1);
-    pos = mul(pos, transpose(matInvProj));
+    float4 pos = float4(nudged.x * 2.f - 1.f, (1.f - nudged.y) * 2.f - 1.f, 1.f, 1);
+    pos = mul(transpose(matInvProj), pos);
     pos.xyz /= pos.w;
-    pos = mul(pos, transpose(matInvView));
+    pos = mul(transpose(matInvView), pos);
 
-    float3 viewDir = normalize(pos.xyz - eyePos.xyz);
+    float3 viewDir = normalize(eyePos.xyz - pos.xyz);
     // float3 refracted = refract(-viewDir, normal, 1.333f);
 
     // float3 refractedPos = pos.xyz + refracted * 0.34f;
@@ -55,10 +65,13 @@ PS_OUTPUT main(VS_INPUT input) {
 
     // float4 refractedColor = tex2D(frameSampler, refractedPosUV);
 
-    float3 reflected = reflect(viewDir, normal);
+    float3 reflected = reflect(-viewDir, normal);
+    float cosTheta = dot(viewDir, normal);
+    float fresnel = ComputeFresnel(cosTheta);
     float3 reflectColor = texCUBE(cubeSampler, reflected).rgb;
+    float3 diffuseColor = tex2D(frameSampler, input.Tex).rgb;
 
-    output.Col = float4(reflectColor.xyz * 2, 1);
+    output.Col = float4(reflectColor * 5.f, 1.f);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
     return output;
 }

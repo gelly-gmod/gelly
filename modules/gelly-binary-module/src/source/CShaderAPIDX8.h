@@ -9,8 +9,6 @@
 
 typedef void ***CShaderAPIDX8;
 
-CShaderAPIDX8 GetShaderAPIDX8();
-
 IDirect3DBaseTexture9 *GetD3DTexture(CTexture *texture);
 
 #endif	// GELLY_CSHADERAPIDX8_H

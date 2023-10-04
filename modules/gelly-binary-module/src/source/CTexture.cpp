@@ -13,15 +13,16 @@ typedef ShaderAPITextureHandle_t(__thiscall *GetTextureHandleFn)(
 	void *, void *, int
 );
 
+static GetTextureHandleFn getTextureHandle = nullptr;
+
 ShaderAPITextureHandle_t GetCTextureHandle(CTexture *texture) {
 	if (!materialsystemLib.IsInitialized()) {
 		materialsystemLib.Init("materialsystem.dll");
+		getTextureHandle = materialsystemLib.FindFunction<GetTextureHandleFn>(
+			GetTextureHandleSignature
+		);
 	}
-
-	auto getTextureHandle = materialsystemLib.FindFunction<GetTextureHandleFn>(
-		GetTextureHandleSignature
-	);
-
+	
 	return getTextureHandle(texture, nullptr, 0);
 }
 

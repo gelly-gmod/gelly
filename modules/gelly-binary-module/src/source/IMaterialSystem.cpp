@@ -16,6 +16,8 @@ static const char *GetLocalCubemapSignature =
 
 typedef CTexture *(__thiscall *GetLocalCubemapFn)(void *);
 
+static GetLocalCubemapFn getLocalCubemap = nullptr;
+
 void EnsureMaterialSystem() {
 	if (materialSystem == nullptr) {
 		materialSystem = GetInterface<IMaterialSystem>(
@@ -23,20 +25,19 @@ void EnsureMaterialSystem() {
 		);
 
 		materialSystemLib.Init("materialsystem.dll");
+		getLocalCubemap = materialSystemLib.FindFunction<GetLocalCubemapFn>(
+			GetLocalCubemapSignature
+		);
 	}
 
 #ifdef _DEBUG
 	assert(materialSystem != nullptr);
+	assert(getLocalCubemap != nullptr);
 #endif
 }
 
 CTexture *GetLocalCubemap() {
 	EnsureMaterialSystem();
-
-	auto getLocalCubemap = materialSystemLib.FindFunction<GetLocalCubemapFn>(
-		GetLocalCubemapSignature
-	);
-
 	return getLocalCubemap(materialSystem);
 }
 

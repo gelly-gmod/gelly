@@ -4,6 +4,8 @@
 // clang-format off
 #include <windows.h>
 #include <TlHelp32.h>
+#include <unordered_map>
+#include <string>
 // clang-format on
 
 class HookedFunction {

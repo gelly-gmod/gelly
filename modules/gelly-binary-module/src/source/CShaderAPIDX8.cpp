@@ -16,9 +16,13 @@ typedef IDirect3DBaseTexture9 *(__thiscall *GetD3DTextureFn)(
 	CShaderAPIDX8, unsigned long long
 );
 
-CShaderAPIDX8 GetShaderAPIDX8() {
+static GetD3DTextureFn getD3DTexture = nullptr;
+
+void EnsureShaderAPIDX8() {
 	if (!shaderAPILib.IsInitialized()) {
 		shaderAPILib.Init("shaderapidx9.dll");
+		getD3DTexture =
+			shaderAPILib.FindFunction<GetD3DTextureFn>(GetD3DTextureSignature);
 	}
 
 	if (shaderAPIDX8 == nullptr) {
@@ -28,20 +32,23 @@ CShaderAPIDX8 GetShaderAPIDX8() {
 
 #ifdef _DEBUG
 		assert(shaderAPIDX8 != nullptr);
+		assert(getD3DTexture != nullptr);
 #endif
 	}
-
-	return shaderAPIDX8;
 }
 
 #pragma optimize("", off)
 IDirect3DBaseTexture9 *GetD3DTexture(CTexture *texture) {
+	if (texture == nullptr) {
+		return nullptr;
+	}
+
+	EnsureShaderAPIDX8();
+
 	auto handle = GetCTextureHandle(texture);
-	auto getD3DTexture =
-		shaderAPILib.FindFunction<GetD3DTextureFn>(GetD3DTextureSignature);
 
 	IDirect3DBaseTexture9 *d3dTexture =
-		getD3DTexture(GetShaderAPIDX8(), (unsigned long long)handle);
+		getD3DTexture(shaderAPIDX8, (unsigned long long)handle);
 
 	return d3dTexture;
 }

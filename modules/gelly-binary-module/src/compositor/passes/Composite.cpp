@@ -7,6 +7,7 @@
 #include <source/IVRenderView.h>
 
 #include "TextureOverride.h"
+#include "source/CShaderAPIDX8.h"
 
 const char *COMPOSITE_PS_SOURCE =
 #include "shaders/d3d9/Composite.ps.embed.hlsl"
@@ -16,7 +17,8 @@ Composite::Composite(IDirect3DDevice9 *device)
 	: Pass(device, "Composite.ps", COMPOSITE_PS_SOURCE){};
 
 void Composite::Render(PassResources *resources) {
-	if (!TextureOverride_GetCubemapTexture()) {
+	auto cubemapTexture = GetD3DTexture(GetLocalCubemap());
+	if (!cubemapTexture) {
 		return;
 	}
 
@@ -27,11 +29,9 @@ void Composite::Render(PassResources *resources) {
 	gellyGBuffer.normal->SetupAtStage(1, 1, resources->device);
 	gbuffer->framebuffer.SetupAtStage(2, 2, resources->device);
 
-	TextureOverride_ToggleCubemapFinding(false);
-	auto *cubemap = TextureOverride_GetCubemapTexture();
-	DX("Failed to set texture", resources->device->SetTexture(3, cubemap));
-	TextureOverride_ToggleCubemapFinding(true);
-
+	DX("Failed to set texture",
+	   resources->device->SetTexture(3, cubemapTexture));
+	
 	D3DMATRIX view{};
 	D3DMATRIX projection{};
 	VMatrix _unusedViewProj{};
