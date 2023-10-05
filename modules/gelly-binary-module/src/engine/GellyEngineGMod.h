@@ -13,6 +13,7 @@ public:
 	GellyEngineGMod(
 		int maxParticles, int maxColliders, void *d3d11Device = nullptr
 	);
+	
 	~GellyEngineGMod();
 
 	GellyScene *GetScene();

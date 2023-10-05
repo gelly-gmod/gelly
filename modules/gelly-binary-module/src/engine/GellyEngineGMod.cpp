@@ -21,6 +21,8 @@ GellyEngineGMod::~GellyEngineGMod() {
 	if (!scene) {
 		return;
 	}
-	
+
 	GellyEngine_DestroyScene(scene);
 }
+
+GellyScene *GellyEngineGMod::GetScene() { return scene; }
