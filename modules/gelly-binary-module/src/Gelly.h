@@ -72,7 +72,6 @@ struct GellyMessage {
 class Gelly {
 private:
 	GellyEngineGMod *engine;
-	GellyScene *scene;
 	GellyRenderer *renderer;
 
 	// Semaphores are used to communicate between the main thread and the gelly

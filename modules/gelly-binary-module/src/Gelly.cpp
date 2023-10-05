@@ -7,8 +7,7 @@
 
 // Doesn't work on the main thread.
 Gelly::Gelly(GellyInitParams &params)
-	: scene(nullptr),
-	  renderer(nullptr),
+	: renderer(nullptr),
 	  engine(nullptr),
 	  compositor(
 		  GetD3DDevice(), params.width, params.height, &params.sharedTextures
