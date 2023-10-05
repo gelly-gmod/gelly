@@ -30,3 +30,6 @@
 [submodule "modules/gelly-binary-module/vendor/DirectXMath"]
 	path = modules/gelly-binary-module/vendor/DirectXMath
 	url = https://github.com/microsoft/DirectXMath.git
+[submodule "modules/gelly-binary-module/vendor/BSPParser"]
+	path = modules/gelly-binary-module/vendor/BSPParser
+	url = https://github.com/Derpius/BSPParser.git
