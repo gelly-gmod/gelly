@@ -9,8 +9,6 @@ set(FLEX_LIBRARIES
         "${CMAKE_CURRENT_SOURCE_DIR}/vendor/FleX/lib/${ARCH}/NvFlexExtReleaseD3D_${ARCH_SUFFIX}.lib"
         )
 
-add_subdirectory(vendor/BSPParser)
-
 add_library(gelly_engine STATIC
         src/GellyEngine.cpp
         include/GellyEngine.h
@@ -20,14 +18,13 @@ add_library(gelly_engine STATIC
         )
 
 target_link_libraries(gelly_engine
-        ${FLEX_LIBRARIES} BSPParser)
+        ${FLEX_LIBRARIES})
 
 target_include_directories(gelly_engine PUBLIC
         include)
 
 target_include_directories(gelly_engine PUBLIC
-        vendor/FleX/include
-        vendor/BSPParser)
+        vendor/FleX/include)
 
 if (BUILD_GELLY_ENGINE_TEST)
     add_subdirectory(vendor/raylib)
