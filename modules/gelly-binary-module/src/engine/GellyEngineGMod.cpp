@@ -16,3 +16,11 @@ GellyEngineGMod::GellyEngineGMod(
 	assert(scene != nullptr);
 #endif
 }
+
+GellyEngineGMod::~GellyEngineGMod() {
+	if (!scene) {
+		return;
+	}
+	
+	GellyEngine_DestroyScene(scene);
+}
