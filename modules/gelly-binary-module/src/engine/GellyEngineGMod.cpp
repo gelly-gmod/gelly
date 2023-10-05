@@ -69,3 +69,21 @@ void GellyEngineGMod::FreeBSP(MeshUploadInfo &info) {
 	info.vertices = nullptr;
 	info.indices = nullptr;
 }
+
+void GellyEngineGMod::AddBSP(
+	const std::string &mapName, uint8_t *data, size_t dataSize
+) {
+	if (!scene) {
+		return;
+	}
+
+	auto info = ProcessBSP(data, dataSize);
+	scene->colliders.AddTriangleMesh(mapName, info);
+	FreeBSP(info);
+
+	scene->colliders.AddEntity(
+		{.position = Vec3{0, 0, 0},
+		 .rotation = Quat{0, 0, 0, 1},
+		 .modelPath = mapName}
+	);
+}
