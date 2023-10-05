@@ -68,10 +68,14 @@ PS_OUTPUT main(VS_INPUT input) {
     float3 reflected = reflect(-viewDir, normal);
     float cosTheta = dot(viewDir, normal);
     float fresnel = ComputeFresnel(cosTheta);
-    float3 reflectColor = texCUBE(cubeSampler, reflected).rgb * 5.f;
-    float3 diffuseColor = tex2D(frameSampler, input.Tex).rgb;
+    fresnel = saturate(fresnel);
 
-    float3 finalColor = reflectColor * fresnel + float3(1, 1, 1) * (1.f - fresnel);
+    float3 reflectColor = texCUBE(cubeSampler, reflected).rgb;
+    // texCUBE can return an HDR value, so we need to tonemap it with a simple stupid clamp
+    reflectColor = saturate(reflectColor);
+    float3 diffuseColor = float3(1.0, 0.1, 0.1);
+
+    float3 finalColor = reflectColor * fresnel + diffuseColor * (1.f - fresnel);
 
     output.Col = float4(finalColor, 1.f);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
