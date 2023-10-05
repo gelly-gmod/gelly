@@ -111,9 +111,7 @@ public:
 
 	~Colliders() noexcept override;
 
-	void AddTriangleMesh(
-		const std::string &modelPath, const MeshUploadInfo &info
-	);
+	void AddTriangleMesh(const std::string &modelPath, MeshUploadInfo &info);
 	void AddSphere(const std::string &modelPath, float radius);
 	void AddCapsule(
 		const std::string &modelPath, float radius, float halfHeight

@@ -58,7 +58,7 @@ Colliders::~Colliders() noexcept {
 }
 
 void Colliders::AddTriangleMesh(
-	const std::string &modelPath, const MeshUploadInfo &info
+	const std::string &modelPath, MeshUploadInfo &info
 ) {
 	NvFlexBuffer *verticesBuffer = NvFlexAllocBuffer(
 		library, info.vertexCount, sizeof(Vec4), eNvFlexBufferHost
