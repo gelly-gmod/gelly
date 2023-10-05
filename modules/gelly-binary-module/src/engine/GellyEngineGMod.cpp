@@ -7,9 +7,7 @@
 GellyEngineGMod::GellyEngineGMod(
 	int maxParticles, int maxColliders, void *d3d11Device
 )
-	: scene(nullptr) {
-	scene = GellyEngine_CreateScene(maxParticles, maxColliders, d3d11Device);
-
+	: scene(GellyEngine_CreateScene(maxParticles, maxColliders, d3d11Device)) {
 	// This is really a completely unrecoverable error, and this should exit the
 	// app while giving a reasonably detailed explanation to the user, but I
 	// haven't standardized this across modules. For the time being, this should
