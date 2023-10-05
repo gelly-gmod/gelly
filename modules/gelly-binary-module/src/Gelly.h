@@ -10,6 +10,7 @@
 #include <semaphore>
 
 #include "compositor/Compositor.h"
+#include "engine/GellyEngineGMod.h"
 
 using namespace Microsoft::WRL;
 
@@ -70,6 +71,7 @@ struct GellyMessage {
  */
 class Gelly {
 private:
+	GellyEngineGMod *engine;
 	GellyScene *scene;
 	GellyRenderer *renderer;
 

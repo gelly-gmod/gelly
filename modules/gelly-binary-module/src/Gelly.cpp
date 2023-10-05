@@ -9,6 +9,7 @@
 Gelly::Gelly(GellyInitParams &params)
 	: scene(nullptr),
 	  renderer(nullptr),
+	  engine(nullptr),
 	  compositor(
 		  GetD3DDevice(), params.width, params.height, &params.sharedTextures
 	  ),
@@ -96,6 +97,13 @@ void Gelly::SetParticleRadius(float radius) {
 		params.maxColliders,
 		gelly->renderer->GetD3DDevice()
 	);
+	
+	gelly->engine = new GellyEngineGMod(
+		params.maxParticles,
+		params.maxColliders,
+		gelly->renderer->GetD3DDevice()
+	);
+
 	gelly->scene->RegisterD3DBuffer(
 		gelly->renderer->GetD3DParticleBuffer(),
 		params.maxParticles,
