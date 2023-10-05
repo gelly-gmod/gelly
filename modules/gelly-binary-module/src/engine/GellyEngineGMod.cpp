@@ -61,3 +61,11 @@ MeshUploadInfo GellyEngineGMod::ProcessBSP(uint8_t *data, size_t dataSize) {
 
 	return info;
 }
+
+void GellyEngineGMod::FreeBSP(MeshUploadInfo &info) {
+	delete[] info.vertices;
+	delete[] info.indices;
+
+	info.vertices = nullptr;
+	info.indices = nullptr;
+}
