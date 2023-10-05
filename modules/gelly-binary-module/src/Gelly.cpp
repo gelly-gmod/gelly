@@ -22,7 +22,7 @@ Gelly::Gelly(GellyInitParams &params)
 
 Gelly::~Gelly() {
 	GellyRenderer_Destroy(renderer);
-	GellyEngine_DestroyScene(scene);
+	delete engine;
 }
 
 void Gelly::LoadMap(const char *mapName) {
@@ -37,30 +37,30 @@ void Gelly::LoadMap(const char *mapName) {
 	uint32_t size = FileSystem::Size(file);
 	auto *buffer = static_cast<uint8_t *>(malloc(size));
 	FileSystem::Read(buffer, FileSystem::Size(file), file);
-	scene->EnterGPUWork();
-	scene->AddBSP(mapName, buffer, size);
-	scene->colliders.Update();
-	scene->ExitGPUWork();
+	engine->GetScene()->EnterGPUWork();
+	engine->GetScene()->AddBSP(mapName, buffer, size);
+	engine->GetScene()->colliders.Update();
+	engine->GetScene()->ExitGPUWork();
 	free(buffer);
 	FileSystem::Close(file);
 }
 
 void Gelly::Update(float deltaTime) {
-	scene->EnterGPUWork();
-	scene->colliders.Update();
-	scene->ExitGPUWork();
-	scene->Update(deltaTime);
+	engine->GetScene()->EnterGPUWork();
+	engine->GetScene()->colliders.Update();
+	engine->GetScene()->ExitGPUWork();
+	engine->GetScene()->Update(deltaTime);
 }
 
 void Gelly::Render() {
-	renderer->SetActiveParticles(scene->GetCurrentParticleCount());
+	renderer->SetActiveParticles(engine->GetScene()->GetCurrentParticleCount());
 	renderer->Render();
 }
 
 void Gelly::AddParticle(Vec4 position, Vec3 velocity) {
-	scene->EnterGPUWork();
-	scene->AddParticle(position, velocity);
-	scene->ExitGPUWork();
+	engine->GetScene()->EnterGPUWork();
+	engine->GetScene()->AddParticle(position, velocity);
+	engine->GetScene()->ExitGPUWork();
 };
 
 void Gelly::SetupCamera(
@@ -74,11 +74,11 @@ void Gelly::SyncCamera(Vec3 position, Vec3 dir) {
 	renderer->camera.SetDirection(dir.x, dir.y, dir.z);
 }
 
-void Gelly::Clear() { scene->Clear(); }
+void Gelly::Clear() { engine->GetScene()->Clear(); }
 
 void Gelly::SetParticleRadius(float radius) {
 	// TODO: Make this also change the FleX particle radius.
-	scene->params->radius = radius;
+	engine->GetScene()->params->radius = radius;
 	renderer->SetParticleRadius(radius * 2.f);
 }
 
@@ -92,19 +92,14 @@ void Gelly::SetParticleRadius(float radius) {
 		.sharedTextures = params.sharedTextures};
 
 	gelly->renderer = GellyRenderer_Create(rendererParams);
-	gelly->scene = GellyEngine_CreateScene(
-		params.maxParticles,
-		params.maxColliders,
-		gelly->renderer->GetD3DDevice()
-	);
-	
+
 	gelly->engine = new GellyEngineGMod(
 		params.maxParticles,
 		params.maxColliders,
 		gelly->renderer->GetD3DDevice()
 	);
 
-	gelly->scene->RegisterD3DBuffer(
+	gelly->engine->GetScene()->RegisterD3DBuffer(
 		gelly->renderer->GetD3DParticleBuffer(),
 		params.maxParticles,
 		sizeof(Vec4)
