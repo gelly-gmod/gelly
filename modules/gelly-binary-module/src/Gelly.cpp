@@ -38,7 +38,7 @@ void Gelly::LoadMap(const char *mapName) {
 	auto *buffer = static_cast<uint8_t *>(malloc(size));
 	FileSystem::Read(buffer, FileSystem::Size(file), file);
 	engine->GetScene()->EnterGPUWork();
-	engine->GetScene()->AddBSP(mapName, buffer, size);
+	engine->AddBSP(mapName, buffer, size);
 	engine->GetScene()->colliders.Update();
 	engine->GetScene()->ExitGPUWork();
 	free(buffer);
