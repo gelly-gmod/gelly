@@ -28,21 +28,22 @@ GellyEngineGMod::~GellyEngineGMod() {
 GellyScene *GellyEngineGMod::GetScene() { return scene; }
 
 MeshUploadInfo GellyEngineGMod::ProcessBSP(uint8_t *data, size_t dataSize) {
-	BSPMap parsedMap(data, dataSize);  // FleX considers CCW triangles to be
-									   // front-facing, so we need to flip them
-	if (!parsedMap.IsValid()) {
+	auto *parsedMap =
+		new BSPMap(data, dataSize);	 // FleX considers CCW triangles to be
+									 // front-facing, so we need to flip them
+	if (!parsedMap->IsValid()) {
 		throw std::runtime_error("Invalid map data");
 	}
 
 	MeshUploadInfo info{};
-	info.vertexCount = static_cast<int>(parsedMap.GetNumTris()) * 3;
+	info.vertexCount = static_cast<int>(parsedMap->GetNumTris()) * 3;
 	info.indexCount = info.vertexCount;
 
 	info.vertices = new Vec3[info.vertexCount];
 	info.indices = new int[info.indexCount];
 
 	memcpy(
-		info.vertices, parsedMap.GetVertices(), sizeof(Vec3) * info.vertexCount
+		info.vertices, parsedMap->GetVertices(), sizeof(Vec3) * info.vertexCount
 	);
 
 	for (int i = 0; i < info.indexCount; i += 3) {
@@ -57,6 +58,7 @@ MeshUploadInfo GellyEngineGMod::ProcessBSP(uint8_t *data, size_t dataSize) {
 	info.upper = upper;
 	info.lower = lower;
 
+	delete parsedMap;
 	return info;
 }
 
