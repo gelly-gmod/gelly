@@ -187,9 +187,7 @@ public:
 	void Update(float deltaTime);
 
 	void AddParticle(Vec4 position, Vec3 velocity);
-
-	void AddBSP(const std::string &mapName, uint8_t *data, size_t dataSize);
-
+	
 	void Clear();
 
 	/**

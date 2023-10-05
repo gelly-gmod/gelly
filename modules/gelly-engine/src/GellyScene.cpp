@@ -4,8 +4,6 @@
 #include "GellyScene.h"
 // clang-format on
 
-#include "MeshConvert.h"
-
 GellyScene::GellyScene(
 	NvFlexLibrary *library, int maxParticles, int maxColliders
 )
@@ -187,24 +185,6 @@ Vec3 *GellyScene::GetVelocities() const {
 }
 
 int GellyScene::GetCurrentParticleCount() const { return currentParticleCount; }
-
-void GellyScene::AddBSP(
-	const std::string &mapName, uint8_t *data, size_t dataSize
-) {
-	if (!gpuWork) {
-		return;
-	}
-
-	auto info = MeshConvert_LoadBSP(data, dataSize);
-	colliders.AddTriangleMesh(mapName, info);
-	MeshConvert_FreeBSP(info);
-
-	colliders.AddEntity(
-		{.position = Vec3{0, 0, 0},
-		 .rotation = Quat{0, 0, 0, 1},
-		 .modelPath = mapName}
-	);
-}
 
 void GellyScene::RegisterD3DBuffer(
 	void *buffer, int elementCount, int elementStride

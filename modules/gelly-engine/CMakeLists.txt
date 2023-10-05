@@ -17,7 +17,7 @@ add_library(gelly_engine STATIC
         src/GellyScene.cpp
         include/GellyScene.h
         src/Colliders.cpp
-        src/MeshConvert.h src/MeshConvert.cpp)
+        )
 
 target_link_libraries(gelly_engine
         ${FLEX_LIBRARIES} BSPParser)
