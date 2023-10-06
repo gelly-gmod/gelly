@@ -186,10 +186,28 @@ Vec3 *GellyScene::GetVelocities() const {
 
 int GellyScene::GetCurrentParticleCount() const { return currentParticleCount; }
 
-void GellyScene::RegisterD3DParticleBuffer(
-	void *buffer, int elementCount, int elementStride
+void GellyScene::LinkD3DBuffer(
+	void *buffer,
+	SceneRegisterTarget target,
+	int elementCount,
+	int elementStride
 ) {
-	d3dParticleBuffer =
+	NvFlexBuffer **flexBuffer = nullptr;
+
+	switch (target) {
+		case SceneRegisterTarget::POSITION:
+			flexBuffer = &d3dParticleBuffer;
+			break;
+		case SceneRegisterTarget::DENSITY:
+			flexBuffer = &d3dDensityBuffer;
+			break;
+	}
+
+	if (!flexBuffer) {
+		return;
+	}
+
+	*flexBuffer =
 		NvFlexRegisterD3DBuffer(library, buffer, elementCount, elementStride);
 }
 

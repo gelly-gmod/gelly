@@ -98,8 +98,9 @@ void Gelly::SetParticleRadius(float radius) {
 		gelly->renderer->GetD3DDevice()
 	);
 
-	gelly->engine->GetScene()->RegisterD3DParticleBuffer(
+	gelly->engine->GetScene()->LinkD3DBuffer(
 		gelly->renderer->GetD3DParticleBuffer(),
+		SceneRegisterTarget::POSITION,
 		params.maxParticles,
 		sizeof(Vec4)
 	);

@@ -146,6 +146,8 @@ public:
 	void Update();
 };
 
+enum class SceneRegisterTarget : unsigned char { POSITION, DENSITY };
+
 class GellyScene : GPUCriticalObject {
 private:
 	int maxParticles;
@@ -198,8 +200,11 @@ public:
 	 * @param elementCount
 	 * @param elementStride
 	 */
-	void RegisterD3DParticleBuffer(
-		void *buffer, int elementCount, int elementStride
+	void LinkD3DBuffer(
+		void *buffer,
+		SceneRegisterTarget target,
+		int elementCount,
+		int elementStride
 	);
 
 	[[nodiscard]] Vec4 *GetPositions() const;
