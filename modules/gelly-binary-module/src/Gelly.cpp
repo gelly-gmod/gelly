@@ -105,6 +105,13 @@ void Gelly::SetParticleRadius(float radius) {
 		sizeof(Vec4)
 	);
 
+	gelly->engine->GetScene()->LinkD3DBuffer(
+		gelly->renderer->GetD3DDensityBuffer(),
+		SceneRegisterTarget::DENSITY,
+		params.maxParticles,
+		sizeof(float)
+	);
+
 	while (true) {
 		// Wait for a signal
 		gelly->mainToThread.acquire();

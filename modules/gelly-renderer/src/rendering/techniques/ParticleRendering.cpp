@@ -27,6 +27,9 @@ using namespace d3d11;
 ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 	: particleBuffer(
 		  device, nullptr, maxParticles, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST
+	  ),
+	  densityBuffer(
+		  device, nullptr, maxParticles, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST
 	  ) {
 	ShaderCompileOptions options = {
 		.device = device,
@@ -56,7 +59,7 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 	geometryShader.Attach(geometryShaderResult.shader);
 
 	// Create particle buffer
-	D3D11_INPUT_ELEMENT_DESC inputLayout[1] = {};
+	D3D11_INPUT_ELEMENT_DESC inputLayout[2] = {};
 	inputLayout[0] = {
 		"SV_Position",
 		0,
@@ -65,11 +68,19 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 		D3D11_APPEND_ALIGNED_ELEMENT,
 		D3D11_INPUT_PER_VERTEX_DATA,
 		0};
+	inputLayout[1] = {
+		"DENSITY",
+		0,
+		DXGI_FORMAT_R32_SINT,
+		1,	// Comes from the density buffer
+		D3D11_APPEND_ALIGNED_ELEMENT,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0};
 
 	DX("Failed to make particle input layout",
 	   device->CreateInputLayout(
 		   inputLayout,
-		   1,
+		   2,
 		   vertexShaderBlob->GetBufferPointer(),
 		   vertexShaderBlob->GetBufferSize(),
 		   particleInputLayoutBuffer.GetAddressOf()
@@ -91,7 +102,8 @@ void ParticleRendering::RunForFrame(
 	// Bind the RTs
 	gbuffer->depth.SetAsRT(context, resources->dsv.Get());
 	particleBuffer.SetAtSlot(context, 0, particleInputLayoutBuffer.Get());
-
+	densityBuffer.SetAtSlot(context, 1, particleInputLayoutBuffer.Get());
+	
 	// Bind the shaders
 	context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	context->GSSetShader(geometryShader.Get(), nullptr, 0);
@@ -107,4 +119,8 @@ void ParticleRendering::RunForFrame(
 
 ID3D11Buffer *ParticleRendering::GetParticleBuffer() const {
 	return particleBuffer.GetVertexBuffer();
+}
+
+ID3D11Buffer *ParticleRendering::GetDensityBuffer() const {
+	return densityBuffer.GetVertexBuffer();
 }

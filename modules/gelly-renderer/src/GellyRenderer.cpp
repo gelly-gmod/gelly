@@ -167,6 +167,10 @@ ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
 	return pipeline.particleRendering->GetParticleBuffer();
 }
 
+ID3D11Buffer *GellyRenderer::GetD3DDensityBuffer() const {
+	return pipeline.particleRendering->GetDensityBuffer();
+}
+
 GellyRenderer::~GellyRenderer() {
 	delete pipeline.particleRendering;
 	delete pipeline.outputEncoder;
