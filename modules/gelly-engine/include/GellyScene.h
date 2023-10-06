@@ -159,6 +159,7 @@ private:
 	NvFlexVector<int> activeIndices;
 
 	NvFlexBuffer *d3dParticleBuffer;
+	NvFlexBuffer *d3dDensityBuffer;
 
 public:
 	const char *computeDeviceName;
@@ -187,7 +188,7 @@ public:
 	void Update(float deltaTime);
 
 	void AddParticle(Vec4 position, Vec3 velocity);
-	
+
 	void Clear();
 
 	/**
@@ -197,7 +198,9 @@ public:
 	 * @param elementCount
 	 * @param elementStride
 	 */
-	void RegisterD3DBuffer(void *buffer, int elementCount, int elementStride);
+	void RegisterD3DParticleBuffer(
+		void *buffer, int elementCount, int elementStride
+	);
 
 	[[nodiscard]] Vec4 *GetPositions() const;
 

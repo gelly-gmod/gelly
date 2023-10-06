@@ -186,7 +186,7 @@ Vec3 *GellyScene::GetVelocities() const {
 
 int GellyScene::GetCurrentParticleCount() const { return currentParticleCount; }
 
-void GellyScene::RegisterD3DBuffer(
+void GellyScene::RegisterD3DParticleBuffer(
 	void *buffer, int elementCount, int elementStride
 ) {
 	d3dParticleBuffer =
