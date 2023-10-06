@@ -71,7 +71,7 @@ ParticleRendering::ParticleRendering(ID3D11Device *device, int maxParticles)
 	inputLayout[1] = {
 		"DENSITY",
 		0,
-		DXGI_FORMAT_R32_SINT,
+		DXGI_FORMAT_R32_FLOAT,
 		1,	// Comes from the density buffer
 		D3D11_APPEND_ALIGNED_ELEMENT,
 		D3D11_INPUT_PER_VERTEX_DATA,
@@ -103,7 +103,7 @@ void ParticleRendering::RunForFrame(
 	gbuffer->depth.SetAsRT(context, resources->dsv.Get());
 	particleBuffer.SetAtSlot(context, 0, particleInputLayoutBuffer.Get());
 	densityBuffer.SetAtSlot(context, 1, particleInputLayoutBuffer.Get());
-	
+
 	// Bind the shaders
 	context->VSSetShader(vertexShader.Get(), nullptr, 0);
 	context->GSSetShader(geometryShader.Get(), nullptr, 0);

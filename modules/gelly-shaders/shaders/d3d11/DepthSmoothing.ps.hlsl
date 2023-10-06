@@ -127,6 +127,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     filteredDepth = clipPoint.z / clipPoint.w;
 
-    output.SmoothedDepth = float4(filteredDepth, 0, 0, 1);
+    output.SmoothedDepth = float4(filteredDepth, depth.SampleLevel(depthSampler, input.Texcoord, 0).a, 0, 1);
     return output;
 }

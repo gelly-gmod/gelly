@@ -77,7 +77,7 @@ PS_OUTPUT main(VS_INPUT input) {
 
     float3 finalColor = reflectColor * fresnel + diffuseColor * (1.f - fresnel);
 
-    output.Col = float4(finalColor, 1.f);
+    output.Col = float4(normal, 1.f);
     output.Depth = ReconstructBrokenFloat(depth.y, depth.x);
     return output;
 }

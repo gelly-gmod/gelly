@@ -77,6 +77,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
     }
 
     PS_OUTPUT output;
-    output.Normal = EstimateNormal(input.Texcoord);
+    output.Normal = float4(depth.Sample(depthSampler, input.Texcoord).g, 0, 0, 1);
     return output;
 }
