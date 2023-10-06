@@ -146,8 +146,12 @@ void GellyScene::Update(float deltaTime) {
 	NvFlexUpdateSolver(solver, deltaTime, 2, false);
 
 	NvFlexGetParticles(solver, positions.buffer, &copyDesc);
+
 	if (d3dParticleBuffer)
 		NvFlexGetSmoothParticles(solver, d3dParticleBuffer, &copyDesc);
+	if (d3dDensityBuffer)
+		NvFlexGetDensities(solver, d3dDensityBuffer, &copyDesc);
+
 	NvFlexGetVelocities(solver, velocities.buffer, &copyDesc);
 	NvFlexGetPhases(solver, phases.buffer, &copyDesc);
 }
