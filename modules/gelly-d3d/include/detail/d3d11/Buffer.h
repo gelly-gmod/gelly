@@ -43,7 +43,7 @@ public:
 	 */
 	void Init(
 		ID3D11Device *device,
-		int maxCapacity,
+		int maxBufferCapacity,
 		T *initData,
 		D3D11_BIND_FLAG bindFlags,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
