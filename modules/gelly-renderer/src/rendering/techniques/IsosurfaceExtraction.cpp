@@ -1,7 +1,7 @@
 #include "IsosurfaceExtraction.h"
 
 static const char *PROGRAM_SOURCE =
-#include "shaders/d3d11/IsosurfaceExtraction.ps.embed.hlsl"
+#include "shaders/d3d11/IsosurfaceExtraction.cs.embed.hlsl"
 	;
 
 IsosurfaceExtraction::IsosurfaceExtraction(
