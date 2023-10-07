@@ -13,19 +13,47 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 		  device, "IsosurfaceExtraction.cs.hlsl", "main", PROGRAM_SOURCE
 	  ),
 	  neighborBuffer(
-		  device, maxParticles * 64, nullptr, D3D11_BIND_SHADER_RESOURCE
+		  device,
+		  maxParticles * 64,
+		  nullptr,
+		  D3D11_BIND_SHADER_RESOURCE,
+		  D3D11_USAGE_DEFAULT,
+		  0,
+		  D3D11_RESOURCE_MISC_BUFFER_STRUCTURED
 	  ),
 	  internalToAPIBuffer(
-		  device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE
+		  device,
+		  maxParticles,
+		  nullptr,
+		  D3D11_BIND_SHADER_RESOURCE,
+		  D3D11_USAGE_DEFAULT,
+		  0,
+		  D3D11_RESOURCE_MISC_BUFFER_STRUCTURED
 	  ),
 	  APIToInternalBuffer(
-		  device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE
+		  device,
+		  maxParticles,
+		  nullptr,
+		  D3D11_BIND_SHADER_RESOURCE,
+		  D3D11_USAGE_DEFAULT,
+		  0,
+		  D3D11_RESOURCE_MISC_BUFFER_STRUCTURED
 	  ),
 	  neighborCountBuffer(
-		  device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE
+		  device,
+		  maxParticles,
+		  nullptr,
+		  D3D11_BIND_SHADER_RESOURCE,
+		  D3D11_USAGE_DEFAULT,
+		  0,
+		  D3D11_RESOURCE_MISC_BUFFER_STRUCTURED
 	  ),
 	  positionSRV(
-		  device, DXGI_FORMAT_R32G32B32A32_FLOAT, particleBuffer, maxParticles
+		  device,
+		  DXGI_FORMAT_R32G32B32A32_FLOAT,
+		  particleBuffer,
+		  maxParticles,
+		  false
 	  ),
 	  neighborSRV(device, DXGI_FORMAT_R32_UINT, neighborBuffer),
 	  internalToAPISRV(device, DXGI_FORMAT_R32_UINT, internalToAPIBuffer),

@@ -4,10 +4,10 @@
 #include "PerFrameCB.hlsli"
 
 // Read-only buffers, uses SRVs. 
-Buffer<uint> neighborIndices : register(t0);
-Buffer<uint> neighborCounts : register(t1);
-Buffer<uint> internalToAPI : register(t2);
-Buffer<uint> apiToInternal : register(t3);
+StructuredBuffer<uint> neighborIndices : register(t0);
+StructuredBuffer<uint> neighborCounts : register(t1);
+StructuredBuffer<uint> internalToAPI : register(t2);
+StructuredBuffer<uint> apiToInternal : register(t3);
 Buffer<float4> positions : register(t4);
 
 Texture2D<float4> depth : register(t5);
@@ -15,7 +15,7 @@ RWTexture2D<float4> normal : register(u0);
 
 uint GetNeighborCount(uint index) {
     uint internalIndex = apiToInternal[index];
-    return neighborCounts[index];
+    return neighborCounts[internalIndex];
 }
 
 float3 GetColorForIndex(uint index) {
@@ -45,7 +45,7 @@ void main(uint3 id : SV_DispatchThreadID) {
     float2 depthIndex = depth[id.xy].xy;
 
     float depthValue = depthIndex.x;
-    uint index = depthIndex.y;
+    uint index = asuint(depthIndex.y);
     uint neighborCount = GetNeighborCount(index);
     float debugValue = (float)neighborCount / 64.f;
     normal[id.xy] = float4(debugValue, debugValue, debugValue, 1.f);

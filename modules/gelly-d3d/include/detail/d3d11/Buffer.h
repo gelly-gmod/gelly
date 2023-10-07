@@ -34,7 +34,8 @@ public:
 		T *initData,
 		D3D11_BIND_FLAG bindFlags,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
-		UINT cpuAccessFlags = 0
+		UINT cpuAccessFlags = 0,
+		UINT miscFlags = 0
 	);
 
 	/**
@@ -47,7 +48,8 @@ public:
 		T *initData,
 		D3D11_BIND_FLAG bindFlags,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
-		UINT cpuAccessFlags = 0
+		UINT cpuAccessFlags = 0,
+		UINT miscFlags = 0
 	);
 
 	void SetAsVB(
@@ -68,10 +70,19 @@ Buffer<T>::Buffer(
 	T *initData,
 	D3D11_BIND_FLAG bindFlags,
 	D3D11_USAGE usage,
-	UINT cpuAccessFlags
+	UINT cpuAccessFlags,
+	UINT miscFlags
 )
 	: maxCapacity(maxCapacity) {
-	Init(device, maxCapacity, initData, bindFlags, usage, cpuAccessFlags);
+	Init(
+		device,
+		maxCapacity,
+		initData,
+		bindFlags,
+		usage,
+		cpuAccessFlags,
+		miscFlags
+	);
 }
 
 // We have to define the template functions in the header file.
@@ -82,7 +93,8 @@ void Buffer<T>::Init(
 	T *initData,
 	D3D11_BIND_FLAG bindFlags,
 	D3D11_USAGE usage,
-	UINT cpuAccessFlags
+	UINT cpuAccessFlags,
+	UINT miscFlags
 ) {
 	maxCapacity = maxBufferCapacity;
 
@@ -92,7 +104,7 @@ void Buffer<T>::Init(
 	desc.Usage = usage;
 	desc.BindFlags = bindFlags;
 	desc.CPUAccessFlags = cpuAccessFlags;
-	desc.MiscFlags = 0;
+	desc.MiscFlags = miscFlags;
 	desc.StructureByteStride = sizeof(T);
 
 	D3D11_SUBRESOURCE_DATA data{};

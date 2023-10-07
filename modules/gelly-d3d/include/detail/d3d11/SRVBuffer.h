@@ -21,10 +21,10 @@ public:
 	) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
-		desc.Format = format;
-		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-		desc.Buffer.NumElements = buffer.GetCapacity();
-		desc.Buffer.ElementWidth = sizeof(T);
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+		desc.BufferEx.FirstElement = 0;
+		desc.BufferEx.NumElements = buffer.GetCapacity();
 
 		DX("Failed to create SRV!",
 		   device->CreateShaderResourceView(
@@ -36,14 +36,22 @@ public:
 		ID3D11Device *device,
 		DXGI_FORMAT format,
 		ID3D11Buffer *bufferReference,
-		int maxCapacity
+		int maxCapacity,
+		bool isStructured = true
 	) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
-		desc.Format = format;
-		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-		desc.Buffer.NumElements = maxCapacity;
-		desc.Buffer.ElementWidth = sizeof(T);
+		if (isStructured) {
+			desc.Format = DXGI_FORMAT_UNKNOWN;
+			desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+			desc.BufferEx.FirstElement = 0;
+			desc.BufferEx.NumElements = maxCapacity;
+		} else {
+			desc.Format = format;
+			desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+			desc.BufferEx.FirstElement = 0;
+			desc.BufferEx.NumElements = maxCapacity;
+		}
 
 		DX("Failed to create SRV!",
 		   device->CreateShaderResourceView(

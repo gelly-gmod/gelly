@@ -23,7 +23,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     float4 clipPosition = mul(viewPositionNudged, matProj);
     float depth = clipPosition.z / clipPosition.w;
-    output.DepthColor = float4(depth, input.Index, 0.0f, 0.0f); // Index is a uint, so we'll recover it in the compute shader.
+    output.DepthColor = float4(depth, asfloat(input.Index), 0.0f, 0.0f); // Index is a uint, so we'll recover it in the compute shader.
     output.Depth = depth;
     return output;
 }
