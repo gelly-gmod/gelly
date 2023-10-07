@@ -9,5 +9,20 @@
 class IsosurfaceExtraction : public Technique {
 private:
 	d3d11::ComputeProgram extractionProgram;
+	d3d11::Buffer<int> neighborBuffer;
+	d3d11::Buffer<int> remapBuffer;
+	d3d11::Buffer<int> neighborCountBuffer;
+
+public:
+	IsosurfaceExtraction(ID3D11Device *device, int maxParticles);
+	~IsosurfaceExtraction() = default;
+
+	void RunForFrame(
+		ID3D11DeviceContext *context, TechniqueResources *resources
+	) override;
+
+	[[nodiscard]] ID3D11Buffer *GetNeighborBuffer() const;
+	[[nodiscard]] ID3D11Buffer *GetRemapBuffer() const;
+	[[nodiscard]] ID3D11Buffer *GetNeighborCountBuffer() const;
 };
 #endif	// GELLY_ISOSURFACEEXTRACTION_H
