@@ -8,6 +8,7 @@ StructuredBuffer<int> neighborCounts;
 StructuredBuffer<int> internalToAPI;
 StructuredBuffer<int> apiToInternal;
 StructuredBuffer<float4> positions;
+Texture2D<float4> depth;
 
 RWTexture2D<float4> normal;
 
@@ -22,4 +23,6 @@ void main(uint3 id : SV_DispatchThreadID) {
     if (id.x >= width || id.y >= height) {
         return;
     }
+
+    normal[id.xy] = float4(1, 1, 0, 0);
 }
