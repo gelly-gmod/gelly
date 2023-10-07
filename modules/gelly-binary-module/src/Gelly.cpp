@@ -106,10 +106,32 @@ void Gelly::SetParticleRadius(float radius) {
 	);
 
 	gelly->engine->GetScene()->LinkD3DBuffer(
-		gelly->renderer->GetD3DDensityBuffer(),
-		SceneRegisterTarget::DENSITY,
+		gelly->renderer->GetD3DNeighborBuffer(),
+		SceneRegisterTarget::NEIGHBORS,
+		// FIXME: Expose this in the scene, 64 is the neighbor count (maximum).
+		params.maxParticles * 64,
+		sizeof(int)
+	);
+
+	gelly->engine->GetScene()->LinkD3DBuffer(
+		gelly->renderer->GetD3DNeighborCountBuffer(),
+		SceneRegisterTarget::NEIGHBOR_COUNTS,
 		params.maxParticles,
-		sizeof(float)
+		sizeof(int)
+	);
+
+	gelly->engine->GetScene()->LinkD3DBuffer(
+		gelly->renderer->GetD3DInternalToAPIBuffer(),
+		SceneRegisterTarget::INTERNAL_TO_API,
+		params.maxParticles,
+		sizeof(int)
+	);
+
+	gelly->engine->GetScene()->LinkD3DBuffer(
+		gelly->renderer->GetD3DAPIToInternalBuffer(),
+		SceneRegisterTarget::API_TO_INTERNAL,
+		params.maxParticles,
+		sizeof(int)
 	);
 
 	while (true) {
