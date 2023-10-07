@@ -16,12 +16,13 @@ private:
 	ComPtr<ID3D11Texture2D> texture;
 	ComPtr<ID3D11RenderTargetView> rtv;
 	ComPtr<ID3D11ShaderResourceView> srv;
+	ComPtr<ID3D11UnorderedAccessView> uav;
 	ComPtr<ID3D11SamplerState> sampler;
 
 public:
 	Texture(const d3d9::Texture &d3d9Texture, ID3D11Device *device);
 	Texture(int width, int height, DXGI_FORMAT format, ID3D11Device *device);
-	
+
 	// Default constructor for when we don't have the D3D9 texture yet.
 	Texture() = default;
 	~Texture() = default;
@@ -34,6 +35,8 @@ public:
 	void Clear(ID3D11DeviceContext *context, const float color[4]) const;
 
 	[[nodiscard]] ID3D11RenderTargetView *GetRTV() const;
+	[[nodiscard]] ID3D11ShaderResourceView *GetSRV() const;
+	[[nodiscard]] ID3D11UnorderedAccessView *GetUAV() const;
 };
 
 void SetMRT(
