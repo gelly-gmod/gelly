@@ -96,7 +96,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
         output.Position = projectedPosition;
         output.Texcoord = float2(corner.x, 1.f - corner.y);
         output.ViewPosition = viewCorner;
-        output.Density = input[0].Density;
+        output.Index = input[0].Index;
 
         stream.Append(output);
     }

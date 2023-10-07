@@ -13,6 +13,10 @@ Buffer<float4> positions : register(t4);
 Texture2D<float4> depth : register(t5);
 RWTexture2D<float4> normal : register(u0);
 
+uint GetNeighborCount(uint index) {
+    return neighborCounts[index];
+}
+
 // The isosurface reconstruction is done in 4x4 tiles.
 [numthreads(4, 4, 1)]
 void main(uint3 id : SV_DispatchThreadID) {
@@ -25,5 +29,12 @@ void main(uint3 id : SV_DispatchThreadID) {
         return;
     }
 
-    normal[id.xy] = float4(depth[id.xy].xyz, 1.0f);
+    float2 depthIndex = depth[id.xy].xy;
+
+    float depthValue = depthIndex.x;
+    uint index = uint(depthIndex.y);
+
+    uint neighborCount = GetNeighborCount(index);
+    float debugValue = (float)neighborCount / 64.0f;
+    normal[id.xy] = float4(neighborCount, neighborCount, neighborCount, 1.f);
 }

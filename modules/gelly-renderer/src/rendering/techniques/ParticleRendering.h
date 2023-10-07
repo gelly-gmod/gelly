@@ -27,7 +27,6 @@ private:
 	ComPtr<ID3DBlob> vertexShaderBlob;
 	ComPtr<ID3D11GeometryShader> geometryShader;
 	d3d11::VertexBuffer<ParticlePoint> particleBuffer;
-	d3d11::VertexBuffer<int> densityBuffer;
 	ComPtr<ID3D11InputLayout> particleInputLayoutBuffer;
 
 public:
@@ -41,7 +40,6 @@ public:
 	) override;
 
 	[[nodiscard]] ID3D11Buffer *GetParticleBuffer() const;
-	[[nodiscard]] ID3D11Buffer *GetDensityBuffer() const;
 };
 
 #endif	// GELLY_PARTICLERENDERING_H
