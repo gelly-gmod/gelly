@@ -13,7 +13,7 @@ template <typename T>
 class Buffer {
 private:
 	ComPtr<ID3D11Buffer> buffer;
-	int maxCapacity;
+	int maxCapacity{};
 
 public:
 	/**
@@ -69,7 +69,8 @@ Buffer<T>::Buffer(
 	D3D11_BIND_FLAG bindFlags,
 	D3D11_USAGE usage,
 	UINT cpuAccessFlags
-) {
+)
+	: maxCapacity(maxCapacity) {
 	Init(device, maxCapacity, initData, bindFlags, usage, cpuAccessFlags);
 }
 
@@ -92,6 +93,7 @@ void Buffer<T>::Init(
 	desc.BindFlags = bindFlags;
 	desc.CPUAccessFlags = cpuAccessFlags;
 	desc.MiscFlags = 0;
+	desc.StructureByteStride = sizeof(T);
 
 	D3D11_SUBRESOURCE_DATA data{};
 	ZeroMemory(&data, sizeof(data));

@@ -45,10 +45,10 @@ void OutputEncoder::RunForFrame(
 
 	context->PSSetShader(pixelShader.Get(), nullptr, 0);
 
-	gbuffer->filteredDepth.SetAsSR(context, 0);
+	gbuffer->depth.SetAsSR(context, 0);
 	gbuffer->normal.SetAsSR(context, 1);
 
-	gbuffer->filteredDepth.SetSampler(context, 0);
+	gbuffer->depth.SetSampler(context, 0);
 	gbuffer->normal.SetSampler(context, 1);
 
 	BindNDCQuad(context);

@@ -6,8 +6,8 @@
 
 #include "rendering/Technique.h"
 
-using IntBuffer = d3d11::Buffer<int>;
-using IntSRV = d3d11::SRVBuffer<int>;
+using IntBuffer = d3d11::Buffer<unsigned int>;
+using IntSRV = d3d11::SRVBuffer<unsigned int>;
 struct Position {
 	float x;
 	float y;

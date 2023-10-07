@@ -12,7 +12,9 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	: extractionProgram(
 		  device, "IsosurfaceExtraction.cs.hlsl", "main", PROGRAM_SOURCE
 	  ),
-	  neighborBuffer(device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE),
+	  neighborBuffer(
+		  device, maxParticles * 64, nullptr, D3D11_BIND_SHADER_RESOURCE
+	  ),
 	  internalToAPIBuffer(
 		  device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE
 	  ),
@@ -62,7 +64,7 @@ void IsosurfaceExtraction::RunForFrame(
 
 	extractionProgram.Run(context, layout);
 
-	CleanupRTsAndShaders(context, 1, 0);
+	CleanupRTsAndShaders(context, 6, 0);
 }
 
 [[nodiscard]] ID3D11Buffer *IsosurfaceExtraction::GetNeighborBuffer() const {

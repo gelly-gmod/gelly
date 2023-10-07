@@ -4,17 +4,30 @@
 #include "PerFrameCB.hlsli"
 
 // Read-only buffers, uses SRVs. 
-Buffer<int> neighborIndices : register(t0);
-Buffer<int> neighborCounts : register(t1);
-Buffer<int> internalToAPI : register(t2);
-Buffer<int> apiToInternal : register(t3);
+Buffer<uint> neighborIndices : register(t0);
+Buffer<uint> neighborCounts : register(t1);
+Buffer<uint> internalToAPI : register(t2);
+Buffer<uint> apiToInternal : register(t3);
 Buffer<float4> positions : register(t4);
 
 Texture2D<float4> depth : register(t5);
 RWTexture2D<float4> normal : register(u0);
 
 uint GetNeighborCount(uint index) {
+    uint internalIndex = apiToInternal[index];
     return neighborCounts[index];
+}
+
+float3 GetColorForIndex(uint index) {
+    uint r = (index + 22) % 255;
+    uint g = (index + 32) % 255;
+    uint b = (index + 2) % 255;
+
+    return float3(
+        (float)r,
+        (float)g,
+        (float)b
+    ) / float3(255, 255, 255);
 }
 
 // The isosurface reconstruction is done in 4x4 tiles.
@@ -32,9 +45,8 @@ void main(uint3 id : SV_DispatchThreadID) {
     float2 depthIndex = depth[id.xy].xy;
 
     float depthValue = depthIndex.x;
-    uint index = uint(depthIndex.y);
-
+    uint index = depthIndex.y;
     uint neighborCount = GetNeighborCount(index);
-    float debugValue = (float)neighborCount / 64.0f;
-    normal[id.xy] = float4(neighborCount, neighborCount, neighborCount, 1.f);
+    float debugValue = (float)neighborCount / 64.f;
+    normal[id.xy] = float4(debugValue, debugValue, debugValue, 1.f);
 }
