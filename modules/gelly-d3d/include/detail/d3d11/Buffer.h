@@ -13,6 +13,7 @@ template <typename T>
 class Buffer {
 private:
 	ComPtr<ID3D11Buffer> buffer;
+	int maxCapacity;
 
 public:
 	/**
@@ -52,6 +53,8 @@ public:
 	void SetAsVB(
 		ID3D11DeviceContext *context, ID3D11InputLayout *layout, int slot
 	) const;
+
+	[[nodiscard]] int GetCapacity() const;
 	[[nodiscard]] ID3D11Buffer *Get() const;
 };
 
@@ -74,15 +77,17 @@ Buffer<T>::Buffer(
 template <typename T>
 void Buffer<T>::Init(
 	ID3D11Device *device,
-	int maxCapacity,
+	int maxBufferCapacity,
 	T *initData,
 	D3D11_BIND_FLAG bindFlags,
 	D3D11_USAGE usage,
 	UINT cpuAccessFlags
 ) {
+	maxCapacity = maxBufferCapacity;
+
 	D3D11_BUFFER_DESC desc{};
 	ZeroMemory(&desc, sizeof(desc));
-	desc.ByteWidth = sizeof(T) * maxCapacity;
+	desc.ByteWidth = sizeof(T) * maxBufferCapacity;
 	desc.Usage = usage;
 	desc.BindFlags = bindFlags;
 	desc.CPUAccessFlags = cpuAccessFlags;
@@ -107,6 +112,11 @@ void Buffer<T>::SetAsVB(
 	ID3D11Buffer *bufferPtr = buffer.Get();
 	context->IASetVertexBuffers(slot, 1, &bufferPtr, &stride, &offset);
 	context->IASetInputLayout(layout);
+}
+
+template <typename T>
+int Buffer<T>::GetCapacity() const {
+	return maxCapacity;
 }
 
 template <typename T>
