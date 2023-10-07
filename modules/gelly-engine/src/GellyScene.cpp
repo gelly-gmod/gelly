@@ -207,6 +207,9 @@ void GellyScene::LinkD3DBuffer(
 	NvFlexBuffer **flexBuffer = nullptr;
 
 	switch (target) {
+		case SceneRegisterTarget::POSITION:
+			flexBuffer = &d3dParticleBuffer;
+			break;
 		case SceneRegisterTarget::NEIGHBORS:
 			flexBuffer = &d3dNeighborBuffer;
 			break;

@@ -147,6 +147,7 @@ public:
 };
 
 enum class SceneRegisterTarget : unsigned char {
+	POSITION,
 	NEIGHBORS,
 	NEIGHBOR_COUNTS,
 	API_TO_INTERNAL,
