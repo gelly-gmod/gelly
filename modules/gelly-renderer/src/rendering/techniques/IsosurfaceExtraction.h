@@ -8,6 +8,13 @@
 
 using IntBuffer = d3d11::Buffer<int>;
 using IntUAV = d3d11::UAVBuffer<int>;
+struct Position {
+	float x;
+	float y;
+	float z;
+	float w;
+};
+using PositionUAV = d3d11::UAVBuffer<Position>;
 
 class IsosurfaceExtraction : public Technique {
 private:
@@ -18,10 +25,13 @@ private:
 	IntUAV neighborUAV;
 	IntUAV remapUAV;
 	IntUAV neighborCountUAV;
+	PositionUAV positionUAV;
 	d3d11::ComputeProgramLayout<PerFrameCBuffer> layout;
 
 public:
-	IsosurfaceExtraction(ID3D11Device *device, int maxParticles);
+	IsosurfaceExtraction(
+		ID3D11Device *device, ID3D11Buffer *particleBuffer, int maxParticles
+	);
 	~IsosurfaceExtraction() = default;
 
 	void RunForFrame(
