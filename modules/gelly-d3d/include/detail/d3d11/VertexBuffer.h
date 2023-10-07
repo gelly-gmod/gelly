@@ -44,7 +44,9 @@ VertexBuffer<Vertex>::VertexBuffer(
 		  // This is bound as a vertex buffer and a shader resource because
 		  // of the fact that isosurface extraction requires this as a shader
 		  // resource while particle rendering requires this as a vertex buffer.
-		  D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE,
+		  static_cast<D3D11_BIND_FLAG>(
+			  D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE
+		  ),
 		  D3D11_USAGE_DEFAULT,
 		  0
 	  ),
