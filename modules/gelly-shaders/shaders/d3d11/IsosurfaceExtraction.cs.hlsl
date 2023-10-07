@@ -8,8 +8,8 @@ StructuredBuffer<int> neighborCounts;
 StructuredBuffer<int> internalToAPI;
 StructuredBuffer<int> apiToInternal;
 StructuredBuffer<float4> positions;
-Texture2D<float4> depth;
 
+Texture2D<float4> depth;
 RWTexture2D<float4> normal;
 
 // The isosurface reconstruction is done in 4x4 tiles.

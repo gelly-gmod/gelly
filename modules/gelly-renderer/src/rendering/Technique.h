@@ -5,6 +5,7 @@
 #include <d3d11.h>
 #include <wrl.h>
 
+#include "detail/Camera.h"
 #include "detail/GBuffer.h"
 #include "techniques/PerFrameCBuffer.h"
 
