@@ -164,8 +164,16 @@ ID3D11Buffer *GellyRenderer::GetD3DParticleBuffer() const {
 	return pipeline.particleRendering->GetParticleBuffer();
 }
 
-ID3D11Buffer *GellyRenderer::GetD3DDensityBuffer() const {
-	return pipeline.particleRendering->GetDensityBuffer();
+ID3D11Buffer *GellyRenderer::GetD3DNeighborBuffer() const {
+	return pipeline.isosurfaceExtraction->GetNeighborBuffer();
+}
+
+ID3D11Buffer *GellyRenderer::GetD3DNeighborCountBuffer() const {
+	return pipeline.isosurfaceExtraction->GetNeighborCountBuffer();
+}
+
+ID3D11Buffer *GellyRenderer::GetD3DRemapBuffer() const {
+	return pipeline.isosurfaceExtraction->GetRemapBuffer();
 }
 
 GellyRenderer::~GellyRenderer() {

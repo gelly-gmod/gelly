@@ -11,6 +11,7 @@
 #include "detail/GBuffer.h"
 #include "rendering/Technique.h"
 #include "rendering/techniques/DepthSmoothing.h"
+#include "rendering/techniques/IsosurfaceExtraction.h"
 #include "rendering/techniques/NormalEstimation.h"
 #include "rendering/techniques/OutputEncoder.h"
 #include "rendering/techniques/ParticleRendering.h"
@@ -52,6 +53,7 @@ private:
 
 	struct {
 		ParticleRendering *particleRendering;
+		IsosurfaceExtraction *isosurfaceExtraction;
 		DepthSmoothing *depthSmoothing;
 		NormalEstimation *normalEstimation;
 		OutputEncoder *outputEncoder;
@@ -78,8 +80,10 @@ public:
 	 * @return
 	 */
 	[[nodiscard]] ID3D11Buffer *GetD3DParticleBuffer() const;
-	[[nodiscard]] ID3D11Buffer *GetD3DDensityBuffer() const;
-	
+	[[nodiscard]] ID3D11Buffer *GetD3DNeighborBuffer() const;
+	[[nodiscard]] ID3D11Buffer *GetD3DNeighborCountBuffer() const;
+	[[nodiscard]] ID3D11Buffer *GetD3DRemapBuffer() const;
+
 	[[nodiscard]] ID3D11Device *GetD3DDevice() const;
 
 	void Render();
