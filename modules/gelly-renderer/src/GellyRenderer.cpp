@@ -155,8 +155,7 @@ void GellyRenderer::Render() {
 
 	pipeline.particleRendering->activeParticles = activeParticles;
 	pipeline.particleRendering->RunForFrame(deviceContext.Get(), &resources);
-	pipeline.depthSmoothing->RunForFrame(deviceContext.Get(), &resources);
-	pipeline.normalEstimation->RunForFrame(deviceContext.Get(), &resources);
+	pipeline.isosurfaceExtraction->RunForFrame(deviceContext.Get(), &resources);
 	pipeline.outputEncoder->RunForFrame(deviceContext.Get(), &resources);
 }
 
@@ -182,6 +181,7 @@ ID3D11Buffer *GellyRenderer::GetD3DAPIToInternalBuffer() const {
 
 GellyRenderer::~GellyRenderer() {
 	delete pipeline.particleRendering;
+	delete pipeline.isosurfaceExtraction;
 	delete pipeline.outputEncoder;
 }
 
@@ -214,6 +214,13 @@ void GellyRenderer::InitializePipeline() {
 	auto *particleRendering =
 		new ParticleRendering(device.Get(), params.maxParticles);
 	pipeline.particleRendering = particleRendering;
+
+	auto *isosurfaceExtraction = new IsosurfaceExtraction(
+		device.Get(),
+		particleRendering->GetParticleBuffer(),
+		params.maxParticles
+	);
+	pipeline.isosurfaceExtraction = isosurfaceExtraction;
 
 	auto *depthSmoothing = new DepthSmoothing(device.Get());
 	pipeline.depthSmoothing = depthSmoothing;
