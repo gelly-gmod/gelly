@@ -4,6 +4,8 @@ static const char *PROGRAM_SOURCE =
 #include "shaders/d3d11/IsosurfaceExtraction.cs.embed.hlsl"
 	;
 
+using namespace d3d11;
+
 IsosurfaceExtraction::IsosurfaceExtraction(
 	ID3D11Device *device, ID3D11Buffer *particleBuffer, int maxParticles
 )
@@ -51,6 +53,8 @@ void IsosurfaceExtraction::RunForFrame(
 	layout.constantBuffer = resources->perFrameCB;
 
 	extractionProgram.Run(context, layout);
+
+	CleanupRTsAndShaders(context, 1, 0);
 }
 
 [[nodiscard]] ID3D11Buffer *IsosurfaceExtraction::GetNeighborBuffer() const {

@@ -13,6 +13,7 @@ void d3d11::CleanupRTsAndShaders(
 	context->OMSetRenderTargets(
 		D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, nullRTVs, nullptr
 	);
+
 	context->PSSetShaderResources(0, usedViews, nullSRVs);
 	context->PSSetSamplers(0, usedSamplers, nullSamplers);
 	context->PSSetShader(nullptr, nullptr, 0);
@@ -24,4 +25,15 @@ void d3d11::CleanupRTsAndShaders(
 	context->GSSetShader(nullptr, nullptr, 0);
 	context->GSSetShaderResources(0, usedViews, nullSRVs);
 	context->GSSetSamplers(0, usedSamplers, nullSamplers);
+
+	context->CSSetShader(nullptr, nullptr, 0);
+	context->CSSetShaderResources(0, usedViews, nullSRVs);
+	context->CSSetSamplers(0, usedSamplers, nullSamplers);
+
+	ID3D11UnorderedAccessView *nullUAVs[D3D11_PS_CS_UAV_REGISTER_COUNT] = {
+		nullptr};
+
+	context->CSSetUnorderedAccessViews(
+		0, D3D11_PS_CS_UAV_REGISTER_COUNT, nullUAVs, nullptr
+	);
 }
