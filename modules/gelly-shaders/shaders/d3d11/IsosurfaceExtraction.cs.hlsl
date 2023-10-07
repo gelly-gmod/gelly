@@ -3,14 +3,15 @@
 
 #include "PerFrameCB.hlsli"
 
-Buffer<int> neighborIndices;
-Buffer<int> neighborCounts;
-Buffer<int> internalToAPI;
-Buffer<int> apiToInternal;
-Buffer<float4> positions;
+// Read-only buffers, uses SRVs. 
+Buffer<int> neighborIndices : register(t0);
+Buffer<int> neighborCounts : register(t1);
+Buffer<int> internalToAPI : register(t2);
+Buffer<int> apiToInternal : register(t3);
+Buffer<float4> positions : register(t4);
 
-Texture2D<float4> depth;
-RWTexture2D<float4> normal;
+Texture2D<float4> depth : register(t5);
+RWTexture2D<float4> normal : register(u0);
 
 // The isosurface reconstruction is done in 4x4 tiles.
 [numthreads(4, 4, 1)]
@@ -24,5 +25,5 @@ void main(uint3 id : SV_DispatchThreadID) {
         return;
     }
 
-    normal[id.xy] = float4(1, 1, 0, 0);
+    normal[id.xy] = float4(depth[id.xy].xyz, 1.0f);
 }
