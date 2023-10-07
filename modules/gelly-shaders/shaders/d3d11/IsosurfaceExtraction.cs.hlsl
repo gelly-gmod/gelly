@@ -1,6 +1,8 @@
 // Isosurface extraction based on Fast, High-Quality Rendering of Liquids Generated Using Large-scale SPH Simulation by X. Xiao, et al.
 // https://jcgt.org/published/0007/01/02/paper.pdf
 
+#include "PerFrameCB.hlsli"
+
 StructuredBuffer<int> neighborIndices;
 StructuredBuffer<int> neighborCounts;
 StructuredBuffer<int> remap;
