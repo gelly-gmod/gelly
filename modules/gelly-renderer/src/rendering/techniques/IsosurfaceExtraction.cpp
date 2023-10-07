@@ -15,20 +15,27 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	  neighborBuffer(
 		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
 	  ),
-	  remapBuffer(device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS),
+	  internalToAPIBuffer(
+		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
+	  ),
+	  APIToInternalBuffer(
+		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
+	  ),
 	  neighborCountBuffer(
 		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
 	  ),
 	  positionSRV(device, particleBuffer, maxParticles),
 	  neighborSRV(device, neighborBuffer),
-	  remapSRV(device, remapBuffer),
+	  internalToAPISRV(device, internalToAPIBuffer),
+	  APIToInternalSRV(device, APIToInternalBuffer),
 	  neighborCountSRV(device, neighborCountBuffer),
 	  layout({}) {
 	layout.resources[0] = neighborSRV.Get();
 	layout.resources[1] = neighborCountSRV.Get();
-	layout.resources[2] = remapSRV.Get();
-	layout.resources[3] = positionSRV.Get();
-	layout.numResources = 4;
+	layout.resources[2] = internalToAPISRV.Get();
+	layout.resources[3] = APIToInternalSRV.Get();
+	layout.resources[4] = positionSRV.Get();
+	layout.numResources = 5;
 	layout.numViews = 0;
 }
 
@@ -37,8 +44,9 @@ void IsosurfaceExtraction::RunForFrame(
 ) {
 	// Update layout
 	layout.views[0] = resources->gbuffer->normal.GetUAV();
-	layout.resources[4] = resources->gbuffer->depth.GetSRV();
-	layout.numResources = 5;
+	layout.resources[5] = resources->gbuffer->depth.GetSRV();
+	layout.numResources = 6;
+	layout.numViews = 1;
 
 	// Isosurface tiles are 4x4.
 	int groupX = static_cast<int>(
@@ -61,8 +69,14 @@ void IsosurfaceExtraction::RunForFrame(
 	return neighborBuffer.Get();
 }
 
-[[nodiscard]] ID3D11Buffer *IsosurfaceExtraction::GetRemapBuffer() const {
-	return remapBuffer.Get();
+[[nodiscard]] ID3D11Buffer *IsosurfaceExtraction::GetInternalToAPIBuffer(
+) const {
+	return internalToAPIBuffer.Get();
+}
+
+[[nodiscard]] ID3D11Buffer *IsosurfaceExtraction::GetAPIToInternalBuffer(
+) const {
+	return APIToInternalBuffer.Get();
 }
 
 [[nodiscard]] ID3D11Buffer *IsosurfaceExtraction::GetNeighborCountBuffer(

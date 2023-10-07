@@ -5,7 +5,8 @@
 
 StructuredBuffer<int> neighborIndices;
 StructuredBuffer<int> neighborCounts;
-StructuredBuffer<int> remap;
+StructuredBuffer<int> internalToAPI;
+StructuredBuffer<int> apiToInternal;
 StructuredBuffer<float4> positions;
 
 RWTexture2D<float4> normal;

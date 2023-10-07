@@ -20,10 +20,12 @@ class IsosurfaceExtraction : public Technique {
 private:
 	d3d11::ComputeProgram extractionProgram;
 	IntBuffer neighborBuffer;
-	IntBuffer remapBuffer;
 	IntBuffer neighborCountBuffer;
+	IntBuffer internalToAPIBuffer;
+	IntBuffer APIToInternalBuffer;
 	IntSRV neighborSRV;
-	IntSRV remapSRV;
+	IntSRV internalToAPISRV;
+	IntSRV APIToInternalSRV;
 	IntSRV neighborCountSRV;
 	PositionSRV positionSRV;
 	d3d11::ComputeProgramLayout<PerFrameCBuffer> layout;
@@ -39,7 +41,8 @@ public:
 	) override;
 
 	[[nodiscard]] ID3D11Buffer *GetNeighborBuffer() const;
-	[[nodiscard]] ID3D11Buffer *GetRemapBuffer() const;
+	[[nodiscard]] ID3D11Buffer *GetInternalToAPIBuffer() const;
+	[[nodiscard]] ID3D11Buffer *GetAPIToInternalBuffer() const;
 	[[nodiscard]] ID3D11Buffer *GetNeighborCountBuffer() const;
 };
 #endif	// GELLY_ISOSURFACEEXTRACTION_H

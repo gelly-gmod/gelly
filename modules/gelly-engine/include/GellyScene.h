@@ -146,7 +146,12 @@ public:
 	void Update();
 };
 
-enum class SceneRegisterTarget : unsigned char { POSITION, DENSITY };
+enum class SceneRegisterTarget : unsigned char {
+	NEIGHBORS,
+	NEIGHBOR_COUNTS,
+	API_TO_INTERNAL,
+	INTERNAL_TO_API
+};
 
 class GellyScene : GPUCriticalObject {
 private:
@@ -161,7 +166,10 @@ private:
 	NvFlexVector<int> activeIndices;
 
 	NvFlexBuffer *d3dParticleBuffer;
-	NvFlexBuffer *d3dDensityBuffer;
+	NvFlexBuffer *d3dNeighborBuffer;
+	NvFlexBuffer *d3dNeighborCountBuffer;
+	NvFlexBuffer *d3dInternalToApiBuffer;
+	NvFlexBuffer *d3dApiToInternalBuffer;
 
 public:
 	const char *computeDeviceName;

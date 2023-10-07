@@ -149,8 +149,16 @@ void GellyScene::Update(float deltaTime) {
 
 	if (d3dParticleBuffer)
 		NvFlexGetSmoothParticles(solver, d3dParticleBuffer, &copyDesc);
-	if (d3dDensityBuffer)
-		NvFlexGetDensities(solver, d3dDensityBuffer, &copyDesc);
+	if (d3dNeighborBuffer && d3dNeighborCountBuffer && d3dApiToInternalBuffer &&
+		d3dInternalToApiBuffer) {
+		NvFlexGetNeighbors(
+			solver,
+			d3dNeighborBuffer,
+			d3dNeighborCountBuffer,
+			d3dApiToInternalBuffer,
+			d3dInternalToApiBuffer
+		);
+	}
 
 	NvFlexGetVelocities(solver, velocities.buffer, &copyDesc);
 	NvFlexGetPhases(solver, phases.buffer, &copyDesc);
@@ -199,11 +207,17 @@ void GellyScene::LinkD3DBuffer(
 	NvFlexBuffer **flexBuffer = nullptr;
 
 	switch (target) {
-		case SceneRegisterTarget::POSITION:
-			flexBuffer = &d3dParticleBuffer;
+		case SceneRegisterTarget::NEIGHBORS:
+			flexBuffer = &d3dNeighborBuffer;
 			break;
-		case SceneRegisterTarget::DENSITY:
-			flexBuffer = &d3dDensityBuffer;
+		case SceneRegisterTarget::NEIGHBOR_COUNTS:
+			flexBuffer = &d3dNeighborCountBuffer;
+			break;
+		case SceneRegisterTarget::API_TO_INTERNAL:
+			flexBuffer = &d3dApiToInternalBuffer;
+			break;
+		case SceneRegisterTarget::INTERNAL_TO_API:
+			flexBuffer = &d3dInternalToApiBuffer;
 			break;
 	}
 

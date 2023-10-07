@@ -82,8 +82,9 @@ public:
 	[[nodiscard]] ID3D11Buffer *GetD3DParticleBuffer() const;
 	[[nodiscard]] ID3D11Buffer *GetD3DNeighborBuffer() const;
 	[[nodiscard]] ID3D11Buffer *GetD3DNeighborCountBuffer() const;
-	[[nodiscard]] ID3D11Buffer *GetD3DRemapBuffer() const;
-
+	[[nodiscard]] ID3D11Buffer *GetD3DInternalToAPIBuffer() const;
+	[[nodiscard]] ID3D11Buffer *GetD3DAPIToInternalBuffer() const;
+	
 	[[nodiscard]] ID3D11Device *GetD3DDevice() const;
 
 	void Render();

@@ -172,8 +172,12 @@ ID3D11Buffer *GellyRenderer::GetD3DNeighborCountBuffer() const {
 	return pipeline.isosurfaceExtraction->GetNeighborCountBuffer();
 }
 
-ID3D11Buffer *GellyRenderer::GetD3DRemapBuffer() const {
-	return pipeline.isosurfaceExtraction->GetRemapBuffer();
+ID3D11Buffer *GellyRenderer::GetD3DInternalToAPIBuffer() const {
+	return pipeline.isosurfaceExtraction->GetInternalToAPIBuffer();
+}
+
+ID3D11Buffer *GellyRenderer::GetD3DAPIToInternalBuffer() const {
+	return pipeline.isosurfaceExtraction->GetAPIToInternalBuffer();
 }
 
 GellyRenderer::~GellyRenderer() {
