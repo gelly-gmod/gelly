@@ -6,5 +6,8 @@
 
 #include "rendering/Technique.h"
 
-class IsosurfaceExtraction : public Technique {};
+class IsosurfaceExtraction : public Technique {
+private:
+	d3d11::ComputeProgram extractionProgram;
+};
 #endif	// GELLY_ISOSURFACEEXTRACTION_H

@@ -70,6 +70,7 @@ void ConstantBuffer<Structure>::BindToShaders(
 	context->PSSetConstantBuffers(slot, 1, buffers);
 	context->VSSetConstantBuffers(slot, 1, buffers);
 	context->GSSetConstantBuffers(slot, 1, buffers);
+	context->CSSetConstantBuffers(slot, 1, buffers);
 }
 
 };	// namespace d3d11
