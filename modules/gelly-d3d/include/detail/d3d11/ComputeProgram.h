@@ -27,7 +27,10 @@ private:
 
 public:
 	ComputeProgram(
-		ID3D11Device *device, const char *programName, const char *entryPoint
+		ID3D11Device *device,
+		const char *programName,
+		const char *entryPoint,
+		const char *programSource
 	);
 
 	~ComputeProgram() = default;
@@ -45,7 +48,7 @@ public:
 		if (layout.constantBuffer) {
 			layout.constantBuffer->BindToShaders(context, 0);
 		}
-		
+
 		context->Dispatch(layout.numThreadsX, layout.numThreadsY, 1);
 	}
 };
