@@ -40,7 +40,11 @@ VertexBuffer<Vertex>::VertexBuffer(
 		  device,
 		  vertexCapacity,
 		  initData,
-		  D3D11_BIND_VERTEX_BUFFER,
+		  // FIXME: This is a pretty bad violation of separation of concerns.
+		  // This is bound as a vertex buffer and a shader resource because
+		  // of the fact that isosurface extraction requires this as a shader
+		  // resource while particle rendering requires this as a vertex buffer.
+		  D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_SHADER_RESOURCE,
 		  D3D11_USAGE_DEFAULT,
 		  0
 	  ),

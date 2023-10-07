@@ -7,14 +7,14 @@
 #include "rendering/Technique.h"
 
 using IntBuffer = d3d11::Buffer<int>;
-using IntUAV = d3d11::UAVBuffer<int>;
+using IntSRV = d3d11::SRVBuffer<int>;
 struct Position {
 	float x;
 	float y;
 	float z;
 	float w;
 };
-using PositionUAV = d3d11::UAVBuffer<Position>;
+using PositionSRV = d3d11::SRVBuffer<Position>;
 
 class IsosurfaceExtraction : public Technique {
 private:
@@ -22,10 +22,10 @@ private:
 	IntBuffer neighborBuffer;
 	IntBuffer remapBuffer;
 	IntBuffer neighborCountBuffer;
-	IntUAV neighborUAV;
-	IntUAV remapUAV;
-	IntUAV neighborCountUAV;
-	PositionUAV positionUAV;
+	IntSRV neighborSRV;
+	IntSRV remapSRV;
+	IntSRV neighborCountSRV;
+	PositionSRV positionSRV;
 	d3d11::ComputeProgramLayout<PerFrameCBuffer> layout;
 
 public:

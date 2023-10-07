@@ -17,14 +17,15 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	  neighborCountBuffer(
 		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
 	  ),
-	  positionUAV(device, particleBuffer, maxParticles),
-	  neighborUAV(device, neighborBuffer),
-	  remapUAV(device, remapBuffer),
-	  neighborCountUAV(device, neighborCountBuffer),
+	  positionSRV(device, particleBuffer, maxParticles),
+	  neighborSRV(device, neighborBuffer),
+	  remapSRV(device, remapBuffer),
+	  neighborCountSRV(device, neighborCountBuffer),
 	  layout({}) {
-	layout.views[0] = neighborUAV.Get();
-	layout.views[1] = neighborCountUAV.Get();
-	layout.views[2] = remapUAV.Get();
-	layout.views[3] = positionUAV.Get();
-	layout.numViews = 4;
+	layout.resources[0] = neighborSRV.Get();
+	layout.resources[1] = neighborCountSRV.Get();
+	layout.resources[2] = remapSRV.Get();
+	layout.resources[3] = positionSRV.Get();
+	layout.numResources = 4;
+	layout.numViews = 0;
 }
