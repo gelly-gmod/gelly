@@ -12,23 +12,23 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	: extractionProgram(
 		  device, "IsosurfaceExtraction.cs.hlsl", "main", PROGRAM_SOURCE
 	  ),
-	  neighborBuffer(
-		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
-	  ),
+	  neighborBuffer(device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE),
 	  internalToAPIBuffer(
-		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
+		  device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE
 	  ),
 	  APIToInternalBuffer(
-		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
+		  device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE
 	  ),
 	  neighborCountBuffer(
-		  device, maxParticles, nullptr, D3D11_BIND_UNORDERED_ACCESS
+		  device, maxParticles, nullptr, D3D11_BIND_SHADER_RESOURCE
 	  ),
-	  positionSRV(device, particleBuffer, maxParticles),
-	  neighborSRV(device, neighborBuffer),
-	  internalToAPISRV(device, internalToAPIBuffer),
-	  APIToInternalSRV(device, APIToInternalBuffer),
-	  neighborCountSRV(device, neighborCountBuffer),
+	  positionSRV(
+		  device, DXGI_FORMAT_R32G32B32A32_FLOAT, particleBuffer, maxParticles
+	  ),
+	  neighborSRV(device, DXGI_FORMAT_R32_UINT, neighborBuffer),
+	  internalToAPISRV(device, DXGI_FORMAT_R32_UINT, internalToAPIBuffer),
+	  APIToInternalSRV(device, DXGI_FORMAT_R32_UINT, APIToInternalBuffer),
+	  neighborCountSRV(device, DXGI_FORMAT_R32_UINT, neighborCountBuffer),
 	  layout({}) {
 	layout.resources[0] = neighborSRV.Get();
 	layout.resources[1] = neighborCountSRV.Get();

@@ -38,15 +38,6 @@ Texture::Texture(const d3d9::Texture &d3d9Texture, ID3D11Device *device)
 	DX("Failed to create shader resource view",
 	   device->CreateShaderResourceView(texture.Get(), &srvDesc, &srv));
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
-	ZeroMemory(&uavDesc, sizeof(uavDesc));
-	uavDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	uavDesc.Texture2D.MipSlice = 0;
-
-	DX("Failed to create unordered access view",
-	   device->CreateUnorderedAccessView(texture.Get(), &uavDesc, &uav));
-
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -71,8 +62,9 @@ Texture::Texture(
 	textureDesc.Format = format;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
-	textureDesc.BindFlags =
-		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET |
+							D3D11_BIND_SHADER_RESOURCE |
+							D3D11_BIND_UNORDERED_ACCESS;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
 

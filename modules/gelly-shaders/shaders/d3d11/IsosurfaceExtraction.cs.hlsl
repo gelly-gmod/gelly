@@ -3,11 +3,11 @@
 
 #include "PerFrameCB.hlsli"
 
-StructuredBuffer<int> neighborIndices;
-StructuredBuffer<int> neighborCounts;
-StructuredBuffer<int> internalToAPI;
-StructuredBuffer<int> apiToInternal;
-StructuredBuffer<float4> positions;
+Buffer<int> neighborIndices;
+Buffer<int> neighborCounts;
+Buffer<int> internalToAPI;
+Buffer<int> apiToInternal;
+Buffer<float4> positions;
 
 Texture2D<float4> depth;
 RWTexture2D<float4> normal;

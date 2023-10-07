@@ -16,10 +16,12 @@ private:
 	ComPtr<ID3D11ShaderResourceView> view;
 
 public:
-	SRVBuffer(ID3D11Device *device, const Buffer<T> &buffer) {
+	SRVBuffer(
+		ID3D11Device *device, DXGI_FORMAT format, const Buffer<T> &buffer
+	) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
-		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.Format = format;
 		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		desc.Buffer.NumElements = buffer.GetCapacity();
 		desc.Buffer.ElementWidth = sizeof(T);
@@ -31,11 +33,14 @@ public:
 	}
 
 	SRVBuffer(
-		ID3D11Device *device, ID3D11Buffer *bufferReference, int maxCapacity
+		ID3D11Device *device,
+		DXGI_FORMAT format,
+		ID3D11Buffer *bufferReference,
+		int maxCapacity
 	) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));
-		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.Format = format;
 		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		desc.Buffer.NumElements = maxCapacity;
 		desc.Buffer.ElementWidth = sizeof(T);
