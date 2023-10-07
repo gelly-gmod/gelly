@@ -93,4 +93,22 @@ ShaderCompileResult<ID3D11GeometryShader> compile_geometry_shader(
 
 	return {shaderBlob, shader};
 }
+
+ShaderCompileResult<ID3D11ComputeShader> compile_compute_shader(
+	const ShaderCompileOptions &options
+) {
+	ID3D11ComputeShader *shader;
+	ID3DBlob *shaderBlob = compile_shader(options, D3D11_COMPUTE_PROFILE);
+
+	DX("Failed to create compute shader",
+	   options.device->CreateComputeShader(
+		   shaderBlob->GetBufferPointer(),
+		   shaderBlob->GetBufferSize(),
+		   nullptr,
+		   &shader
+	   ));
+
+	return {shaderBlob, shader};
+}
+
 };	// namespace d3d11

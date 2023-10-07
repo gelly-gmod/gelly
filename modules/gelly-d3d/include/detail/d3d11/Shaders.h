@@ -10,6 +10,7 @@ using namespace Microsoft::WRL;
 #define D3D11_VERTEX_PROFILE "vs_5_0"
 #define D3D11_PIXEL_PROFILE "ps_5_0"
 #define D3D11_GEOMETRY_PROFILE "gs_5_0"
+#define D3D11_COMPUTE_PROFILE "cs_5_0"
 
 namespace d3d11 {
 template <typename Shader>
@@ -38,6 +39,10 @@ ShaderCompileResult<ID3D11VertexShader> compile_vertex_shader(
 ShaderCompileResult<ID3D11GeometryShader> compile_geometry_shader(
 	const ShaderCompileOptions &options
 );
+ShaderCompileResult<ID3D11ComputeShader> compile_compute_shader(
+	const ShaderCompileOptions &options
+);
+
 }  // namespace d3d11
 
 #endif	// GELLY_SHADERS_H
