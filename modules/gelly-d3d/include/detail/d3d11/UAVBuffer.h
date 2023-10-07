@@ -31,6 +31,27 @@ public:
 		   ));
 	}
 
+	UAVBuffer(
+		ID3D11Device *device, ID3D11Buffer *bufferReference, int maxCapacity
+	) {
+		D3D11_BUFFER_DESC bufferDesc;
+		bufferReference->GetDesc(&bufferDesc);
+
+		D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		desc.Buffer.FirstElement = 0;
+		desc.Buffer.NumElements =
+			bufferDesc.ByteWidth / sizeof(T) * maxCapacity;
+		desc.Buffer.Flags = 0;
+
+		DX("Failed to create UAV!",
+		   device->CreateUnorderedAccessView(
+			   bufferReference, &desc, view.GetAddressOf()
+		   ));
+	}
+
 	~UAVBuffer() = default;
 
 	[[nodiscard]] ID3D11UnorderedAccessView *Get() const { return view.Get(); }
