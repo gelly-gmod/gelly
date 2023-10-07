@@ -1,10 +1,10 @@
 // Isosurface extraction based on Fast, High-Quality Rendering of Liquids Generated Using Large-scale SPH Simulation by X. Xiao, et al.
 // https://jcgt.org/published/0007/01/02/paper.pdf
 
-RWStructuredBuffer<int> neighborIndices;
-RWStructuredBuffer<int> neighborCounts;
-RWStructuredBuffer<int> remap;
-RWStructuredBuffer<float4> positions;
+StructuredBuffer<int> neighborIndices;
+StructuredBuffer<int> neighborCounts;
+StructuredBuffer<int> remap;
+StructuredBuffer<float4> positions;
 
 RWTexture2D<float4> normal;
 
