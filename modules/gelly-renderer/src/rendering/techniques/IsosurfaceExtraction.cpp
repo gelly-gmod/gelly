@@ -21,4 +21,10 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	  neighborUAV(device, neighborBuffer),
 	  remapUAV(device, remapBuffer),
 	  neighborCountUAV(device, neighborCountBuffer),
-	  layout({}) {}
+	  layout({}) {
+	layout.views[0] = neighborUAV.Get();
+	layout.views[1] = neighborCountUAV.Get();
+	layout.views[2] = remapUAV.Get();
+	layout.views[3] = positionUAV.Get();
+	layout.numViews = 4;
+}
