@@ -54,7 +54,7 @@ void OutputEncoder::RunForFrame(
 	BindNDCQuad(context);
 
 	context->Draw(4, 0);
-	context->Flush();
+	SyncFlush(resources->device, context);
 
 	CleanupRTsAndShaders(context, 2, 2);
 }

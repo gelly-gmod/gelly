@@ -91,7 +91,7 @@ void IsosurfaceExtraction::RunForFrame(
 	layout.constantBuffer = resources->perFrameCB;
 
 	extractionProgram.Run(context, layout);
-	context->Flush();
+	SyncFlush(resources->device, context);
 
 	CleanupRTsAndShaders(context, 6, 0);
 }

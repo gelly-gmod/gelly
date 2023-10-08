@@ -100,7 +100,7 @@ void ParticleRendering::RunForFrame(
 	resources->perFrameCB->BindToShaders(context, 0);
 
 	context->Draw(activeParticles, 0);
-	context->Flush();
+	SyncFlush(resources->device, context);
 
 	d3d11::CleanupRTsAndShaders(context, 0, 0);
 }
