@@ -35,7 +35,7 @@ float3 GetWorldPos(uint x, uint y, uint w, uint h, float depth) {
 }
 
 float SmoothingKernel(float3 worldPos, float3 neighborPos, float radius) {
-    return 1.f - pow(length(normalize(worldPos - neighborPos)) / radius, 3);
+    return 1.f - pow(abs(length((worldPos - neighborPos))) / radius, 3);
 }
 
 float GetDensity(float3 worldPos, uint index) {
@@ -64,7 +64,7 @@ float GetDensity(float3 worldPos, uint index) {
         float3 neighborPos = positions[neighbor].xyz;
 
         float m_j = 0.05f;
-        float r = 5.f;
+        float r = 255.f;
         sum += m_j * SmoothingKernel(worldPos, neighborPos, r);
     }
 
@@ -98,7 +98,7 @@ void main(uint3 id : SV_DispatchThreadID) {
     // Calculate the normal by taking the gradient of the density field.
     float3 gradient = float3(0, 0, 0);
     // TODO: THIS IS RETURNING THE SAME VALUE FOR EVERY PIXEL. WHY?
-    float dist = 3345.f;
+    float dist = 0.2f;
     float xDensity = GetDensity(worldPos + float3(dist, 0, 0), index);
     float yDensity = GetDensity(worldPos + float3(0, dist, 0), index);
     float zDensity = GetDensity(worldPos + float3(0, 0, dist), index);
