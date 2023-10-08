@@ -92,7 +92,7 @@ void IsosurfaceExtraction::RunForFrame(
 
 	extractionProgram.Run(context, layout);
 	context->Flush();
-	
+
 	CleanupRTsAndShaders(context, 6, 0);
 }
 
