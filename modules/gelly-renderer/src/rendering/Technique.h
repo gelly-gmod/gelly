@@ -18,6 +18,7 @@ struct TechniqueResources {
 	d3d11::ConstantBuffer<PerFrameCBuffer> *perFrameCB;
 	Camera *camera;
 	GBuffer *gbuffer;
+	ID3D11Device *device;
 	ComPtr<ID3D11DepthStencilView> dsv;
 };
 

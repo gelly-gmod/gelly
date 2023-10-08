@@ -154,6 +154,7 @@ void GellyRenderer::Render() {
 		.perFrameCB = &perFrameCB,
 		.camera = &camera,
 		.gbuffer = &gbuffer,
+		.device = device.Get(),
 		.dsv = depthStencil.view.Get()};
 
 	pipeline.particleRendering->activeParticles = activeParticles;
