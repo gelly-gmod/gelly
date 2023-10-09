@@ -4,14 +4,14 @@
 #include "PerFrameCB.hlsli"
 
 // Read-only buffers, uses SRVs. 
-StructuredBuffer<uint> neighborIndices : register(t0);
-StructuredBuffer<uint> neighborCounts : register(t1);
-StructuredBuffer<uint> internalToAPI : register(t2);
-StructuredBuffer<uint> apiToInternal : register(t3);
+StructuredBuffer<int> neighborIndices : register(t0);
+StructuredBuffer<int> neighborCounts : register(t1);
+StructuredBuffer<int> internalToAPI : register(t2);
+StructuredBuffer<int> apiToInternal : register(t3);
 Buffer<float4> positions : register(t4);
 
 Texture2D<float4> depth : register(t5);
-RWTexture2D<float4> normal : register(u0);
+globallycoherent RWTexture2D<float4> normal : register(u0);
 
 uint GetNeighborCount(uint index) {
     uint internalIndex = apiToInternal[index];
@@ -38,8 +38,8 @@ float SmoothingKernel(float3 worldPos, float3 neighborPos, float radius) {
     return 1.f - pow(abs(length((worldPos - neighborPos))) / radius, 3);
 }
 
-float GetDensity(float3 worldPos, uint index) {
-    float sum = 0.f;
+float3 GetDensity(float3 worldPos, uint index) {
+    float3 sum = float3(0,0,0);
 
     // Iterate over each neighbor and apply the smoothing function.
     /*
@@ -55,20 +55,23 @@ float GetDensity(float3 worldPos, uint index) {
 		}
         */
 
-    uint stride = 2100001;
-    uint offset = apiToInternal[index];
-    uint count = neighborCounts[offset];
+    // FIXME: THIS IS TEMPORALLY UNSTABLE??
+    int stride = 2100001;
+    int offset = apiToInternal[index];
+    int count = neighborCounts[offset];
 
     for (int c = 0; c < count; c++) {
         int neighbor = internalToAPI[neighborIndices[c*stride + offset]];
         float3 neighborPos = positions[neighbor].xyz;
 
         float m_j = 0.05f;
-        float r = 255.f;
-        sum += m_j * SmoothingKernel(worldPos, neighborPos, r);
+        float r = 3.f;
+
+        sum += neighborPos;
+        //sum += m_j * SmoothingKernel(worldPos, neighborPos, r);
     }
 
-    return sum;
+    return normalize(positions[index].xyz);
 }
 
 // The isosurface reconstruction is done in 4x4 tiles.
@@ -89,19 +92,29 @@ void main(uint3 id : SV_DispatchThreadID) {
         return;
     }
 
-    uint index = asuint(depthIndex.y);
+    int index = asint(depthIndex.y);
     
     float3 worldPos = GetWorldPos(id.x, id.y, width, height, depthValue);
     float isoValue = 5.f;
-    float density = GetDensity(worldPos, index) + 0.001f;
+    float3 density = GetDensity(worldPos, index);
 
-    // Calculate the normal by taking the gradient of the density field.
-    float3 gradient = float3(0, 0, 0);
-    // TODO: THIS IS RETURNING THE SAME VALUE FOR EVERY PIXEL. WHY?
-    float dist = 0.2f;
-    float xDensity = GetDensity(worldPos + float3(dist, 0, 0), index);
-    float yDensity = GetDensity(worldPos + float3(0, dist, 0), index);
-    float zDensity = GetDensity(worldPos + float3(0, 0, dist), index);
+    // // Calculate the normal by taking the gradient of the density field.
+    // float3 gradient = float3(0, 0, 0);
+    // // TODO: THIS IS RETURNING THE SAME VALUE FOR EVERY PIXEL. WHY?
+    // float dist = 0.2f;
+    // float dx1 = GetDensity(worldPos + float3(dist, 0, 0), index);
+    // float dx2 = GetDensity(worldPos - float3(dist, 0, 0), index);
+    // float dy1 = GetDensity(worldPos + float3(0, dist, 0), index);
+    // float dy2 = GetDensity(worldPos - float3(0, dist, 0), index);
+    // float dz1 = GetDensity(worldPos + float3(0, 0, dist), index);
+    // float dz2 = GetDensity(worldPos - float3(0, 0, dist), index);
 
-    normal[id.xy] = float4(xDensity, yDensity, zDensity, 1.f);
+    // gradient.x = (dx1 - dx2) / (2.f * dist);
+    // gradient.y = (dy1 - dy2) / (2.f * dist);
+    // gradient.z = (dz1 - dz2) / (2.f * dist);
+    
+    // float3 normalValue = normalize(gradient);
+    // normal[id.xy] = float4(normalValue * 0.5 + 0.5, 1.f);
+
+    normal[id.xy] = float4(density, 1.f);
 }

@@ -9,7 +9,7 @@ struct VS_INPUT {
 VS_OUTPUT main(VS_INPUT input) {
 	VS_OUTPUT output;
 	output.Pos = float4(input.Pos.xyz, 1.f); // This is straight from FleX which uses the w component for other things, so we discard it here.
-	output.Index = input.Index;
+	output.Index = (int)input.Index;
 	output.ViewPos = mul(float4(input.Pos.xyz, 1.f), matView);
 #ifdef SHADERED
 	// Multiply by both geometry transform and view

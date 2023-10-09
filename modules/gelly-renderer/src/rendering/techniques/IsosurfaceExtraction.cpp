@@ -55,10 +55,10 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 		  maxParticles,
 		  false
 	  ),
-	  neighborSRV(device, DXGI_FORMAT_R32_UINT, neighborBuffer),
-	  internalToAPISRV(device, DXGI_FORMAT_R32_UINT, internalToAPIBuffer),
-	  APIToInternalSRV(device, DXGI_FORMAT_R32_UINT, APIToInternalBuffer),
-	  neighborCountSRV(device, DXGI_FORMAT_R32_UINT, neighborCountBuffer),
+	  neighborSRV(device, DXGI_FORMAT_R32_SINT, neighborBuffer),
+	  internalToAPISRV(device, DXGI_FORMAT_R32_SINT, internalToAPIBuffer),
+	  APIToInternalSRV(device, DXGI_FORMAT_R32_SINT, APIToInternalBuffer),
+	  neighborCountSRV(device, DXGI_FORMAT_R32_SINT, neighborCountBuffer),
 	  layout({}) {
 	layout.resources[0] = neighborSRV.Get();
 	layout.resources[1] = neighborCountSRV.Get();

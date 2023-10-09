@@ -49,9 +49,7 @@ PS_OUTPUT main(VS_INPUT input) {
     float4 depth = tex2D(depthSampler, nudged);
     float3 normal = tex2D(normalSampler, nudged).rgb;
 
-    if (normal.x == 0 && normal.y == 0 && normal.z == 0) {
-        discard;
-    }
+
 
     // float4 pos = float4(nudged.x * 2.f - 1.f, (1.f - nudged.y) * 2.f - 1.f, 1.f, 1);
     // pos = mul(transpose(matInvProj), pos);
