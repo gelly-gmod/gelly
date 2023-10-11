@@ -4,10 +4,10 @@
 #include "PerFrameCB.hlsli"
 
 // Read-only buffers, uses SRVs. 
-StructuredBuffer<int> neighborIndices : register(t0);
-StructuredBuffer<int> neighborCounts : register(t1);
-StructuredBuffer<int> internalToAPI : register(t2);
-StructuredBuffer<int> apiToInternal : register(t3);
+Buffer<int> neighborIndices : register(t0);
+Buffer<int> neighborCounts : register(t1);
+Buffer<int> internalToAPI : register(t2);
+Buffer<int> apiToInternal : register(t3);
 Buffer<float4> positions : register(t4);
 
 Texture2D<float4> depth : register(t5);
@@ -35,11 +35,11 @@ float3 GetWorldPos(uint x, uint y, uint w, uint h, float depth) {
 }
 
 float SmoothingKernel(float3 worldPos, float3 neighborPos, float radius) {
-    return 1.f - pow(abs(length((worldPos - neighborPos))) / radius, 3);
+    return 1.f - pow(distance(worldPos, neighborPos) / radius, 3);
 }
 
 float3 GetDensity(float3 worldPos, uint index) {
-    float3 sum = float3(0,0,0);
+    float3 sum = float3(0, 0, 0);
 
     // Iterate over each neighbor and apply the smoothing function.
     /*
@@ -65,13 +65,13 @@ float3 GetDensity(float3 worldPos, uint index) {
         float3 neighborPos = positions[neighbor].xyz;
 
         float m_j = 0.05f;
-        float r = 3.f;
+        float r = 93.f;
 
-        sum += neighborPos;
-        //sum += m_j * SmoothingKernel(worldPos, neighborPos, r);
+        float density = m_j * SmoothingKernel(worldPos, neighborPos, r);
+        sum += float3(density, density, density);
     }
 
-    return normalize(positions[index].xyz);
+    return sum;
 }
 
 // The isosurface reconstruction is done in 4x4 tiles.

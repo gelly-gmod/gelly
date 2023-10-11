@@ -14,7 +14,7 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	  ),
 	  neighborBuffer(
 		  device,
-		  maxParticles * 64,
+		  maxParticles * 65,
 		  nullptr,
 		  D3D11_BIND_SHADER_RESOURCE,
 		  D3D11_USAGE_DEFAULT,
@@ -23,7 +23,7 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	  ),
 	  internalToAPIBuffer(
 		  device,
-		  maxParticles,
+		  maxParticles * 65,
 		  nullptr,
 		  D3D11_BIND_SHADER_RESOURCE,
 		  D3D11_USAGE_DEFAULT,
@@ -32,7 +32,7 @@ IsosurfaceExtraction::IsosurfaceExtraction(
 	  ),
 	  APIToInternalBuffer(
 		  device,
-		  maxParticles,
+		  maxParticles * 65,
 		  nullptr,
 		  D3D11_BIND_SHADER_RESOURCE,
 		  D3D11_USAGE_DEFAULT,

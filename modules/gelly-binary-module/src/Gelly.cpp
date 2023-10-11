@@ -49,6 +49,8 @@ void Gelly::Update(float deltaTime) {
 	engine->GetScene()->colliders.Update();
 	engine->GetScene()->ExitGPUWork();
 	engine->GetScene()->Update(deltaTime);
+	engine->GetScene()->EnterGPUWork();
+	engine->GetScene()->ExitGPUWork();
 }
 
 void Gelly::Render() {
@@ -123,14 +125,14 @@ void Gelly::SetParticleRadius(float radius) {
 	gelly->engine->GetScene()->LinkD3DBuffer(
 		gelly->renderer->GetD3DInternalToAPIBuffer(),
 		SceneRegisterTarget::INTERNAL_TO_API,
-		params.maxParticles,
+		params.maxParticles * 64,
 		sizeof(int)
 	);
 
 	gelly->engine->GetScene()->LinkD3DBuffer(
 		gelly->renderer->GetD3DAPIToInternalBuffer(),
 		SceneRegisterTarget::API_TO_INTERNAL,
-		params.maxParticles,
+		params.maxParticles * 64,
 		sizeof(int)
 	);
 
