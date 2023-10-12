@@ -3,6 +3,7 @@ option(BUILD_GELLYFLUIDSIM_TEST "Build GellyFluidSim test" OFF)
 add_library(gelly_fluid_sim STATIC
         include/GellyFluid.h
         include/detail/PBFSolver.h
+        src/SolverContext.cpp
         )
 
 target_include_directories(gelly_fluid_sim PUBLIC
