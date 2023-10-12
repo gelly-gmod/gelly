@@ -9,11 +9,25 @@ using namespace Microsoft::WRL;
 
 class SolverContext {
 private:
-	ComPtr<ID3D11Device> device;
-	ComPtr<ID3D11DeviceContext> deviceContext;
+	ID3D11Device *device;
+	ID3D11DeviceContext *deviceContext;
 
 public:
-	// TODO: implement this
+	/**
+	 * This class enables access to the passed D3D11 device and device context
+	 * to the solver. Pass a raw pointer to each to make sure that nothing
+	 * happens with reference counting.
+	 * @param deviceReference
+	 * @param deviceContextReference
+	 */
+	SolverContext(
+		ID3D11Device *deviceReference,
+		ID3D11DeviceContext *deviceContextReference
+	);
+	~SolverContext() = default;
+
+	[[nodiscard]] ID3D11Device *GetDevice() const;
+	[[nodiscard]] ID3D11DeviceContext *GetDeviceContext() const;
 };
 
 #endif	// GELLY_SOLVERCONTEXT_H
