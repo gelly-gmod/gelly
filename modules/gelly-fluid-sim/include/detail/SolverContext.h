@@ -28,6 +28,23 @@ public:
 
 	[[nodiscard]] ID3D11Device *GetDevice() const;
 	[[nodiscard]] ID3D11DeviceContext *GetDeviceContext() const;
+
+	template <typename T>
+	d3d11::Buffer<T> CreateBuffer(
+		size_t capacity,
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
+		UINT cpuAccessFlags = 0,
+		UINT bindFlags = D3D11_BIND_SHADER_RESOURCE
+	) {
+		return d3d11::Buffer<T>(
+			device,
+			capacity,
+			nullptr,
+			static_cast<D3D11_BIND_FLAG>(bindFlags),
+			usage,
+			cpuAccessFlags
+		);
+	}
 };
 
 #endif	// GELLY_SOLVERCONTEXT_H

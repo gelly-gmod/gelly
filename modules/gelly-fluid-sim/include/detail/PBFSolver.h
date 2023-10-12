@@ -3,21 +3,30 @@
 
 #include <GellyD3D.h>
 
+#include "MathPOD.h"
 #include "SolverContext.h"
 
-struct PBFSolverParams {
+using namespace gelly_fluid_math;
+
+struct PBFSolverSettings {
 	float radius;
+	int maxParticles;
 	int numIterations;
 	float fluidRestDistance;
 };
 
 class PBFSolver {
 private:
-	PBFSolverParams settings;
+	PBFSolverSettings settings;
 	SolverContext *context;
 
+	d3d11::Buffer<float4> positions;
+	d3d11::Buffer<float3> velocities;
+
+	int activeParticles;
+
 public:
-	PBFSolver(SolverContext *context, PBFSolverParams params);
+	PBFSolver(SolverContext *context, PBFSolverSettings params);
 	~PBFSolver();
 
 	void Update(float dt);

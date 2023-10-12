@@ -4,7 +4,7 @@ add_library(gelly_fluid_sim STATIC
         include/GellyFluid.h
         include/detail/PBFSolver.h
         src/SolverContext.cpp
-        )
+        include/detail/MathPOD.h src/PBFSolver.cpp)
 
 target_include_directories(gelly_fluid_sim PUBLIC
         ../gelly-d3d/include
