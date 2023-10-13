@@ -22,6 +22,7 @@ private:
 
 	d3d11::Buffer<float4> positions;
 	d3d11::Buffer<float3> velocities;
+	d3d11::Buffer<float> densities;
 
 	int activeParticles;
 
