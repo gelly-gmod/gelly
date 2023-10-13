@@ -33,3 +33,10 @@
 [submodule "modules/gelly-binary-module/vendor/BSPParser"]
 	path = modules/gelly-binary-module/vendor/BSPParser
 	url = https://github.com/Derpius/BSPParser.git
+[submodule "modules/gelly-fluid-sim/test/vendor/imgui"]
+	path = modules/gelly-fluid-sim/test/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "modules/gelly-fluid-sim/test/vendor/SDL"]
+	path = modules/gelly-fluid-sim/test/vendor/SDL
+	url = https://github.com/libsdl-org/SDL.git
+	branch = SDL2
