@@ -45,6 +45,12 @@ public:
 			cpuAccessFlags
 		);
 	}
+
+	d3d11::ComputeProgram CreateComputeProgram(
+		const char *programName,
+		const char *entryPoint,
+		const char *programSource
+	) const;
 };
 
 #endif	// GELLY_SOLVERCONTEXT_H
