@@ -32,10 +32,10 @@ public:
 
 	void Update(float dt);
 
-	ID3D11Buffer *GetGPUPositions() const;
-	ID3D11Buffer *GetGPUVelocities() const;
-	ID3D11Buffer *GetGPUDensities() const;
-	int GetNumActiveParticles() const;
+	[[nodiscard]] ID3D11Buffer *GetGPUPositions() const;
+	[[nodiscard]] ID3D11Buffer *GetGPUVelocities() const;
+	[[nodiscard]] ID3D11Buffer *GetGPUDensities() const;
+	[[nodiscard]] int GetNumActiveParticles() const;
 };
 
 #endif	// GELLY_PBFSOLVER_H
