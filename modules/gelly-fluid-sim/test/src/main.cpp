@@ -60,6 +60,9 @@ struct DebugCB {
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 projection;
 	float radius;
+	float pad1;
+	float pad2;
+	float pad3;
 };
 DebugCB g_DebugCBData{};
 d3d11::ConstantBuffer<DebugCB> g_DebugCB;
@@ -73,6 +76,27 @@ const char *g_DebugRenderPSCode = nullptr;
 	options.shader.size = strlen(shaderName##Code);   \
 	options.shader.name = #shaderName;                \
 	options.shader.entryPoint = "main";
+
+void EnsureDebugCBInitialized() {
+	if (!g_Device) {
+		return;
+	}
+
+	g_DebugCB.Init(g_Device);
+}
+
+void UpdateDebugCB() {
+	XMMATRIX viewMatrix = XMLoadFloat4x4(&g_ViewMatrix);
+	XMMATRIX projectionMatrix = XMLoadFloat4x4(&g_ProjectionMatrix);
+
+	XMStoreFloat4x4(&g_DebugCBData.view, XMMatrixTranspose(viewMatrix));
+	XMStoreFloat4x4(
+		&g_DebugCBData.projection, XMMatrixTranspose(projectionMatrix)
+	);
+	g_DebugCBData.radius = g_ParticleRadius;
+
+	g_DebugCB.Set(g_Context, &g_DebugCBData);
+}
 
 void EnsureDebugShadersLoaded() {
 	if (!g_Device) {
@@ -121,6 +145,7 @@ void EnsureParticleLayoutInitialized() {
 		   &g_ParticlePosLayout
 	   ));
 }
+
 void UpdateCameraMatrices() {
 	XMVECTOR cameraPosition = XMLoadFloat3(&g_CameraPosition);
 	XMVECTOR cameraDirection = XMLoadFloat3(&g_CameraDirection);
