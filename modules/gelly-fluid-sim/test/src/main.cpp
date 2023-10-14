@@ -5,6 +5,9 @@
 #include <d3d11.h>
 #include <windows.h>
 
+#include <array>
+#include <vector>
+
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_sdl2.h"
@@ -17,6 +20,8 @@ ID3D11Device *g_Device = nullptr;
 ID3D11DeviceContext *g_Context = nullptr;
 IDXGISwapChain *g_SwapChain = nullptr;
 ID3D11RenderTargetView *g_BackBufferRTV = nullptr;
+static const int g_FrameTimeSampleCount = 512;
+static std::vector<float> g_FrameTimeSamples;
 
 void EnsureWindowInitialized() {
 	if (!g_sdlInitialized) {
@@ -95,6 +100,8 @@ void EnsureD3D11() {
 }
 
 void EnsureIMGUI() {
+	g_FrameTimeSamples.reserve(g_FrameTimeSampleCount);
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
@@ -144,13 +151,37 @@ void Shutdown() {
 	}
 }
 
+void RenderSimControls() {
+	ImGui::Begin("Simulation Controls");
+	float fps = ImGui::GetIO().Framerate;
+	ImGui::Text("FPS: %.1f", fps);
+	float frametimeMs = 1000.0f / fps;
+	g_FrameTimeSamples.push_back(frametimeMs);
+	if (g_FrameTimeSamples.size() > g_FrameTimeSampleCount) {
+		g_FrameTimeSamples.erase(g_FrameTimeSamples.begin());
+	}
+
+	ImGui::Text("Frame time: %.2f ms", frametimeMs);
+	ImGui::PlotLines(
+		"Frame time graph",
+		g_FrameTimeSamples.data(),
+		(int)g_FrameTimeSamples.size(),
+		0,
+		nullptr,
+		0.0f,
+		50.0f,
+		ImVec2(0, 80)
+	);
+
+	ImGui::End();
+}
+
 void RenderFrame() {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplSDL2_NewFrame(g_Window);
 	ImGui::NewFrame();
 
-	ImGui::Begin("Hello, world!");
-	ImGui::End();
+	RenderSimControls();
 
 	ImGui::Render();
 	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
