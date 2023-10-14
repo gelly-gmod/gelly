@@ -1,5 +1,9 @@
 option(BUILD_GELLYFLUIDSIM_TEST "Build GellyFluidSim test" OFF)
 
+if (BUILD_GELLYFLUIDSIM_TEST)
+    add_subdirectory(test)
+endif ()
+
 add_library(gelly_fluid_sim STATIC
         include/GellyFluid.h
         include/detail/PBFSolver.h
