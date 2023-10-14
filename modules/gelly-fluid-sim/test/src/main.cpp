@@ -1,10 +1,13 @@
 #include <GellyD3D.h>
+#include <GellyFluid.h>
+
 #define SDL_MAIN_HANDLED
 #include <DirectXMath.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include <d3d11.h>
 #include <windows.h>
+#include <wrl.h>
 
 #include <array>
 #include <vector>
@@ -12,6 +15,9 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_sdl2.h"
+
+using namespace DirectX;
+using namespace Microsoft::WRL;
 
 bool g_sdlInitialized = false;
 SDL_Window *g_Window = nullptr;
@@ -23,6 +29,171 @@ IDXGISwapChain *g_SwapChain = nullptr;
 ID3D11RenderTargetView *g_BackBufferRTV = nullptr;
 const int g_FrameTimeSampleCount = 512;
 std::vector<float> g_FrameTimeSamples;
+
+XMFLOAT3 g_CameraPosition = {0.0f, 0.0f, -5.0f};
+XMFLOAT3 g_CameraDirection = {1.f, 0.f, 0.f};
+XMFLOAT3 g_WorldUp = {0.f, 0.f, 1.f};
+
+XMFLOAT2 g_LastMousePos = {0.0f, 0.0f};
+XMFLOAT2 g_MousePos = {0.0f, 0.0f};
+bool g_MouseDragging = false;
+
+XMFLOAT4X4 g_ViewMatrix;
+XMFLOAT4X4 g_ProjectionMatrix;
+
+float g_CameraFOVDeg = 60.0f;
+float g_CameraNearPlane = 0.1f;
+float g_CameraFarPlane = 1000.0f;
+
+SolverContext *g_SolverContext = nullptr;
+PBFSolver *g_Solver = nullptr;
+const int g_MaxParticles = 10000;
+float g_ParticleRadius = 0.1f;
+
+ID3D11Buffer *g_ParticlePositions = nullptr;
+ID3D11InputLayout *g_ParticlePosLayout = nullptr;
+ComPtr<ID3D11VertexShader> g_DebugRenderVS;
+ComPtr<ID3DBlob> g_DebugRenderVSBytecode;
+ComPtr<ID3D11GeometryShader> g_DebugRenderGS;
+ComPtr<ID3D11PixelShader> g_DebugRenderPS;
+struct DebugCB {
+	XMFLOAT4X4 view;
+	XMFLOAT4X4 projection;
+	float radius;
+};
+DebugCB g_DebugCBData{};
+d3d11::ConstantBuffer<DebugCB> g_DebugCB;
+
+const char *g_DebugRenderVSCode = nullptr;
+const char *g_DebugRenderGSCode = nullptr;
+const char *g_DebugRenderPSCode = nullptr;
+
+#define LOAD_SHADER_INFO(shaderName)                  \
+	options.shader.buffer = (void *)shaderName##Code; \
+	options.shader.size = strlen(shaderName##Code);   \
+	options.shader.name = #shaderName;                \
+	options.shader.entryPoint = "main";
+
+void EnsureDebugShadersLoaded() {
+	if (!g_Device) {
+		return;
+	}
+
+	d3d11::ShaderCompileOptions options{};
+	options.device = g_Device;
+	options.defines = nullptr;
+
+	LOAD_SHADER_INFO(g_DebugRenderVS);
+	auto vsResult = d3d11::compile_vertex_shader(options);
+	g_DebugRenderVS.Attach(vsResult.shader);
+	g_DebugRenderVSBytecode.Attach(vsResult.shaderBlob);
+
+	LOAD_SHADER_INFO(g_DebugRenderGS);
+	auto gsResult = d3d11::compile_geometry_shader(options);
+	g_DebugRenderGS.Attach(gsResult.shader);
+
+	LOAD_SHADER_INFO(g_DebugRenderPS);
+	auto psResult = d3d11::compile_pixel_shader(options);
+	g_DebugRenderPS.Attach(psResult.shader);
+}
+
+void EnsureParticleLayoutInitialized() {
+	if (!g_Device) {
+		return;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputElementDescs[] = {
+		{"POSITION",
+		 0,
+		 DXGI_FORMAT_R32G32B32A32_FLOAT,
+		 0,
+		 0,
+		 D3D11_INPUT_PER_VERTEX_DATA,
+		 0},
+	};
+
+	DX("Failed to create the particle position input layout",
+	   g_Device->CreateInputLayout(
+		   inputElementDescs,
+		   1,
+		   g_DebugRenderVSBytecode->GetBufferPointer(),
+		   g_DebugRenderVSBytecode->GetBufferSize(),
+		   &g_ParticlePosLayout
+	   ));
+}
+void UpdateCameraMatrices() {
+	XMVECTOR cameraPosition = XMLoadFloat3(&g_CameraPosition);
+	XMVECTOR cameraDirection = XMLoadFloat3(&g_CameraDirection);
+	XMVECTOR worldUp = XMLoadFloat3(&g_WorldUp);
+
+	XMVECTOR cameraRight = XMVector3Cross(worldUp, cameraDirection);
+	XMVECTOR cameraUp = XMVector3Cross(cameraDirection, cameraRight);
+
+	XMMATRIX viewMatrix =
+		XMMatrixLookToRH(cameraPosition, cameraDirection, cameraUp);
+	XMStoreFloat4x4(&g_ViewMatrix, viewMatrix);
+
+	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovRH(
+		XMConvertToRadians(g_CameraFOVDeg),
+		(float)g_Width / (float)g_Height,
+		g_CameraNearPlane,
+		g_CameraFarPlane
+	);
+	XMStoreFloat4x4(&g_ProjectionMatrix, projectionMatrix);
+}
+
+void DoArcballUpdate() {
+	if (!g_MouseDragging) {
+		return;
+	}
+
+	XMFLOAT3 startPointOnBall = {
+		(g_LastMousePos.x / g_Width) * 2.0f - 1.0f,
+		(1.f - g_LastMousePos.y / g_Height) * 2.0f - 1.0f,
+		0.0f};
+
+	XMFLOAT3 endPointOnBall = {
+		(g_MousePos.x / g_Width) * 2.0f - 1.0f,
+		(1.f - g_MousePos.y / g_Height) * 2.0f - 1.0f,
+		0.0f};
+
+	// Calculate Z using pythagorean theorem
+	float startPointOnBallLength =
+		XMVectorGetX(XMVector3Length(XMLoadFloat3(&startPointOnBall)));
+
+	startPointOnBall.z =
+		sqrtf(1.0f - startPointOnBallLength * startPointOnBallLength);
+
+	float endPointOnBallLength =
+		XMVectorGetX(XMVector3Length(XMLoadFloat3(&endPointOnBall)));
+
+	endPointOnBall.z =
+		sqrtf(1.0f - endPointOnBallLength * endPointOnBallLength);
+
+	XMVECTOR startPointOnBallVector = XMLoadFloat3(&startPointOnBall);
+	XMVECTOR endPointOnBallVector = XMLoadFloat3(&endPointOnBall);
+
+	XMVECTOR rotationAxis =
+		XMVector3Cross(startPointOnBallVector, endPointOnBallVector);
+
+	float rotationAngle = XMVectorGetX(XMVector3AngleBetweenVectors(
+		startPointOnBallVector, endPointOnBallVector
+	));
+
+	XMMATRIX rotationMatrix = XMMatrixRotationAxis(rotationAxis, rotationAngle);
+
+	XMVECTOR cameraPosition = XMLoadFloat3(&g_CameraPosition);
+	XMVECTOR cameraDirection = XMLoadFloat3(&g_CameraDirection);
+
+	XMVECTOR rotatedCameraDirection =
+		XMVector3TransformNormal(cameraDirection, rotationMatrix);
+
+	XMVECTOR rotatedCameraPosition =
+		XMVector3Transform(cameraPosition, rotationMatrix);
+
+	XMStoreFloat3(&g_CameraDirection, rotatedCameraDirection);
+	XMStoreFloat3(&g_CameraPosition, rotatedCameraPosition);
+}
 
 void EnsureWindowInitialized() {
 	if (!g_sdlInitialized) {
@@ -100,6 +271,19 @@ void EnsureD3D11() {
 	);
 }
 
+void EnsureSolverInitialized() {
+	if (g_Device == nullptr) {
+		return;
+	}
+
+	g_SolverContext = new SolverContext(g_Device, g_Context);
+	PBFSolverSettings solverSettings{};
+	solverSettings.radius = 0.1f;
+	solverSettings.maxParticles = g_MaxParticles;
+
+	g_Solver = new PBFSolver(g_SolverContext, solverSettings);
+}
+
 void EnsureIMGUI() {
 	g_FrameTimeSamples.reserve(g_FrameTimeSampleCount);
 
@@ -118,6 +302,7 @@ void EnsureIMGUI() {
 void EnsureInitialized() {
 	EnsureWindowInitialized();
 	EnsureD3D11();
+	EnsureSolverInitialized();
 	EnsureIMGUI();
 }
 
@@ -149,6 +334,16 @@ void Shutdown() {
 	if (g_Window) {
 		SDL_DestroyWindow(g_Window);
 		g_Window = nullptr;
+	}
+
+	if (g_Solver) {
+		delete g_Solver;
+		g_Solver = nullptr;
+	}
+
+	if (g_SolverContext) {
+		delete g_SolverContext;
+		g_SolverContext = nullptr;
 	}
 }
 
@@ -203,8 +398,26 @@ int main() {
 			if (event.type == SDL_QUIT) {
 				quit = true;
 			}
+
+			if (event.type == SDL_MOUSEBUTTONDOWN) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					g_MouseDragging = true;
+				}
+			} else if (event.type == SDL_MOUSEBUTTONUP) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					g_MouseDragging = false;
+				}
+			}
+
+			if (event.type == SDL_MOUSEMOTION) {
+				g_LastMousePos = g_MousePos;
+				g_MousePos = {
+					static_cast<float>(event.motion.x),
+					static_cast<float>(event.motion.y)};
+			}
 		}
 
+		DoArcballUpdate();
 		RenderFrame();
 	}
 
