@@ -1,4 +1,5 @@
 #include <GellyD3D.h>
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include <d3d11.h>
@@ -8,6 +9,7 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_sdl2.h"
 
+bool g_sdlInitialized = false;
 SDL_Window *g_Window = nullptr;
 int g_Width = 1366;
 int g_Height = 768;
@@ -17,6 +19,11 @@ IDXGISwapChain *g_SwapChain = nullptr;
 ID3D11RenderTargetView *g_BackBufferRTV = nullptr;
 
 void EnsureWindowInitialized() {
+	if (!g_sdlInitialized) {
+		SDL_Init(SDL_INIT_VIDEO);
+		g_sdlInitialized = true;
+	}
+
 	if (g_Window == nullptr) {
 		g_Window = SDL_CreateWindow(
 			"Gelly Fluid Sim Test",

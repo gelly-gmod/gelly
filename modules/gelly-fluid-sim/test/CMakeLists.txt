@@ -22,3 +22,10 @@ target_include_directories(gelly_fluidsim_test
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/backends
         )
+
+# We have to manually copy the SDL2.dll to the build directory
+add_custom_command(
+        TARGET gelly_fluidsim_test POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL2::SDL2>" "$<TARGET_FILE_DIR:gelly_fluidsim_test>"
+        VERBATIM
+)
