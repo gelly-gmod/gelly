@@ -28,7 +28,7 @@ private:
 
 public:
 	PBFSolver(SolverContext *context, PBFSolverSettings params);
-	~PBFSolver();
+	~PBFSolver() = default;
 
 	void Update(float dt);
 

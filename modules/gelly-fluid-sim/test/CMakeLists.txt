@@ -12,10 +12,11 @@ add_executable(gelly_fluidsim_test
         )
 
 target_link_libraries(gelly_fluidsim_test
-        PRIVATE
+        PUBLIC
         SDL2
         gelly_fluid_sim
-        d3d11)
+        d3d11
+        gelly_d3d9)
 
 target_include_directories(gelly_fluidsim_test
         PRIVATE
@@ -23,6 +24,7 @@ target_include_directories(gelly_fluidsim_test
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/backends
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/DirectXMath/Inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/../gelly-shaders/
         )
 
 # We have to manually copy the SDL2.dll to the build directory
@@ -31,3 +33,6 @@ add_custom_command(
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL2::SDL2>" "$<TARGET_FILE_DIR:gelly_fluidsim_test>"
         VERBATIM
 )
+
+# We also have to explicitly mark the shaders as a build dependency
+add_dependencies(gelly_fluidsim_test GellyD3D11Shaders)

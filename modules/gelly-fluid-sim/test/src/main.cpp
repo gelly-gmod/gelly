@@ -67,7 +67,8 @@ struct DebugCB {
 DebugCB g_DebugCBData{};
 d3d11::ConstantBuffer<DebugCB> g_DebugCB;
 
-const char *g_DebugRenderVSCode = nullptr;
+const char *g_DebugRenderVSCode =
+	#include "shaders/d3d11/fluidsim/DebugRender.vs.embed.hlsl";
 const char *g_DebugRenderGSCode = nullptr;
 const char *g_DebugRenderPSCode = nullptr;
 
@@ -173,13 +174,13 @@ void DoArcballUpdate() {
 	}
 
 	XMFLOAT3 startPointOnBall = {
-		(g_LastMousePos.x / g_Width) * 2.0f - 1.0f,
-		(1.f - g_LastMousePos.y / g_Height) * 2.0f - 1.0f,
+		(g_LastMousePos.x / (float)g_Width) * 2.0f - 1.0f,
+		(1.f - g_LastMousePos.y / (float)g_Height) * 2.0f - 1.0f,
 		0.0f};
 
 	XMFLOAT3 endPointOnBall = {
-		(g_MousePos.x / g_Width) * 2.0f - 1.0f,
-		(1.f - g_MousePos.y / g_Height) * 2.0f - 1.0f,
+		(g_MousePos.x / (float)g_Width) * 2.0f - 1.0f,
+		(1.f - g_MousePos.y / (float)g_Height) * 2.0f - 1.0f,
 		0.0f};
 
 	// Calculate Z using pythagorean theorem
@@ -294,6 +295,10 @@ void EnsureD3D11() {
 	DX("Failed to create the render target view",
 	   g_Device->CreateRenderTargetView(backBuffer, &rtvDesc, &g_BackBufferRTV)
 	);
+
+	EnsureDebugShadersLoaded();
+	EnsureParticleLayoutInitialized();
+	EnsureDebugCBInitialized();
 }
 
 void EnsureSolverInitialized() {
@@ -397,7 +402,22 @@ void RenderSimControls() {
 	ImGui::End();
 }
 
+void RenderParticles() {
+	g_Context->IASetInputLayout(g_ParticlePosLayout);
+	g_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	g_Context->IASetVertexBuffers(0, 1, &g_ParticlePositions, nullptr, nullptr);
+
+	g_Context->VSSetShader(g_DebugRenderVS.Get(), nullptr, 0);
+	g_Context->GSSetShader(g_DebugRenderGS.Get(), nullptr, 0);
+	g_Context->PSSetShader(g_DebugRenderPS.Get(), nullptr, 0);
+	g_DebugCB.BindToShaders(g_Context, 0);
+
+	g_Context->Draw(g_MaxParticles, 0);
+}
+
 void RenderFrame() {
+	UpdateCameraMatrices();
+	UpdateDebugCB();
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplSDL2_NewFrame(g_Window);
 	ImGui::NewFrame();
@@ -408,6 +428,7 @@ void RenderFrame() {
 	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, nullptr);
 	g_Context->ClearRenderTargetView(g_BackBufferRTV, clearColor);
+
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	g_SwapChain->Present(1, 0);
 }
