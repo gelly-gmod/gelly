@@ -1,4 +1,5 @@
 add_subdirectory(vendor/SDL)
+add_subdirectory(vendor/DirectXMath)
 
 file(GLOB IMGUI_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/backends/imgui_impl_sdl2.cpp
@@ -21,6 +22,7 @@ target_include_directories(gelly_fluidsim_test
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL/include
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/backends
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/DirectXMath/Inc
         )
 
 # We have to manually copy the SDL2.dll to the build directory

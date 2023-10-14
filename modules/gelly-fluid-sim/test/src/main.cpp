@@ -1,5 +1,6 @@
 #include <GellyD3D.h>
 #define SDL_MAIN_HANDLED
+#include <DirectXMath.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include <d3d11.h>
