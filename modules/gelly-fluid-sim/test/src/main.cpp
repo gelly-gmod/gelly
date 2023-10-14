@@ -21,8 +21,8 @@ ID3D11Device *g_Device = nullptr;
 ID3D11DeviceContext *g_Context = nullptr;
 IDXGISwapChain *g_SwapChain = nullptr;
 ID3D11RenderTargetView *g_BackBufferRTV = nullptr;
-static const int g_FrameTimeSampleCount = 512;
-static std::vector<float> g_FrameTimeSamples;
+const int g_FrameTimeSampleCount = 512;
+std::vector<float> g_FrameTimeSamples;
 
 void EnsureWindowInitialized() {
 	if (!g_sdlInitialized) {
