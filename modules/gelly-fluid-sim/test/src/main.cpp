@@ -550,7 +550,7 @@ void RenderFrame() {
 	RenderSimControls();
 
 	ImGui::Render();
-	float clearColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, g_DSV);
 	g_Context->ClearRenderTargetView(g_BackBufferRTV, clearColor);
 	g_Context->OMSetDepthStencilState(g_DSS, 0);

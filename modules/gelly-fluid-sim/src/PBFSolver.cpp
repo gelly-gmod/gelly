@@ -10,7 +10,7 @@ PBFSolver::PBFSolver(SolverContext *context, PBFSolverSettings params)
 	// Map and set to random values for testing
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	DX("Failed to map constant buffer",
+	DX("Failed to map particle buffer",
 	   context->GetDeviceContext()->Map(
 		   buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource
 	   ));
