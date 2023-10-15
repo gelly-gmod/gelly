@@ -9,7 +9,7 @@ static const float2 corners[4] = {
 void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
     float4 viewPos = mul(input[0].Pos, matView);
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; i++) {
         GS_OUTPUT output = (GS_OUTPUT)0;
         float2 corner = corners[i];
         float4 viewCorner = viewPos;
