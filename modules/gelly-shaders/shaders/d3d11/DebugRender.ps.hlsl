@@ -13,7 +13,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
     normal.z = sqrt(1.0f - mag);
 
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Color = float4(input.Color, 1.f);
+    output.Color = float4(input.Color.xyz, 1.f);
 
     return output;
 }

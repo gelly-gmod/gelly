@@ -34,7 +34,7 @@ public:
 		size_t capacity,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
 		UINT cpuAccessFlags = 0,
-		UINT bindFlags = D3D11_BIND_SHADER_RESOURCE
+		UINT bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_VERTEX_BUFFER
 	) {
 		return d3d11::Buffer<T>(
 			device,

@@ -67,10 +67,21 @@ struct DebugCB {
 DebugCB g_DebugCBData{};
 d3d11::ConstantBuffer<DebugCB> g_DebugCB;
 
-const char *g_DebugRenderVSCode =
-	#include "shaders/d3d11/fluidsim/DebugRender.vs.embed.hlsl";
-const char *g_DebugRenderGSCode = nullptr;
-const char *g_DebugRenderPSCode = nullptr;
+ID3D11InfoQueue *g_DebugMsgQueue = nullptr;
+
+// clang-format off
+static const char *g_DebugRenderVSCode =
+	#include "shaders/d3d11/DebugRender.vs.embed.hlsl"
+;
+
+static const char *g_DebugRenderGSCode =
+	#include "shaders/d3d11/DebugRender.gs.embed.hlsl"
+;
+
+static const char *g_DebugRenderPSCode =
+	#include "shaders/d3d11/DebugRender.ps.embed.hlsl"
+;
+// clang-format on
 
 #define LOAD_SHADER_INFO(shaderName)                  \
 	options.shader.buffer = (void *)shaderName##Code; \
@@ -128,7 +139,7 @@ void EnsureParticleLayoutInitialized() {
 	}
 
 	D3D11_INPUT_ELEMENT_DESC inputElementDescs[] = {
-		{"POSITION",
+		{"SV_POSITION",
 		 0,
 		 DXGI_FORMAT_R32G32B32A32_FLOAT,
 		 0,
@@ -263,13 +274,16 @@ void EnsureD3D11() {
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
 	swapChainDesc.Windowed = TRUE;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+
+	D3D11_CREATE_DEVICE_FLAG deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
 
 	DX("Failed to create the D3D11 device or swapchain",
 	   D3D11CreateDeviceAndSwapChain(
 		   nullptr,
 		   D3D_DRIVER_TYPE_HARDWARE,
 		   nullptr,
-		   0,
+		   deviceFlags,
 		   &featureLevel,
 		   1,
 		   D3D11_SDK_VERSION,
@@ -296,9 +310,36 @@ void EnsureD3D11() {
 	   g_Device->CreateRenderTargetView(backBuffer, &rtvDesc, &g_BackBufferRTV)
 	);
 
+	DX("Failed to get the debug message queue",
+	   g_Device->QueryInterface(
+		   __uuidof(ID3D11InfoQueue), (void **)&g_DebugMsgQueue
+	   ));
+
 	EnsureDebugShadersLoaded();
 	EnsureParticleLayoutInitialized();
 	EnsureDebugCBInitialized();
+}
+
+void OutputD3DMessages() {
+	if (g_DebugMsgQueue == nullptr) {
+		return;
+	}
+
+	UINT64 messageCount = g_DebugMsgQueue->GetNumStoredMessages();
+	for (UINT64 i = 0; i < messageCount; i++) {
+		SIZE_T messageLength = 0;
+		DX("Failed to get the message length",
+		   g_DebugMsgQueue->GetMessage(i, nullptr, &messageLength));
+
+		auto *message = (D3D11_MESSAGE *)malloc(messageLength);
+		DX("Failed to get the message",
+		   g_DebugMsgQueue->GetMessage(i, message, &messageLength));
+
+		OutputDebugStringA(message->pDescription);
+		OutputDebugStringA("\n");
+
+		free(message);
+	}
 }
 
 void EnsureSolverInitialized() {
@@ -312,6 +353,7 @@ void EnsureSolverInitialized() {
 	solverSettings.maxParticles = g_MaxParticles;
 
 	g_Solver = new PBFSolver(g_SolverContext, solverSettings);
+	g_ParticlePositions = g_Solver->GetGPUPositions();
 }
 
 void EnsureIMGUI() {
@@ -403,9 +445,22 @@ void RenderSimControls() {
 }
 
 void RenderParticles() {
+	D3D11_VIEWPORT viewport;
+	ZeroMemory(&viewport, sizeof(viewport));
+	viewport.Width = (float)g_Width;
+	viewport.Height = (float)g_Height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+
+	g_Context->RSSetViewports(1, &viewport);
 	g_Context->IASetInputLayout(g_ParticlePosLayout);
 	g_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-	g_Context->IASetVertexBuffers(0, 1, &g_ParticlePositions, nullptr, nullptr);
+	unsigned int stride = sizeof(XMFLOAT4);
+	unsigned int offset = 0;
+	// recap: It dont work
+	g_Context->IASetVertexBuffers(0, 1, &g_ParticlePositions, &stride, &offset);
 
 	g_Context->VSSetShader(g_DebugRenderVS.Get(), nullptr, 0);
 	g_Context->GSSetShader(g_DebugRenderGS.Get(), nullptr, 0);
@@ -428,6 +483,7 @@ void RenderFrame() {
 	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, nullptr);
 	g_Context->ClearRenderTargetView(g_BackBufferRTV, clearColor);
+	RenderParticles();
 
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	g_SwapChain->Present(1, 0);
@@ -463,6 +519,7 @@ int main() {
 			}
 		}
 
+		OutputD3DMessages();
 		DoArcballUpdate();
 		RenderFrame();
 	}

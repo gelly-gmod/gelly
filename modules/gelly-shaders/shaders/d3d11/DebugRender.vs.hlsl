@@ -4,7 +4,7 @@
 struct VS_INPUT {
     float4 Pos : SV_POSITION;
     uint VertexID : SV_VERTEXID;
-}
+};
 
 float4 GetColorFromID(uint index) {
     uint r = (index + 237774) % 255;

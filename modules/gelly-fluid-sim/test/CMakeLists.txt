@@ -24,7 +24,7 @@ target_include_directories(gelly_fluidsim_test
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/backends
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/DirectXMath/Inc
-        ${CMAKE_CURRENT_SOURCE_DIR}/../gelly-shaders/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../gelly-shaders/
         )
 
 # We have to manually copy the SDL2.dll to the build directory
