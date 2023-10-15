@@ -274,7 +274,7 @@ void EnsureD3D11() {
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
 	swapChainDesc.Windowed = TRUE;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	D3D11_CREATE_DEVICE_FLAG deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
 
@@ -480,7 +480,7 @@ void RenderFrame() {
 	RenderSimControls();
 
 	ImGui::Render();
-	float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float clearColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 	g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, nullptr);
 	g_Context->ClearRenderTargetView(g_BackBufferRTV, clearColor);
 	RenderParticles();
