@@ -18,9 +18,9 @@ PBFSolver::PBFSolver(SolverContext *context, PBFSolverSettings params)
 	auto *data = (float4 *)mappedResource.pData;
 	for (int i = 0; i < settings.maxParticles; i++) {
 		data[i] = float4(
-			(float)rand() / RAND_MAX,
-			(float)rand() / RAND_MAX,
-			(float)rand() / RAND_MAX,
+			(float)rand() / RAND_MAX - 0.5f,
+			(float)rand() / RAND_MAX - 0.5f,
+			(float)rand() / RAND_MAX - 0.5f,
 			1.0f
 		);
 	}

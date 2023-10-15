@@ -44,6 +44,7 @@ XMFLOAT4X4 g_ProjectionMatrix;
 float g_CameraFOVDeg = 60.0f;
 float g_CameraNearPlane = 0.1f;
 float g_CameraFarPlane = 1000.0f;
+float g_CameraPivotRadius = 1.0f;
 
 SolverContext *g_SolverContext = nullptr;
 PBFSolver *g_Solver = nullptr;
@@ -247,338 +248,366 @@ void DoArcballUpdate() {
 	if (!g_MouseDragging) {
 		return;
 	}
-)
+
 	// Check if the delta would be zero
 	if (g_LastMousePos.x == g_MousePos.x && g_LastMousePos.y == g_MousePos.y) {
-	return;
-}
+		return;
+	}
+
+	float dx = g_MousePos.x - g_LastMousePos.x;
+	float dy = g_MousePos.y - g_LastMousePos.y;
+
+	float theta = dy * 0.01f;
+	float phi = dx * 0.01f;
+	float radius = g_CameraPivotRadius;
+
+	float x = radius * sinf(phi) * cosf(theta);
+	float y = radius * cosf(phi);
+	float z = radius * sinf(phi) * sinf(theta);
+
+	XMVECTOR pivotTranslation = XMVectorSet(x, y, z, 0.0f);
+	XMVECTOR dirTowardsPivot =
+		XMVectorNegate(XMVector4Normalize(pivotTranslation));
+
+	// Set the camera position to the pivot point
+	XMStoreFloat3(&g_CameraPosition, pivotTranslation);
+	XMStoreFloat3(&g_CameraDirection, dirTowardsPivot);
 }
 
 void EnsureWindowInitialized() {
-if (!g_sdlInitialized) {
-	SDL_Init(SDL_INIT_VIDEO);
-	g_sdlInitialized = true;
-}
+	if (!g_sdlInitialized) {
+		SDL_Init(SDL_INIT_VIDEO);
+		g_sdlInitialized = true;
+	}
 
-if (g_Window == nullptr) {
-	g_Window = SDL_CreateWindow(
-		"Gelly Fluid Sim Test",
-		SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED,
-		g_Width,
-		g_Height,
-		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-	);
-}
+	if (g_Window == nullptr) {
+		g_Window = SDL_CreateWindow(
+			"Gelly Fluid Sim Test",
+			SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_UNDEFINED,
+			g_Width,
+			g_Height,
+			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+		);
+	}
 }
 
 void EnsureD3D11() {
-if (g_Device != nullptr) {
-	return;
-}
+	if (g_Device != nullptr) {
+		return;
+	}
 
-SDL_SysWMinfo info;
-SDL_VERSION(&info.version);
-SDL_GetWindowWMInfo(g_Window, &info);
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	SDL_GetWindowWMInfo(g_Window, &info);
 
-D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-DXGI_SWAP_CHAIN_DESC swapChainDesc;
-ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-swapChainDesc.BufferCount = 1;
-swapChainDesc.BufferDesc.Width = g_Width;
-swapChainDesc.BufferDesc.Height = g_Height;
-swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-swapChainDesc.OutputWindow = info.info.win.window;
-swapChainDesc.SampleDesc.Count = 1;
-swapChainDesc.SampleDesc.Quality = 0;
-swapChainDesc.Windowed = TRUE;
-swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	swapChainDesc.BufferCount = 1;
+	swapChainDesc.BufferDesc.Width = g_Width;
+	swapChainDesc.BufferDesc.Height = g_Height;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.OutputWindow = info.info.win.window;
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Quality = 0;
+	swapChainDesc.Windowed = TRUE;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-D3D11_CREATE_DEVICE_FLAG deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
+	D3D11_CREATE_DEVICE_FLAG deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
 
-DX("Failed to create the D3D11 device or swapchain",
-   D3D11CreateDeviceAndSwapChain(
-	   nullptr,
-	   D3D_DRIVER_TYPE_HARDWARE,
-	   nullptr,
-	   deviceFlags,
-	   &featureLevel,
-	   1,
-	   D3D11_SDK_VERSION,
-	   &swapChainDesc,
-	   &g_SwapChain,
-	   &g_Device,
-	   nullptr,
-	   &g_Context
-   ));
+	DX("Failed to create the D3D11 device or swapchain",
+	   D3D11CreateDeviceAndSwapChain(
+		   nullptr,
+		   D3D_DRIVER_TYPE_HARDWARE,
+		   nullptr,
+		   deviceFlags,
+		   &featureLevel,
+		   1,
+		   D3D11_SDK_VERSION,
+		   &swapChainDesc,
+		   &g_SwapChain,
+		   &g_Device,
+		   nullptr,
+		   &g_Context
+	   ));
 
-ID3D11Texture2D *backBuffer;
-DX("Failed to get the back buffer",
-   g_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&backBuffer));
+	ID3D11Texture2D *backBuffer;
+	DX("Failed to get the back buffer",
+	   g_SwapChain->GetBuffer(
+		   0, __uuidof(ID3D11Texture2D), (void **)&backBuffer
+	   ));
 
-D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-ZeroMemory(&rtvDesc, sizeof(rtvDesc));
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+	ZeroMemory(&rtvDesc, sizeof(rtvDesc));
 
-rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-DX("Failed to create the render target view",
-   g_Device->CreateRenderTargetView(backBuffer, &rtvDesc, &g_BackBufferRTV));
+	DX("Failed to create the render target view",
+	   g_Device->CreateRenderTargetView(backBuffer, &rtvDesc, &g_BackBufferRTV)
+	);
 
-DX("Failed to get the debug message queue",
-   g_Device->QueryInterface(
-	   __uuidof(ID3D11InfoQueue), (void **)&g_DebugMsgQueue
-   ));
+	DX("Failed to get the debug message queue",
+	   g_Device->QueryInterface(
+		   __uuidof(ID3D11InfoQueue), (void **)&g_DebugMsgQueue
+	   ));
 
-EnsureDebugShadersLoaded();
-EnsureParticleLayoutInitialized();
-EnsureDebugCBInitialized();
-EnsureDepthResources();
-EnsureRasterizerInitialized();
+	EnsureDebugShadersLoaded();
+	EnsureParticleLayoutInitialized();
+	EnsureDebugCBInitialized();
+	EnsureDepthResources();
+	EnsureRasterizerInitialized();
 }
 
 void OutputD3DMessages() {
-if (g_DebugMsgQueue == nullptr) {
-	return;
-}
+	if (g_DebugMsgQueue == nullptr) {
+		return;
+	}
 
-UINT64 messageCount = g_DebugMsgQueue->GetNumStoredMessages();
-for (UINT64 i = 0; i < messageCount; i++) {
-	SIZE_T messageLength = 0;
-	DX("Failed to get the message length",
-	   g_DebugMsgQueue->GetMessage(i, nullptr, &messageLength));
+	UINT64 messageCount = g_DebugMsgQueue->GetNumStoredMessages();
+	for (UINT64 i = 0; i < messageCount; i++) {
+		SIZE_T messageLength = 0;
+		DX("Failed to get the message length",
+		   g_DebugMsgQueue->GetMessage(i, nullptr, &messageLength));
 
-	auto *message = (D3D11_MESSAGE *)malloc(messageLength);
-	DX("Failed to get the message",
-	   g_DebugMsgQueue->GetMessage(i, message, &messageLength));
+		auto *message = (D3D11_MESSAGE *)malloc(messageLength);
+		DX("Failed to get the message",
+		   g_DebugMsgQueue->GetMessage(i, message, &messageLength));
 
-	OutputDebugStringA(message->pDescription);
-	OutputDebugStringA("\n");
+		OutputDebugStringA(message->pDescription);
+		OutputDebugStringA("\n");
 
-	free(message);
-}
+		free(message);
+	}
 }
 
 void EnsureSolverInitialized() {
-if (g_Device == nullptr) {
-	return;
-}
+	if (g_Device == nullptr) {
+		return;
+	}
 
-g_SolverContext = new SolverContext(g_Device, g_Context);
-PBFSolverSettings solverSettings{};
-solverSettings.radius = 0.1f;
-solverSettings.maxParticles = g_MaxParticles;
+	g_SolverContext = new SolverContext(g_Device, g_Context);
+	PBFSolverSettings solverSettings{};
+	solverSettings.radius = 0.1f;
+	solverSettings.maxParticles = g_MaxParticles;
 
-g_Solver = new PBFSolver(g_SolverContext, solverSettings);
-g_ParticlePositions = g_Solver->GetGPUPositions();
+	g_Solver = new PBFSolver(g_SolverContext, solverSettings);
+	g_ParticlePositions = g_Solver->GetGPUPositions();
 }
 
 void EnsureIMGUI() {
-g_FrameTimeSamples.reserve(g_FrameTimeSampleCount);
+	g_FrameTimeSamples.reserve(g_FrameTimeSampleCount);
 
-IMGUI_CHECKVERSION();
-ImGui::CreateContext();
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
 
-ImGuiIO &io = ImGui::GetIO();
-io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGuiIO &io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-ImGui_ImplSDL2_InitForD3D(g_Window);
-ImGui_ImplDX11_Init(g_Device, g_Context);
+	ImGui_ImplSDL2_InitForD3D(g_Window);
+	ImGui_ImplDX11_Init(g_Device, g_Context);
 
-ImGui::StyleColorsDark();
+	ImGui::StyleColorsDark();
 }
 
 void EnsureInitialized() {
-EnsureWindowInitialized();
-EnsureD3D11();
-EnsureSolverInitialized();
-EnsureIMGUI();
+	EnsureWindowInitialized();
+	EnsureD3D11();
+	EnsureSolverInitialized();
+	EnsureIMGUI();
 }
 
 void Shutdown() {
-ImGui_ImplDX11_Shutdown();
-ImGui_ImplSDL2_Shutdown();
-ImGui::DestroyContext();
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 
-if (g_BackBufferRTV) {
-	g_BackBufferRTV->Release();
-	g_BackBufferRTV = nullptr;
-}
+	if (g_BackBufferRTV) {
+		g_BackBufferRTV->Release();
+		g_BackBufferRTV = nullptr;
+	}
 
-if (g_SwapChain) {
-	g_SwapChain->Release();
-	g_SwapChain = nullptr;
-}
+	if (g_SwapChain) {
+		g_SwapChain->Release();
+		g_SwapChain = nullptr;
+	}
 
-if (g_Context) {
-	g_Context->Release();
-	g_Context = nullptr;
-}
+	if (g_Context) {
+		g_Context->Release();
+		g_Context = nullptr;
+	}
 
-if (g_Device) {
-	g_Device->Release();
-	g_Device = nullptr;
-}
+	if (g_Device) {
+		g_Device->Release();
+		g_Device = nullptr;
+	}
 
-if (g_Window) {
-	SDL_DestroyWindow(g_Window);
-	g_Window = nullptr;
-}
+	if (g_Window) {
+		SDL_DestroyWindow(g_Window);
+		g_Window = nullptr;
+	}
 
-if (g_Solver) {
-	delete g_Solver;
-	g_Solver = nullptr;
-}
+	if (g_Solver) {
+		delete g_Solver;
+		g_Solver = nullptr;
+	}
 
-if (g_SolverContext) {
-	delete g_SolverContext;
-	g_SolverContext = nullptr;
-}
+	if (g_SolverContext) {
+		delete g_SolverContext;
+		g_SolverContext = nullptr;
+	}
 }
 
 void RenderSimControls() {
-ImGui::Begin("Simulation Controls");
-float fps = ImGui::GetIO().Framerate;
-ImGui::Text("FPS: %.1f", fps);
-float frametimeMs = 1000.0f / fps;
-g_FrameTimeSamples.push_back(frametimeMs);
-if (g_FrameTimeSamples.size() > g_FrameTimeSampleCount) {
-	g_FrameTimeSamples.erase(g_FrameTimeSamples.begin());
-}
+	ImGui::Begin("Simulation Controls");
+	float fps = ImGui::GetIO().Framerate;
+	ImGui::Text("FPS: %.1f", fps);
+	float frametimeMs = 1000.0f / fps;
+	g_FrameTimeSamples.push_back(frametimeMs);
+	if (g_FrameTimeSamples.size() > g_FrameTimeSampleCount) {
+		g_FrameTimeSamples.erase(g_FrameTimeSamples.begin());
+	}
 
-ImGui::Text("Frame time: %.2f ms", frametimeMs);
-ImGui::PlotLines(
-	"Frame time graph",
-	g_FrameTimeSamples.data(),
-	(int)g_FrameTimeSamples.size(),
-	0,
-	nullptr,
-	0.0f,
-	50.0f,
-	ImVec2(0, 80)
-);
+	ImGui::Text("Frame time: %.2f ms", frametimeMs);
+	ImGui::PlotLines(
+		"Frame time graph",
+		g_FrameTimeSamples.data(),
+		(int)g_FrameTimeSamples.size(),
+		0,
+		nullptr,
+		0.0f,
+		50.0f,
+		ImVec2(0, 80)
+	);
 
-ImGui::Text("Dragging mouse: %s", g_MouseDragging ? "true" : "false");
-ImGui::Text("Mouse pos: (%.2f, %.2f)", g_MousePos.x, g_MousePos.y);
+	ImGui::Text("Dragging mouse: %s", g_MouseDragging ? "true" : "false");
+	ImGui::Text("Mouse pos: (%.2f, %.2f)", g_MousePos.x, g_MousePos.y);
 
-ImGui::Text(
-	"Camera position: (%.2f, %.2f, %.2f)",
-	g_CameraPosition.x,
-	g_CameraPosition.y,
-	g_CameraPosition.z
-);
-ImGui::Text(
-	"Camera direction: (%.2f, %.2f, %.2f)",
-	g_CameraDirection.x,
-	g_CameraDirection.y,
-	g_CameraDirection.z
-);
+	ImGui::Text(
+		"Camera position: (%.2f, %.2f, %.2f)",
+		g_CameraPosition.x,
+		g_CameraPosition.y,
+		g_CameraPosition.z
+	);
+	ImGui::Text(
+		"Camera direction: (%.2f, %.2f, %.2f)",
+		g_CameraDirection.x,
+		g_CameraDirection.y,
+		g_CameraDirection.z
+	);
 
-ImGui::Text("Particle radius: %.2f", g_ParticleRadius);
-ImGui::SliderFloat("Particle radius", &g_ParticleRadius, 0.0f, 1.0f);
-
-ImGui::End();
+	ImGui::Text("Particle radius: %.2f", g_ParticleRadius);
+	ImGui::SliderFloat("Particle radius", &g_ParticleRadius, 0.0f, 1.0f);
+	ImGui::End();
 }
 
 void RenderParticles() {
-D3D11_VIEWPORT viewport;
-ZeroMemory(&viewport, sizeof(viewport));
-viewport.Width = (float)g_Width;
-viewport.Height = (float)g_Height;
-viewport.MinDepth = 0.0f;
-viewport.MaxDepth = 1.0f;
-viewport.TopLeftX = 0;
-viewport.TopLeftY = 0;
+	D3D11_VIEWPORT viewport;
+	ZeroMemory(&viewport, sizeof(viewport));
+	viewport.Width = (float)g_Width;
+	viewport.Height = (float)g_Height;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
 
-g_Context->RSSetState(g_RasterizerState);
-g_Context->RSSetViewports(1, &viewport);
-g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, g_DSV);
-g_Context->OMSetDepthStencilState(g_DSS, 0);
-// Clear DSV
-g_Context->ClearDepthStencilView(
-	g_DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
-);
+	g_Context->RSSetState(g_RasterizerState);
+	g_Context->RSSetViewports(1, &viewport);
+	g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, g_DSV);
+	g_Context->OMSetDepthStencilState(g_DSS, 0);
+	// Clear DSV
+	g_Context->ClearDepthStencilView(
+		g_DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
+	);
 
-g_Context->IASetInputLayout(g_ParticlePosLayout);
-g_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-unsigned int stride = sizeof(XMFLOAT4);
-unsigned int offset = 0;
-// recap: It dont work
-g_Context->IASetVertexBuffers(0, 1, &g_ParticlePositions, &stride, &offset);
+	g_Context->IASetInputLayout(g_ParticlePosLayout);
+	g_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	unsigned int stride = sizeof(XMFLOAT4);
+	unsigned int offset = 0;
+	// recap: It dont work
+	g_Context->IASetVertexBuffers(0, 1, &g_ParticlePositions, &stride, &offset);
 
-g_Context->VSSetShader(g_DebugRenderVS.Get(), nullptr, 0);
-g_Context->GSSetShader(g_DebugRenderGS.Get(), nullptr, 0);
-g_Context->PSSetShader(g_DebugRenderPS.Get(), nullptr, 0);
-g_DebugCB.BindToShaders(g_Context, 0);
+	g_Context->VSSetShader(g_DebugRenderVS.Get(), nullptr, 0);
+	g_Context->GSSetShader(g_DebugRenderGS.Get(), nullptr, 0);
+	g_Context->PSSetShader(g_DebugRenderPS.Get(), nullptr, 0);
+	g_DebugCB.BindToShaders(g_Context, 0);
 
-g_Context->Draw(g_MaxParticles, 0);
+	g_Context->Draw(g_MaxParticles, 0);
 }
 
 void RenderFrame() {
-UpdateCameraMatrices();
-UpdateDebugCB();
-ImGui_ImplDX11_NewFrame();
-ImGui_ImplSDL2_NewFrame(g_Window);
-ImGui::NewFrame();
+	UpdateCameraMatrices();
+	UpdateDebugCB();
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplSDL2_NewFrame(g_Window);
+	ImGui::NewFrame();
 
-RenderSimControls();
+	RenderSimControls();
 
-ImGui::Render();
-float clearColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, g_DSV);
-g_Context->ClearRenderTargetView(g_BackBufferRTV, clearColor);
-g_Context->OMSetDepthStencilState(g_DSS, 0);
+	ImGui::Render();
+	float clearColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+	g_Context->OMSetRenderTargets(1, &g_BackBufferRTV, g_DSV);
+	g_Context->ClearRenderTargetView(g_BackBufferRTV, clearColor);
+	g_Context->OMSetDepthStencilState(g_DSS, 0);
 
-RenderParticles();
+	RenderParticles();
 
-ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-g_SwapChain->Present(1, 0);
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	g_SwapChain->Present(1, 0);
 }
 
 int main() {
-EnsureInitialized();
+	EnsureInitialized();
 
-bool quit = false;
-while (!quit) {
-	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		ImGui_ImplSDL2_ProcessEvent(&event);
-		if (event.type == SDL_QUIT) {
-			quit = true;
-		}
-
-		// Drop if ImGUI is processing the mouse
-		if (ImGui::GetIO().WantCaptureMouse) {
-			continue;
-		}
-		if (event.type == SDL_MOUSEBUTTONDOWN) {
-			if (event.button.button == SDL_BUTTON_LEFT) {
-				g_MouseDragging = true;
+	bool quit = false;
+	while (!quit) {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			ImGui_ImplSDL2_ProcessEvent(&event);
+			if (event.type == SDL_QUIT) {
+				quit = true;
 			}
-		} else if (event.type == SDL_MOUSEBUTTONUP) {
-			if (event.button.button == SDL_BUTTON_LEFT) {
-				g_MouseDragging = false;
+
+			// Drop if ImGUI is processing the mouse
+			if (ImGui::GetIO().WantCaptureMouse) {
+				continue;
+			}
+
+			if (event.type == SDL_MOUSEBUTTONDOWN) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					g_MouseDragging = true;
+					g_LastMousePos = g_MousePos;
+				}
+			} else if (event.type == SDL_MOUSEBUTTONUP) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					g_MouseDragging = false;
+				}
+			}
+
+			if (event.type == SDL_MOUSEMOTION) {
+				g_MousePos = {
+					static_cast<float>(event.motion.x),
+					static_cast<float>(event.motion.y)};
+			}
+
+			// Change pivot radius based on mouse wheel
+
+			if (event.type == SDL_MOUSEWHEEL) {
+				g_CameraPivotRadius += (float)event.wheel.y * 0.1f;
 			}
 		}
 
-		if (event.type == SDL_MOUSEMOTION) {
-			g_LastMousePos = g_MousePos;
-			g_MousePos = {
-				static_cast<float>(event.motion.x),
-				static_cast<float>(event.motion.y)};
-		}
+		OutputD3DMessages();
+		DoArcballUpdate();
+		RenderFrame();
 	}
 
-	OutputD3DMessages();
-	DoArcballUpdate();
-	RenderFrame();
-}
+	Shutdown();
 
-Shutdown();
-
-return 0;
+	return 0;
 }
