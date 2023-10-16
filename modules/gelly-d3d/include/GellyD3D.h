@@ -14,6 +14,7 @@
 #include "detail/d3d11/Shaders.h"
 #include "detail/d3d11/SyncFlush.h"
 #include "detail/d3d11/Texture.h"
+#include "detail/d3d11/UAVBuffer.h"
 #include "detail/d3d11/VertexBuffer.h"
 #include "detail/d3d9/DXMathInterop.h"
 #include "detail/d3d9/ShaderConstants.h"

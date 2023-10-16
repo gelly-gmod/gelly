@@ -604,6 +604,7 @@ int main() {
 
 		OutputD3DMessages();
 		DoArcballUpdate();
+		g_Solver->Update(0.01f);
 		RenderFrame();
 	}
 

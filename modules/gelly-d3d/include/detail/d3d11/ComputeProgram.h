@@ -14,6 +14,7 @@ template <typename CBuffer>
 struct ComputeProgramLayout {
 	int numThreadsX;
 	int numThreadsY;
+	int numThreadsZ = 1;
 	ID3D11UnorderedAccessView *views[8];
 	int numViews;
 	ID3D11ShaderResourceView *resources[8];
@@ -49,7 +50,9 @@ public:
 			layout.constantBuffer->BindToShaders(context, 0);
 		}
 
-		context->Dispatch(layout.numThreadsX, layout.numThreadsY, 1);
+		context->Dispatch(
+			layout.numThreadsX, layout.numThreadsY, layout.numThreadsZ
+		);
 	}
 };
 }  // namespace d3d11
