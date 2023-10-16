@@ -538,6 +538,11 @@ void RenderParticles() {
 	g_DebugCB.BindToShaders(g_Context, 0);
 
 	g_Context->Draw(g_MaxParticles, 0);
+
+	// Unbind the vertex buffer since it still belongs to the solver.
+
+	ID3D11Buffer *nullBuffer = nullptr;
+	g_Context->IASetVertexBuffers(0, 1, &nullBuffer, &stride, &offset);
 }
 
 void RenderFrame() {

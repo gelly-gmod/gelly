@@ -1,18 +1,16 @@
 RWBuffer<float4> positions;
 
-uint CollapseIndexTo1D(uint3 index) {
-    return index.x + index.y * 3 + index.z * 9;
-}
-
-[numthreads(3, 3, 3)]
+[numthreads(27, 1, 1)]
 void main(uint3 threadID : SV_DispatchThreadID) {
     // For demo purposes, just set the position to the thread ID multiplied by 0.01
 
-    uint index = CollapseIndexTo1D(threadID);
-    uint positionsLength;
-    positions.GetDimensions(positionsLength);
-    if (index >= positionsLength) {
-        return;
-    }
-    positions[index] = float4(threadID, 1);
+    uint index = threadID.x;
+    // Generate a random coordinate for the position using the index.
+
+    positions[index] = float4(
+        (index % 3) * 0.01,
+        ((index / 3) % 3) * 0.01,
+        (index / 9) * 0.01,
+        1.0f
+    );
 }

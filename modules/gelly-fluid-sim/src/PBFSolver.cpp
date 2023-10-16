@@ -29,11 +29,15 @@ PBFSolver::PBFSolver(SolverContext *context, PBFSolverSettings params)
 
 void PBFSolver::Update(float dt) {
 	// The time step program runs in blocks of 3x3x3 threads.
-
-	timeStepLayout.numThreadsX = activeParticles / 27 + 1;
+	activeParticles = settings.maxParticles;
+	timeStepLayout.numThreadsX = activeParticles / 27;
 	timeStepLayout.numThreadsY = 1;
-	timeStepLayout.numThreadsZ = 1;
+
 	timeStepProgram.Run(context->GetDeviceContext(), timeStepLayout);
+	d3d11::SyncFlush(context->GetDevice(), context->GetDeviceContext());
+	d3d11::CleanupRTsAndShaders(
+		context->GetDeviceContext(), timeStepLayout.numViews, 0
+	);
 }
 
 ID3D11Buffer *PBFSolver::GetGPUPositions() const { return positions.Get(); }

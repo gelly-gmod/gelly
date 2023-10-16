@@ -6,17 +6,24 @@ struct VS_INPUT {
     uint VertexID : SV_VERTEXID;
 };
 
-float4 GetColorFromID(uint index) {
-    uint r = (index + 7737774) % 255;
-    uint g = (index + 1237775) % 255;
-    uint b = (index + 237776) % 255;
-
-    return float4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+// Hash to generate good-enuf random numbers
+// Taken from https://www.reedbeta.com/blog/hash-functions-for-gpu-rendering/
+uint pcg_hash(uint input)
+{
+    uint state = input * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
 }
 
 VS_OUTPUT main(VS_INPUT input) {
     VS_OUTPUT output;
     output.Pos = float4(input.Pos.xyz, 1.f);
-    output.Color = GetColorFromID(input.VertexID);
+    output.Color = float4(
+        float(pcg_hash(input.VertexID + 0u) & 0xFFu) / 255.f,
+        float(pcg_hash(input.VertexID + 1u) & 0xFFu) / 255.f,
+        float(pcg_hash(input.VertexID + 2u) & 0xFFu) / 255.f,
+        1.f
+    );
+
     return output;
 }
