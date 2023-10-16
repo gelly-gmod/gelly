@@ -12,5 +12,6 @@ add_library(gelly_fluid_sim STATIC
 
 target_include_directories(gelly_fluid_sim PUBLIC
         ../gelly-d3d/include
+        ../gelly-shaders/
         include
         )

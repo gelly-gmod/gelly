@@ -24,6 +24,10 @@ private:
 	d3d11::Buffer<float3> velocities;
 	d3d11::Buffer<float> densities;
 
+	d3d11::ComputeProgram timeStepProgram;
+
+	d3d11::ComputeProgramLayout<PBFSolverSettings> timeStepLayout;
+
 	int activeParticles;
 
 public:
