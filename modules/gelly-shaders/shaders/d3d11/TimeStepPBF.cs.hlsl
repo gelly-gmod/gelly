@@ -8,9 +8,9 @@ void main(uint3 threadID : SV_DispatchThreadID) {
     // Generate a random coordinate for the position using the index.
 
     positions[index] = float4(
-        (index % 3) * 0.01,
-        ((index / 3) % 3) * 0.01,
-        (index / 9) * 0.01,
+        (index % 3) * 3,
+        ((index / 3) % 3) * 3,
+        (index / 9) * 3,
         1.0f
     );
 }

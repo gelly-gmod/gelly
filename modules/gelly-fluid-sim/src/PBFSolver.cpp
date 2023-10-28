@@ -28,7 +28,6 @@ PBFSolver::PBFSolver(SolverContext *context, PBFSolverSettings params)
 }
 
 void PBFSolver::Update(float dt) {
-	// The time step program runs in blocks of 3x3x3 threads.
 	activeParticles = settings.maxParticles;
 	timeStepLayout.numThreadsX = activeParticles / 27;
 	timeStepLayout.numThreadsY = 1;
