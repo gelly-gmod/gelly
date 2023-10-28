@@ -8,4 +8,6 @@ add_library(
 target_include_directories(
         gelly_fluid_sim
         PUBLIC
-        include)
+        include
+        ../gelly-interfaces/include
+)
