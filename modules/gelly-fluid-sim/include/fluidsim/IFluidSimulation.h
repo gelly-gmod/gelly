@@ -5,11 +5,19 @@
 #include "ISimContext.h"
 #include "ISimData.h"
 
+enum class FluidSimCompute {
+	/**
+	 * CPU-based simulation also uses D3D11.
+	 */
+	D3D11,
+};
+
 gelly_interface IFluidSimulation {
 public:
 	virtual ~IFluidSimulation() = default;
 
 	virtual ISimData *GetSimulationData() = 0;
+	virtual FluidSimCompute GetComputeType() = 0;
 	virtual void AttachToContext(ISimContext * context) = 0;
 	virtual void Update(float deltaTime) = 0;
 };

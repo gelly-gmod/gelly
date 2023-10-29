@@ -7,7 +7,7 @@
 #include "ISimContext.h"
 #include "ISimData.h"
 
-class CD3D11CPUSimData : ISimData {
+class CD3D11CPUSimData : public ISimData {
 private:
 	d3d11::Buffer<SimFloat4> positions;
 	ID3D11Device *device;
