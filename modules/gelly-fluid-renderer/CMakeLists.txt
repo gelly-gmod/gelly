@@ -3,7 +3,7 @@ add_library(
         STATIC
         include/GellyFluidRender.h
         src/GellyFluidRender.cpp
-)
+        include/fluidrender/IRenderContext.h include/fluidrender/IManagedTexture.h)
 
 target_include_directories(
         gelly_fluid_renderer
