@@ -10,7 +10,7 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 
 	SimFloat4 *positions = simData->MapBuffer(SimBuffer::Position);
 
-	for (int i = 0; i < maxParticles; ++i) {
+	for (int i = 0; i < maxParticles; i++) {
 		positions[i].x = static_cast<float>(rand()) / RAND_MAX;
 		positions[i].y = static_cast<float>(rand()) / RAND_MAX;
 		positions[i].z = static_cast<float>(rand()) / RAND_MAX;
