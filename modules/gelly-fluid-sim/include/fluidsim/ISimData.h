@@ -24,8 +24,10 @@ public:
 	/**
 	 * Returns a buffer created in a rendering API. The exact one is determined
 	 * by the implementation.
+	 * @note If a null pointer is returned, then the simulation does not support
+	 * the requested buffer.
 	 * @param buffer
-	 * @return
+	 * @return A pointer to the underlying buffer.
 	 */
 	virtual void *GetRenderBuffer(SimBuffer buffer) = 0;
 
