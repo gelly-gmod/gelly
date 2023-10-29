@@ -3,6 +3,7 @@
 
 #include <d3d11.h>
 
+#include "fluidsim/CD3D11DebugFluidSimulation.h"
 #include "fluidsim/ISimContext.h"
 
 ISimContext *GFluidSim_CreateD3D11SimContext(
@@ -10,5 +11,13 @@ ISimContext *GFluidSim_CreateD3D11SimContext(
 );
 
 void GFluidSim_DestroyD3D11SimContext(ISimContext *context);
+
+CD3D11DebugFluidSimulation *GFluidSim_CreateD3D11DebugFluidSimulation(
+	int maxParticles
+);
+
+void GFluidSim_DestroyD3D11DebugFluidSimulation(
+	CD3D11DebugFluidSimulation *simulation
+);
 
 #endif	// GELLY_GELLYFLUIDSIM_H
