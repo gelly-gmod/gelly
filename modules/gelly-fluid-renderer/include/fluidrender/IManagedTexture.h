@@ -47,13 +47,21 @@ gelly_interface IManagedTexture {
 protected:
 	virtual bool Create() = 0;
 	virtual void Destroy() = 0;
+	virtual void AttachToContext(IRenderContext * context) = 0;
 
 public:
 	virtual ~IManagedTexture() = 0;
 
 	virtual void SetDesc(const GellyTextureDesc &desc) = 0;
 	[[nodiscard]] virtual const GellyTextureDesc &GetDesc() const = 0;
-	virtual void AttachToContext(IRenderContext * context) = 0;
+	
+	/**
+	 * Sets the size of the texture to the size of the resolution of the
+	 * attached context. Really, this is always going to be the size of the
+	 * window.
+	 * @note This does not invoke a create or destroy!
+	 */
+	virtual void SetFullscreenSize() = 0;
 };
 
 #endif	// GELLY_IMANAGEDTEXTURE_H
