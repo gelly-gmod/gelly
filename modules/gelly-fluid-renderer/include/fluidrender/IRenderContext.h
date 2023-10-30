@@ -21,6 +21,16 @@ enum class ContextRenderAPI {
 	D3D11,
 };
 
+/**
+ * The render context abstracts the host rendering API for fluid renderers.
+ * This enables higher compatibility, and also allows for automated resource
+ * management. That being said, fluid renderers are still expected not to rely
+ * on the underlying rendering API.
+ *
+ * @note For the critical sections which require a rendering API, the context
+ * provides several core resources. These are the device and device context for
+ * D3D11.
+ */
 gelly_interface IRenderContext {
 public:
 	// All subclasses must destroy their resources here, but also in the event
@@ -45,7 +55,7 @@ public:
 	 * @param name
 	 * @return
 	 */
-	virtual void DestroyTexture(IManagedTexture * texture) = 0;
+	virtual void DestroyTexture(const char *name) = 0;
 
 	/**
 	 * Sets the dimensions of the context, which in turn sets the dimensions of
