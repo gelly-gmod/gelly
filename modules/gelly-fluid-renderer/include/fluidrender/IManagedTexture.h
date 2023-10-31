@@ -32,29 +32,46 @@ struct GellyTextureDesc {
 	uint16_t height;
 };
 
+constexpr enum GellyTextureAccess operator&(
+	const enum GellyTextureAccess a, const enum GellyTextureAccess b
+) {
+	return static_cast<GellyTextureAccess>(
+		static_cast<uint8_t>(a) & static_cast<uint8_t>(b)
+	);
+}
+
+constexpr enum GellyTextureAccess operator|(
+	const enum GellyTextureAccess a, const enum GellyTextureAccess b
+) {
+	return static_cast<GellyTextureAccess>(
+		static_cast<uint8_t>(a) | static_cast<uint8_t>(b)
+	);
+}
+
+constexpr bool operator==(const enum GellyTextureAccess a, const int b) {
+	return static_cast<uint8_t>(a) == static_cast<uint8_t>(b);
+}
+
 /**
  * Interface for implementing managed textures.
- * These are textures that are created and managed by the renderer, and make no
- * promises about the underlying resource's lifetime.
+ * These are textures that are created and managed by the renderer, and make
+ * no promises about the underlying resource's lifetime.
  *
- * However, notice that there is no standard API for accessing the underlying
- * resource. This is because many rendering APIs have different ways of
- * representing textures.
+ * However, notice that there is no standard API for accessing the
+ * underlying resource. This is because many rendering APIs have different
+ * ways of representing textures.
  */
 gelly_interface IManagedTexture {
-	friend class IRenderContext;
-
-protected:
-	virtual bool Create() = 0;
-	virtual void Destroy() = 0;
-	virtual void AttachToContext(IRenderContext * context) = 0;
-
 public:
 	virtual ~IManagedTexture() = 0;
 
 	virtual void SetDesc(const GellyTextureDesc &desc) = 0;
 	[[nodiscard]] virtual const GellyTextureDesc &GetDesc() const = 0;
-	
+
+	virtual bool Create() = 0;
+	virtual void Destroy() = 0;
+	virtual void AttachToContext(IRenderContext * context) = 0;
+
 	/**
 	 * Sets the size of the texture to the size of the resolution of the
 	 * attached context. Really, this is always going to be the size of the

@@ -1,0 +1,32 @@
+#ifndef GELLY_CD3D11MANAGEDTEXTURE_H
+#define GELLY_CD3D11MANAGEDTEXTURE_H
+
+#include <d3d11.h>
+
+#include "IManagedTexture.h"
+#include "IRenderContext.h"
+
+class CD3D11ManagedTexture : public IManagedTexture {
+private:
+	IRenderContext *context;
+	GellyTextureDesc desc;
+
+	ID3D11Texture2D *texture;
+	ID3D11ShaderResourceView *srv;
+	ID3D11RenderTargetView *rtv;
+
+public:
+	CD3D11ManagedTexture();
+	~CD3D11ManagedTexture() override;
+
+	void SetDesc(const GellyTextureDesc &desc) override;
+	[[nodiscard]] const GellyTextureDesc &GetDesc() const override;
+
+	bool Create() override;
+	void Destroy() override;
+	void AttachToContext(IRenderContext *context) override;
+
+	void SetFullscreenSize() override;
+};
+
+#endif	// GELLY_CD3D11MANAGEDTEXTURE_H

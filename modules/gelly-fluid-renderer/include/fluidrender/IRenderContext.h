@@ -62,6 +62,8 @@ public:
 	 * any fluid renderer using this context.
 	 */
 	virtual void SetDimensions(uint16_t width, uint16_t height) = 0;
+
+	virtual void GetDimensions(uint16_t & width, uint16_t & height) = 0;
 };
 
 #endif	// GELLY_IRENDERCONTEXT_H
