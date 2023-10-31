@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "CD3D11ManagedTexture.h"
+#include "GellyObserverPtr.h"
 #include "IRenderContext.h"
 
 class CD3D11RenderContext : public IRenderContext {
@@ -30,7 +31,7 @@ public:
 	void *GetRenderAPIResource(RenderAPIResource resource) override;
 	ContextRenderAPI GetRenderAPI() override;
 
-	IManagedTexture *CreateTexture(
+	GellyObserverPtr<IManagedTexture> CreateTexture(
 		const char *name, const GellyTextureDesc &desc
 	) override;
 

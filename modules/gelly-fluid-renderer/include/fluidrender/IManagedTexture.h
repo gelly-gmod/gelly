@@ -30,6 +30,8 @@ struct GellyTextureDesc {
 
 	uint16_t width;
 	uint16_t height;
+
+	bool isFullscreen = false;
 };
 
 constexpr enum GellyTextureAccess operator&(
@@ -76,7 +78,7 @@ public:
 	 * Sets the size of the texture to the size of the resolution of the
 	 * attached context. Really, this is always going to be the size of the
 	 * window.
-	 * @note This does not invoke a create or destroy!
+	 * Automatically called if the texture is set to fullscreen.
 	 */
 	virtual void SetFullscreenSize() = 0;
 };

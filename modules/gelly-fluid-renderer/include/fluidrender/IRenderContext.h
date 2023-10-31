@@ -5,6 +5,7 @@
 
 #include <cstdint>
 
+#include "GellyObserverPtr.h"
 #include "IManagedTexture.h"
 
 // Distinction between handles and resources since this context will abstract
@@ -46,7 +47,7 @@ public:
 	 * @param desc
 	 * @return
 	 */
-	virtual IManagedTexture *CreateTexture(
+	virtual GellyObserverPtr<IManagedTexture> CreateTexture(
 		const char *name, const GellyTextureDesc &desc
 	) = 0;
 

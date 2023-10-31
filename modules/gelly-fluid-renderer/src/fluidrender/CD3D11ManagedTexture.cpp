@@ -32,11 +32,16 @@ bool CD3D11ManagedTexture::Create() {
 		return false;
 	}
 
+	if (desc.isFullscreen) {
+		SetFullscreenSize();
+	}
+
 	auto *device = static_cast<ID3D11Device *>(
 		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
 	);
 
 	auto format = static_cast<DXGI_FORMAT>(0);
+
 	switch (desc.format) {
 		case GellyTextureFormat::R8G8B8A8_UNORM:
 			format = DXGI_FORMAT_R8G8B8A8_UNORM;
