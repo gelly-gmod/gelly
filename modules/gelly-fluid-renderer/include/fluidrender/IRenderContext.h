@@ -48,7 +48,7 @@ public:
 	 * @return
 	 */
 	virtual GellyObserverPtr<IManagedTexture> CreateTexture(
-		const char *name, const GellyTextureDesc &desc
+		const char *name, const TextureDesc &desc
 	) = 0;
 
 	/**
@@ -65,6 +65,14 @@ public:
 	virtual void SetDimensions(uint16_t width, uint16_t height) = 0;
 
 	virtual void GetDimensions(uint16_t & width, uint16_t & height) = 0;
+
+	/**
+	 * Submits any pending work to the GPU. This is a flush operation in D3D11.
+	 * @note If anything happens after the work is submitted, such as a
+	 * swapchain resize or an error, all managed resources will be destroyed and
+	 * recreated.
+	 */
+	virtual void SubmitWork() = 0;
 };
 
 #endif	// GELLY_IRENDERCONTEXT_H

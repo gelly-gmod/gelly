@@ -60,7 +60,7 @@ ContextRenderAPI CD3D11RenderContext::GetRenderAPI() {
 }
 
 IManagedTexture *CD3D11RenderContext::CreateTexture(
-	const char *name, const GellyTextureDesc &desc
+	const char *name, const TextureDesc &desc
 ) {
 	if (textures.find(name) != textures.end()) {
 		throw std::logic_error("Texture already exists");
@@ -93,6 +93,33 @@ void CD3D11RenderContext::SetDimensions(uint16_t width, uint16_t height) {
 void CD3D11RenderContext::GetDimensions(uint16_t &width, uint16_t &height) {
 	width = this->width;
 	height = this->height;
+}
+
+void CD3D11RenderContext::SubmitWork() {
+	deviceContext->Flush();
+	
+	// well-known query method to synchronize the GPU after
+	// the commands finish executing
+
+	D3D11_QUERY_DESC queryDesc = {};
+	queryDesc.Query = D3D11_QUERY_EVENT;
+	ID3D11Query *query;
+	DX("Failed to create D3D11 query", device->CreateQuery(&queryDesc, &query));
+
+	deviceContext->End(query);
+	while (deviceContext->GetData(query, nullptr, 0, 0) == S_FALSE) {
+		// spin
+	}
+
+	query->Release();
+
+	HRESULT deviceRemoved = device->GetDeviceRemovedReason();
+
+	if (deviceRemoved != S_OK) {
+		DestroyAllTextures();
+		CreateDeviceAndContext();
+		CreateAllTextures();
+	}
 }
 
 CD3D11RenderContext::~CD3D11RenderContext() {

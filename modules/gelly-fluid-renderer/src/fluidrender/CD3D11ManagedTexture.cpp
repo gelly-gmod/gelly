@@ -17,11 +17,11 @@ CD3D11ManagedTexture::~CD3D11ManagedTexture() {
 	CD3D11ManagedTexture::Destroy();
 }
 
-void CD3D11ManagedTexture::SetDesc(const GellyTextureDesc &desc) {
+void CD3D11ManagedTexture::SetDesc(const TextureDesc &desc) {
 	this->desc = desc;
 }
 
-const GellyTextureDesc &CD3D11ManagedTexture::GetDesc() const { return desc; }
+const TextureDesc &CD3D11ManagedTexture::GetDesc() const { return desc; }
 
 bool CD3D11ManagedTexture::Create() {
 	if (context == nullptr) {
@@ -43,11 +43,14 @@ bool CD3D11ManagedTexture::Create() {
 	auto format = static_cast<DXGI_FORMAT>(0);
 
 	switch (desc.format) {
-		case GellyTextureFormat::R8G8B8A8_UNORM:
+		case TextureFormat::R8G8B8A8_UNORM:
 			format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			break;
-		case GellyTextureFormat::R32G32B32A32_FLOAT:
+		case TextureFormat::R32G32B32A32_FLOAT:
 			format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			break;
+		case TextureFormat::R16G16B16A16_FLOAT:
+			format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 			break;
 	}
 
@@ -62,18 +65,26 @@ bool CD3D11ManagedTexture::Create() {
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
 
-	if ((desc.access & GellyTextureAccess::READ) != 0) {
+	if ((desc.access & TextureAccess::READ) != 0) {
 		texDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 	}
 
-	if ((desc.access & GellyTextureAccess::WRITE) != 0) {
+	if ((desc.access & TextureAccess::WRITE) != 0) {
 		texDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	}
 
 	DX("Failed to create D3D11 texture",
 	   device->CreateTexture2D(&texDesc, nullptr, &texture));
 
-	if ((desc.access & GellyTextureAccess::READ) != 0) {
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = format;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+
+	DX("Failed to create D3D11 RTV",
+	   device->CreateRenderTargetView(texture, &rtvDesc, &rtv));
+
+	if ((desc.access & TextureAccess::READ) != 0) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = format;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -83,14 +94,14 @@ bool CD3D11ManagedTexture::Create() {
 		   device->CreateShaderResourceView(texture, &srvDesc, &srv));
 	}
 
-	if ((desc.access & GellyTextureAccess::WRITE) != 0) {
-		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-		rtvDesc.Format = format;
-		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		rtvDesc.Texture2D.MipSlice = 0;
+	if ((desc.access & TextureAccess::WRITE) != 0) {
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = format;
+		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+		uavDesc.Texture2D.MipSlice = 0;
 
-		DX("Failed to create D3D11 RTV",
-		   device->CreateRenderTargetView(texture, &rtvDesc, &rtv));
+		DX("Failed to create D3D11 UAV",
+		   device->CreateUnorderedAccessView(texture, &uavDesc, &uav));
 	}
 
 	return true;

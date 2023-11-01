@@ -32,13 +32,15 @@ public:
 	ContextRenderAPI GetRenderAPI() override;
 
 	GellyObserverPtr<IManagedTexture> CreateTexture(
-		const char *name, const GellyTextureDesc &desc
+		const char *name, const TextureDesc &desc
 	) override;
 
 	void DestroyTexture(const char *name) override;
 
 	void SetDimensions(uint16_t width, uint16_t height) override;
 	void GetDimensions(uint16_t &width, uint16_t &height) override;
+
+	void SubmitWork() override;
 };
 
 #endif	// GELLY_D3D11RENDERCONTEXT_H

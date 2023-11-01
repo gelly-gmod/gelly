@@ -7,9 +7,11 @@
 
 class IRenderContext;
 
-enum class GellyTextureFormat : uint8_t {
+namespace Gelly {
+enum class TextureFormat : uint8_t {
 	R8G8B8A8_UNORM,
 	R32G32B32A32_FLOAT,
+	R16G16B16A16_FLOAT,	 // mainly for shared textures
 };
 
 /**
@@ -19,38 +21,41 @@ enum class GellyTextureFormat : uint8_t {
  * be created with an accompanying SRV and UAV.
  * A texture that is only read from will only have an SRV.
  */
-enum class GellyTextureAccess : uint8_t {
+enum class TextureAccess : uint8_t {
 	READ = 0b01,
 	WRITE = 0b10,
 };
 
-struct GellyTextureDesc {
-	GellyTextureFormat format;
-	GellyTextureAccess access;
+struct TextureDesc {
+	TextureFormat format;
+	TextureAccess access;
 
-	uint16_t width;
-	uint16_t height;
+	uint16_t width{};
+	uint16_t height{};
 
 	bool isFullscreen = false;
 };
+}  // namespace Gelly
 
-constexpr enum GellyTextureAccess operator&(
-	const enum GellyTextureAccess a, const enum GellyTextureAccess b
+using namespace Gelly;
+
+constexpr enum TextureAccess operator&(
+	const enum TextureAccess a, const enum TextureAccess b
 ) {
-	return static_cast<GellyTextureAccess>(
+	return static_cast<TextureAccess>(
 		static_cast<uint8_t>(a) & static_cast<uint8_t>(b)
 	);
 }
 
-constexpr enum GellyTextureAccess operator|(
-	const enum GellyTextureAccess a, const enum GellyTextureAccess b
+constexpr enum TextureAccess operator|(
+	const enum TextureAccess a, const enum TextureAccess b
 ) {
-	return static_cast<GellyTextureAccess>(
+	return static_cast<TextureAccess>(
 		static_cast<uint8_t>(a) | static_cast<uint8_t>(b)
 	);
 }
 
-constexpr bool operator==(const enum GellyTextureAccess a, const int b) {
+constexpr bool operator==(const enum TextureAccess a, const int b) {
 	return static_cast<uint8_t>(a) == static_cast<uint8_t>(b);
 }
 
@@ -67,8 +72,8 @@ gelly_interface IManagedTexture {
 public:
 	virtual ~IManagedTexture() = 0;
 
-	virtual void SetDesc(const GellyTextureDesc &desc) = 0;
-	[[nodiscard]] virtual const GellyTextureDesc &GetDesc() const = 0;
+	virtual void SetDesc(const TextureDesc &desc) = 0;
+	[[nodiscard]] virtual const TextureDesc &GetDesc() const = 0;
 
 	virtual bool Create() = 0;
 	virtual void Destroy() = 0;
