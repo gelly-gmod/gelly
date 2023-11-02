@@ -86,6 +86,12 @@ public:
 	 * Automatically called if the texture is set to fullscreen.
 	 */
 	virtual void SetFullscreenSize() = 0;
+
+	/**
+	 * Returns the underlying rendering API's shared handle.
+	 * @return
+	 */
+	virtual void *GetSharedHandle() = 0;
 };
 
 #endif	// GELLY_IMANAGEDTEXTURE_H

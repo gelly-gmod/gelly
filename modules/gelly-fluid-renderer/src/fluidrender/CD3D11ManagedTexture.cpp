@@ -130,6 +130,7 @@ void CD3D11ManagedTexture::AttachToContext(IRenderContext *context) {
 			"Cannot attach D3D11 texture to non-D3D11 context"
 		);
 	}
+
 	this->context = context;
 }
 
@@ -139,4 +140,23 @@ void CD3D11ManagedTexture::SetFullscreenSize() {
 	}
 
 	context->GetDimensions(desc.width, desc.height);
+}
+
+void *CD3D11ManagedTexture::GetSharedHandle() {
+	if (!texture) {
+		return nullptr;
+	}
+
+	IDXGIResource *resource;
+	DX("Failed to get DXGI resource",
+	   texture->QueryInterface(
+		   __uuidof(IDXGIResource), reinterpret_cast<void **>(&resource)
+	   ));
+
+	HANDLE handle;
+	DX("Failed to get shared handle", resource->GetSharedHandle(&handle));
+
+	resource->Release();
+
+	return handle;
 }

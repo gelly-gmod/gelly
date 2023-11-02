@@ -28,6 +28,7 @@ public:
 	void AttachToContext(IRenderContext *context) override;
 
 	void SetFullscreenSize() override;
+	void *GetSharedHandle() override;
 };
 
 #endif	// GELLY_CD3D11MANAGEDTEXTURE_H
