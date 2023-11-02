@@ -8,8 +8,11 @@
 
 namespace Gelly {
 enum class BufferType : uint8_t {
+	NONE = 0b000,
 	VERTEX,
 	CONSTANT,
+	SHADER_RESOURCE,
+	UNORDERED_ACCESS,
 };
 
 enum class BufferUsage : uint8_t {
@@ -24,6 +27,7 @@ enum class BufferUsage : uint8_t {
 
 struct BufferDesc {
 	uint8_t byteWidth{};
+	uint16_t stride{};
 	BufferType type{};
 	BufferUsage usage{};
 	void *initialData{};
@@ -31,6 +35,46 @@ struct BufferDesc {
 }  // namespace Gelly
 
 using namespace Gelly;
+
+constexpr enum BufferType operator&(
+	const enum BufferType a, const enum BufferType b
+) {
+	return static_cast<BufferType>(
+		static_cast<uint8_t>(a) & static_cast<uint8_t>(b)
+	);
+}
+
+constexpr enum BufferType operator|(
+	const enum BufferType a, const enum BufferType b
+) {
+	return static_cast<BufferType>(
+		static_cast<uint8_t>(a) | static_cast<uint8_t>(b)
+	);
+}
+
+constexpr bool operator==(const enum BufferType a, const int b) {
+	return static_cast<uint8_t>(a) == static_cast<uint8_t>(b);
+}
+
+constexpr enum BufferUsage operator&(
+	const enum BufferUsage a, const enum BufferUsage b
+) {
+	return static_cast<BufferUsage>(
+		static_cast<uint8_t>(a) & static_cast<uint8_t>(b)
+	);
+}
+
+constexpr enum BufferUsage operator|(
+	const enum BufferUsage a, const enum BufferUsage b
+) {
+	return static_cast<BufferUsage>(
+		static_cast<uint8_t>(a) | static_cast<uint8_t>(b)
+	);
+}
+
+constexpr bool operator==(const enum BufferUsage a, const int b) {
+	return static_cast<uint8_t>(a) == static_cast<uint8_t>(b);
+}
 
 gelly_interface IManagedBuffer {
 public:
