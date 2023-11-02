@@ -11,10 +11,12 @@ target_include_directories(
         include
         ../gelly-interfaces/include
         ../gelly-d3d/include
+        ../gelly-fluid-sim/include
 )
 
 target_link_libraries(
         gelly_fluid_renderer
         PUBLIC
         gelly_d3d9
+        gelly_fluid_sim
 )
