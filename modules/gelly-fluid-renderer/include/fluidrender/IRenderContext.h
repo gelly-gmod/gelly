@@ -52,6 +52,17 @@ public:
 	) = 0;
 
 	/**
+	 * Registers a shared texture with the context. Mainly used in the
+	 * D3D11 to D3D11/D3D9 case.
+	 * @param name
+	 * @param sharedHandle
+	 * @return
+	 */
+	virtual GellyObserverPtr<IManagedTexture> CreateSharedTexture(
+		const char *name, HANDLE sharedHandle
+	) = 0;
+
+	/**
 	 * Will throw an exception if the texture does not exist!
 	 * @param name
 	 * @return

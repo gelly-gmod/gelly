@@ -160,3 +160,16 @@ void *CD3D11ManagedTexture::GetSharedHandle() {
 
 	return handle;
 }
+
+void *CD3D11ManagedTexture::GetResource(TextureResource resource) {
+	switch (resource) {
+		case TextureResource::D3D11_SRV:
+			return srv;
+		case TextureResource::D3D11_RTV:
+			return rtv;
+		case TextureResource::D3D11_UAV:
+			return uav;
+		default:
+			return nullptr;
+	}
+}

@@ -213,3 +213,16 @@ void *CD3D11to11SharedTexture::GetSharedHandle() {
 		"CD3D11to11SharedTexture::GetSharedHandle() should not be called"
 	);
 }
+
+void *CD3D11to11SharedTexture::GetResource(TextureResource resource) {
+	switch (resource) {
+		case TextureResource::D3D11_SRV:
+			return srv;
+		case TextureResource::D3D11_RTV:
+			return rtv;
+		case TextureResource::D3D11_UAV:
+			return uav;
+		default:
+			return nullptr;
+	}
+}

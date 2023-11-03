@@ -29,6 +29,8 @@ public:
 
 	void SetFullscreenSize() override;
 	void *GetSharedHandle() override;
+
+	void *GetResource(TextureResource resource) override;
 };
 
 #endif	// GELLY_CD3D11MANAGEDTEXTURE_H

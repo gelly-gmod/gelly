@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 
+#include "fluidrender/CD3D11to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
 
 CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
@@ -74,6 +75,19 @@ IManagedTexture *CD3D11RenderContext::CreateTexture(
 	return texture;
 }
 
+GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
+	const char *name, HANDLE sharedHandle
+) {
+	if (textures.find(name) != textures.end()) {
+		throw std::logic_error("Texture already exists");
+	}
+
+	auto texture = new CD3D11to11SharedTexture(sharedHandle);
+	texture->AttachToContext(this);
+	textures[name] = texture;
+	return texture;
+}
+
 void CD3D11RenderContext::DestroyTexture(const char *name) {
 	auto texture = textures.find(name);
 	if (texture == textures.end()) {
@@ -97,7 +111,7 @@ void CD3D11RenderContext::GetDimensions(uint16_t &width, uint16_t &height) {
 
 void CD3D11RenderContext::SubmitWork() {
 	deviceContext->Flush();
-	
+
 	// well-known query method to synchronize the GPU after
 	// the commands finish executing
 

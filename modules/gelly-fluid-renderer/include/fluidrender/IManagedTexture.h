@@ -35,6 +35,16 @@ struct TextureDesc {
 
 	bool isFullscreen = false;
 };
+
+/**
+ * Resources associated with a texture that may be accessed by the users
+ * of a texture.
+ */
+enum class TextureResource : uint8_t {
+	D3D11_SRV,
+	D3D11_RTV,
+	D3D11_UAV,
+};
 }  // namespace Gelly
 
 using namespace Gelly;
@@ -92,6 +102,8 @@ public:
 	 * @return
 	 */
 	virtual void *GetSharedHandle() = 0;
+
+	virtual void *GetResource(TextureResource resource) = 0;
 };
 
 #endif	// GELLY_IMANAGEDTEXTURE_H

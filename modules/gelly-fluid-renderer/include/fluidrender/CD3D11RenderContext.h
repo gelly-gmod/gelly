@@ -15,7 +15,7 @@ private:
 	ID3D11Device *device;
 	ID3D11DeviceContext *deviceContext;
 
-	std::unordered_map<std::string, CD3D11ManagedTexture *> textures;
+	std::unordered_map<std::string, IManagedTexture *> textures;
 
 	uint16_t width;
 	uint16_t height;
@@ -33,6 +33,10 @@ public:
 
 	GellyObserverPtr<IManagedTexture> CreateTexture(
 		const char *name, const TextureDesc &desc
+	) override;
+
+	GellyObserverPtr<IManagedTexture> CreateSharedTexture(
+		const char *name, HANDLE sharedHandle
 	) override;
 
 	void DestroyTexture(const char *name) override;
