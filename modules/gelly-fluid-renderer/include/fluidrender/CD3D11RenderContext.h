@@ -23,6 +23,7 @@ private:
 	void CreateDeviceAndContext();
 	void CreateAllTextures();
 	void DestroyAllTextures();
+	void ReleaseDevice();
 
 public:
 	CD3D11RenderContext(uint16_t width, uint16_t height);

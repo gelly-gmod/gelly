@@ -131,6 +131,7 @@ void CD3D11RenderContext::SubmitWork() {
 
 	if (deviceRemoved != S_OK) {
 		DestroyAllTextures();
+		ReleaseDevice();
 		CreateDeviceAndContext();
 		CreateAllTextures();
 	}
@@ -138,7 +139,10 @@ void CD3D11RenderContext::SubmitWork() {
 
 CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllTextures();
+	ReleaseDevice();
+}
 
+void CD3D11RenderContext::ReleaseDevice() {
 	if (deviceContext) {
 		deviceContext->Release();
 		deviceContext = nullptr;
