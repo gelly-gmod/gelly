@@ -25,11 +25,13 @@ public:
 
 	bool Create() override;
 	void Destroy() override;
+
 	void AttachToContext(IRenderContext *context) override;
+	GellyObserverPtr<IRenderContext> GetParentContext() override;
 
 	void SetFullscreenSize() override;
+	
 	void *GetSharedHandle() override;
-
 	void *GetResource(TextureResource resource) override;
 };
 

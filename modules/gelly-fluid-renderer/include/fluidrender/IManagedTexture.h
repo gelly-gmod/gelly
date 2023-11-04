@@ -87,7 +87,9 @@ public:
 
 	virtual bool Create() = 0;
 	virtual void Destroy() = 0;
+
 	virtual void AttachToContext(IRenderContext * context) = 0;
+	virtual GellyObserverPtr<IRenderContext> GetParentContext() = 0;
 
 	/**
 	 * Sets the size of the texture to the size of the resolution of the

@@ -3,6 +3,7 @@
 
 #include <d3d11.h>
 
+#include "GellyObserverPtr.h"
 #include "IManagedTexture.h"
 /**
  * Implements a shared texture which can be used for inter D3D11 device
@@ -32,6 +33,7 @@ public:
 	bool Create() override;
 	void Destroy() override;
 	void AttachToContext(IRenderContext *context) override;
+	GellyObserverPtr<IRenderContext> GetParentContext() override;
 
 	void SetFullscreenSize() override;
 	void *GetSharedHandle() override;
