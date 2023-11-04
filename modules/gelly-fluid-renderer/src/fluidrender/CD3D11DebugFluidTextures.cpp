@@ -2,12 +2,29 @@
 
 #include <stdexcept>
 
+#include "fluidrender/IRenderContext.h"
+
 CD3D11DebugFluidTextures::CD3D11DebugFluidTextures()
 	: albedo(nullptr), normal(nullptr), depth(nullptr) {}
 
 void CD3D11DebugFluidTextures::SetFeatureTexture(
 	FluidFeatureType feature, GellyObserverPtr<IManagedTexture> texture
 ) {
+	auto context = texture->GetParentContext();
+	if (context == nullptr) {
+		throw std::logic_error(
+			"CD3D11DebugFluidTextures::SetFeatureTexture() encountered a "
+			"texture that is not attached to a context"
+		);
+	}
+
+	if (context->GetRenderAPI() != ContextRenderAPI::D3D11) {
+		throw std::logic_error(
+			"CD3D11DebugFluidTextures::SetFeatureTexture() encountered an "
+			"unsupported render API"
+		);
+	}
+
 	switch (feature) {
 		case FluidFeatureType::ALBEDO:
 			albedo = texture;
