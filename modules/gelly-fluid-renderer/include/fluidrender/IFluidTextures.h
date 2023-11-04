@@ -25,6 +25,9 @@ using namespace Gelly;
  * - Normals
  * - Depth
  * The rest are optional, and depend on the renderer.
+ * This design allows for the end user to implement their own
+ * uber-shader which can use different features depending on which
+ * renderer is chosen.
  */
 gelly_interface IFluidTextures {
 public:
