@@ -134,6 +134,10 @@ void CD3D11ManagedTexture::AttachToContext(IRenderContext *context) {
 	this->context = context;
 }
 
+GellyObserverPtr<IRenderContext> CD3D11ManagedTexture::GetParentContext() {
+	return context;
+}
+
 void CD3D11ManagedTexture::SetFullscreenSize() {
 	if (!context) {
 		return;

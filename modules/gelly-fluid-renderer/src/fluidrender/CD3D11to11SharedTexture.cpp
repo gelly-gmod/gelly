@@ -202,6 +202,10 @@ void CD3D11to11SharedTexture::AttachToContext(IRenderContext *context) {
 	this->context = context;
 }
 
+GellyObserverPtr<IRenderContext> CD3D11to11SharedTexture::GetParentContext() {
+	return context;
+}
+
 void CD3D11to11SharedTexture::SetFullscreenSize() {
 	throw std::logic_error(
 		"CD3D11to11SharedTexture::SetFullscreenSize() should not be called"
