@@ -17,6 +17,17 @@ private:
 	IFluidTextures *fluidTextures;
 
 	Gelly::FluidRenderSettings settings;
+
+public:
+	CD3D11DebugFluidRenderer();
+	~CD3D11DebugFluidRenderer() override;
+
+	void SetSimData(GellyObserverPtr<ISimData> simData) override;
+	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
+	GellyObserverPtr<IFluidTextures> GetFluidTextures() override;
+	void Render() override;
+
+	void SetSettings(const Gelly::FluidRenderSettings &settings) override;
 };
 
 #endif	// GELLY_CD3D11DEBUGFLUIDRENDERER_H
