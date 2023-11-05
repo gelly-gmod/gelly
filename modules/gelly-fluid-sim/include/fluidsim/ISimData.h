@@ -12,6 +12,13 @@ enum class SimBuffer {
 	Velocity,
 };
 
+enum class SimDataAPI {
+	/**
+	 * CPU-based simulation also uses D3D11.
+	 */
+	D3D11,
+};
+
 gelly_interface ISimData {
 public:
 	/**
@@ -33,6 +40,8 @@ public:
 
 	virtual SimFloat4 *MapBuffer(SimBuffer buffer) = 0;
 	virtual void UnmapBuffer(SimBuffer buffer) = 0;
+
+	virtual SimDataAPI GetAPI() = 0;
 };
 
 #endif	// GELLY_ISIMDATA_H

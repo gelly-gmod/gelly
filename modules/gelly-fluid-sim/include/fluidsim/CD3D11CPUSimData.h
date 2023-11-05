@@ -23,6 +23,8 @@ public:
 
 	SimFloat4 *MapBuffer(SimBuffer buffer) override;
 	void UnmapBuffer(SimBuffer buffer) override;
+
+	SimDataAPI GetAPI() override;
 };
 
 #endif	// GELLY_CD3D11CPUSIMDATA_H

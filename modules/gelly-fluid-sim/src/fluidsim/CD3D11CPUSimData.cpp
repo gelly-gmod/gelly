@@ -76,3 +76,5 @@ void CD3D11CPUSimData::UnmapBuffer(SimBuffer buffer) {
 
 	deviceContext->Unmap(targetBuffer, 0);
 }
+
+SimDataAPI CD3D11CPUSimData::GetAPI() { return SimDataAPI::D3D11; }
