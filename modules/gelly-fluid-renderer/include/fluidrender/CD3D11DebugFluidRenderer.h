@@ -14,13 +14,13 @@ private:
 	 * The particle data comes from here, but the renderer does not own it.
 	 */
 	GellyObserverPtr<ISimData> simData;
-	IFluidTextures *fluidTextures;
+	CD3D11DebugFluidTextures textures;
 
 	Gelly::FluidRenderSettings settings;
 
 public:
 	CD3D11DebugFluidRenderer();
-	~CD3D11DebugFluidRenderer() override;
+	~CD3D11DebugFluidRenderer() override = default;
 
 	void SetSimData(GellyObserverPtr<ISimData> simData) override;
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
