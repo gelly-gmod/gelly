@@ -9,3 +9,23 @@ add_subdirectory(modules/gelly-d3d)
 add_subdirectory(modules/gelly-shaders)
 add_subdirectory(modules/gelly-fluid-sim)
 add_subdirectory(modules/gelly-fluid-renderer)
+
+function(include_and_link_gelly target)
+    target_include_directories(${target} PUBLIC
+            modules/gelly-fluid-sim/include
+            modules/gelly-fluid-renderer/include
+            modules/gelly-shaders/include # Don't use. Remove later
+            modules/gelly-d3d/include
+            )
+    target_link_libraries(${target} PUBLIC
+            gelly_fluid_sim
+            gelly_fluid_renderer
+            gelly_d3d9
+            )
+endfunction()
+
+option(GELLY_BUILD_TESTBED "Build Testbed" ON)
+
+if (GELLY_BUILD_TESTBED)
+    add_subdirectory(testbed)
+endif ()

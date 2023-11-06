@@ -2,6 +2,7 @@
 #define GELLY_IRENDERCONTEXT_H
 
 #include <GellyInterface.h>
+#include <d3d11.h>
 
 #include <cstdint>
 

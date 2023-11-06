@@ -2,6 +2,7 @@
 #define GELLY_IMANAGEDTEXTURE_H
 
 #include <GellyInterface.h>
+#include <GellyObserverPtr.h>
 
 #include <cstdint>
 
