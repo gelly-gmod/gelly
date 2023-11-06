@@ -43,3 +43,10 @@
 [submodule "modules/gelly-fluid-sim/test/vendor/DirectXMath"]
 	path = modules/gelly-fluid-sim/test/vendor/DirectXMath
 	url = https://github.com/microsoft/DirectXMath.git
+[submodule "testbed/vendor/DirectXMath"]
+	path = testbed/vendor/DirectXMath
+	url = https://github.com/microsoft/DirectXMath.git
+[submodule "testbed/vendor/SDL"]
+	path = testbed/vendor/SDL
+	url = https://github.com/libsdl-org/SDL.git
+	branch = SDL2
