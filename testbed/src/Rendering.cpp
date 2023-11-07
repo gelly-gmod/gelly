@@ -131,8 +131,11 @@ void testbed::StartFrame() {
 	ImGui_ImplSDL2_NewFrame(GetTestbedWindow());
 	ImGui::NewFrame();
 
-	bool show_demo_window = true;
-	ImGui::ShowDemoWindow(&show_demo_window);
+	ImGui::Begin("Testbed");
+	ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+	ImGui::Text("Gelly renderer backend: D3D11");
+	ImGui::Text("Gelly simulation backend: FleX using D3D11");
+	ImGui::End();
 }
 
 void testbed::EndFrame() {
@@ -143,5 +146,5 @@ void testbed::EndFrame() {
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	// Just clear to red
-	swapchain->Present(0, 0);
+	ERROR_IF_FAILED("Failed to present swapchain", swapchain->Present(0, 0));
 }
