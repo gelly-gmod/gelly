@@ -1,6 +1,15 @@
 #include <cstdio>
 
+#include "Logging.h"
+#include "Window.h"
+
 int main() {
-	printf("Hello, world!\n");
+	InitializeLogger(LoggerType::Console);
+	GetLogger()->Info("Hello, world!");
+
+	MakeTestbedWindow();
+
+	while (true) {
+	}
 	return 0;
 }
