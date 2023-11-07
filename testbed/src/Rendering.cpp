@@ -54,6 +54,10 @@ void GenerateCameraMatrices(
 	XMStoreFloat4x4(&view, XMMatrixLookToLH(pos, dir, up));
 }
 
+void ImGuiSDLEventInterceptor(SDL_Event *event) {
+	ImGui_ImplSDL2_ProcessEvent(event);
+}
+
 void testbed::InitializeRenderer() {
 	GetLogger()->Info("Initializing renderer");
 	DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
@@ -115,25 +119,29 @@ void testbed::InitializeRenderer() {
 	ImGui_ImplSDL2_InitForD3D(GetTestbedWindow());
 	ImGui_ImplDX11_Init(device, deviceContext);
 
+	SetEventInterceptor(ImGuiSDLEventInterceptor);
+
+	GetLogger()->Info("ImGUI initialized");
+
 	GetLogger()->Info("Renderer initialized");
 }
 
 void testbed::StartFrame() {
-	float color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-
-	deviceContext->ClearRenderTargetView(backbufferRTV, color);
-
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplSDL2_NewFrame(GetTestbedWindow());
 	ImGui::NewFrame();
 
-	ImGui::ShowDemoWindow();
+	bool show_demo_window = true;
+	ImGui::ShowDemoWindow(&show_demo_window);
 }
 
 void testbed::EndFrame() {
 	ImGui::Render();
+	float color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+	deviceContext->ClearRenderTargetView(backbufferRTV, color);
+	deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	
+
 	// Just clear to red
 	swapchain->Present(0, 0);
 }

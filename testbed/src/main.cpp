@@ -10,6 +10,7 @@ int main() {
 	InitializeLogger(LoggerType::Console);
 	GetLogger()->Info("Hello, world!");
 
+	InitializeSDL();
 	MakeTestbedWindow();
 	InitializeRenderer();
 	bool isRunning = true;

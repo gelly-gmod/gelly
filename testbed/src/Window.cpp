@@ -1,8 +1,5 @@
 #include "Window.h"
 
-#define SDL_MAIN_HANDLED
-#include <SDL.h>
-
 #include "Logging.h"
 #include "SDL_syswm.h"
 
@@ -12,8 +9,21 @@ const int testbed::WINDOW_WIDTH = 1280;
 const int testbed::WINDOW_HEIGHT = 720;
 
 SDL_Window *window = nullptr;
+EventInterceptor eventInterceptor = nullptr;
 
 SDL_Window *testbed::GetTestbedWindow() { return window; }
+
+void testbed::SetEventInterceptor(EventInterceptor interceptor) {
+	eventInterceptor = interceptor;
+}
+
+void testbed::InitializeSDL() {
+	GetLogger()->Info("Initializing SDL");
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		GetLogger()->Error("Failed to initialize SDL");
+		exit(1);
+	}
+}
 
 void testbed::MakeTestbedWindow() {
 	GetLogger()->Info("Creating the window");
@@ -30,6 +40,10 @@ void testbed::MakeTestbedWindow() {
 bool testbed::HandleWindowMessages() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
+		if (eventInterceptor) {
+			eventInterceptor(&event);
+		}
+
 		switch (event.type) {
 			case SDL_QUIT:
 				return false;
