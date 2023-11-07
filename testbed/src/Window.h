@@ -3,7 +3,9 @@
 
 #include <windows.h>
 
+namespace testbed {
 void MakeTestbedWindow();
 HWND GetTestbedWindowHandle();
+}  // namespace testbed
 
 #endif	// GELLY_WINDOW_H

@@ -4,6 +4,8 @@
 
 #include <cstdio>
 
+using namespace testbed;
+
 // It's as simple as it gets...
 
 void CConsoleLogger::Info(const char *message) {

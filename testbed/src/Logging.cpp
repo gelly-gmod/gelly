@@ -2,6 +2,8 @@
 
 #include "CConsoleLogger.h"
 
+using namespace testbed;
+
 ILogger *activeLogger = nullptr;
 
 void InitializeLogger(LoggerType type) {

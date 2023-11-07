@@ -3,6 +3,7 @@
 
 #include "ILogger.h"
 
+namespace testbed {
 class CConsoleLogger : public ILogger {
 public:
 	CConsoleLogger() = default;
@@ -13,5 +14,6 @@ public:
 	void Warning(const char *message) override;
 	void Error(const char *message) override;
 };
+}  // namespace testbed
 
 #endif	// GELLY_CCONSOLELOGGER_H

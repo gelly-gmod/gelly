@@ -1,6 +1,7 @@
 #ifndef GELLY_ILOGGER_H
 #define GELLY_ILOGGER_H
 
+namespace testbed {
 /*
  * Interface for logging messages.
  * This is a simple interface but makes it easier to log to different places
@@ -19,5 +20,6 @@ public:
 	 */
 	virtual void Error(const char *message) = 0;
 };
+}  // namespace testbed
 
 #endif	// GELLY_ILOGGER_H

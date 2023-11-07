@@ -6,6 +6,8 @@
 #include "Logging.h"
 #include "SDL_syswm.h"
 
+using namespace testbed;
+
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 SDL_Window *window = nullptr;
@@ -27,7 +29,7 @@ HWND GetTestbedWindowHandle() {
 		GetLogger()->Error("Window is not created");
 		return nullptr;
 	}
-	
+
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	SDL_GetWindowWMInfo(window, &info);
