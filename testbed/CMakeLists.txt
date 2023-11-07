@@ -6,6 +6,7 @@ set(IMGUI_SOURCES
         vendor/imgui/imgui_demo.cpp
         vendor/imgui/imgui_draw.cpp
         vendor/imgui/imgui_widgets.cpp
+        vendor/imgui/imgui_tables.cpp
         vendor/imgui/backends/imgui_impl_sdl2.cpp
         vendor/imgui/backends/imgui_impl_dx11.cpp
         )
@@ -17,21 +18,22 @@ add_executable(testbed
 
 add_subdirectory(vendor/SDL)
 
+generate_gelly_config()
+
+target_link_libraries(
+        testbed
+        SDL2
+        ${GELLY_LIBS}
+)
+
 target_include_directories(
         testbed
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL/include
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
+        ${GELLY_INCLUDE_DIRS}
 )
-
-target_link_libraries(
-        testbed
-        PRIVATE
-        SDL2
-)
-
-include_and_link_gelly(testbed)
 
 # https://github.com/libsdl-org/SDL/issues/6399#issuecomment-1280612287
 if (WIN32)

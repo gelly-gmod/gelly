@@ -1,7 +1,10 @@
 #include "Rendering.h"
 
 #include <GellyD3D.h>
+#include <backends/imgui_impl_dx11.h>
+#include <backends/imgui_impl_sdl2.h>
 #include <d3d11.h>
+#include <imgui.h>
 
 #include <unordered_map>
 
@@ -101,17 +104,36 @@ void testbed::InitializeRenderer() {
 	GetLogger()->Info("Pre-allocating world mesh space");
 	worldMeshes.reserve(100);
 
+	GetLogger()->Info("Initializing ImGUI");
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+	(void)io;
+
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplSDL2_InitForD3D(GetTestbedWindow());
+	ImGui_ImplDX11_Init(device, deviceContext);
+
 	GetLogger()->Info("Renderer initialized");
 }
 
 void testbed::StartFrame() {
-	// nil
-}
-
-void testbed::EndFrame() {
-	// Just clear to red
 	float color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 
 	deviceContext->ClearRenderTargetView(backbufferRTV, color);
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplSDL2_NewFrame(GetTestbedWindow());
+	ImGui::NewFrame();
+
+	ImGui::ShowDemoWindow();
+}
+
+void testbed::EndFrame() {
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	
+	// Just clear to red
 	swapchain->Present(0, 0);
 }

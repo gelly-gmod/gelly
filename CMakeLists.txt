@@ -10,17 +10,19 @@ add_subdirectory(modules/gelly-shaders)
 add_subdirectory(modules/gelly-fluid-sim)
 add_subdirectory(modules/gelly-fluid-renderer)
 
-function(include_and_link_gelly target)
-    target_include_directories(${target} PUBLIC
+function(generate_gelly_config)
+    set(GELLY_INCLUDE_DIRS
             modules/gelly-fluid-sim/include
             modules/gelly-fluid-renderer/include
             modules/gelly-shaders/include # Don't use. Remove later
             modules/gelly-d3d/include
+            PARENT_SCOPE
             )
-    target_link_libraries(${target} PUBLIC
+    set(GELLY_LIBS
             gelly_fluid_sim
             gelly_fluid_renderer
             gelly_d3d9
+            PARENT_SCOPE
             )
 endfunction()
 

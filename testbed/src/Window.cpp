@@ -13,6 +13,8 @@ const int testbed::WINDOW_HEIGHT = 720;
 
 SDL_Window *window = nullptr;
 
+SDL_Window *testbed::GetTestbedWindow() { return window; }
+
 void testbed::MakeTestbedWindow() {
 	GetLogger()->Info("Creating the window");
 	window = SDL_CreateWindow(
