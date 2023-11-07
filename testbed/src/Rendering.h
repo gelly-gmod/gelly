@@ -6,29 +6,27 @@
 using namespace DirectX;
 
 namespace testbed {
-struct float3 {
-	float x;
-	float y;
-	float z;
-};
+using float3 = XMFLOAT3;
 
-using MeshReference = unsigned int;
+constexpr float3 UP_VECTOR = float3(0.0f, 1.0f, 0.0f);
 
-struct Mesh {
+struct WorldMesh {
 	float3 *vertices;
 	unsigned int vertexCount;
 	float3 *normals;
 	unsigned int normalCount;
 };
 
+using MeshReference = unsigned int;
+
 // TODO: This does not map well at all to the scene graph
-struct RenderObject {
+struct WorldRenderObject {
 	MeshReference mesh;
 	XMFLOAT4X4 transform;
 };
 
-struct RenderList {
-	RenderObject *objects;
+struct WorldRenderList {
+	WorldRenderObject *objects;
 	unsigned int objectCount;
 };
 
@@ -42,7 +40,18 @@ struct Camera {
 	float farPlane;
 };
 
-void RenderWorldList(const RenderList &list, const Camera &camera);
+struct WorldRenderCBuffer {
+	XMFLOAT4X4 model;
+	XMFLOAT4X4 view;
+	XMFLOAT4X4 projection;
+};
+
+void InitializeRenderer();
+void StartFrame();
+void EndFrame();
+MeshReference CreateWorldMesh(const WorldMesh &mesh);
+void RenderWorldList(const WorldRenderList &list, const Camera &camera);
+
 // TODO: When there is a stronger base, we can add fullscreen passes
 }  // namespace testbed
 

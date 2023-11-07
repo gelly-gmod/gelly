@@ -6,7 +6,7 @@ using namespace testbed;
 
 ILogger *activeLogger = nullptr;
 
-void InitializeLogger(LoggerType type) {
+void testbed::InitializeLogger(LoggerType type) {
 	switch (type) {
 		case LoggerType::Console:
 			activeLogger = new CConsoleLogger();
@@ -17,4 +17,4 @@ void InitializeLogger(LoggerType type) {
 	}
 }
 
-ILogger *GetLogger() { return activeLogger; }
+ILogger *testbed::GetLogger() { return activeLogger; }

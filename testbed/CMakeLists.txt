@@ -3,7 +3,7 @@
 
 add_executable(testbed
         src/main.cpp
-        src/Window.h src/Window.cpp src/Logging.h src/ILogger.h src/CConsoleLogger.cpp src/CConsoleLogger.h src/Logging.cpp src/Rendering.h)
+        src/Window.h src/Window.cpp src/Logging.h src/ILogger.h src/CConsoleLogger.cpp src/CConsoleLogger.h src/Logging.cpp src/Rendering.h src/Rendering.cpp)
 
 add_subdirectory(vendor/SDL)
 

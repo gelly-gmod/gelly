@@ -8,11 +8,12 @@
 
 using namespace testbed;
 
-const int WINDOW_WIDTH = 1280;
-const int WINDOW_HEIGHT = 720;
+const int testbed::WINDOW_WIDTH = 1280;
+const int testbed::WINDOW_HEIGHT = 720;
+
 SDL_Window *window = nullptr;
 
-void MakeTestbedWindow() {
+void testbed::MakeTestbedWindow() {
 	GetLogger()->Info("Creating the window");
 	window = SDL_CreateWindow(
 		"Testbed",
@@ -24,7 +25,22 @@ void MakeTestbedWindow() {
 	);
 }
 
-HWND GetTestbedWindowHandle() {
+bool testbed::HandleWindowMessages() {
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+			case SDL_QUIT:
+				return false;
+				break;
+			default:
+				break;
+		}
+	}
+
+	return true;
+}
+
+HWND testbed::GetTestbedWindowHandle() {
 	if (!window) {
 		GetLogger()->Error("Window is not created");
 		return nullptr;
