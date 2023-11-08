@@ -1,6 +1,8 @@
 # Since Testbed is programmed in tandem with Gelly, we do skip
 # the part where we would add the gelly subdirectory.
 
+set(CMAKE_CXX_STANDARD 17)
+
 set(IMGUI_SOURCES
         vendor/imgui/imgui.cpp
         vendor/imgui/imgui_demo.cpp
@@ -14,15 +16,17 @@ set(IMGUI_SOURCES
 add_executable(testbed
         src/main.cpp
         src/Window.h src/Window.cpp src/Logging.h src/ILogger.h src/CConsoleLogger.cpp src/CConsoleLogger.h src/Logging.cpp src/Rendering.h src/Rendering.cpp
-        ${IMGUI_SOURCES} src/Shaders.h src/Shaders.cpp src/Scene.cpp src/Scene.h)
+        ${IMGUI_SOURCES} src/Shaders.h src/Shaders.cpp src/Scene.cpp src/Scene.h src/Camera.cpp src/Camera.h)
 
 add_subdirectory(vendor/SDL)
+add_subdirectory(vendor/fastgltf)
 
 generate_gelly_config()
 
 target_link_libraries(
         testbed
         SDL2
+        fastgltf
         ${GELLY_LIBS}
 )
 
@@ -32,6 +36,7 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL/include
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fastgltf/include
         ${GELLY_INCLUDE_DIRS}
 )
 

@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <vector>
+
 #include "Logging.h"
 #include "SDL_syswm.h"
 
@@ -8,18 +10,18 @@ using namespace testbed;
 const int testbed::WINDOW_WIDTH = 1280;
 const int testbed::WINDOW_HEIGHT = 720;
 
-SDL_Window *window = nullptr;
-EventInterceptor eventInterceptor = nullptr;
+static SDL_Window *window = nullptr;
+static std::vector<EventInterceptor> eventInterceptors;
 
 SDL_Window *testbed::GetTestbedWindow() { return window; }
 
-void testbed::SetEventInterceptor(EventInterceptor interceptor) {
-	eventInterceptor = interceptor;
+void testbed::AddEventInterceptor(EventInterceptor interceptor) {
+	eventInterceptors.push_back(interceptor);
 }
 
 void testbed::InitializeSDL() {
 	GetLogger()->Info("Initializing SDL");
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
 		GetLogger()->Error("Failed to initialize SDL");
 		exit(1);
 	}
@@ -40,8 +42,8 @@ void testbed::MakeTestbedWindow() {
 bool testbed::HandleWindowMessages() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		if (eventInterceptor) {
-			eventInterceptor(&event);
+		for (auto interceptor : eventInterceptors) {
+			interceptor(&event);
 		}
 
 		switch (event.type) {

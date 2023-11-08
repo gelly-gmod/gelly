@@ -7,6 +7,7 @@ using namespace DirectX;
 
 namespace testbed {
 using float3 = XMFLOAT3;
+using float4 = XMFLOAT4;
 
 constexpr float3 UP_VECTOR = float3(0.0f, 1.0f, 0.0f);
 
@@ -15,6 +16,9 @@ struct WorldMesh {
 	unsigned int vertexCount;
 	float3 *normals;
 	unsigned int normalCount;
+
+	unsigned short *indices;
+	unsigned int indexCount;
 };
 
 using MeshReference = unsigned int;
@@ -50,6 +54,7 @@ void InitializeRenderer();
 void StartFrame();
 void EndFrame();
 MeshReference CreateWorldMesh(const WorldMesh &mesh);
+void DestroyWorldMesh(MeshReference mesh);
 void RenderWorldList(const WorldRenderList &list, const Camera &camera);
 
 // TODO: When there is a stronger base, we can add fullscreen passes

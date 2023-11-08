@@ -26,6 +26,8 @@ public:
 		ID3D11DeviceContext *context, int slot, ID3D11InputLayout *layout
 	) const;
 
+	[[nodiscard]] int GetVertexCount() const { return vertices.GetCapacity(); }
+
 	[[nodiscard]] ID3D11Buffer *GetVertexBuffer() const;
 };
 

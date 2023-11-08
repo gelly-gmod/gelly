@@ -3,7 +3,7 @@
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output;
-    float3 sunDir = normalize(float3(0.5, 0.5, 0.5));
+    float3 sunDir = normalize(float3(0.1, 0.5, -0.5));
     float angle = saturate(dot(input.Normal, sunDir));
     float3 sunColor = float3(1, 1, 1);
 

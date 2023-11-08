@@ -1,7 +1,9 @@
 #include <cstdio>
 
+#include "Camera.h"
 #include "Logging.h"
 #include "Rendering.h"
+#include "Scene.h"
 #include "Window.h"
 
 using namespace testbed;
@@ -13,11 +15,14 @@ int main() {
 	InitializeSDL();
 	MakeTestbedWindow();
 	InitializeRenderer();
+	InitializeCamera();
+	LoadScene({"assets/test_suzanne.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
 
 		StartFrame();
+		RenderScene();
 		EndFrame();
 	}
 

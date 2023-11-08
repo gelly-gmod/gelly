@@ -16,7 +16,7 @@ bool HandleWindowMessages();
 HWND GetTestbedWindowHandle();
 SDL_Window *GetTestbedWindow();
 void InitializeSDL();
-void SetEventInterceptor(EventInterceptor interceptor);
+void AddEventInterceptor(EventInterceptor interceptor);
 }  // namespace testbed
 
 #endif	// GELLY_WINDOW_H
