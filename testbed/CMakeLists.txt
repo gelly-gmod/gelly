@@ -14,7 +14,7 @@ set(IMGUI_SOURCES
 add_executable(testbed
         src/main.cpp
         src/Window.h src/Window.cpp src/Logging.h src/ILogger.h src/CConsoleLogger.cpp src/CConsoleLogger.h src/Logging.cpp src/Rendering.h src/Rendering.cpp
-        ${IMGUI_SOURCES})
+        ${IMGUI_SOURCES} src/Shaders.h src/Shaders.cpp)
 
 add_subdirectory(vendor/SDL)
 

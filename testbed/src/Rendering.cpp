@@ -9,6 +9,7 @@
 #include <unordered_map>
 
 #include "Logging.h"
+#include "Shaders.h"
 #include "Window.h"
 
 #define ERROR_IF_FAILED(msg, hr) \
@@ -34,6 +35,10 @@ static IDXGISwapChain *swapchain = nullptr;
 static ID3D11DeviceContext *deviceContext = nullptr;
 static ID3D11RenderTargetView *backbufferRTV = nullptr;
 
+static ID3D11PixelShader *genericWorldLitPS = nullptr;
+static ID3D11VertexShader *genericWorldLitVS = nullptr;
+static ID3D11InputLayout *genericWorldLitInputLayout = nullptr;
+
 static d3d11::ConstantBuffer<WorldRenderCBuffer> worldRenderConstants;
 static std::unordered_map<MeshReference, D3D11WorldMesh> worldMeshes;
 
@@ -52,6 +57,47 @@ void GenerateCameraMatrices(
 	XMVECTOR up = XMLoadFloat3(&UP_VECTOR);
 
 	XMStoreFloat4x4(&view, XMMatrixLookToLH(pos, dir, up));
+}
+
+void LoadGenericWorldLit() {
+	genericWorldLitPS = GetPixelShaderFromFile(
+		device, "shaders/GenericLitWorld.ps50.hlsl.dxbc"
+	);
+	genericWorldLitVS = GetVertexShaderFromFile(
+		device, "shaders/GenericLitWorld.vs50.hlsl.dxbc"
+	);
+
+	D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] = {
+		{"POSITION",
+		 0,
+		 DXGI_FORMAT_R32G32B32_FLOAT,
+		 0,
+		 D3D11_APPEND_ALIGNED_ELEMENT,
+		 D3D11_INPUT_PER_VERTEX_DATA,
+		 0},
+		{"NORMAL",
+		 0,
+		 DXGI_FORMAT_R32G32B32_FLOAT,
+		 1,	 // per-vertex normals are supplied from a second vertex buffer
+		 D3D11_APPEND_ALIGNED_ELEMENT,
+		 D3D11_INPUT_PER_VERTEX_DATA,
+		 0}};
+
+	ShaderBuffer vsBuffer =
+		LoadShaderBytecodeFromFile("shaders/GenericLitWorld.vs50.hlsl.dxbc");
+
+	ERROR_IF_FAILED(
+		"Failed to create input layout",
+		device->CreateInputLayout(
+			inputLayoutDesc,
+			2,
+			vsBuffer.buffer,
+			vsBuffer.size,
+			&genericWorldLitInputLayout
+		)
+	);
+
+	FreeShaderBuffer(vsBuffer);
 }
 
 void ImGuiSDLEventInterceptor(SDL_Event *event) {
@@ -122,6 +168,9 @@ void testbed::InitializeRenderer() {
 	SetEventInterceptor(ImGuiSDLEventInterceptor);
 
 	GetLogger()->Info("ImGUI initialized");
+
+	GetLogger()->Info("Loading generic world lit shaders");
+	LoadGenericWorldLit();
 
 	GetLogger()->Info("Renderer initialized");
 }
