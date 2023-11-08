@@ -43,3 +43,21 @@ if (WIN32)
             VERBATIM
     )
 endif ()
+
+# Compile shaders by invoking the script in cmake/CompileShaders.cmake
+add_custom_target(
+        TestbedShaders
+        COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DGELLY_MODULES_PATH=${CMAKE_MODULE_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders
+        COMMENT "Compiling shaders"
+)
+
+# And then the copy target
+add_custom_target(
+        TestbedAssetCopy
+        COMMAND ${CMAKE_COMMAND} -DROOT_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DOUTPUT_DIR=${CMAKE_BINARY_DIR}/testbed -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyAssets.cmake
+        COMMENT "Copying assets"
+)
+
+add_dependencies(testbed TestbedShaders)
+add_dependencies(testbed TestbedAssetCopy)
