@@ -55,9 +55,10 @@ add_custom_target(
 # And then the copy target
 add_custom_target(
         TestbedAssetCopy
+        DEPENDS TestbedShaders
         COMMAND ${CMAKE_COMMAND} -DROOT_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DOUTPUT_DIR=${CMAKE_BINARY_DIR}/testbed -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyAssets.cmake
         COMMENT "Copying assets"
 )
 
-add_dependencies(testbed TestbedShaders)
 add_dependencies(testbed TestbedAssetCopy)
+add_dependencies(testbed TestbedShaders)
