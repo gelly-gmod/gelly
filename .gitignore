@@ -5,4 +5,5 @@ cmake-build-*
 generated
 
 # Shaders
+*.dxbc
 *.embed.hlsl
