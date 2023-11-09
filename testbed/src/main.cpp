@@ -16,7 +16,7 @@ int main() {
 	MakeTestbedWindow();
 	InitializeRenderer();
 	InitializeCamera();
-	LoadScene({"assets/SM_Deccer_Cubes.gltf"});
+	LoadScene({"assets/test_sphere.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
