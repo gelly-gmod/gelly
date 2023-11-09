@@ -20,13 +20,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     float3 specular = saturate(input.Color * sunColor * pow(angle, 20));
 
-    float uvX = clipX * 0.5 + 0.5;
-
-    if (uvX > 0.5) {
     output.Color = float4(diffuse + ambient + specular, 1);
-    }
-    else {
-    output.Color = float4(normalize(worldPos.xyz), 1);
-    }
     return output;
 }
