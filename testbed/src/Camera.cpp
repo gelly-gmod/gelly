@@ -80,7 +80,11 @@ void testbed::UpdateCamera() {
 		movement = XMVectorAdd(movement, right);
 	}
 
-	movement = XMVectorScale(movement, 0.04f);
+	bool is_fast = keyboardState[SDL_SCANCODE_LSHIFT];
+	bool is_slow = keyboardState[SDL_SCANCODE_LCTRL];
+
+	movement =
+		XMVectorScale(movement, is_fast ? 0.1f : (is_slow ? 0.01f : 0.05f));
 
 	XMStoreFloat3(&camera.position, XMVectorAdd(eye, movement));
 }
