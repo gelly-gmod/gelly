@@ -319,7 +319,7 @@ MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
 	// Have to manually make an index buffer right now
 	D3D11_BUFFER_DESC indexBufferDesc = {};
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned int) * mesh.indexCount;
+	indexBufferDesc.ByteWidth = sizeof(unsigned short) * mesh.indexCount;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;

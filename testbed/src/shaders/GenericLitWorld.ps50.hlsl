@@ -15,10 +15,18 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float4 worldPos = mul(invMvp, clipPos);
     worldPos /= worldPos.w;
     float3 viewDir = normalize(eyePos.xyz - worldPos.xyz);
-    float3 reflectDir = reflect(viewDir, input.Normal);
+    float3 reflectDir = reflect(-viewDir, input.Normal);
     angle = saturate(dot(reflectDir, sunDir));
 
     float3 specular = saturate(input.Color * sunColor * pow(angle, 20));
+
+    float uvX = clipX * 0.5 + 0.5;
+
+    if (uvX > 0.5) {
     output.Color = float4(diffuse + ambient + specular, 1);
+    }
+    else {
+    output.Color = float4(normalize(worldPos.xyz), 1);
+    }
     return output;
 }
