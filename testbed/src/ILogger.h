@@ -11,14 +11,14 @@ class __declspec(novtable) ILogger {
 public:
 	virtual ~ILogger() = default;
 
-	virtual void Info(const char *message) = 0;
-	virtual void Debug(const char *message) = 0;
-	virtual void Warning(const char *message) = 0;
+	virtual void Info(const char *message, ...) = 0;
+	virtual void Debug(const char *message, ...) = 0;
+	virtual void Warning(const char *message, ...) = 0;
 	/*
 	 * For completely unrecoverable errors. Use warnings for recoverable issues.
 	 * Depending on the logger, this can terminate the program.
 	 */
-	virtual void Error(const char *message) = 0;
+	virtual void Error(const char *message, ...) = 0;
 };
 }  // namespace testbed
 

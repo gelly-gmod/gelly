@@ -9,10 +9,10 @@ public:
 	CConsoleLogger() = default;
 	~CConsoleLogger() override = default;
 
-	void Info(const char *message) override;
-	void Debug(const char *message) override;
-	void Warning(const char *message) override;
-	void Error(const char *message) override;
+	void Info(const char *message, ...) override;
+	void Debug(const char *message, ...) override;
+	void Warning(const char *message, ...) override;
+	void Error(const char *message, ...) override;
 };
 }  // namespace testbed
 
