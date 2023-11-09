@@ -44,11 +44,11 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 
 	GetLogger()->Info("Loaded glTF scene");
 
-	for (auto node : sceneNodes) {
+	for (const auto &gltfNode : nodes) {
 		GetLogger()->Info("Loading node");
-		// Grab the global node and compile it into our render object
-		auto gltfNode = nodes[node];
 		WorldRenderObject renderObject = {};
+		auto transform = gltfNode.transform;
+
 		// Convert from fastgltf 4x4 to DirectX 4x4
 		//		auto transform = gltfNode.transform;
 		//		auto transformArray =
@@ -62,9 +62,44 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 		//			}
 		//		}
 
-		// For now we'll just use an identity matrix
 		XMFLOAT4X4 transformMatrix = {};
-		XMStoreFloat4x4(&transformMatrix, XMMatrixIdentity());
+
+		auto trs = std::get_if<fastgltf::Node::TRS>(&transform);
+		if (trs) {
+			XMVECTOR translation = XMVectorSet(
+				trs->translation[0],
+				trs->translation[1],
+				trs->translation[2],
+				1.0f
+			);
+			XMVECTOR rotation = XMVectorSet(
+				trs->rotation[0],
+				trs->rotation[1],
+				trs->rotation[2],
+				trs->rotation[3]
+			);
+			XMVECTOR scale =
+				XMVectorSet(trs->scale[0], trs->scale[1], trs->scale[2], 1.0f);
+
+			XMStoreFloat4x4(
+				&transformMatrix,
+				XMMatrixAffineTransformation(
+					scale, XMVectorZero(), rotation, translation
+				)
+			);
+		} else {
+			// Has to be one or the other
+			auto transformArray =
+				std::get<fastgltf::Node::TransformMatrix>(transform);
+
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					// Collapse into 1D coordinates
+					transformMatrix.m[i][j] = transformArray[i * 4 + j];
+				}
+			}
+		}
+
 		renderObject.transform = transformMatrix;
 
 		WorldMesh mesh = {};

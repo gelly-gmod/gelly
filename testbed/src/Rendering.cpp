@@ -253,6 +253,7 @@ void testbed::StartFrame() {
 
 	ImGui::Begin("Testbed");
 	ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+
 	ImGui::Text("Gelly renderer backend: D3D11");
 	ImGui::Text("Gelly simulation backend: FleX using D3D11");
 	ImGui::End();
