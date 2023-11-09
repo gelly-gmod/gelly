@@ -58,6 +58,7 @@ void DestroyWorldMesh(MeshReference mesh);
 void RenderWorldList(const WorldRenderList &list, const Camera &camera);
 
 // TODO: When there is a stronger base, we can add fullscreen passes
+void UpdateCamera();
 }  // namespace testbed
 
 #endif	// GELLY_RENDERING_H

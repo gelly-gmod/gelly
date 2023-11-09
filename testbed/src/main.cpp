@@ -21,6 +21,7 @@ int main() {
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
 
+		UpdateCamera();
 		StartFrame();
 		RenderScene();
 		EndFrame();

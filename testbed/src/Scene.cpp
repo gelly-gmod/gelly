@@ -20,7 +20,18 @@ using namespace testbed;
 static std::vector<WorldRenderObject> renderObjects;
 static SceneMetadata currentSceneMetadata;
 
+void DestroyOldScene() {
+	for (auto &renderObject : renderObjects) {
+		DestroyWorldMesh(renderObject.mesh);
+	}
+	renderObjects.clear();
+}
+
 void testbed::LoadScene(const SceneMetadata &metadata) {
+	if (!renderObjects.empty()) {
+		DestroyOldScene();
+	}
+	
 	currentSceneMetadata = metadata;
 	// Load glTF file at metadata.filepath
 
@@ -137,6 +148,9 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 		// allocate space for the indices
 		mesh.indexCount = indices.count;
 		mesh.indices = new unsigned short[mesh.indexCount];
+
+		// Update scene metadata
+		currentSceneMetadata.triangles += mesh.indexCount / 3;
 
 		// memcpy from the buffers
 

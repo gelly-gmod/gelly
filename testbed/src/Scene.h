@@ -9,7 +9,11 @@
 
 namespace testbed {
 struct SceneMetadata {
-	const char *filepath;
+	const char *filepath{};
+	/**
+	 * Auto-generated when loaded.
+	 */
+	int triangles = 0;
 };
 
 void LoadScene(const SceneMetadata &metadata);

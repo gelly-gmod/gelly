@@ -9,6 +9,7 @@
 #include <unordered_map>
 
 #include "Logging.h"
+#include "Scene.h"
 #include "Shaders.h"
 #include "Window.h"
 
@@ -58,12 +59,32 @@ static std::unordered_map<MeshReference, D3D11WorldMesh> worldMeshes;
 // not going to run out of them.
 static unsigned int meshReferenceCounter = 0;
 
+void CreateImGUIElements() {
+	ImGui::Begin("Testbed");
+	if (ImGui::CollapsingHeader("Frame Stats")) {
+		ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+	}
+
+	if (ImGui::CollapsingHeader("Gelly Integration")) {
+		ImGui::Text("Gelly renderer backend: D3D11");
+		ImGui::Text("Gelly simulation backend: FleX using D3D11");
+	}
+
+	if (ImGui::CollapsingHeader("Scene Info")) {
+		auto sceneMetadata = GetCurrentSceneMetadata();
+		ImGui::Text("Scene file: %s", sceneMetadata.filepath);
+		ImGui::Text("Triangles: %d", sceneMetadata.triangles);
+	}
+
+	ImGui::End();
+}
+
 void GenerateCameraMatrices(
 	const Camera &camera, XMFLOAT4X4 *view, XMFLOAT4X4 *proj
 ) {
 	XMStoreFloat4x4(
 		proj,
-		XMMatrixPerspectiveFovLH(
+		XMMatrixPerspectiveFovRH(
 			XMConvertToRadians(camera.fov),
 			camera.aspectRatio,
 			camera.nearPlane,
@@ -75,7 +96,7 @@ void GenerateCameraMatrices(
 	XMVECTOR pos = XMLoadFloat3(&camera.position);
 	XMVECTOR up = XMLoadFloat3(&UP_VECTOR);
 
-	XMStoreFloat4x4(view, XMMatrixLookToLH(pos, dir, up));
+	XMStoreFloat4x4(view, XMMatrixLookToRH(pos, dir, up));
 
 	// Transpose matrices because HLSL is column-major
 	XMStoreFloat4x4(view, (XMLoadFloat4x4(view)));
@@ -251,12 +272,7 @@ void testbed::StartFrame() {
 	ImGui_ImplSDL2_NewFrame(GetTestbedWindow());
 	ImGui::NewFrame();
 
-	ImGui::Begin("Testbed");
-	ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
-
-	ImGui::Text("Gelly renderer backend: D3D11");
-	ImGui::Text("Gelly simulation backend: FleX using D3D11");
-	ImGui::End();
+	CreateImGUIElements();
 
 	float color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 	deviceContext->ClearRenderTargetView(backbufferRTV, color);
