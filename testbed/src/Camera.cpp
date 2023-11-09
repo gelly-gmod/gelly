@@ -25,12 +25,16 @@ void MovementInterceptor(SDL_Event *event) {
 	XMVECTOR movement = XMVectorZero();
 	XMVECTOR rotation = XMVectorZero();
 
-	GetLogger()->Info("Handling event");
+	float pitch;
+	float yaw;
 	switch (event->type) {
 		case SDL_MOUSEMOTION:
-			rotation = XMVectorSet(
-				(float)event->motion.xrel, (float)event->motion.yrel, 0.0f, 0.0f
-			);
+			pitch = (float)event->motion.xrel / 1000.f;
+			yaw = (float)event->motion.yrel / 1000.f;
+
+			rotation = XMVectorAdd(rotation, XMVectorScale(right, -pitch));
+			rotation = XMVectorAdd(rotation, XMVectorScale(up, -yaw));
+
 			break;
 		default:
 			break;
@@ -39,14 +43,38 @@ void MovementInterceptor(SDL_Event *event) {
 	// add rotation to forward
 	forward = XMVector3Normalize(XMVectorAdd(forward, rotation));
 
+	// For movement, we get the keyboard state so that it applies
+	// as long as the key is held down
+	const Uint8 *keyboardState = SDL_GetKeyboardState(nullptr);
+
+	if (keyboardState[SDL_SCANCODE_W]) {
+		movement = XMVectorAdd(movement, forward);
+	}
+	if (keyboardState[SDL_SCANCODE_S]) {
+		movement = XMVectorSubtract(movement, forward);
+	}
+	if (keyboardState[SDL_SCANCODE_A]) {
+		movement = XMVectorAdd(movement, right);
+	}
+	if (keyboardState[SDL_SCANCODE_D]) {
+		movement = XMVectorSubtract(movement, right);
+	}
+
+	movement = XMVectorScale(movement, 0.04f);
+
 	XMStoreFloat3(&camera.dir, forward);
+	XMStoreFloat3(&camera.position, XMVectorAdd(eye, movement));
 }
 
 void testbed::InitializeCamera() {
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+
 	camera.fov = 75.f;
 	camera.aspectRatio = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 	camera.nearPlane = 0.1f;
 	camera.farPlane = 1000.f;
+
+	camera.dir = {0.0, 0.0, 1.0};
 
 	GetLogger()->Info("Hooking up camera control interceptor");
 
