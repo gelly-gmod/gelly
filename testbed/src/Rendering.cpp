@@ -109,16 +109,7 @@ void GenerateCameraMatrices(
 	mvpMatrix = XMMatrixMultiply(mvpMatrix, projMatrix);
 
 	XMStoreFloat4x4(mvp, mvpMatrix);
-
-	// Inverse of MVP
-	XMMATRIX invProj = XMMatrixInverse(nullptr, projMatrix);
-	XMMATRIX invView = XMMatrixInverse(nullptr, viewMatrix);
-	// order:
-	// invMvp = invP * invV * invM
-	XMMATRIX invMvpMatrix = XMMatrixMultiply(invProj, invView);
-	invMvpMatrix = XMMatrixMultiply(invMvpMatrix, projMatrix);
-
-	XMStoreFloat4x4(invMvp, invMvpMatrix);
+	XMStoreFloat4x4(invMvp, XMMatrixInverse(nullptr, mvpMatrix));
 }
 
 void LoadGenericWorldLit() {

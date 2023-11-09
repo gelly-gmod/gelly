@@ -16,7 +16,7 @@ int main() {
 	MakeTestbedWindow();
 	InitializeRenderer();
 	InitializeCamera();
-	LoadScene({"assets/test_sphere.gltf"});
+	LoadScene({"assets/02_gelly_funnel.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
