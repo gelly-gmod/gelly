@@ -45,9 +45,9 @@ struct Camera {
 };
 
 struct WorldRenderCBuffer {
-	XMFLOAT4X4 model;
-	XMFLOAT4X4 view;
-	XMFLOAT4X4 projection;
+	XMFLOAT4X4 mvp;
+	XMFLOAT4X4 invMvp;
+	XMFLOAT4 eyePos;
 };
 
 void InitializeRenderer();

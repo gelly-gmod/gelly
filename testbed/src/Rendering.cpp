@@ -80,10 +80,12 @@ void CreateImGUIElements() {
 }
 
 void GenerateCameraMatrices(
-	const Camera &camera, XMFLOAT4X4 *view, XMFLOAT4X4 *proj
+	const Camera &camera, XMFLOAT4X4 *model, XMFLOAT4X4 *mvp, XMFLOAT4X4 *invMvp
 ) {
+	XMFLOAT4X4 view = {};
+	XMFLOAT4X4 proj = {};
 	XMStoreFloat4x4(
-		proj,
+		&proj,
 		XMMatrixPerspectiveFovRH(
 			XMConvertToRadians(camera.fov),
 			camera.aspectRatio,
@@ -96,11 +98,18 @@ void GenerateCameraMatrices(
 	XMVECTOR pos = XMLoadFloat3(&camera.position);
 	XMVECTOR up = XMLoadFloat3(&UP_VECTOR);
 
-	XMStoreFloat4x4(view, XMMatrixLookToRH(pos, dir, up));
+	XMStoreFloat4x4(&view, XMMatrixLookToRH(pos, dir, up));
 
-	// Transpose matrices because HLSL is column-major
-	XMStoreFloat4x4(view, (XMLoadFloat4x4(view)));
-	XMStoreFloat4x4(proj, (XMLoadFloat4x4(proj)));
+	// Pre multiply
+	XMMATRIX viewMatrix = XMLoadFloat4x4(&view);
+	XMMATRIX projMatrix = XMLoadFloat4x4(&proj);
+	XMMATRIX mvpMatrix = XMMatrixMultiply(XMLoadFloat4x4(model), viewMatrix);
+	mvpMatrix = XMMatrixMultiply(mvpMatrix, projMatrix);
+
+	XMStoreFloat4x4(mvp, mvpMatrix);
+
+	// Inverse
+	XMStoreFloat4x4(invMvp, XMMatrixInverse(nullptr, XMLoadFloat4x4(mvp)));
 }
 
 void LoadGenericWorldLit() {
@@ -350,7 +359,7 @@ void testbed::RenderWorldList(
 ) {
 	// Set up cbuffer
 	WorldRenderCBuffer cbuffer = {};
-	GenerateCameraMatrices(camera, &cbuffer.view, &cbuffer.projection);
+	XMStoreFloat4(&cbuffer.eyePos, XMLoadFloat3(&camera.position));
 
 	worldRenderConstants.Set(deviceContext, &cbuffer);
 
@@ -382,7 +391,9 @@ void testbed::RenderWorldList(
 		deviceContext->IASetIndexBuffer(mesh.indices, DXGI_FORMAT_R16_UINT, 0);
 
 		// Set up cbuffer
-		XMStoreFloat4x4(&cbuffer.model, XMLoadFloat4x4(&object.transform));
+		GenerateCameraMatrices(
+			camera, &object.transform, &cbuffer.mvp, &cbuffer.invMvp
+		);
 		worldRenderConstants.Set(deviceContext, &cbuffer);
 		worldRenderConstants.BindToShaders(deviceContext, 0);
 		// Draw
