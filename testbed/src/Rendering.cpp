@@ -103,13 +103,22 @@ void GenerateCameraMatrices(
 	// Pre multiply
 	XMMATRIX viewMatrix = XMLoadFloat4x4(&view);
 	XMMATRIX projMatrix = XMLoadFloat4x4(&proj);
+	// order:
+	// mvp = m * v * p
 	XMMATRIX mvpMatrix = XMMatrixMultiply(XMLoadFloat4x4(model), viewMatrix);
 	mvpMatrix = XMMatrixMultiply(mvpMatrix, projMatrix);
 
 	XMStoreFloat4x4(mvp, mvpMatrix);
 
-	// Inverse
-	XMStoreFloat4x4(invMvp, XMMatrixInverse(nullptr, XMLoadFloat4x4(mvp)));
+	// Inverse of MVP
+	XMMATRIX invProj = XMMatrixInverse(nullptr, projMatrix);
+	XMMATRIX invView = XMMatrixInverse(nullptr, viewMatrix);
+	// order:
+	// invMvp = invP * invV * invM
+	XMMATRIX invMvpMatrix = XMMatrixMultiply(invProj, invView);
+	invMvpMatrix = XMMatrixMultiply(invMvpMatrix, projMatrix);
+
+	XMStoreFloat4x4(invMvp, invMvpMatrix);
 }
 
 void LoadGenericWorldLit() {
@@ -360,7 +369,11 @@ void testbed::RenderWorldList(
 	// Set up cbuffer
 	WorldRenderCBuffer cbuffer = {};
 	XMStoreFloat4(&cbuffer.eyePos, XMLoadFloat3(&camera.position));
-
+	cbuffer.windowSize = {
+		static_cast<float>(WINDOW_WIDTH),
+		static_cast<float>(WINDOW_HEIGHT),
+		0.0f,
+		0.0f};
 	worldRenderConstants.Set(deviceContext, &cbuffer);
 
 	D3D11_VIEWPORT viewport = {};

@@ -48,6 +48,7 @@ struct WorldRenderCBuffer {
 	XMFLOAT4X4 mvp;
 	XMFLOAT4X4 invMvp;
 	XMFLOAT4 eyePos;
+	XMFLOAT4 windowSize;
 };
 
 void InitializeRenderer();
