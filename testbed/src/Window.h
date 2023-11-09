@@ -5,17 +5,18 @@
 #include <SDL.h>
 #include <windows.h>
 
+#include "ILogger.h"
+
 namespace testbed {
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
 
 using EventInterceptor = void (*)(SDL_Event *event);
 
-void MakeTestbedWindow();
+void InitializeWindow(ILogger *newLogger);
 bool HandleWindowMessages();
 HWND GetTestbedWindowHandle();
 SDL_Window *GetTestbedWindow();
-void InitializeSDL();
 void AddEventInterceptor(EventInterceptor interceptor);
 }  // namespace testbed
 

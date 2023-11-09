@@ -9,6 +9,7 @@ using namespace testbed;
 
 static Camera camera;
 static bool cameraEnabled = true;
+static ILogger *logger = nullptr;
 
 void CameraEventInterceptor(SDL_Event *event) {
 	if (event->type == SDL_KEYDOWN) {
@@ -89,7 +90,9 @@ void testbed::UpdateCamera() {
 	XMStoreFloat3(&camera.position, XMVectorAdd(eye, movement));
 }
 
-void testbed::InitializeCamera() {
+void testbed::InitializeCamera(ILogger *newLogger) {
+	logger = newLogger;
+
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	camera.fov = 75.f;
@@ -99,7 +102,7 @@ void testbed::InitializeCamera() {
 
 	camera.dir = {0.0, 0.0, 1.0};
 
-	GetLogger()->Info("Hooking up camera control interceptor");
+	logger->Info("Hooking up camera control interceptor");
 
 	AddEventInterceptor(CameraEventInterceptor);
 }

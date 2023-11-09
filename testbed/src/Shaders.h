@@ -3,11 +3,18 @@
 
 #include <d3d11.h>
 
+#include "ILogger.h"
+
 namespace testbed {
 struct ShaderBuffer {
 	void *buffer;
 	size_t size;
 };
+
+/**
+ * \brief This could invoke a preload of all shaders in the project.
+ */
+void InitializeShaderSystem(ILogger* newLogger);
 
 ID3D11PixelShader *GetPixelShaderFromFile(
 	ID3D11Device *device, const char *filepath

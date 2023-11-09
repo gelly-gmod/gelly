@@ -4,18 +4,20 @@
 #include "Logging.h"
 #include "Rendering.h"
 #include "Scene.h"
+#include "Shaders.h"
 #include "Window.h"
 
 using namespace testbed;
 
 int main() {
-	InitializeLogger(LoggerType::Console);
-	GetLogger()->Info("Hello, world!");
+	auto *logger = InitializeLogger(LoggerType::Console);
+	logger->Info("Starting up...");
 
-	InitializeSDL();
-	MakeTestbedWindow();
-	InitializeRenderer();
-	InitializeCamera();
+	InitializeWindow(logger);
+	InitializeRenderer(logger);
+	InitializeCamera(logger);
+	InitializeShaderSystem(logger);
+	InitializeSceneSystem(logger);
 	LoadScene({"assets/Duck.gltf"});
 	bool isRunning = true;
 	while (isRunning) {

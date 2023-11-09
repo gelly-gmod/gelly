@@ -9,12 +9,19 @@
 
 using namespace testbed;
 
+static ILogger *logger = nullptr;
+
+void testbed::InitializeShaderSystem(ILogger *newLogger) {
+	logger = newLogger;
+	logger->Info("Initializing shader system...");
+}
+
 ShaderBuffer testbed::LoadShaderBytecodeFromFile(const char *filepath) {
 	ShaderBuffer buffer = {};
 
 	FILE *file = fopen(filepath, "rb");
 	if (!file) {
-		GetLogger()->Error("Failed to open file");
+		logger->Error("Failed to open file");
 		return buffer;
 	}
 
@@ -37,7 +44,7 @@ ID3D11PixelShader *testbed::GetPixelShaderFromFile(
 ) {
 	ShaderBuffer buffer = LoadShaderBytecodeFromFile(filepath);
 	if (!buffer.buffer) {
-		GetLogger()->Error("Failed to load shader bytecode");
+		logger->Error("Failed to load shader bytecode");
 		return nullptr;
 	}
 
@@ -45,7 +52,7 @@ ID3D11PixelShader *testbed::GetPixelShaderFromFile(
 	HRESULT result =
 		device->CreatePixelShader(buffer.buffer, buffer.size, nullptr, &shader);
 	if (FAILED(result)) {
-		GetLogger()->Error("Failed to create pixel shader");
+		logger->Error("Failed to create pixel shader");
 		return nullptr;
 	}
 
@@ -59,7 +66,7 @@ ID3D11VertexShader *testbed::GetVertexShaderFromFile(
 ) {
 	ShaderBuffer buffer = LoadShaderBytecodeFromFile(filepath);
 	if (!buffer.buffer) {
-		GetLogger()->Error("Failed to load shader bytecode");
+		logger->Error("Failed to load shader bytecode");
 		return nullptr;
 	}
 
@@ -68,7 +75,7 @@ ID3D11VertexShader *testbed::GetVertexShaderFromFile(
 		buffer.buffer, buffer.size, nullptr, &shader
 	);
 	if (FAILED(result)) {
-		GetLogger()->Error("Failed to create vertex shader");
+		logger->Error("Failed to create vertex shader");
 		return nullptr;
 	}
 

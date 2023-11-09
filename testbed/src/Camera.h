@@ -6,7 +6,7 @@
 #include "Rendering.h"
 
 namespace testbed {
-void InitializeCamera();
+void InitializeCamera(ILogger *newLogger);
 const Camera &GetCamera();
 }  // namespace testbed
 

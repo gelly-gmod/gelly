@@ -12,6 +12,7 @@ const int testbed::WINDOW_HEIGHT = 720;
 
 static SDL_Window *window = nullptr;
 static std::vector<EventInterceptor> eventInterceptors;
+static ILogger *logger = nullptr;
 
 SDL_Window *testbed::GetTestbedWindow() { return window; }
 
@@ -19,16 +20,16 @@ void testbed::AddEventInterceptor(EventInterceptor interceptor) {
 	eventInterceptors.push_back(interceptor);
 }
 
-void testbed::InitializeSDL() {
-	GetLogger()->Info("Initializing SDL");
+void InitializeSDL() {
+	logger->Info("Initializing SDL");
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
-		GetLogger()->Error("Failed to initialize SDL");
+		logger->Error("Failed to initialize SDL");
 		exit(1);
 	}
 }
 
-void testbed::MakeTestbedWindow() {
-	GetLogger()->Info("Creating the window");
+void MakeTestbedWindow() {
+	logger->Info("Creating the window");
 	window = SDL_CreateWindow(
 		"Testbed",
 		SDL_WINDOWPOS_CENTERED,
@@ -60,7 +61,7 @@ bool testbed::HandleWindowMessages() {
 
 HWND testbed::GetTestbedWindowHandle() {
 	if (!window) {
-		GetLogger()->Error("Window is not created");
+		logger->Error("Window is not created");
 		return nullptr;
 	}
 
@@ -68,4 +69,11 @@ HWND testbed::GetTestbedWindowHandle() {
 	SDL_VERSION(&info.version);
 	SDL_GetWindowWMInfo(window, &info);
 	return info.info.win.window;
+}
+
+void testbed::InitializeWindow(ILogger *newLogger) {
+	logger = newLogger;
+
+	InitializeSDL();
+	MakeTestbedWindow();
 }

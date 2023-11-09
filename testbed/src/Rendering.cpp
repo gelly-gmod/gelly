@@ -13,9 +13,11 @@
 #include "Shaders.h"
 #include "Window.h"
 
+static testbed::ILogger *logger = nullptr;
+
 #define ERROR_IF_FAILED(msg, hr) \
 	if (FAILED(hr)) {            \
-		GetLogger()->Error(msg); \
+		logger->Error(msg);      \
 	}
 
 using namespace testbed;
@@ -134,7 +136,8 @@ void LoadGenericWorldLit() {
 		 1,	 // per-vertex normals are supplied from a second vertex buffer
 		 D3D11_APPEND_ALIGNED_ELEMENT,
 		 D3D11_INPUT_PER_VERTEX_DATA,
-		 0}};
+		 0}
+	};
 
 	ShaderBuffer vsBuffer =
 		LoadShaderBytecodeFromFile("shaders/GenericLitWorld.vs50.hlsl.dxbc");
@@ -157,8 +160,10 @@ void ImGuiSDLEventInterceptor(SDL_Event *event) {
 	ImGui_ImplSDL2_ProcessEvent(event);
 }
 
-void testbed::InitializeRenderer() {
-	GetLogger()->Info("Initializing renderer");
+void testbed::InitializeRenderer(ILogger *newLogger) {
+	logger = newLogger;
+
+	logger->Info("Initializing renderer");
 	DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
 	swapchainDesc.BufferCount = 1;
 	swapchainDesc.BufferDesc.Width = WINDOW_WIDTH;
@@ -201,13 +206,13 @@ void testbed::InitializeRenderer() {
 		device->CreateRenderTargetView(backbuffer, nullptr, &backbufferRTV)
 	);
 
-	GetLogger()->Info("Creating world render constant buffer");
+	logger->Info("Creating world render constant buffer");
 	worldRenderConstants.Init(device);
 
-	GetLogger()->Info("Pre-allocating world mesh space");
+	logger->Info("Pre-allocating world mesh space");
 	worldMeshes.reserve(100);
 
-	GetLogger()->Info("Initializing ImGUI");
+	logger->Info("Initializing ImGUI");
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
@@ -220,12 +225,12 @@ void testbed::InitializeRenderer() {
 
 	AddEventInterceptor(ImGuiSDLEventInterceptor);
 
-	GetLogger()->Info("ImGUI initialized");
+	logger->Info("ImGUI initialized");
 
-	GetLogger()->Info("Loading generic world lit shaders");
+	logger->Info("Loading generic world lit shaders");
 	LoadGenericWorldLit();
 
-	GetLogger()->Info("Creating depth stencil buffer");
+	logger->Info("Creating depth stencil buffer");
 	D3D11_TEXTURE2D_DESC depthStencilDesc = {};
 	depthStencilDesc.Width = WINDOW_WIDTH;
 	depthStencilDesc.Height = WINDOW_HEIGHT;
@@ -249,7 +254,7 @@ void testbed::InitializeRenderer() {
 		)
 	);
 
-	GetLogger()->Info("Creating depth stencil state");
+	logger->Info("Creating depth stencil state");
 	D3D11_DEPTH_STENCIL_DESC depthStencilStateDesc = {};
 	depthStencilStateDesc.DepthEnable = true;
 	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -262,7 +267,7 @@ void testbed::InitializeRenderer() {
 		)
 	);
 
-	GetLogger()->Info("Creating rasterizer state");
+	logger->Info("Creating rasterizer state");
 
 	D3D11_RASTERIZER_DESC rasterizerDesc = {};
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
@@ -273,7 +278,7 @@ void testbed::InitializeRenderer() {
 		device->CreateRasterizerState(&rasterizerDesc, &rasterizerState)
 	);
 
-	GetLogger()->Info("Renderer initialized");
+	logger->Info("Renderer initialized");
 }
 
 void testbed::StartFrame() {
@@ -343,7 +348,7 @@ MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
 
 void testbed::DestroyWorldMesh(MeshReference mesh) {
 	if (worldMeshes.find(mesh) == worldMeshes.end()) {
-		GetLogger()->Error("Attempted to destroy non-existent mesh");
+		logger->Error("Attempted to destroy non-existent mesh");
 		return;
 	}
 
@@ -364,7 +369,8 @@ void testbed::RenderWorldList(
 		static_cast<float>(WINDOW_WIDTH),
 		static_cast<float>(WINDOW_HEIGHT),
 		0.0f,
-		0.0f};
+		0.0f
+	};
 	worldRenderConstants.Set(deviceContext, &cbuffer);
 
 	D3D11_VIEWPORT viewport = {};

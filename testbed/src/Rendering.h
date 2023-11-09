@@ -3,6 +3,8 @@
 
 #include <DirectXMath.h>
 
+#include "ILogger.h"
+
 using namespace DirectX;
 
 namespace testbed {
@@ -51,7 +53,7 @@ struct WorldRenderCBuffer {
 	XMFLOAT4 windowSize;
 };
 
-void InitializeRenderer();
+void InitializeRenderer(ILogger *newLogger);
 void StartFrame();
 void EndFrame();
 MeshReference CreateWorldMesh(const WorldMesh &mesh);

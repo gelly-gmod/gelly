@@ -6,8 +6,7 @@
 namespace testbed {
 enum class LoggerType { Console };
 
-ILogger *GetLogger();
-void InitializeLogger(LoggerType type);
+ILogger *InitializeLogger(LoggerType type);
 }  // namespace testbed
 
 #endif	// GELLY_LOGGING_H

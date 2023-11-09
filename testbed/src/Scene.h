@@ -1,5 +1,6 @@
 #ifndef GELLY_SCENE_H
 #define GELLY_SCENE_H
+#include "ILogger.h"
 
 /**
  * Since testbed is not a game engine, most of our stuff is static, and the
@@ -16,6 +17,7 @@ struct SceneMetadata {
 	int triangles = 0;
 };
 
+void InitializeSceneSystem(ILogger *newLogger);
 void LoadScene(const SceneMetadata &metadata);
 /**
  * Pushes a render list to the renderer, all of the actual render data

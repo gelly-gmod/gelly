@@ -17,8 +17,12 @@
 
 using namespace testbed;
 
+static ILogger *logger = nullptr;
+
 static std::vector<WorldRenderObject> renderObjects;
 static SceneMetadata currentSceneMetadata;
+
+void testbed::InitializeSceneSystem(ILogger *newLogger) { logger = newLogger; }
 
 void DestroyOldScene() {
 	for (auto &renderObject : renderObjects) {
@@ -31,7 +35,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 	if (!renderObjects.empty()) {
 		DestroyOldScene();
 	}
-	
+
 	currentSceneMetadata = metadata;
 	// Load glTF file at metadata.filepath
 
@@ -45,7 +49,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 	);
 
 	if (auto err = asset.error(); err != fastgltf::Error::None) {
-		GetLogger()->Error("Failed to load glTF scene");
+		logger->Error("Failed to load glTF scene");
 		return;
 	}
 
@@ -53,10 +57,10 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 	auto sceneNodes = gltfScene.nodeIndices;
 	auto nodes = asset->nodes;
 
-	GetLogger()->Info("Loaded glTF scene");
+	logger->Info("Loaded glTF scene");
 
 	for (const auto &gltfNode : nodes) {
-		GetLogger()->Info("Loading node");
+		logger->Info("Loading node");
 		WorldRenderObject renderObject = {};
 		auto transform = gltfNode.transform;
 
@@ -202,13 +206,13 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 			indices.count * sizeof(unsigned short)
 		);
 
-		GetLogger()->Info("Loaded mesh");
+		logger->Info("Loaded mesh");
 
 		auto meshReference = CreateWorldMesh(mesh);
 		renderObject.mesh = meshReference;
 		renderObjects.push_back(renderObject);
 
-		GetLogger()->Info("Created render object");
+		logger->Info("Created render object");
 
 		delete[] mesh.vertices;
 		delete[] mesh.normals;
