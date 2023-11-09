@@ -225,7 +225,6 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 	}
 }
 
-static float y = 0.0f;
 void testbed::RenderScene() {
 	// Assemble a render list
 	WorldRenderList renderList = {};
