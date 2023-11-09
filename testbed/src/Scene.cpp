@@ -49,7 +49,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 	);
 
 	if (auto err = asset.error(); err != fastgltf::Error::None) {
-		logger->Error("Failed to load glTF scene");
+		logger->Error("Failed to load glTF scene: '%s'", metadata.filepath);
 		return;
 	}
 
@@ -57,7 +57,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 	auto sceneNodes = gltfScene.nodeIndices;
 	auto nodes = asset->nodes;
 
-	logger->Info("Loaded glTF scene");
+	logger->Info("Loaded glTF scene: '%s'", metadata.filepath);
 
 	for (const auto &gltfNode : nodes) {
 		logger->Info("Loading node");
@@ -206,7 +206,12 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 			indices.count * sizeof(unsigned short)
 		);
 
-		logger->Info("Loaded mesh");
+		logger->Info(
+			"Loaded mesh, vertices: %d, normals: %d, indices: %d",
+			mesh.vertexCount,
+			mesh.normalCount,
+			mesh.indexCount
+		);
 
 		auto meshReference = CreateWorldMesh(mesh);
 		renderObject.mesh = meshReference;
