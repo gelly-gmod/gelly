@@ -22,17 +22,17 @@ void testbed::CConsoleLogger::Info(const char *message, ...) {
 
 void testbed::CConsoleLogger::Debug(const char *message, ...) {
 	CREATE_FORMATTED_BUFFER(buffer, message);
-	printf("[testbed] [info]: %s\n", buffer);
+	printf("[testbed] [debug]: %s\n", buffer);
 }
 
 void testbed::CConsoleLogger::Warning(const char *message, ...) {
 	CREATE_FORMATTED_BUFFER(buffer, message);
-	printf("[testbed] [info]: %s\n", buffer);
+	printf("[testbed] [warn]: %s\n", buffer);
 }
 
 void testbed::CConsoleLogger::Error(const char *message, ...) {
 	CREATE_FORMATTED_BUFFER(buffer, message);
-	printf("[testbed] [info]: %s\n", buffer);
+	printf("[testbed] [error]: %s\n", buffer);
 
 	MessageBoxA(nullptr, buffer, "Error", MB_OK | MB_ICONERROR);
 	exit(1);

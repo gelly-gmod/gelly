@@ -27,7 +27,7 @@ int main() {
 	InitializeCamera(logger);
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);
-	LoadScene({"assets/02_gelly_funnel.gltf"});
+	LoadScene({"assets/test_sphere.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
