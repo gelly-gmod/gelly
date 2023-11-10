@@ -16,7 +16,10 @@ set(IMGUI_SOURCES
 add_executable(testbed
         src/main.cpp
         src/Window.h src/Window.cpp src/Logging.h src/ILogger.h src/CConsoleLogger.cpp src/CConsoleLogger.h src/Logging.cpp src/Rendering.h src/Rendering.cpp
-        ${IMGUI_SOURCES} src/Shaders.h src/Shaders.cpp src/Scene.cpp src/Scene.h src/Camera.cpp src/Camera.h)
+        ${IMGUI_SOURCES} src/Shaders.h src/Shaders.cpp src/Scene.cpp src/Scene.h src/Camera.cpp src/Camera.h
+        src/D3D11DebugLayer.cpp
+        src/D3D11DebugLayer.h
+)
 
 add_subdirectory(vendor/SDL)
 add_subdirectory(vendor/fastgltf)

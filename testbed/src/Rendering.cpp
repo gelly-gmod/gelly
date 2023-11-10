@@ -56,6 +56,30 @@ static ID3D11InputLayout *genericWorldLitInputLayout = nullptr;
 static d3d11::ConstantBuffer<WorldRenderCBuffer> worldRenderConstants;
 static std::unordered_map<MeshReference, D3D11WorldMesh> worldMeshes;
 
+static unsigned int rasterizerFlags = 0b00;
+static unsigned int lastRasterizerFlags = 0b00;
+static const unsigned int RASTERIZER_FLAG_WIREFRAME = 0b01;
+static const unsigned int RASTERIZER_FLAG_NOCULL = 0b10;
+
+void CreateRasterizerState() {
+	if (rasterizerState) {
+		rasterizerState->Release();
+	}
+
+	bool wireframe = rasterizerFlags & RASTERIZER_FLAG_WIREFRAME;
+	bool cull = !(rasterizerFlags & RASTERIZER_FLAG_NOCULL);
+
+	D3D11_RASTERIZER_DESC rasterizerDesc = {};
+	rasterizerDesc.FillMode =
+		wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = cull ? D3D11_CULL_FRONT : D3D11_CULL_NONE;
+
+	ERROR_IF_FAILED(
+		"Failed to create rasterizer state",
+		device->CreateRasterizerState(&rasterizerDesc, &rasterizerState)
+	);
+}
+
 // Mesh reference counter is used to generate unique mesh references.
 // It's really just a monotonically increasing integer, and we're definitely
 // not going to run out of them.
@@ -78,11 +102,30 @@ void CreateImGUIElements() {
 		ImGui::Text("Triangles: %d", sceneMetadata.triangles);
 	}
 
+	if (ImGui::CollapsingHeader("Rendering")) {
+		if (ImGui::Button("Toggle wireframe")) {
+			rasterizerFlags ^= RASTERIZER_FLAG_WIREFRAME;
+		}
+
+		if (ImGui::Button("Toggle no culling")) {
+			rasterizerFlags ^= RASTERIZER_FLAG_NOCULL;
+		}
+
+		if (rasterizerFlags ^ lastRasterizerFlags) {
+			CreateRasterizerState();
+		}
+
+		lastRasterizerFlags = rasterizerFlags;
+	}
+
 	ImGui::End();
 }
 
 void GenerateCameraMatrices(
-	const Camera &camera, XMFLOAT4X4 *model, XMFLOAT4X4 *mvp, XMFLOAT4X4 *invMvp
+	const Camera &camera,
+	const XMFLOAT4X4 *model,
+	XMFLOAT4X4 *mvp,
+	XMFLOAT4X4 *invMvp
 ) {
 	XMFLOAT4X4 view = {};
 	XMFLOAT4X4 proj = {};
@@ -96,15 +139,16 @@ void GenerateCameraMatrices(
 		)
 	);
 
-	XMVECTOR dir = XMLoadFloat3(&camera.dir);
-	XMVECTOR pos = XMLoadFloat3(&camera.position);
-	XMVECTOR up = XMLoadFloat3(&UP_VECTOR);
+	const XMVECTOR dir = XMLoadFloat3(&camera.dir);
+	const XMVECTOR pos = XMLoadFloat3(&camera.position);
+	const XMVECTOR up = XMLoadFloat3(&UP_VECTOR);
 
 	XMStoreFloat4x4(&view, XMMatrixLookToRH(pos, dir, up));
 
 	// Pre multiply
-	XMMATRIX viewMatrix = XMLoadFloat4x4(&view);
-	XMMATRIX projMatrix = XMLoadFloat4x4(&proj);
+	const XMMATRIX viewMatrix = XMLoadFloat4x4(&view);
+	const XMMATRIX projMatrix = XMLoadFloat4x4(&proj);
+
 	// order:
 	// mvp = m * v * p
 	XMMATRIX mvpMatrix = XMMatrixMultiply(XMLoadFloat4x4(model), viewMatrix);
@@ -160,7 +204,7 @@ void ImGuiSDLEventInterceptor(SDL_Event *event) {
 	ImGui_ImplSDL2_ProcessEvent(event);
 }
 
-void testbed::InitializeRenderer(ILogger *newLogger) {
+ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 	logger = newLogger;
 
 	logger->Info("Initializing renderer");
@@ -177,13 +221,18 @@ void testbed::InitializeRenderer(ILogger *newLogger) {
 	swapchainDesc.SampleDesc.Quality = 0;
 	swapchainDesc.Windowed = TRUE;
 
+	UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
+#ifdef _DEBUG
+	flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
 	ERROR_IF_FAILED(
 		"Failed to create D3D11 device and swapchain",
 		D3D11CreateDeviceAndSwapChain(
 			nullptr,
 			D3D_DRIVER_TYPE_HARDWARE,
 			nullptr,
-			0,
+			flags,
 			nullptr,
 			0,
 			D3D11_SDK_VERSION,
@@ -269,16 +318,11 @@ void testbed::InitializeRenderer(ILogger *newLogger) {
 
 	logger->Info("Creating rasterizer state");
 
-	D3D11_RASTERIZER_DESC rasterizerDesc = {};
-	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	rasterizerDesc.CullMode = D3D11_CULL_NONE;
-
-	ERROR_IF_FAILED(
-		"Failed to create rasterizer state",
-		device->CreateRasterizerState(&rasterizerDesc, &rasterizerState)
-	);
+	CreateRasterizerState();
 
 	logger->Info("Renderer initialized");
+
+	return device;
 }
 
 void testbed::StartFrame() {

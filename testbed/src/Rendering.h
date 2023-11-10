@@ -5,6 +5,8 @@
 
 #include "ILogger.h"
 
+#include <d3d11.h>
+
 using namespace DirectX;
 
 namespace testbed {
@@ -53,7 +55,7 @@ struct WorldRenderCBuffer {
 	XMFLOAT4 windowSize;
 };
 
-void InitializeRenderer(ILogger *newLogger);
+ID3D11Device *InitializeRenderer(ILogger *newLogger);
 void StartFrame();
 void EndFrame();
 MeshReference CreateWorldMesh(const WorldMesh &mesh);

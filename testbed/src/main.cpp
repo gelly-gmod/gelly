@@ -7,6 +7,10 @@
 #include "Shaders.h"
 #include "Window.h"
 
+#ifdef _DEBUG
+#include "D3D11DebugLayer.h"
+#endif
+
 using namespace testbed;
 
 int main() {
@@ -14,7 +18,12 @@ int main() {
 	logger->Info("Starting up...");
 
 	InitializeWindow(logger);
+#ifdef _DEBUG
+	const auto debugLayer =
+		InitializeRendererDebugLayer(logger, InitializeRenderer(logger));
+#else
 	InitializeRenderer(logger);
+#endif
 	InitializeCamera(logger);
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);
@@ -27,6 +36,10 @@ int main() {
 		StartFrame();
 		RenderScene();
 		EndFrame();
+
+#ifdef _DEBUG
+		LogRenderDebugMessages(debugLayer);
+#endif
 	}
 
 	return 0;
