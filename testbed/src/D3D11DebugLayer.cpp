@@ -32,6 +32,8 @@ static const char *MessageCategoryToString(D3D11_MESSAGE_CATEGORY category) {
 		case D3D11_MESSAGE_CATEGORY_SHADER:
 			return "Shader";
 	}
+
+	return "Unknown";
 }
 
 static const char *MessageSeverityToString(D3D11_MESSAGE_SEVERITY severity) {
@@ -47,6 +49,8 @@ static const char *MessageSeverityToString(D3D11_MESSAGE_SEVERITY severity) {
 		case D3D11_MESSAGE_SEVERITY_MESSAGE:
 			return "Message";
 	}
+
+	return "Unknown";
 }
 
 DebugLayer testbed::InitializeRendererDebugLayer(

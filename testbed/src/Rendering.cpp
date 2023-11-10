@@ -404,7 +404,7 @@ void testbed::DestroyWorldMesh(MeshReference mesh) {
 }
 
 void testbed::RenderWorldList(
-	const WorldRenderList &list, const testbed::Camera &camera
+	const WorldRenderList &list, const Camera &camera
 ) {
 	// Set up cbuffer
 	WorldRenderCBuffer cbuffer = {};
