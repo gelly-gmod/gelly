@@ -8,6 +8,7 @@
 namespace testbed {
 void InitializeCamera(ILogger *newLogger);
 const Camera &GetCamera();
+void UpdateCamera();
 }  // namespace testbed
 
 #endif	// GELLY_CAMERA_H
