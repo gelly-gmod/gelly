@@ -25,7 +25,7 @@ static SceneMetadata currentSceneMetadata;
 void testbed::InitializeSceneSystem(ILogger *newLogger) { logger = newLogger; }
 
 void DestroyOldScene() {
-	for (auto &renderObject : renderObjects) {
+	for (const auto &renderObject : renderObjects) {
 		DestroyWorldMesh(renderObject.mesh);
 	}
 	renderObjects.clear();
@@ -53,16 +53,16 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 		return;
 	}
 
-	auto gltfScene = asset->scenes[0];
-	auto sceneNodes = gltfScene.nodeIndices;
-	auto nodes = asset->nodes;
+	const auto &gltfScene = asset->scenes[0];
+	const auto &sceneNodes = gltfScene.nodeIndices;
+	const auto &nodes = asset->nodes;
 
 	logger->Info("Loaded glTF scene: '%s'", metadata.filepath);
 
 	for (const auto &gltfNode : nodes) {
 		logger->Info("Loading node");
 		WorldRenderObject renderObject = {};
-		auto transform = gltfNode.transform;
+		const auto &transform = gltfNode.transform;
 
 		// Convert from fastgltf 4x4 to DirectX 4x4
 		//		auto transform = gltfNode.transform;
@@ -79,7 +79,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 
 		XMFLOAT4X4 transformMatrix = {};
 
-		auto trs = std::get_if<fastgltf::Node::TRS>(&transform);
+		const auto &trs = std::get_if<fastgltf::Node::TRS>(&transform);
 		if (trs) {
 			XMVECTOR translation = XMVectorSet(
 				trs->translation[0],
@@ -104,7 +104,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 			);
 		} else {
 			// Has to be one or the other
-			auto transformArray =
+			const auto &transformArray =
 				std::get<fastgltf::Node::TransformMatrix>(transform);
 
 			for (int i = 0; i < 4; i++) {
@@ -118,28 +118,29 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 		renderObject.transform = transformMatrix;
 
 		WorldMesh mesh = {};
-		auto meshIndex = gltfNode.meshIndex;
+		const auto &meshIndex = gltfNode.meshIndex;
 		if (!meshIndex.has_value()) {
 			// Can be used for really awesome stuff, like special markers,
 			// but we dont have any of that yet
 			continue;
 		}
 
-		auto gltfMesh = asset->meshes[meshIndex.value()];
-		auto gltfPrimitives = gltfMesh.primitives;
+		const auto &gltfMesh = asset->meshes[meshIndex.value()];
+		const auto &gltfPrimitives = gltfMesh.primitives;
 
 		// This really only matters if we have multiple materials
 		// per mesh, which we don't, so we can just grab the first
 		// primitive
 
-		auto gltfPrimitive = gltfPrimitives[0];
+		const auto &gltfPrimitive = gltfPrimitives[0];
 
-		auto gltfPositions = gltfPrimitive.findAttribute("POSITION");
-		auto gltfNormals = gltfPrimitive.findAttribute("NORMAL");
+		const auto &gltfPositions = gltfPrimitive.findAttribute("POSITION");
+		const auto &gltfNormals = gltfPrimitive.findAttribute("NORMAL");
 
-		auto positions = asset->accessors[gltfPositions->second];
-		auto normals = asset->accessors[gltfNormals->second];
-		auto indices = asset->accessors[gltfPrimitive.indicesAccessor.value()];
+		const auto &positions = asset->accessors[gltfPositions->second];
+		const auto &normals = asset->accessors[gltfNormals->second];
+		const auto &indices =
+			asset->accessors[gltfPrimitive.indicesAccessor.value()];
 
 		// allocate space for the vertices
 		mesh.vertexCount = positions.count;
@@ -158,26 +159,26 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 
 		// memcpy from the buffers
 
-		auto positionOffset = positions.byteOffset;
-		auto normalOffset = normals.byteOffset;
-		auto indexOffset = indices.byteOffset;
+		const auto &positionOffset = positions.byteOffset;
+		const auto &normalOffset = normals.byteOffset;
+		const auto &indexOffset = indices.byteOffset;
 
-		auto &posBufferView =
+		const auto &posBufferView =
 			asset->bufferViews[positions.bufferViewIndex.value()];
 
-		auto &normBufferView =
+		const auto &normBufferView =
 			asset->bufferViews[normals.bufferViewIndex.value()];
 
-		auto &indexBufferView =
+		const auto &indexBufferView =
 			asset->bufferViews[indices.bufferViewIndex.value()];
 
 		auto posTrueOffset = posBufferView.byteOffset + positionOffset;
 		auto normTrueOffset = normBufferView.byteOffset + normalOffset;
 		auto indexTrueOffset = indexBufferView.byteOffset + indexOffset;
 
-		auto posBuffer = asset->buffers[posBufferView.bufferIndex];
-		auto normBuffer = asset->buffers[normBufferView.bufferIndex];
-		auto indexBuffer = asset->buffers[indexBufferView.bufferIndex];
+		const auto &posBuffer = asset->buffers[posBufferView.bufferIndex];
+		const auto &normBuffer = asset->buffers[normBufferView.bufferIndex];
+		const auto &indexBuffer = asset->buffers[indexBufferView.bufferIndex];
 
 		auto &posBytes =
 			std::get<fastgltf::sources::Vector>(posBuffer.data).bytes;

@@ -1,7 +1,8 @@
 #include "D3D11DebugLayer.h"
 
 #include <d3d11.h>
-#include <stdio.h>
+
+#include <cstdio>
 
 using namespace testbed;
 
@@ -77,8 +78,8 @@ DebugLayer testbed::InitializeRendererDebugLayer(
 }
 
 void testbed::LogRenderDebugMessages(const DebugLayer &debugLayer) {
-	const UINT64 messageCount = debugLayer.infoQueue->GetNumStoredMessages();
-	for (UINT64 i = 0; i < messageCount; ++i) {
+	const auto messageCount = debugLayer.infoQueue->GetNumStoredMessages();
+	for (auto i = 0; i < messageCount; ++i) {
 		SIZE_T messageLength = 0;
 		HRESULT result =
 			debugLayer.infoQueue->GetMessage(i, nullptr, &messageLength);
@@ -86,8 +87,10 @@ void testbed::LogRenderDebugMessages(const DebugLayer &debugLayer) {
 			logger->Error("Failed to get debug message length");
 			break;
 		}
+
 		auto *message = static_cast<D3D11_MESSAGE *>(malloc(messageLength));
 		result = debugLayer.infoQueue->GetMessage(i, message, &messageLength);
+
 		if (FAILED(result)) {
 			logger->Error("Failed to get debug message");
 			break;

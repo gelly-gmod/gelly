@@ -43,7 +43,7 @@ void MakeTestbedWindow() {
 bool testbed::HandleWindowMessages() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		for (auto interceptor : eventInterceptors) {
+		for (const auto &interceptor : eventInterceptors) {
 			interceptor(&event);
 		}
 

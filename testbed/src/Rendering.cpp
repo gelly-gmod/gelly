@@ -83,7 +83,7 @@ void CreateRasterizerState() {
 // Mesh reference counter is used to generate unique mesh references.
 // It's really just a monotonically increasing integer, and we're definitely
 // not going to run out of them.
-static unsigned int meshReferenceCounter = 0;
+static MeshReference meshReferenceCounter = 0;
 
 void CreateImGUIElements() {
 	ImGui::Begin("Testbed");
@@ -350,7 +350,8 @@ void testbed::EndFrame() {
 }
 
 MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
-	D3D11WorldMesh d3d11Mesh = {};
+	D3D11WorldMesh d3d11Mesh{};
+
 	d3d11Mesh.vertices = new d3d11::VertexBuffer<float3>(
 		device,
 		mesh.vertices,
@@ -366,14 +367,14 @@ MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
 	);
 
 	// Have to manually make an index buffer right now
-	D3D11_BUFFER_DESC indexBufferDesc = {};
+	D3D11_BUFFER_DESC indexBufferDesc{};
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufferDesc.ByteWidth = sizeof(unsigned short) * mesh.indexCount;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
 
-	D3D11_SUBRESOURCE_DATA indexData = {};
+	D3D11_SUBRESOURCE_DATA indexData{};
 	indexData.pSysMem = mesh.indices;
 	indexData.SysMemPitch = 0;
 
@@ -384,7 +385,7 @@ MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
 
 	d3d11Mesh.indexCount = mesh.indexCount;
 
-	MeshReference reference = meshReferenceCounter++;
+	const auto reference = meshReferenceCounter++;
 	worldMeshes[reference] = d3d11Mesh;
 
 	return reference;
@@ -396,10 +397,10 @@ void testbed::DestroyWorldMesh(MeshReference mesh) {
 		return;
 	}
 
-	D3D11WorldMesh d3d11Mesh = worldMeshes[mesh];
-	delete d3d11Mesh.vertices;
-	delete d3d11Mesh.normals;
-	d3d11Mesh.indices->Release();
+	const auto &[vertices, normals, indices, indexCount] = worldMeshes[mesh];
+	delete vertices;
+	delete normals;
+	indices->Release();
 	worldMeshes.erase(mesh);
 }
 
@@ -415,11 +416,12 @@ void testbed::RenderWorldList(
 		0.0f,
 		0.0f
 	};
+
 	worldRenderConstants.Set(deviceContext, &cbuffer);
 
 	D3D11_VIEWPORT viewport = {};
-	viewport.Width = (float)WINDOW_WIDTH;
-	viewport.Height = (float)WINDOW_HEIGHT;
+	viewport.Width = static_cast<float>(WINDOW_WIDTH);
+	viewport.Height = static_cast<float>(WINDOW_HEIGHT);
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	deviceContext->RSSetViewports(1, &viewport);
@@ -435,9 +437,9 @@ void testbed::RenderWorldList(
 	deviceContext->OMSetRenderTargets(1, &backbufferRTV, depthStencilView);
 
 	// Render each object
-	for (unsigned int i = 0; i < list.objectCount; i++) {
-		WorldRenderObject object = list.objects[i];
-		D3D11WorldMesh mesh = worldMeshes[object.mesh];
+	for (auto i = 0; i < list.objectCount; i++) {
+		const auto &object = list.objects[i];
+		const auto &mesh = worldMeshes[object.mesh];
 
 		// Set up vertex buffers
 		mesh.vertices->SetAtSlot(deviceContext, 0, genericWorldLitInputLayout);

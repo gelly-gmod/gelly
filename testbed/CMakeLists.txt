@@ -19,6 +19,8 @@ add_executable(testbed
         ${IMGUI_SOURCES} src/Shaders.h src/Shaders.cpp src/Scene.cpp src/Scene.h src/Camera.cpp src/Camera.h
         src/D3D11DebugLayer.cpp
         src/D3D11DebugLayer.h
+        src/Textures.cpp
+        src/Textures.h
 )
 
 add_subdirectory(vendor/SDL)

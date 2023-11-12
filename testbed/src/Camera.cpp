@@ -38,8 +38,8 @@ void CameraEventInterceptor(SDL_Event *event) {
 	float yaw;
 	switch (event->type) {
 		case SDL_MOUSEMOTION:
-			pitch = (float)event->motion.xrel / 1000.f;
-			yaw = (float)event->motion.yrel / 1000.f;
+			pitch = static_cast<float>(event->motion.xrel) / 1000.f;
+			yaw = static_cast<float>(event->motion.yrel) / 1000.f;
 
 			rotation = XMVectorAdd(rotation, XMVectorScale(right, pitch));
 			rotation = XMVectorAdd(rotation, XMVectorScale(up, -yaw));
@@ -60,11 +60,11 @@ void testbed::UpdateCamera() {
 	}
 
 	// We have to do movement here for smooth movement
-	XMVECTOR eye = XMLoadFloat3(&camera.position);
-	XMVECTOR forward = XMLoadFloat3(&camera.dir);
-	XMVECTOR worldUp = XMLoadFloat3(&UP_VECTOR);
-	XMVECTOR right = XMVector3Cross(forward, worldUp);
-	XMVECTOR movement = XMVectorZero();
+	auto eye = XMLoadFloat3(&camera.position);
+	auto forward = XMLoadFloat3(&camera.dir);
+	auto worldUp = XMLoadFloat3(&UP_VECTOR);
+	auto right = XMVector3Cross(forward, worldUp);
+	auto movement = XMVectorZero();
 
 	const Uint8 *keyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -81,8 +81,8 @@ void testbed::UpdateCamera() {
 		movement = XMVectorAdd(movement, right);
 	}
 
-	bool is_fast = keyboardState[SDL_SCANCODE_LSHIFT];
-	bool is_slow = keyboardState[SDL_SCANCODE_LCTRL];
+	const bool is_fast = keyboardState[SDL_SCANCODE_LSHIFT];
+	const bool is_slow = keyboardState[SDL_SCANCODE_LCTRL];
 
 	movement =
 		XMVectorScale(movement, is_fast ? 0.1f : (is_slow ? 0.01f : 0.05f));
@@ -95,7 +95,7 @@ void testbed::InitializeCamera(ILogger *newLogger) {
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
-	camera.fov = 75.f;
+	camera.fov = 55.f;
 	camera.aspectRatio = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 	camera.nearPlane = 0.1f;
 	camera.farPlane = 1000.f;
