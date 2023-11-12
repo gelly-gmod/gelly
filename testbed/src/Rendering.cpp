@@ -332,7 +332,7 @@ void testbed::StartFrame() {
 
 	CreateImGUIElements();
 
-	const auto color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+	constexpr float color[4] = {0.3f, 0.3f, 1.0f, 1.0f};
 	deviceContext->ClearRenderTargetView(backbufferRTV, color);
 	// Clear depth stencil
 	deviceContext->ClearDepthStencilView(
