@@ -2,10 +2,11 @@
 #define GELLY_RENDERING_H
 
 #include <DirectXMath.h>
+#include <d3d11.h>
+
+#include <vector>
 
 #include "ILogger.h"
-
-#include <d3d11.h>
 
 using namespace DirectX;
 
@@ -15,14 +16,11 @@ using float4 = XMFLOAT4;
 
 constexpr float3 UP_VECTOR = float3(0.0f, 1.0f, 0.0f);
 
+using MeshDataVector = std::vector<uint8_t>;
 struct WorldMesh {
-	float3 *vertices;
-	unsigned int vertexCount;
-	float3 *normals;
-	unsigned int normalCount;
-
-	unsigned short *indices;
-	unsigned int indexCount;
+	MeshDataVector vertices;
+	MeshDataVector normals;
+	MeshDataVector indices;
 };
 
 using MeshReference = unsigned int;
@@ -33,10 +31,7 @@ struct WorldRenderObject {
 	XMFLOAT4X4 transform;
 };
 
-struct WorldRenderList {
-	WorldRenderObject *objects;
-	unsigned int objectCount;
-};
+using WorldRenderList = std::vector<WorldRenderObject>;
 
 struct Camera {
 	float3 position;
@@ -59,7 +54,7 @@ ID3D11Device *InitializeRenderer(ILogger *newLogger);
 void StartFrame();
 void EndFrame();
 MeshReference CreateWorldMesh(const WorldMesh &mesh);
-void DestroyWorldMesh(MeshReference mesh);
+void DestroyWorldMesh(const MeshReference &mesh);
 void RenderWorldList(const WorldRenderList &list, const Camera &camera);
 // TODO: When there is a stronger base, we can add fullscreen passes
 }  // namespace testbed

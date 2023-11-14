@@ -142,23 +142,6 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 		const auto &indices =
 			asset->accessors[gltfPrimitive.indicesAccessor.value()];
 
-		// allocate space for the vertices
-		mesh.vertexCount = positions.count;
-		mesh.vertices = new float3[mesh.vertexCount];
-
-		// allocate space for the normals
-		mesh.normalCount = normals.count;
-		mesh.normals = new float3[mesh.normalCount];
-
-		// allocate space for the indices
-		mesh.indexCount = indices.count;
-		mesh.indices = new unsigned short[mesh.indexCount];
-
-		// Update scene metadata
-		currentSceneMetadata.triangles += mesh.indexCount / 3;
-
-		// memcpy from the buffers
-
 		const auto &positionOffset = positions.byteOffset;
 		const auto &normalOffset = normals.byteOffset;
 		const auto &indexOffset = indices.byteOffset;
@@ -171,10 +154,6 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 
 		const auto &indexBufferView =
 			asset->bufferViews[indices.bufferViewIndex.value()];
-
-		auto posTrueOffset = posBufferView.byteOffset + positionOffset;
-		auto normTrueOffset = normBufferView.byteOffset + normalOffset;
-		auto indexTrueOffset = indexBufferView.byteOffset + indexOffset;
 
 		const auto &posBuffer = asset->buffers[posBufferView.bufferIndex];
 		const auto &normBuffer = asset->buffers[normBufferView.bufferIndex];
@@ -189,51 +168,52 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 		auto &indexBytes =
 			std::get<fastgltf::sources::Vector>(indexBuffer.data).bytes;
 
-		memcpy(
-			mesh.vertices,
+		// We can't just copy the buffer as it requires an offset
+		auto posTrueOffset = posBufferView.byteOffset + positionOffset;
+		auto normTrueOffset = normBufferView.byteOffset + normalOffset;
+		auto indexTrueOffset = indexBufferView.byteOffset + indexOffset;
+
+		mesh.vertices.resize(positions.count * sizeof(float3));
+		mesh.normals.resize(normals.count * sizeof(float3));
+		mesh.indices.resize(indices.count * sizeof(unsigned short));
+
+		std::memcpy(
+			mesh.vertices.data(),
 			posBytes.data() + posTrueOffset,
-			positions.count * sizeof(float3)
+			mesh.vertices.size()
 		);
 
-		memcpy(
-			mesh.normals,
+		std::memcpy(
+			mesh.normals.data(),
 			normBytes.data() + normTrueOffset,
-			normals.count * sizeof(float3)
+			mesh.normals.size()
 		);
 
-		memcpy(
-			mesh.indices,
+		std::memcpy(
+			mesh.indices.data(),
 			indexBytes.data() + indexTrueOffset,
-			indices.count * sizeof(unsigned short)
+			mesh.indices.size()
 		);
 
 		logger->Info(
 			"Loaded mesh, vertices: %d, normals: %d, indices: %d",
-			mesh.vertexCount,
-			mesh.normalCount,
-			mesh.indexCount
+			mesh.vertices.size() / sizeof(float3),
+			mesh.normals.size() / sizeof(float3),
+			mesh.indices.size() / sizeof(unsigned short)
 		);
+
+		// Update scene metadata
+		currentSceneMetadata.triangles += mesh.indices.size() / 3;
 
 		auto meshReference = CreateWorldMesh(mesh);
 		renderObject.mesh = meshReference;
 		renderObjects.push_back(renderObject);
 
 		logger->Info("Created render object");
-
-		delete[] mesh.vertices;
-		delete[] mesh.normals;
-		delete[] mesh.indices;
 	}
 }
 
-void testbed::RenderScene() {
-	// Assemble a render list
-	WorldRenderList renderList = {};
-	renderList.objectCount = renderObjects.size();
-	renderList.objects = renderObjects.data();
-
-	RenderWorldList(renderList, GetCamera());
-}
+void testbed::RenderScene() { RenderWorldList(renderObjects, GetCamera()); }
 
 SceneMetadata testbed::GetCurrentSceneMetadata() {
 	return currentSceneMetadata;

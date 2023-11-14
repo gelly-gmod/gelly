@@ -352,30 +352,34 @@ void testbed::EndFrame() {
 MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
 	D3D11WorldMesh d3d11Mesh{};
 
+	auto *vertexData = reinterpret_cast<const float3 *>(mesh.vertices.data());
+	auto *normalData = reinterpret_cast<const float3 *>(mesh.normals.data());
+	auto *indicesData =
+		reinterpret_cast<const unsigned short *>(mesh.indices.data());
 	d3d11Mesh.vertices = new d3d11::VertexBuffer<float3>(
 		device,
-		mesh.vertices,
-		mesh.vertexCount,
+		vertexData,
+		mesh.vertices.size() / sizeof(float3),
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 	);
 
 	d3d11Mesh.normals = new d3d11::VertexBuffer<float3>(
 		device,
-		mesh.normals,
-		mesh.normalCount,
+		normalData,
+		mesh.normals.size() / sizeof(float3),
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 	);
 
 	// Have to manually make an index buffer right now
 	D3D11_BUFFER_DESC indexBufferDesc{};
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned short) * mesh.indexCount;
+	indexBufferDesc.ByteWidth = mesh.indices.size();
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA indexData{};
-	indexData.pSysMem = mesh.indices;
+	indexData.pSysMem = indicesData;
 	indexData.SysMemPitch = 0;
 
 	ERROR_IF_FAILED(
@@ -383,7 +387,7 @@ MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
 		device->CreateBuffer(&indexBufferDesc, &indexData, &d3d11Mesh.indices)
 	);
 
-	d3d11Mesh.indexCount = mesh.indexCount;
+	d3d11Mesh.indexCount = mesh.indices.size() / sizeof(unsigned short);
 
 	const auto reference = meshReferenceCounter++;
 	worldMeshes[reference] = d3d11Mesh;
@@ -391,7 +395,7 @@ MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
 	return reference;
 }
 
-void testbed::DestroyWorldMesh(MeshReference mesh) {
+void testbed::DestroyWorldMesh(const MeshReference &mesh) {
 	if (worldMeshes.find(mesh) == worldMeshes.end()) {
 		logger->Error("Attempted to destroy non-existent mesh");
 		return;
@@ -437,8 +441,8 @@ void testbed::RenderWorldList(
 	deviceContext->OMSetRenderTargets(1, &backbufferRTV, depthStencilView);
 
 	// Render each object
-	for (auto i = 0; i < list.objectCount; i++) {
-		const auto &object = list.objects[i];
+	for (auto i = list.cbegin(); i != list.cend(); ++i) {
+		const auto &object = *i;
 		const auto &mesh = worldMeshes[object.mesh];
 
 		// Set up vertex buffers

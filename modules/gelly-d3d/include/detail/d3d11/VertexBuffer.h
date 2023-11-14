@@ -15,7 +15,7 @@ private:
 public:
 	explicit VertexBuffer(
 		ID3D11Device *device,
-		Vertex *initData,
+		const Vertex *initData,
 		int vertexCapacity,
 		D3D11_PRIMITIVE_TOPOLOGY topology
 	);
@@ -34,7 +34,7 @@ public:
 template <typename Vertex>
 VertexBuffer<Vertex>::VertexBuffer(
 	ID3D11Device *device,
-	Vertex *initData,
+	const Vertex *initData,
 	int vertexCapacity,
 	D3D11_PRIMITIVE_TOPOLOGY topology
 )

@@ -31,7 +31,7 @@ public:
 	Buffer(
 		ID3D11Device *device,
 		int maxCapacity,
-		T *initData,
+		const T *initData,
 		D3D11_BIND_FLAG bindFlags,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
 		UINT cpuAccessFlags = 0,
@@ -45,7 +45,7 @@ public:
 	void Init(
 		ID3D11Device *device,
 		int maxBufferCapacity,
-		T *initData,
+		const T *initData,
 		D3D11_BIND_FLAG bindFlags,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
 		UINT cpuAccessFlags = 0,
@@ -67,7 +67,7 @@ template <typename T>
 Buffer<T>::Buffer(
 	ID3D11Device *device,
 	int maxCapacity,
-	T *initData,
+	const T *initData,
 	D3D11_BIND_FLAG bindFlags,
 	D3D11_USAGE usage,
 	UINT cpuAccessFlags,
@@ -90,7 +90,7 @@ template <typename T>
 void Buffer<T>::Init(
 	ID3D11Device *device,
 	int maxBufferCapacity,
-	T *initData,
+	const T *initData,
 	D3D11_BIND_FLAG bindFlags,
 	D3D11_USAGE usage,
 	UINT cpuAccessFlags,
