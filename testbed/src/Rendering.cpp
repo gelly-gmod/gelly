@@ -217,7 +217,8 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 	swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapchainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapchainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapchainDesc.BufferUsage =
+		DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 	swapchainDesc.OutputWindow = GetTestbedWindowHandle();
 	swapchainDesc.SampleDesc.Count = 1;
 	swapchainDesc.SampleDesc.Quality = 0;

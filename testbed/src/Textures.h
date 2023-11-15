@@ -5,6 +5,8 @@
 
 #include "ILogger.h"
 
+#define BUILTIN_BACKBUFFER_TEXNAME "backbuffer_tex"
+
 namespace testbed {
 /**
  * \brief Sourced textures are textures that are loaded from files.

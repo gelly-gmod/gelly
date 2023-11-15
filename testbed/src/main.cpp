@@ -5,6 +5,7 @@
 #include "Rendering.h"
 #include "Scene.h"
 #include "Shaders.h"
+#include "Textures.h"
 #include "Window.h"
 
 #ifdef _DEBUG
@@ -18,12 +19,12 @@ int main() {
 	logger->Info("Starting up...");
 
 	InitializeWindow(logger);
+	const auto rendererDevice = InitializeRenderer(logger);
 #ifdef _DEBUG
 	const auto debugLayer =
-		InitializeRendererDebugLayer(logger, InitializeRenderer(logger));
-#else
-	InitializeRenderer(logger);
+		InitializeRendererDebugLayer(logger, rendererDevice);
 #endif
+	InitializeTextureSystem(logger, rendererDevice);
 	InitializeCamera(logger);
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);

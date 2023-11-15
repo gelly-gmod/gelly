@@ -6,6 +6,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "Rendering.h"
 #include "d3d11.h"
 
 using namespace testbed;
@@ -67,6 +68,30 @@ void testbed::InitializeTextureSystem(
 	::rendererDevice = rendererDevice;
 
 	logger->Info("Initialized texture system");
+
+	// So, the main renderer already creates an RTV and a texture for
+	// the back buffer, so we don't need to do that here.
+	// However we do need to create an SRV for the back buffer
+
+	UnownedTextureInfo backBufferInfo{};
+	backBufferInfo.texture = GetBackBuffer(rendererDevice);
+	backBufferInfo.rtv = GetBackBufferRTV(rendererDevice);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	if (const auto result = rendererDevice->CreateShaderResourceView(
+			backBufferInfo.texture, &srvDesc, &backBufferInfo.srv
+		);
+		FAILED(result)) {
+		logger->Error("Failed to create SRV for back buffer");
+		return;
+	}
+
+	CreateUnownedTexture(BUILTIN_BACKBUFFER_TEXNAME, backBufferInfo);
+	logger->Info("Created unowned texture to the backbuffer");
 }
 
 void testbed::CreateFeatureTexture(
