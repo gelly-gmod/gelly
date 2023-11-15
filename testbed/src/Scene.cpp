@@ -168,7 +168,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 		auto &indexBytes =
 			std::get<fastgltf::sources::Vector>(indexBuffer.data).bytes;
 
-		// We can't just copy the buffer as it requires an offset
+		// We can't just copy-assign the buffer as it requires an offset
 		auto posTrueOffset = posBufferView.byteOffset + positionOffset;
 		auto normTrueOffset = normBufferView.byteOffset + normalOffset;
 		auto indexTrueOffset = indexBufferView.byteOffset + indexOffset;

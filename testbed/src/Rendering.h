@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 
+#include <array>
 #include <vector>
 
 #include "ILogger.h"
@@ -17,6 +18,7 @@ using float4 = XMFLOAT4;
 constexpr float3 UP_VECTOR = float3(0.0f, 1.0f, 0.0f);
 
 using MeshDataVector = std::vector<uint8_t>;
+
 struct WorldMesh {
 	MeshDataVector vertices;
 	MeshDataVector normals;
@@ -43,7 +45,7 @@ struct Camera {
 	float farPlane;
 };
 
-struct WorldRenderCBuffer {
+struct GenericRenderCBuffer {
 	XMFLOAT4X4 mvp;
 	XMFLOAT4X4 invMvp;
 	XMFLOAT4 eyePos;
@@ -51,12 +53,20 @@ struct WorldRenderCBuffer {
 };
 
 ID3D11Device *InitializeRenderer(ILogger *newLogger);
+/**
+ * \brief This function takes in the result of InitializeRenderer and returns
+ * the device context for the renderer if the device is correct and valid.
+ * \param device Device of the renderer
+ * \return Device context of the renderer
+ */
+ID3D11DeviceContext *GetRendererContext(ID3D11Device *device);
+
 void StartFrame();
 void EndFrame();
 MeshReference CreateWorldMesh(const WorldMesh &mesh);
 void DestroyWorldMesh(const MeshReference &mesh);
 void RenderWorldList(const WorldRenderList &list, const Camera &camera);
-// TODO: When there is a stronger base, we can add fullscreen passes
+
 }  // namespace testbed
 
 #endif	// GELLY_RENDERING_H

@@ -53,7 +53,7 @@ static ID3D11PixelShader *genericWorldLitPS = nullptr;
 static ID3D11VertexShader *genericWorldLitVS = nullptr;
 static ID3D11InputLayout *genericWorldLitInputLayout = nullptr;
 
-static d3d11::ConstantBuffer<WorldRenderCBuffer> worldRenderConstants;
+static d3d11::ConstantBuffer<GenericRenderCBuffer> worldRenderConstants;
 static std::unordered_map<MeshReference, D3D11WorldMesh> worldMeshes;
 
 static unsigned int rasterizerFlags = 0b00;
@@ -412,7 +412,7 @@ void testbed::RenderWorldList(
 	const WorldRenderList &list, const Camera &camera
 ) {
 	// Set up cbuffer
-	WorldRenderCBuffer cbuffer = {};
+	GenericRenderCBuffer cbuffer = {};
 	XMStoreFloat4(&cbuffer.eyePos, XMLoadFloat3(&camera.position));
 	cbuffer.windowSize = {
 		static_cast<float>(WINDOW_WIDTH),

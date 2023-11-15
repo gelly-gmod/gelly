@@ -21,6 +21,8 @@ add_executable(testbed
         src/D3D11DebugLayer.h
         src/Textures.cpp
         src/Textures.h
+        src/SSFX.cpp
+        src/SSFX.h
 )
 
 add_subdirectory(vendor/SDL)
