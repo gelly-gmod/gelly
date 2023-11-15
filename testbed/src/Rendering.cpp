@@ -41,6 +41,8 @@ struct D3D11WorldMesh {
 static ID3D11Device *device = nullptr;
 static IDXGISwapChain *swapchain = nullptr;
 static ID3D11DeviceContext *deviceContext = nullptr;
+
+static ID3D11Texture2D *backbuffer = nullptr;
 static ID3D11RenderTargetView *backbufferRTV = nullptr;
 
 static ID3D11DepthStencilView *depthStencilView = nullptr;
@@ -244,7 +246,6 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 		)
 	);
 
-	ID3D11Texture2D *backbuffer = nullptr;
 	ERROR_IF_FAILED(
 		"Failed to get backbuffer",
 		swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&backbuffer)
@@ -323,6 +324,33 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 	logger->Info("Renderer initialized");
 
 	return device;
+}
+
+ID3D11DeviceContext *testbed::GetRendererContext(ID3D11Device *device) {
+	if (device != ::device) {
+		logger->Error("Device does not match renderer device");
+		return nullptr;
+	}
+
+	return deviceContext;
+}
+
+ID3D11Texture2D *testbed::GetBackBuffer(ID3D11Device *device) {
+	if (device != ::device) {
+		logger->Error("Device does not match renderer device");
+		return nullptr;
+	}
+
+	return backbuffer;
+}
+
+ID3D11RenderTargetView *testbed::GetBackBufferRTV(ID3D11Device *device) {
+	if (device != ::device) {
+		logger->Error("Device does not match renderer device");
+		return nullptr;
+	}
+
+	return backbufferRTV;
 }
 
 void testbed::StartFrame() {

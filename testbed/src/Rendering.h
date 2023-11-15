@@ -61,6 +61,9 @@ ID3D11Device *InitializeRenderer(ILogger *newLogger);
  */
 ID3D11DeviceContext *GetRendererContext(ID3D11Device *device);
 
+ID3D11Texture2D *GetBackBuffer(ID3D11Device *device);
+ID3D11RenderTargetView *GetBackBufferRTV(ID3D11Device *device);
+
 void StartFrame();
 void EndFrame();
 MeshReference CreateWorldMesh(const WorldMesh &mesh);
