@@ -31,6 +31,7 @@ struct UnownedTextureInfo {
 	ID3D11Texture2D *texture;
 	ID3D11ShaderResourceView *srv;
 	ID3D11RenderTargetView *rtv;
+	ID3D11SamplerState *sampler;
 };
 
 void InitializeTextureSystem(ILogger *newLogger, ID3D11Device *rendererDevice);
@@ -54,6 +55,8 @@ ID3D11RenderTargetView *GetTextureRTV(const char *name);
  * view.
  */
 ID3D11ShaderResourceView *GetTextureSRV(const char *name);
+
+ID3D11SamplerState *GetTextureSampler(const char *name);
 
 }  // namespace testbed
 

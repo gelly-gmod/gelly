@@ -239,12 +239,16 @@ void testbed::ApplySSFXEffect(const char *name) {
 
 	std::vector<ID3D11ShaderResourceView *> srvs;
 	std::vector<ID3D11RenderTargetView *> rtvs;
+	std::vector<ID3D11SamplerState *> samplers;
+
 	srvs.reserve(it->second->effectData.inputTextures.size());
+	samplers.reserve(it->second->effectData.inputTextures.size());
 	rtvs.reserve(it->second->effectData.outputTextures.size());
 
 	const auto effect = it->second;
 	for (const auto &inputTextureName : effect->effectData.inputTextures) {
 		srvs.push_back(GetTextureSRV(inputTextureName));
+		samplers.push_back(GetTextureSampler(inputTextureName));
 	}
 
 	for (const auto &outputTextureName : effect->effectData.outputTextures) {
@@ -272,6 +276,14 @@ void testbed::ApplySSFXEffect(const char *name) {
 		0, static_cast<UINT>(srvs.size()), srvs.data()
 	);
 
+	rendererContext->PSSetSamplers(
+		0, static_cast<UINT>(samplers.size()), samplers.data()
+	);
+
+	rendererContext->VSSetSamplers(
+		0, static_cast<UINT>(samplers.size()), samplers.data()
+	);
+
 	rendererContext->IASetInputLayout(quadInputLayout);
 	rendererContext->IASetPrimitiveTopology(
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
@@ -297,13 +309,20 @@ void testbed::ApplySSFXEffect(const char *name) {
 	rendererContext->Flush();
 
 	// Clear and reset for the next frame
+
+	// Set every srv and rtv to null
+	ID3D11ShaderResourceView *nullSRVs[8] = {nullptr};
+	ID3D11SamplerState *nullSamplers[8] = {nullptr};
+
 	rendererContext->OMSetRenderTargets(0, nullptr, nullptr);
 	rendererContext->VSSetShader(nullptr, nullptr, 0);
 	rendererContext->PSSetShader(nullptr, nullptr, 0);
 	rendererContext->VSSetConstantBuffers(0, 0, nullptr);
 	rendererContext->PSSetConstantBuffers(0, 0, nullptr);
-	rendererContext->VSSetShaderResources(0, 0, nullptr);
-	rendererContext->PSSetShaderResources(0, 0, nullptr);
+	rendererContext->VSSetShaderResources(0, 8, nullSRVs);
+	rendererContext->PSSetShaderResources(0, 8, nullSRVs);
+	rendererContext->VSSetSamplers(0, 8, nullSamplers);
+	rendererContext->PSSetSamplers(0, 8, nullSamplers);
 	rendererContext->IASetInputLayout(nullptr);
 	rendererContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED);
 	rendererContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);

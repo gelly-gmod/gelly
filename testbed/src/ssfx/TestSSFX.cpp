@@ -1,5 +1,6 @@
 #include "TestSSFX.h"
 
+#include "Rendering.h"
 #include "Textures.h"
 
 using namespace testbed;
@@ -13,7 +14,9 @@ void ssfx::InitializeTestSSFX(ILogger *logger) {
 	}
 
 	testSSFXEffect.pixelShaderPath = "shaders/TestSSFX.ps50.hlsl.dxbc";
-	testSSFXEffect.inputTextures = {};
+	testSSFXEffect.inputTextures = {
+		GBUFFER_ALBEDO_TEXNAME, GBUFFER_NORMAL_TEXNAME
+	};
 	testSSFXEffect.outputTextures = {BUILTIN_BACKBUFFER_TEXNAME};
 	testSSFXEffect.shaderConstantData = nullptr;
 

@@ -397,6 +397,19 @@ void testbed::StartFrame() {
 		depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
 	);
 	deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
+
+	constexpr float nullFeatureColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	deviceContext->ClearRenderTargetView(
+		GetTextureRTV(GBUFFER_ALBEDO_TEXNAME), nullFeatureColor
+	);
+
+	deviceContext->ClearRenderTargetView(
+		GetTextureRTV(GBUFFER_NORMAL_TEXNAME), nullFeatureColor
+	);
+
+	deviceContext->ClearRenderTargetView(
+		GetTextureRTV(GBUFFER_DEPTH_TEXNAME), nullFeatureColor
+	);
 }
 
 void testbed::EndFrame() {
@@ -498,7 +511,12 @@ void testbed::RenderWorldList(
 
 	// Set up depth stencil
 	deviceContext->OMSetDepthStencilState(depthStencilState, 1);
-	deviceContext->OMSetRenderTargets(1, &backbufferRTV, depthStencilView);
+	ID3D11RenderTargetView *gbufferRtvs[3] = {
+		GetTextureRTV(GBUFFER_ALBEDO_TEXNAME),
+		GetTextureRTV(GBUFFER_NORMAL_TEXNAME),
+		GetTextureRTV(GBUFFER_DEPTH_TEXNAME)
+	};
+	deviceContext->OMSetRenderTargets(3, gbufferRtvs, depthStencilView);
 
 	// Render each object
 	for (auto i = list.cbegin(); i != list.cend(); ++i) {

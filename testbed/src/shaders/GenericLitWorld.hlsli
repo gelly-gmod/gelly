@@ -14,5 +14,7 @@ struct VS_INPUT {
 };
 
 struct PS_OUTPUT {
-    float4 Color : SV_TARGET;
+    float3 Albedo : SV_TARGET0;
+    float3 Normal : SV_TARGET1;
+    float Depth : SV_TARGET2;
 };

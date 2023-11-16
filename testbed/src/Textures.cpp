@@ -21,6 +21,7 @@ struct TextureEntry {
 	PtrType<ID3D11ShaderResourceView> srv;
 	PtrType<ID3D11RenderTargetView> rtv;
 	PtrType<ID3D11Texture2D> texture;
+	PtrType<ID3D11SamplerState> sampler;
 };
 
 using OwnedTexturePtr = std::shared_ptr<TextureEntry<ComPtr>>;
@@ -83,11 +84,27 @@ void testbed::InitializeTextureSystem(
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
-	if (const auto result = rendererDevice->CreateShaderResourceView(
-			backBufferInfo.texture, &srvDesc, &backBufferInfo.srv
-		);
-		FAILED(result)) {
+	auto result = rendererDevice->CreateShaderResourceView(
+		backBufferInfo.texture, &srvDesc, &backBufferInfo.srv
+	);
+
+	if (FAILED(result)) {
 		logger->Error("Failed to create SRV for back buffer");
+		return;
+	}
+
+	D3D11_SAMPLER_DESC samplerDesc{};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+	result = rendererDevice->CreateSamplerState(
+		&samplerDesc, &backBufferInfo.sampler
+	);
+
+	if (FAILED(result)) {
+		logger->Error("Failed to create sampler state for back buffer");
 		return;
 	}
 
@@ -159,6 +176,23 @@ void testbed::CreateFeatureTexture(
 		return;
 	}
 
+	D3D11_SAMPLER_DESC samplerDesc{};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+	result = rendererDevice->CreateSamplerState(
+		&samplerDesc, entry->sampler.GetAddressOf()
+	);
+
+	if (FAILED(result)) {
+		logger->Error(
+			"Failed to create sampler state for texture with name %s", name
+		);
+		return;
+	}
+
 	textures[name] = std::move(entry);
 }
 
@@ -175,6 +209,7 @@ void testbed::CreateUnownedTexture(
 	entry->texture = info.texture;
 	entry->rtv = info.rtv;
 	entry->srv = info.srv;
+	entry->sampler = info.sampler;
 
 	unownedTextures[name] = std::move(entry);
 }
@@ -199,6 +234,19 @@ ID3D11ShaderResourceView *testbed::GetTextureSRV(const char *name) {
 
 	if (UnownedTextureExists(name)) {
 		return GetUnownedTexture(name)->srv;
+	}
+
+	logger->Error("Texture with name %s does not exist", name);
+	return nullptr;
+}
+
+ID3D11SamplerState *testbed::GetTextureSampler(const char *name) {
+	if (OwnedTextureExists(name)) {
+		return GetOwnedTexture(name)->sampler.Get();
+	}
+
+	if (UnownedTextureExists(name)) {
+		return GetUnownedTexture(name)->sampler;
 	}
 
 	logger->Error("Texture with name %s does not exist", name);
