@@ -32,7 +32,7 @@ int main() {
 	InitializeSSFXSystem(logger, rendererDevice);
 	ssfx::InitializeTestSSFX(logger);
 
-	LoadScene({"assets/test_sphere.gltf"});
+	LoadScene({"assets/test_hires_scene.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();

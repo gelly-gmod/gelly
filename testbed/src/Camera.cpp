@@ -45,6 +45,10 @@ void CameraEventInterceptor(SDL_Event *event) {
 			rotation = XMVectorAdd(rotation, XMVectorScale(up, -yaw));
 
 			break;
+		case SDL_MOUSEWHEEL:
+			camera.fov -= event->wheel.y;
+			camera.fov = fminf(fmaxf(camera.fov, 1.f), 179.f);
+			break;
 		default:
 			break;
 	}

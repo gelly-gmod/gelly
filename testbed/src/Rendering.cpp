@@ -214,7 +214,7 @@ void CreateGBufferTextures() {
 	FeatureTextureInfo normalTexInfo{};
 	normalTexInfo.width = WINDOW_WIDTH;
 	normalTexInfo.height = WINDOW_HEIGHT;
-	normalTexInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	normalTexInfo.format = DXGI_FORMAT_R8G8B8A8_SNORM;
 
 	CreateFeatureTexture(GBUFFER_NORMAL_TEXNAME, normalTexInfo);
 

@@ -15,7 +15,9 @@ void ssfx::InitializeTestSSFX(ILogger *logger) {
 
 	testSSFXEffect.pixelShaderPath = "shaders/TestSSFX.ps50.hlsl.dxbc";
 	testSSFXEffect.inputTextures = {
-		GBUFFER_ALBEDO_TEXNAME, GBUFFER_NORMAL_TEXNAME
+		GBUFFER_ALBEDO_TEXNAME,
+		GBUFFER_NORMAL_TEXNAME,
+		GBUFFER_DEPTH_TEXNAME,
 	};
 	testSSFXEffect.outputTextures = {BUILTIN_BACKBUFFER_TEXNAME};
 	testSSFXEffect.shaderConstantData = nullptr;
