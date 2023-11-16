@@ -11,6 +11,7 @@
 #include "Logging.h"
 #include "Scene.h"
 #include "Shaders.h"
+#include "Textures.h"
 #include "Window.h"
 
 static testbed::ILogger *logger = nullptr;
@@ -323,6 +324,8 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 	CreateRasterizerState();
 
 	logger->Info("Renderer initialized");
+
+	InitializeTextureSystem(logger, device);
 
 	return device;
 }

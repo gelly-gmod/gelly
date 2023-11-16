@@ -26,7 +26,6 @@ int main() {
 	const auto debugLayer =
 		InitializeRendererDebugLayer(logger, rendererDevice);
 #endif
-	InitializeTextureSystem(logger, rendererDevice);
 	InitializeCamera(logger);
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);
