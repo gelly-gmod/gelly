@@ -23,6 +23,8 @@ add_executable(testbed
         src/Textures.h
         src/SSFX.cpp
         src/SSFX.h
+        src/ssfx/TestSSFX.cpp
+        src/ssfx/TestSSFX.h
 )
 
 add_subdirectory(vendor/SDL)

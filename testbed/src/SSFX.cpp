@@ -117,6 +117,8 @@ void testbed::InitializeSSFXSystem(
 	CreateNDCQuadResources();
 }
 
+bool testbed::IsSSFXInitialized() { return rendererDevice != nullptr; }
+
 void testbed::RegisterSSFXEffect(const char *name, SSFXEffect effect) {
 	if (effects.find(name) != effects.end()) {
 		logger->Error("SSFX effect with name %s already exists", name);
@@ -126,16 +128,16 @@ void testbed::RegisterSSFXEffect(const char *name, SSFXEffect effect) {
 	SSFXEffectResourcesPtr resources = std::make_shared<SSFXEffectResources>();
 	resources->effectData = effect;
 
-	if (effect.shaderData) {
+	if (effect.shaderConstantData) {
 		D3D11_BUFFER_DESC constantBufferDesc{};
 		constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		constantBufferDesc.ByteWidth =
-			static_cast<UINT>(effect.shaderData->size());
+			static_cast<UINT>(effect.shaderConstantData->size());
 		constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
 		D3D11_SUBRESOURCE_DATA constantBufferData{};
-		constantBufferData.pSysMem = effect.shaderData->data();
+		constantBufferData.pSysMem = effect.shaderConstantData->data();
 
 		HRESULT hr = rendererDevice->CreateBuffer(
 			&constantBufferDesc, &constantBufferData, &resources->constantBuffer
@@ -169,7 +171,7 @@ SSFXEffect::ConstantDataPtr testbed::GetSSFXEffectConstantData(const char *name
 		return nullptr;
 	}
 
-	return it->second->effectData.shaderData;
+	return it->second->effectData.shaderConstantData;
 }
 
 void testbed::UpdateSSFXEffectConstants(const char *name) {
@@ -200,8 +202,8 @@ void testbed::UpdateSSFXEffectConstants(const char *name) {
 
 	std::memcpy(
 		mappedResource.pData,
-		it->second->effectData.shaderData->data(),
-		it->second->effectData.shaderData->size()
+		it->second->effectData.shaderConstantData->data(),
+		it->second->effectData.shaderConstantData->size()
 	);
 
 	rendererContext->Unmap(it->second->constantBuffer.Get(), 0);
@@ -217,8 +219,8 @@ void testbed::ApplySSFXEffect(const char *name) {
 	std::vector<ID3D11ShaderResourceView *> srvs(8, nullptr);
 	std::vector<ID3D11RenderTargetView *> rtvs(8, nullptr);
 
-	const auto effectPtr = it->second;
-	for (const auto &inputTextureName : effectPtr->effectData.inputTextures) {
+	const auto effect = it->second;
+	for (const auto &inputTextureName : effect->effectData.inputTextures) {
 		srvs.push_back(GetTextureSRV(inputTextureName));
 		rtvs.push_back(GetTextureRTV(inputTextureName));
 	}
@@ -252,15 +254,15 @@ void testbed::ApplySSFXEffect(const char *name) {
 	);
 
 	rendererContext->VSSetShader(quadVertexShader, nullptr, 0);
-	rendererContext->PSSetShader(effectPtr->pixelShader.Get(), nullptr, 0);
+	rendererContext->PSSetShader(effect->pixelShader.Get(), nullptr, 0);
 
-	if (effectPtr->HasConstantBuffer()) {
+	if (effect->HasConstantBuffer()) {
 		rendererContext->PSSetConstantBuffers(
-			1, 1, effectPtr->constantBuffer.GetAddressOf()
+			1, 1, effect->constantBuffer.GetAddressOf()
 		);
 
 		rendererContext->VSSetConstantBuffers(
-			1, 1, effectPtr->constantBuffer.GetAddressOf()
+			1, 1, effect->constantBuffer.GetAddressOf()
 		);
 	}
 

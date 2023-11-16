@@ -8,6 +8,7 @@
 #include "Shaders.h"
 #include "Textures.h"
 #include "Window.h"
+#include "ssfx/TestSSFX.h"
 
 #ifdef _DEBUG
 #include "D3D11DebugLayer.h"
@@ -30,6 +31,7 @@ int main() {
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);
 	InitializeSSFXSystem(logger, rendererDevice);
+	ssfx::InitializeTestSSFX(logger);
 
 	LoadScene({"assets/test_sphere.gltf"});
 	bool isRunning = true;
@@ -40,6 +42,8 @@ int main() {
 		StartFrame();
 		RenderScene();
 		EndFrame();
+
+		ApplySSFXEffect(TESTSSFX_EFFECT_NAME);
 
 #ifdef _DEBUG
 		LogRenderDebugMessages(debugLayer);

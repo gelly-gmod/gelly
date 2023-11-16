@@ -20,10 +20,11 @@ struct SSFXEffect {
 	 * \brief Raw constant data for the specified pixel shader. This will be
 	 * uploaded as a constant buffer in slot 1.
 	 */
-	ConstantDataPtr shaderData;
+	ConstantDataPtr shaderConstantData;
 };
 
 void InitializeSSFXSystem(ILogger *newLogger, ID3D11Device *rendererDevice);
+bool IsSSFXInitialized();
 /**
  * \brief Registers an SSFX effect with the system.
  * \param name Name of the effect
