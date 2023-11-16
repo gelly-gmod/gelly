@@ -6,6 +6,7 @@
 #include "Rendering.h"
 #include "Shaders.h"
 #include "Textures.h"
+#include "Window.h"
 #include "wrl.h"
 
 using namespace testbed;
@@ -18,13 +19,16 @@ static ID3D11DeviceContext *rendererContext = nullptr;
 static ID3D11Buffer *quadVertexBuffer = nullptr;
 static ID3D11InputLayout *quadInputLayout = nullptr;
 static ID3D11VertexShader *quadVertexShader = nullptr;
+static constexpr UINT VERTEX_SIZE = 6 * sizeof(float);
+static constexpr UINT VERTEX_OFFSET = 0;
 
-constexpr const char *NDCQUAD_VERTEX_SHADER_PATH =
+static constexpr const char *NDCQUAD_VERTEX_SHADER_PATH =
 	"shaders/NDCQuad.vs50.hlsl.dxbc";
 
 struct SSFXEffectResources {
 	SSFXEffect effectData;
 	ComPtr<ID3D11Buffer> constantBuffer;
+	ComPtr<ID3D11PixelShader> pixelShader;
 
 	[[nodiscard]] inline bool HasConstantBuffer() const {
 		return constantBuffer != nullptr;
@@ -70,7 +74,7 @@ static void CreateNDCQuadResources() {
 		LoadShaderBytecodeFromFile(NDCQUAD_VERTEX_SHADER_PATH);
 
 	D3D11_INPUT_ELEMENT_DESC inputElementDescs[] = {
-		{"POSITION",
+		{"SV_POSITION",
 		 0,
 		 DXGI_FORMAT_R32G32B32A32_FLOAT,
 		 0,
@@ -102,7 +106,9 @@ static void CreateNDCQuadResources() {
 	}
 }
 
-void InitializeSSFXSystem(ILogger *newLogger, ID3D11Device *newRendererDevice) {
+void testbed::InitializeSSFXSystem(
+	ILogger *newLogger, ID3D11Device *newRendererDevice
+) {
 	logger = newLogger;
 	rendererDevice = newRendererDevice;
 	rendererContext = GetRendererContext(rendererDevice);
@@ -111,7 +117,7 @@ void InitializeSSFXSystem(ILogger *newLogger, ID3D11Device *newRendererDevice) {
 	CreateNDCQuadResources();
 }
 
-void RegisterSSFXEffect(const char *name, SSFXEffect effect) {
+void testbed::RegisterSSFXEffect(const char *name, SSFXEffect effect) {
 	if (effects.find(name) != effects.end()) {
 		logger->Error("SSFX effect with name %s already exists", name);
 		return;
@@ -143,10 +149,15 @@ void RegisterSSFXEffect(const char *name, SSFXEffect effect) {
 		}
 	}
 
-	effects[name] = resources;
+	resources->pixelShader.Attach(
+		GetPixelShaderFromFile(rendererDevice, effect.pixelShaderPath)
+	);
+
+	effects[name] = std::move(resources);
 }
 
-SSFXEffect::ConstantDataPtr GetSSFXEffectConstantData(const char *name) {
+SSFXEffect::ConstantDataPtr testbed::GetSSFXEffectConstantData(const char *name
+) {
 	const auto it = effects.find(name);
 	if (it == effects.end()) {
 		logger->Error("SSFX effect with name %s does not exist", name);
@@ -161,7 +172,7 @@ SSFXEffect::ConstantDataPtr GetSSFXEffectConstantData(const char *name) {
 	return it->second->effectData.shaderData;
 }
 
-void UpdateSSFXEffectConstants(const char *name) {
+void testbed::UpdateSSFXEffectConstants(const char *name) {
 	const auto it = effects.find(name);
 	if (it == effects.end()) {
 		logger->Error("SSFX effect with name %s does not exist", name);
@@ -194,4 +205,77 @@ void UpdateSSFXEffectConstants(const char *name) {
 	);
 
 	rendererContext->Unmap(it->second->constantBuffer.Get(), 0);
+}
+
+void testbed::ApplySSFXEffect(const char *name) {
+	const auto it = effects.find(name);
+	if (it == effects.end()) {
+		logger->Error("SSFX effect with name %s does not exist", name);
+		return;
+	}
+
+	std::vector<ID3D11ShaderResourceView *> srvs(8, nullptr);
+	std::vector<ID3D11RenderTargetView *> rtvs(8, nullptr);
+
+	const auto effectPtr = it->second;
+	for (const auto &inputTextureName : effectPtr->effectData.inputTextures) {
+		srvs.push_back(GetTextureSRV(inputTextureName));
+		rtvs.push_back(GetTextureRTV(inputTextureName));
+	}
+
+	D3D11_VIEWPORT viewport{};
+	viewport.Width = static_cast<float>(WINDOW_WIDTH);
+	viewport.Height = static_cast<float>(WINDOW_HEIGHT);
+	viewport.MaxDepth = 1.f;
+	viewport.MinDepth = 0.f;
+
+	rendererContext->RSSetViewports(1, &viewport);
+
+	rendererContext->OMSetRenderTargets(
+		static_cast<UINT>(rtvs.size()), rtvs.data(), nullptr
+	);
+
+	rendererContext->PSSetShaderResources(
+		0, static_cast<UINT>(srvs.size()), srvs.data()
+	);
+
+	rendererContext->VSSetShaderResources(
+		0, static_cast<UINT>(srvs.size()), srvs.data()
+	);
+
+	rendererContext->IASetInputLayout(quadInputLayout);
+	rendererContext->IASetPrimitiveTopology(
+		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
+	);
+	rendererContext->IASetVertexBuffers(
+		0, 1, &quadVertexBuffer, &VERTEX_SIZE, &VERTEX_OFFSET
+	);
+
+	rendererContext->VSSetShader(quadVertexShader, nullptr, 0);
+	rendererContext->PSSetShader(effectPtr->pixelShader.Get(), nullptr, 0);
+
+	if (effectPtr->HasConstantBuffer()) {
+		rendererContext->PSSetConstantBuffers(
+			1, 1, effectPtr->constantBuffer.GetAddressOf()
+		);
+
+		rendererContext->VSSetConstantBuffers(
+			1, 1, effectPtr->constantBuffer.GetAddressOf()
+		);
+	}
+
+	rendererContext->Draw(4, 0);
+	rendererContext->Flush();
+
+	// Clear and reset for the next frame
+	rendererContext->OMSetRenderTargets(0, nullptr, nullptr);
+	rendererContext->VSSetShader(nullptr, nullptr, 0);
+	rendererContext->PSSetShader(nullptr, nullptr, 0);
+	rendererContext->VSSetConstantBuffers(0, 0, nullptr);
+	rendererContext->PSSetConstantBuffers(0, 0, nullptr);
+	rendererContext->VSSetShaderResources(0, 0, nullptr);
+	rendererContext->PSSetShaderResources(0, 0, nullptr);
+	rendererContext->IASetInputLayout(nullptr);
+	rendererContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED);
+	rendererContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 }

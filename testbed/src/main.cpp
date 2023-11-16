@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Logging.h"
 #include "Rendering.h"
+#include "SSFX.h"
 #include "Scene.h"
 #include "Shaders.h"
 #include "Textures.h"
@@ -28,6 +29,8 @@ int main() {
 	InitializeCamera(logger);
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);
+	InitializeSSFXSystem(logger, rendererDevice);
+
 	LoadScene({"assets/test_sphere.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
