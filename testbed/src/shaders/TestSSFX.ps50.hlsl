@@ -2,7 +2,7 @@
 
 struct PS_OUTPUT {
     float4 Color : SV_Target;
-}
+};
 
 PS_OUTPUT main(VS_OUTPUT input)
 {

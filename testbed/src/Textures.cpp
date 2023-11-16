@@ -4,6 +4,7 @@
 #include <wrl.h>
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 #include "Rendering.h"
@@ -25,8 +26,8 @@ struct TextureEntry {
 using OwnedTexturePtr = std::shared_ptr<TextureEntry<ComPtr>>;
 using UnownedTexturePtr = std::shared_ptr<TextureEntry<UnownedResource>>;
 
-static std::unordered_map<const char *, OwnedTexturePtr> textures;
-static std::unordered_map<const char *, UnownedTexturePtr> unownedTextures;
+static std::unordered_map<std::string, OwnedTexturePtr> textures;
+static std::unordered_map<std::string, UnownedTexturePtr> unownedTextures;
 
 static ILogger *logger = nullptr;
 static ID3D11Device *rendererDevice = nullptr;

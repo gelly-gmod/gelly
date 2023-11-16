@@ -371,6 +371,8 @@ void testbed::StartFrame() {
 }
 
 void testbed::EndFrame() {
+	deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
+
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

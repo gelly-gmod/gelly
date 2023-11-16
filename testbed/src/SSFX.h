@@ -30,7 +30,7 @@ bool IsSSFXInitialized();
  * \param name Name of the effect
  * \param effect The effect layout
  */
-void RegisterSSFXEffect(const char *name, SSFXEffect effect);
+void RegisterSSFXEffect(const char *name, const SSFXEffect &effect);
 SSFXEffect::ConstantDataPtr GetSSFXEffectConstantData(const char *name);
 /**
  * \brief Ensures that the constant data on the CPU is synchronized with the

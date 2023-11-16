@@ -1,6 +1,7 @@
 #include "SSFX.h"
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 #include "Rendering.h"
@@ -19,6 +20,9 @@ static ID3D11DeviceContext *rendererContext = nullptr;
 static ID3D11Buffer *quadVertexBuffer = nullptr;
 static ID3D11InputLayout *quadInputLayout = nullptr;
 static ID3D11VertexShader *quadVertexShader = nullptr;
+
+static ID3D11RasterizerState *ssfxRasterizerState = nullptr;
+
 static constexpr UINT VERTEX_SIZE = 6 * sizeof(float);
 static constexpr UINT VERTEX_OFFSET = 0;
 
@@ -36,7 +40,7 @@ struct SSFXEffectResources {
 };
 
 using SSFXEffectResourcesPtr = std::shared_ptr<SSFXEffectResources>;
-static std::unordered_map<const char *, SSFXEffectResourcesPtr> effects;
+static std::unordered_map<std::string, SSFXEffectResourcesPtr> effects;
 
 static void CreateNDCQuadResources() {
 	// Need to add vertex positions in NDC space along with
@@ -106,6 +110,21 @@ static void CreateNDCQuadResources() {
 	}
 }
 
+static void CreateRasterizerState() {
+	D3D11_RASTERIZER_DESC rasterizerDesc{};
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+
+	auto hr = rendererDevice->CreateRasterizerState(
+		&rasterizerDesc, &ssfxRasterizerState
+	);
+
+	if (FAILED(hr)) {
+		logger->Error("Failed to create rasterizer state for SSFX");
+		return;
+	}
+}
+
 void testbed::InitializeSSFXSystem(
 	ILogger *newLogger, ID3D11Device *newRendererDevice
 ) {
@@ -115,11 +134,13 @@ void testbed::InitializeSSFXSystem(
 
 	logger->Info("Creating NDC quad resources for SSFX...");
 	CreateNDCQuadResources();
+	logger->Info("Creating rasterizer state for SSFX...");
+	CreateRasterizerState();
 }
 
 bool testbed::IsSSFXInitialized() { return rendererDevice != nullptr; }
 
-void testbed::RegisterSSFXEffect(const char *name, SSFXEffect effect) {
+void testbed::RegisterSSFXEffect(const char *name, const SSFXEffect &effect) {
 	if (effects.find(name) != effects.end()) {
 		logger->Error("SSFX effect with name %s already exists", name);
 		return;
@@ -216,13 +237,18 @@ void testbed::ApplySSFXEffect(const char *name) {
 		return;
 	}
 
-	std::vector<ID3D11ShaderResourceView *> srvs(8, nullptr);
-	std::vector<ID3D11RenderTargetView *> rtvs(8, nullptr);
+	std::vector<ID3D11ShaderResourceView *> srvs;
+	std::vector<ID3D11RenderTargetView *> rtvs;
+	srvs.reserve(it->second->effectData.inputTextures.size());
+	rtvs.reserve(it->second->effectData.outputTextures.size());
 
 	const auto effect = it->second;
 	for (const auto &inputTextureName : effect->effectData.inputTextures) {
 		srvs.push_back(GetTextureSRV(inputTextureName));
-		rtvs.push_back(GetTextureRTV(inputTextureName));
+	}
+
+	for (const auto &outputTextureName : effect->effectData.outputTextures) {
+		rtvs.push_back(GetTextureRTV(outputTextureName));
 	}
 
 	D3D11_VIEWPORT viewport{};
@@ -232,6 +258,7 @@ void testbed::ApplySSFXEffect(const char *name) {
 	viewport.MinDepth = 0.f;
 
 	rendererContext->RSSetViewports(1, &viewport);
+	rendererContext->RSSetState(ssfxRasterizerState);
 
 	rendererContext->OMSetRenderTargets(
 		static_cast<UINT>(rtvs.size()), rtvs.data(), nullptr

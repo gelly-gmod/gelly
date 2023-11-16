@@ -41,9 +41,8 @@ int main() {
 		UpdateCamera();
 		StartFrame();
 		RenderScene();
-		EndFrame();
-
 		ApplySSFXEffect(TESTSSFX_EFFECT_NAME);
+		EndFrame();
 
 #ifdef _DEBUG
 		LogRenderDebugMessages(debugLayer);
