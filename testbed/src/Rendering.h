@@ -11,6 +11,10 @@
 
 using namespace DirectX;
 
+#define GBUFFER_ALBEDO_TEXNAME "gbuffer/albedo"
+#define GBUFFER_NORMAL_TEXNAME "gbuffer/normal"
+#define GBUFFER_DEPTH_TEXNAME "gbuffer/depth"
+
 namespace testbed {
 using float3 = XMFLOAT3;
 using float4 = XMFLOAT4;

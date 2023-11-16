@@ -203,6 +203,29 @@ void LoadGenericWorldLit() {
 	FreeShaderBuffer(vsBuffer);
 }
 
+void CreateGBufferTextures() {
+	FeatureTextureInfo albedoTexInfo{};
+	albedoTexInfo.width = WINDOW_WIDTH;
+	albedoTexInfo.height = WINDOW_HEIGHT;
+	albedoTexInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	CreateFeatureTexture(GBUFFER_ALBEDO_TEXNAME, albedoTexInfo);
+
+	FeatureTextureInfo normalTexInfo{};
+	normalTexInfo.width = WINDOW_WIDTH;
+	normalTexInfo.height = WINDOW_HEIGHT;
+	normalTexInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	CreateFeatureTexture(GBUFFER_NORMAL_TEXNAME, normalTexInfo);
+
+	FeatureTextureInfo depthTexInfo{};
+	depthTexInfo.width = WINDOW_WIDTH;
+	depthTexInfo.height = WINDOW_HEIGHT;
+	depthTexInfo.format = DXGI_FORMAT_R32_FLOAT;
+
+	CreateFeatureTexture(GBUFFER_DEPTH_TEXNAME, depthTexInfo);
+}
+
 void ImGuiSDLEventInterceptor(SDL_Event *event) {
 	ImGui_ImplSDL2_ProcessEvent(event);
 }
@@ -326,6 +349,9 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 	logger->Info("Renderer initialized");
 
 	InitializeTextureSystem(logger, device);
+
+	logger->Info("Creating GBuffer textures");
+	CreateGBufferTextures();
 
 	return device;
 }
