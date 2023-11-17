@@ -291,9 +291,10 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
-	(void)io;
-
+	io.Fonts->AddFontFromFileTTF("assets/RobotoCondensed-Regular.ttf", 16.0f);
 	ImGui::StyleColorsDark();
+	ImGui::GetStyle().WindowRounding = 3.f;
+	ImGui::GetStyle().FrameRounding = 3.f;
 
 	ImGui_ImplSDL2_InitForD3D(GetTestbedWindow());
 	ImGui_ImplDX11_Init(device, deviceContext);

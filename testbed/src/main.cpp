@@ -8,7 +8,7 @@
 #include "Shaders.h"
 #include "Textures.h"
 #include "Window.h"
-#include "ssfx/TestSSFX.h"
+#include "ssfx\Shading.h"
 
 #ifdef _DEBUG
 #include "D3D11DebugLayer.h"
@@ -30,7 +30,7 @@ int main() {
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);
 	InitializeSSFXSystem(logger, rendererDevice);
-	ssfx::InitializeTestSSFX(logger);
+	ssfx::InitializeShadingSSFX(logger);
 
 	LoadScene({"assets/test_hires_scene.gltf"});
 	bool isRunning = true;
@@ -40,7 +40,7 @@ int main() {
 		UpdateCamera();
 		StartFrame();
 		RenderScene();
-		ApplySSFXEffect(TESTSSFX_EFFECT_NAME);
+		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		EndFrame();
 
 #ifdef _DEBUG

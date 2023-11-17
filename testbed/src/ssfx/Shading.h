@@ -3,11 +3,11 @@
 
 #include "SSFX.h"
 
-#define TESTSSFX_EFFECT_NAME "ssfx/test"
+#define SHADINGSSFX_EFFECT_NAME "ssfx/test"
 
 namespace testbed {
 namespace ssfx {
-void InitializeTestSSFX(ILogger *logger);
+void InitializeShadingSSFX(ILogger *logger);
 }
 }  // namespace testbed
 

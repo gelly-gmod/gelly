@@ -11,7 +11,7 @@ set(IMGUI_SOURCES
         vendor/imgui/imgui_tables.cpp
         vendor/imgui/backends/imgui_impl_sdl2.cpp
         vendor/imgui/backends/imgui_impl_dx11.cpp
-        )
+)
 
 add_executable(testbed
         src/main.cpp
@@ -23,8 +23,8 @@ add_executable(testbed
         src/Textures.h
         src/SSFX.cpp
         src/SSFX.h
-        src/ssfx/TestSSFX.cpp
-        src/ssfx/TestSSFX.h
+        src/ssfx/Shading.cpp
+        src/ssfx/Shading.h
 )
 
 add_subdirectory(vendor/SDL)
