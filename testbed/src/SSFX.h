@@ -10,7 +10,7 @@
 namespace testbed {
 struct SSFXEffect {
 	using TextureList = std::vector<const char *>;
-	using ConstantDataPtr = std::shared_ptr<std::vector<uint8_t>>;
+	using ConstantDataPtr = std::shared_ptr<std::vector<unsigned char>>;
 	const char *pixelShaderPath{};
 
 	TextureList inputTextures;
@@ -45,7 +45,7 @@ inline void SetStructAsEffectConstant(
 	T *unownedDataPtr, const char *effectName
 ) {
 	const auto constantData = GetSSFXEffectConstantData(effectName);
-	memcpy(constantData.get(), unownedDataPtr, sizeof(T));
+	memcpy(constantData->data(), unownedDataPtr, sizeof(T));
 	UpdateSSFXEffectConstants(effectName);
 }
 }  // namespace testbed

@@ -1,4 +1,6 @@
 #include "NDCQuad.hlsli"
+#include "ShadingSSFXCBuffer.hlsli"
+#include "lights/PointLight.hlsli"
 
 Texture2D Albedo : register(t0);
 SamplerState AlbedoSampler {
@@ -21,6 +23,13 @@ SamplerState DepthSampler {
     AddressV = Clamp;
 };
 
+Texture2D Position : register(t3);
+SamplerState PositionSampler {
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
+
 struct PS_OUTPUT {
     float4 Color : SV_Target;
 };
@@ -31,10 +40,15 @@ PS_OUTPUT main(VS_OUTPUT input)
     float3 normal = Normal.Sample(NormalSampler, input.Tex).xyz;
     float3 sunDir = normalize(float3(0.0f, 1.0f, 0.0f));
     float3 brdf = Albedo.Sample(AlbedoSampler, input.Tex).xyz / 3.14159265359f;
-    float3 diffuse = brdf * max(0.0f, dot(normal, sunDir));
-    float3 bounceLight = brdf * abs(dot(normal, sunDir));
+    float3 Li = float3(0.0f, 0.0f, 0.0f);
+    float3 pos = Position.Sample(PositionSampler, input.Tex).xyz;
 
-    output.Color = float4(diffuse + bounceLight, 1.0f);
-    
+
+    Light light = lights[0];
+    // pdf is one since we are using a point light
+    Li += CalculateLightContribution(light.color, light.power, light.radius, light.position, pos);
+
+    float3 shading = brdf * Li * CalculateCosineLaw(normal, light.position, pos);
+    output.Color = float4(shading, 1.0f);
     return output;
 }

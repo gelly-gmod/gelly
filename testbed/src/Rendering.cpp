@@ -158,7 +158,14 @@ void GenerateCameraMatrices(
 	mvpMatrix = XMMatrixMultiply(mvpMatrix, projMatrix);
 
 	XMStoreFloat4x4(mvp, mvpMatrix);
-	XMStoreFloat4x4(invMvp, XMMatrixInverse(nullptr, mvpMatrix));
+
+	// for the inverse, we have no model matrix, so we can just do
+	// invMvp = inv(v * p)
+
+	XMMATRIX invMvpMatrix = XMMatrixMultiply(viewMatrix, projMatrix);
+	invMvpMatrix = XMMatrixInverse(nullptr, invMvpMatrix);
+
+	XMStoreFloat4x4(invMvp, invMvpMatrix);
 }
 
 void LoadGenericWorldLit() {
@@ -224,6 +231,13 @@ void CreateGBufferTextures() {
 	depthTexInfo.format = DXGI_FORMAT_R32_FLOAT;
 
 	CreateFeatureTexture(GBUFFER_DEPTH_TEXNAME, depthTexInfo);
+
+	FeatureTextureInfo positionTexInfo{};
+	positionTexInfo.width = WINDOW_WIDTH;
+	positionTexInfo.height = WINDOW_HEIGHT;
+	positionTexInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	CreateFeatureTexture(GBUFFER_POSITION_TEXNAME, positionTexInfo);
 }
 
 void ImGuiSDLEventInterceptor(SDL_Event *event) {
@@ -411,6 +425,10 @@ void testbed::StartFrame() {
 	deviceContext->ClearRenderTargetView(
 		GetTextureRTV(GBUFFER_DEPTH_TEXNAME), nullFeatureColor
 	);
+
+	deviceContext->ClearRenderTargetView(
+		GetTextureRTV(GBUFFER_POSITION_TEXNAME), nullFeatureColor
+	);
 }
 
 void testbed::EndFrame() {
@@ -512,12 +530,13 @@ void testbed::RenderWorldList(
 
 	// Set up depth stencil
 	deviceContext->OMSetDepthStencilState(depthStencilState, 1);
-	ID3D11RenderTargetView *gbufferRtvs[3] = {
+	ID3D11RenderTargetView *gbufferRtvs[4] = {
 		GetTextureRTV(GBUFFER_ALBEDO_TEXNAME),
 		GetTextureRTV(GBUFFER_NORMAL_TEXNAME),
-		GetTextureRTV(GBUFFER_DEPTH_TEXNAME)
+		GetTextureRTV(GBUFFER_DEPTH_TEXNAME),
+		GetTextureRTV(GBUFFER_POSITION_TEXNAME)
 	};
-	deviceContext->OMSetRenderTargets(3, gbufferRtvs, depthStencilView);
+	deviceContext->OMSetRenderTargets(4, gbufferRtvs, depthStencilView);
 
 	// Render each object
 	for (auto i = list.cbegin(); i != list.cend(); ++i) {
