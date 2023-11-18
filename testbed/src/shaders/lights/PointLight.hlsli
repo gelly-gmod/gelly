@@ -3,9 +3,9 @@
  */
 float3 CalculateLightContribution(float3 color, float power, float radius, float3 lightPosition, float3 position) {
     float distanceSquared = abs(dot(lightPosition - position, lightPosition - position));
-    float falloff = radius / radius + distanceSquared;
+    float falloff = radius / (1.f + distanceSquared);
     // No shadowing term here yet
-    float incomingLightRadiance = (color * power) / falloff;
+    float3 incomingLightRadiance = (color * power) * falloff;
 
     return incomingLightRadiance;
 };

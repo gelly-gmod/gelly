@@ -32,7 +32,7 @@ int main() {
 	InitializeSSFXSystem(logger, rendererDevice);
 	ssfx::InitializeShadingSSFX(logger);
 
-	LoadScene({"assets/test_hires_scene.gltf"});
+	LoadScene({"assets/test_suzanne.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
@@ -40,6 +40,7 @@ int main() {
 		UpdateCamera();
 		StartFrame();
 		RenderScene();
+		ssfx::UpdateShadingSSFXConstants();
 		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		EndFrame();
 

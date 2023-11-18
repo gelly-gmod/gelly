@@ -6,7 +6,7 @@ struct Light {
 };
 
 cbuffer shadingSsfx : register(b1) {
-    Light lights[1];
+    Light lights[2];
     float lightCount;
     float pad0;
     float pad1;

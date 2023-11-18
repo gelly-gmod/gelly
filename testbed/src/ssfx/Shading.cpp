@@ -8,6 +8,7 @@
 using namespace testbed;
 
 static SSFXEffect shadingSSFXEffect;
+static ssfx::ShadingCBuffer cbuffer;
 
 void ssfx::InitializeShadingSSFX(ILogger *logger) {
 	logger->Info("Creating the shading SSFX effect...");
@@ -31,13 +32,28 @@ void ssfx::InitializeShadingSSFX(ILogger *logger) {
 
 	RegisterSSFXEffect(SHADINGSSFX_EFFECT_NAME, shadingSSFXEffect);
 
-	ShadingCBuffer cbuffer{};
-	cbuffer.lightCount = 1.0f;
+	cbuffer.lightCount = 2.0f;
 	cbuffer.lights[0].position = float3(2.0f, 1.0f, 2.0f);
-	cbuffer.lights[0].power = 12.f;
-	cbuffer.lights[0].radius = 1.0f;
+	cbuffer.lights[0].power = 10.2f;
+	cbuffer.lights[0].radius = 1.2f;
 	cbuffer.lights[0].color = float3(1.0f, 1.0f, 1.0f);
+	cbuffer.lights[1].position = float3(-2.0f, 1.0f, -2.0f);
+	cbuffer.lights[1].power = 10.2f;
+	cbuffer.lights[1].radius = 1.2f;
+	cbuffer.lights[1].color = float3(1.0f, 1.0f, 1.0f);
 	SetStructAsEffectConstant(&cbuffer, SHADINGSSFX_EFFECT_NAME);
 
 	logger->Info("Done!");
+}
+
+void ssfx::UpdateShadingSSFXConstants() {
+	static float t = 0.0f;
+	t += 0.01f;
+	cbuffer.lights[0].position = float3(2.0f * cosf(t), 1.0f, 2.0f * sinf(t));
+	cbuffer.lights[0].color = float3(fabsf(cosf(t)), 0.3f, 1.0f);
+
+	cbuffer.lights[1].position = float3(-2.0f * cosf(t), 1.0f, -2.0f * sinf(t));
+	cbuffer.lights[1].color = float3(1.0f, fabsf(cosf(t)), 0.3f);
+
+	SetStructAsEffectConstant(&cbuffer, SHADINGSSFX_EFFECT_NAME);
 }

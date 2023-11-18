@@ -15,13 +15,14 @@ struct ShadingCBuffer {
 		float3 color;
 	};
 
-	Light lights[1];
+	Light lights[2];
 	float lightCount;
 	float pad0_;
 	float pad1_;
 	float pad2_;
 };
 void InitializeShadingSSFX(ILogger *logger);
+void UpdateShadingSSFXConstants();
 }  // namespace testbed::ssfx
 
 #endif	// TESTSSFX_H
