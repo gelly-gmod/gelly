@@ -18,7 +18,7 @@ void ShaderFile::LoadSource() {
 	file.read(source->data(), size);
 }
 
-void ShaderFile::ComputeFriendlyName() {
+void ShaderFile::ComputeFriendlyNameAndProfile() {
 	// The friendly name is the name without any extension,
 	// and with the shader type appended as "PS", "VS", "GS", etc.
 	// So for example, if the path is
@@ -47,9 +47,11 @@ void ShaderFile::ComputeFriendlyName() {
 	switch (shaderType[0]) {
 		case 'v':
 			shaderTypeString = "VS";
+			profile = ShaderProfile::VS;
 			break;
 		case 'p':
 			shaderTypeString = "PS";
+			profile = ShaderProfile::PS;
 			break;
 		default:
 			throw std::runtime_error("Unknown shader type");
@@ -59,8 +61,13 @@ void ShaderFile::ComputeFriendlyName() {
 	friendlyName = name + shaderTypeString;
 }
 
-ShaderFile::ShaderFile(fs::path path) : path(std::move(path)) { LoadSource(); }
+ShaderFile::ShaderFile(fs::path path)
+	: path(std::move(path)), profile(ShaderProfile::VS) {
+	LoadSource();
+	ComputeFriendlyNameAndProfile();
+}
 
 ShaderFile::ShaderSourcePtr ShaderFile::GetSource() const { return source; }
 const fs::path &ShaderFile::GetPath() const { return path; }
 const std::string &ShaderFile::GetFriendlyName() const { return friendlyName; }
+ShaderProfile ShaderFile::GetProfile() const { return profile; }

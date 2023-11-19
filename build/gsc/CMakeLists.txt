@@ -5,4 +5,6 @@ add_executable(gsc src/main.cpp
         src/ShellCmd.cpp
         src/ShellCmd.h
         src/ShaderFile.cpp
-        src/ShaderFile.h)
+        src/ShaderFile.h
+        src/ShaderFileCompiler.cpp
+        src/ShaderFileCompiler.h)

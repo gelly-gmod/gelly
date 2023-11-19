@@ -6,6 +6,11 @@
 
 namespace fs = std::filesystem;
 
+enum class ShaderProfile {
+	PS,
+	VS,
+};
+
 class ShaderFile {
 	using ShaderSource = std::string;
 	using ShaderSourcePtr = std::shared_ptr<ShaderSource>;
@@ -17,21 +22,24 @@ private:
 	 * that will work well with any C++ code.
 	 */
 	std::string friendlyName;
+
 	ShaderSourcePtr source;
+	ShaderProfile profile;
 
 	void LoadSource();
-	void ComputeFriendlyName();
+	void ComputeFriendlyNameAndProfile();
 
 public:
 	/**
 	 * \brief May throw if the path is invalid or the file could not be read.
 	 * \param path Path to the shader file, either relative or absolute.
 	 */
-	ShaderFile(fs::path path);
+	explicit ShaderFile(fs::path path);
 
 	[[nodiscard]] ShaderSourcePtr GetSource() const;
 	[[nodiscard]] const fs::path &GetPath() const;
 	[[nodiscard]] const std::string &GetFriendlyName() const;
+	[[nodiscard]] ShaderProfile GetProfile() const;
 };
 
 #endif	// SHADERFILE_H
