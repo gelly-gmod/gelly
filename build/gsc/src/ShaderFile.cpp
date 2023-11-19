@@ -1,2 +1,66 @@
-
 #include "ShaderFile.h"
+
+#include <fstream>
+#include <utility>
+
+void ShaderFile::LoadSource() {
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		throw std::runtime_error("Could not open shader file");
+	}
+
+	file.seekg(0, std::ios::end);
+	auto size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	source = std::make_shared<ShaderSource>();
+	source->resize(size);
+	file.read(source->data(), size);
+}
+
+void ShaderFile::ComputeFriendlyName() {
+	// The friendly name is the name without any extension,
+	// and with the shader type appended as "PS", "VS", "GS", etc.
+	// So for example, if the path is
+	// "./shaders/NDCQuad.vs50.hlsl", the friendly name will be "NDCQuadVS".
+
+	std::string name = path.filename().string();
+
+	if (const auto dotPos = name.find_last_of('.');
+		dotPos != std::string::npos) {
+		name = name.substr(0, dotPos);
+	} else {
+		throw std::runtime_error("Shader file name has no extension");
+	}
+
+	std::string shaderType;
+	if (const auto shaderDotPos = name.find_first_of('.');
+		shaderDotPos != std::string::npos) {
+		shaderType = name.substr(shaderDotPos + 1);
+		name = name.substr(0, shaderDotPos);
+	} else {
+		throw std::runtime_error("Shader file name has no shader type");
+	}
+
+	std::string shaderTypeString;
+
+	switch (shaderType[0]) {
+		case 'v':
+			shaderTypeString = "VS";
+			break;
+		case 'p':
+			shaderTypeString = "PS";
+			break;
+		default:
+			throw std::runtime_error("Unknown shader type");
+			break;
+	}
+
+	friendlyName = name + shaderTypeString;
+}
+
+ShaderFile::ShaderFile(fs::path path) : path(std::move(path)) { LoadSource(); }
+
+ShaderFile::ShaderSourcePtr ShaderFile::GetSource() const { return source; }
+const fs::path &ShaderFile::GetPath() const { return path; }
+const std::string &ShaderFile::GetFriendlyName() const { return friendlyName; }
