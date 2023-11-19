@@ -1,0 +1,63 @@
+#include "ShellCmd.h"
+
+#include <stdexcept>
+
+ShellCmd::ShellCmd(
+	const std::string &commandLine, const std::string &workingDirectory
+) {
+	STARTUPINFO startupInfo = {};
+	startupInfo.cb = sizeof(startupInfo);
+	startupInfo.dwFlags = STARTF_USESTDHANDLES;
+	startupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+	startupInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	startupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+
+	if (commandLine.size() > 1024) {
+		throw std::runtime_error(
+			"ShellCmd::ShellCmd() encountered a command line that was too long"
+		);
+	}
+
+	char commandLineBuffer[1024];
+	strcpy_s(commandLineBuffer, commandLine.c_str());
+
+	auto result = CreateProcess(
+		nullptr,
+		reinterpret_cast<LPSTR>(commandLineBuffer),
+		nullptr,
+		nullptr,
+		TRUE,
+		0,
+		nullptr,
+		workingDirectory.c_str(),
+		&startupInfo,
+		&processInfo
+	);
+
+	if (!result) {
+		isValid = false;
+		return;
+	}
+}
+
+ShellCmd::~ShellCmd() {
+	if (isValid) {
+		CloseHandle(processInfo.hProcess);
+		CloseHandle(processInfo.hThread);
+	}
+}
+
+bool ShellCmd::IsValid() const noexcept { return isValid; }
+
+int ShellCmd::WaitForCompletion() const {
+	if (!isValid) {
+		return -1;
+	}
+
+	WaitForSingleObject(processInfo.hProcess, INFINITE);
+
+	DWORD exitCode;
+	GetExitCodeProcess(processInfo.hProcess, &exitCode);
+
+	return static_cast<int>(exitCode);
+}
