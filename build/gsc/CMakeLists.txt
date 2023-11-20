@@ -10,3 +10,5 @@ add_executable(gsc src/main.cpp
         src/ShaderFileCompiler.h
         src/GlueCodeGen.cpp
         src/GlueCodeGen.h)
+
+set(GSC_PATH ${CMAKE_CURRENT_BINARY_DIR}/gsc.exe PARENT_SCOPE)

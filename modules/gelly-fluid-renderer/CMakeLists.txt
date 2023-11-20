@@ -20,3 +20,14 @@ target_link_libraries(
         gelly_d3d9
         gelly_fluid_sim
 )
+
+add_custom_target(
+        GellyShaderCompile
+        COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} -DGSC_PATH=${GSC_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake
+        COMMENT "Compiling all Gelly shaders"
+)
+
+add_dependencies(
+        gelly_fluid_renderer
+        GellyShaderCompile
+)
