@@ -9,7 +9,8 @@ ShellCmd::ShellCmd(
 	startupInfo.cb = sizeof(startupInfo);
 	startupInfo.dwFlags = STARTF_USESTDHANDLES;
 	startupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-	startupInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	// we null this out so that the child process doesn't inherit our console
+	startupInfo.hStdOutput = nullptr;
 	startupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
 
 	if (commandLine.size() > 1024) {
@@ -21,9 +22,9 @@ ShellCmd::ShellCmd(
 	char commandLineBuffer[1024];
 	strcpy_s(commandLineBuffer, commandLine.c_str());
 
-	auto result = CreateProcess(
+	if (const auto result = CreateProcess(
 		nullptr,
-		reinterpret_cast<LPSTR>(commandLineBuffer),
+		commandLineBuffer,
 		nullptr,
 		nullptr,
 		TRUE,
@@ -32,9 +33,7 @@ ShellCmd::ShellCmd(
 		workingDirectory.c_str(),
 		&startupInfo,
 		&processInfo
-	);
-
-	if (!result) {
+	); !result) {
 		isValid = false;
 		return;
 	}

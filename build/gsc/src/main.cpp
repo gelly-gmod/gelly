@@ -6,20 +6,27 @@
 #include "ShaderFile.h"
 #include "ShaderFileCompiler.h"
 
-int main(int argc, char *argv[]) {
+int main(const int argc, char *argv[]) {
 	if (argc < 2) {
 		printf("Usage: %s <shader file>\n", argv[0]);
 		return 1;
 	}
 
-	const auto shaderFilePath = argv[1];
-	const auto shaderFile = ShaderFile(shaderFilePath);
-	const auto compiler = ShaderFileCompiler(shaderFile);
-	const auto bytecode = compiler.GetBytecode();
-	const auto &file = compiler.GetShaderFile();
+	try {
+		const auto shaderFilePath = argv[1];
+		const auto shaderFile = ShaderFile(shaderFilePath);
+		const auto compiler = ShaderFileCompiler(shaderFile);
+		const auto bytecode = compiler.GetBytecode();
+		const auto &file = compiler.GetShaderFile();
+		const auto glueCodeGen = GlueCodeGen(bytecode, file);
 
-	const auto glueCodeGen = GlueCodeGen(bytecode, file);
+		glueCodeGen.WriteFiles();
+		printf("[gsc] compiled %s\n", shaderFilePath);
+	} catch (std::exception &exception) {
+		printf("[gsc] failed to compile shader, see error output\n");
+		printf("[gsc] error caught: %s\n", exception.what());
+		return 1;
+	}
 
-	printf("Writing files...\n");
-	glueCodeGen.WriteFiles();
+	return 0;
 }
