@@ -7,3 +7,6 @@ generated
 # Shaders
 *.dxbc
 *.embed.hlsl
+
+# For gsc output
+out
