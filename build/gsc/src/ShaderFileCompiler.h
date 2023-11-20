@@ -4,6 +4,7 @@
 #include "ShaderFile.h"
 
 class ShaderFileCompiler {
+public:
 	using ShaderBytecode = std::vector<uint8_t>;
 	using ShaderBytecodePtr = std::shared_ptr<ShaderBytecode>;
 

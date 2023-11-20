@@ -7,4 +7,6 @@ add_executable(gsc src/main.cpp
         src/ShaderFile.cpp
         src/ShaderFile.h
         src/ShaderFileCompiler.cpp
-        src/ShaderFileCompiler.h)
+        src/ShaderFileCompiler.h
+        src/GlueCodeGen.cpp
+        src/GlueCodeGen.h)
