@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "IManagedShader.h"
+#include "IRenderContext.h"
 
 class CD3D11ManagedShader : public IManagedShader {
 private:

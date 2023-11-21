@@ -3,12 +3,12 @@
 
 #include <GellyInterface.h>
 
-#include "IRenderContext.h"
-
 enum class ShaderType {
 	Vertex,
 	Pixel,
 };
+
+class IRenderContext;
 
 gelly_interface IManagedShader {
 public:

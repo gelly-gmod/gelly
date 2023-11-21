@@ -7,6 +7,7 @@
 #include <cstdint>
 
 #include "GellyObserverPtr.h"
+#include "IManagedShader.h"
 #include "IManagedTexture.h"
 
 // Distinction between handles and resources since this context will abstract
@@ -61,6 +62,10 @@ public:
 	 */
 	virtual GellyObserverPtr<IManagedTexture> CreateSharedTexture(
 		const char *name, HANDLE sharedHandle
+	) = 0;
+
+	virtual GellyObserverPtr<IManagedShader> CreateShader(
+		const uint8_t *bytecode, size_t bytecodeSize, ShaderType type
 	) = 0;
 
 	/**

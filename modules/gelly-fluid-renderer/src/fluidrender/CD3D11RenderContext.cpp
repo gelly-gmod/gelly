@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 
+#include "fluidrender/CD3D11ManagedShader.h"
 #include "fluidrender/CD3D11to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
 
@@ -42,6 +43,18 @@ void CD3D11RenderContext::CreateAllTextures() {
 void CD3D11RenderContext::DestroyAllTextures() {
 	for (auto &texture : textures) {
 		DestroyTexture(texture.first.c_str());
+	}
+}
+
+void CD3D11RenderContext::CreateAllShaders() {
+	for (const auto &shader : shaders) {
+		shader->Create();
+	}
+}
+
+void CD3D11RenderContext::DestroyAllShaders() {
+	for (const auto &shader : shaders) {
+		shader->Destroy();
 	}
 }
 
@@ -88,6 +101,18 @@ GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
 	return texture;
 }
 
+GellyObserverPtr<IManagedShader> CD3D11RenderContext::CreateShader(
+	const uint8_t *bytecode, size_t bytecodeSize, ShaderType type
+) {
+	const auto shader = new CD3D11ManagedShader();
+	shader->AttachToContext(this);
+	shader->SetBytecode(bytecode, bytecodeSize);
+	shader->SetType(type);
+	shader->Create();
+	shaders.push_back(shader);
+	return shader;
+}
+
 void CD3D11RenderContext::DestroyTexture(const char *name) {
 	auto texture = textures.find(name);
 	if (texture == textures.end()) {
@@ -117,6 +142,7 @@ void CD3D11RenderContext::SubmitWork() {
 
 	D3D11_QUERY_DESC queryDesc = {};
 	queryDesc.Query = D3D11_QUERY_EVENT;
+
 	ID3D11Query *query;
 	DX("Failed to create D3D11 query", device->CreateQuery(&queryDesc, &query));
 
@@ -127,18 +153,20 @@ void CD3D11RenderContext::SubmitWork() {
 
 	query->Release();
 
-	HRESULT deviceRemoved = device->GetDeviceRemovedReason();
-
-	if (deviceRemoved != S_OK) {
+	if (const auto removeResult = device->GetDeviceRemovedReason();
+		removeResult != S_OK) {
 		DestroyAllTextures();
+		DestroyAllShaders();
 		ReleaseDevice();
 		CreateDeviceAndContext();
 		CreateAllTextures();
+		CreateAllShaders();
 	}
 }
 
 CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllTextures();
+	DestroyAllShaders();
 	ReleaseDevice();
 }
 

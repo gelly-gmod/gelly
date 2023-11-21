@@ -3,6 +3,8 @@
 
 #include <d3d11.h>
 
+#include <optional>
+
 #include "IManagedBuffer.h"
 
 class CD3D11ManagedBuffer : public IManagedBuffer {
@@ -10,6 +12,7 @@ private:
 	ID3D11Buffer *buffer;
 	ID3D11ShaderResourceView *srv;
 	ID3D11UnorderedAccessView *uav;
+	std::optional<ID3D11InputLayout *> inputLayout;
 
 	BufferDesc desc;
 	GellyObserverPtr<IRenderContext> context;

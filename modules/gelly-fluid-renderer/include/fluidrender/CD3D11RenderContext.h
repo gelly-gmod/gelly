@@ -16,11 +16,14 @@ private:
 	ID3D11DeviceContext *deviceContext;
 
 	std::unordered_map<std::string, IManagedTexture *> textures;
+	std::vector<IManagedShader *> shaders{};
 
 	uint16_t width;
 	uint16_t height;
 
 	void CreateDeviceAndContext();
+	void CreateAllShaders();
+	void DestroyAllShaders();
 	void CreateAllTextures();
 	void DestroyAllTextures();
 	void ReleaseDevice();
@@ -38,6 +41,10 @@ public:
 
 	GellyObserverPtr<IManagedTexture> CreateSharedTexture(
 		const char *name, HANDLE sharedHandle
+	) override;
+
+	GellyObserverPtr<IManagedShader> CreateShader(
+		const uint8_t *bytecode, size_t bytecodeSize, ShaderType type
 	) override;
 
 	void DestroyTexture(const char *name) override;
