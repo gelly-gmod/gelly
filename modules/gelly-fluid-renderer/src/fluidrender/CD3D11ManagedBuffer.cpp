@@ -145,6 +145,17 @@ void CD3D11ManagedBuffer::BindToPipeline(
 					deviceContext->PSSetShaderResources(slot, 1, &srv);
 					break;
 			}
+		case BufferType::VERTEX:
+			// Shader type is not used here. But, the vertex shader is the only
+			// shader that can use vertex buffers.
+			const UINT stride = static_cast<UINT>(desc.stride);
+			constexpr UINT offset = static_cast<UINT>(0);
+
+			deviceContext->IASetVertexBuffers(
+				slot, 1, &buffer, &stride, &offset
+			);
+
+			break;
 		default:
 			throw std::runtime_error(
 				"CD3D11ManagedBuffer::BindToPipeline called with an invalid "
@@ -152,16 +163,6 @@ void CD3D11ManagedBuffer::BindToPipeline(
 			);
 			break;
 	}
-}
-
-void CD3D11ManagedBuffer::BindAsVertexBuffer(const uint8_t slot) {
-	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
-		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
-	);
-
-	const UINT stride = desc.stride;
-	const UINT offset = 0;
-	deviceContext->IASetVertexBuffers(slot, 1, &buffer, &stride, &offset);
 }
 
 GellyObserverPtr<ID3D11ShaderResourceView> CD3D11ManagedBuffer::GetSRV() const {

@@ -96,7 +96,6 @@ public:
 	virtual void *GetBufferResource() = 0;
 
 	virtual void BindToPipeline(ShaderType shaderType, uint8_t slot) = 0;
-	virtual void BindAsVertexBuffer(uint8_t slot) = 0;
 };
 
 #endif	// GELLY_IMANAGEDBUFFER_H

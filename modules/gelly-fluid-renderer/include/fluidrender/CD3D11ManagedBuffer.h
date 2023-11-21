@@ -31,7 +31,6 @@ public:
 	void *GetBufferResource() override;
 
 	void BindToPipeline(ShaderType shaderType, uint8_t slot) override;
-	void BindAsVertexBuffer(uint8_t slot) override;
 
 	GellyObserverPtr<ID3D11ShaderResourceView> GetSRV() const;
 	GellyObserverPtr<ID3D11UnorderedAccessView> GetUAV() const;
