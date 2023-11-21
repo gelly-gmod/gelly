@@ -10,7 +10,10 @@ add_library(
         ${SHADER_GLUE_CODE}
         include/GellyFluidRender.h
         src/GellyFluidRender.cpp
-        include/fluidrender/IRenderContext.h include/fluidrender/IManagedTexture.h include/fluidrender/CD3D11RenderContext.h src/fluidrender/CD3D11RenderContext.cpp include/fluidrender/CD3D11ManagedTexture.h src/fluidrender/CD3D11ManagedTexture.cpp include/fluidrender/IManagedBuffer.h include/fluidrender/CD3D11ManagedBuffer.h src/fluidrender/CD3D11ManagedBuffer.cpp include/fluidrender/IFluidRenderer.h src/fluidrender/CD3D11to11SharedTexture.cpp include/fluidrender/CD3D11to11SharedTexture.h include/fluidrender/IFluidTextures.h include/fluidrender/CD3D11DebugFluidTextures.h src/fluidrender/CD3D11DebugFluidTextures.cpp include/fluidrender/CD3D11DebugFluidRenderer.h src/fluidrender/CD3D11DebugFluidRenderer.cpp)
+        include/fluidrender/IRenderContext.h include/fluidrender/IManagedTexture.h include/fluidrender/CD3D11RenderContext.h src/fluidrender/CD3D11RenderContext.cpp include/fluidrender/CD3D11ManagedTexture.h src/fluidrender/CD3D11ManagedTexture.cpp include/fluidrender/IManagedBuffer.h include/fluidrender/CD3D11ManagedBuffer.h src/fluidrender/CD3D11ManagedBuffer.cpp include/fluidrender/IFluidRenderer.h src/fluidrender/CD3D11to11SharedTexture.cpp include/fluidrender/CD3D11to11SharedTexture.h include/fluidrender/IFluidTextures.h include/fluidrender/CD3D11DebugFluidTextures.h src/fluidrender/CD3D11DebugFluidTextures.cpp include/fluidrender/CD3D11DebugFluidRenderer.h src/fluidrender/CD3D11DebugFluidRenderer.cpp
+        include/fluidrender/IManagedShader.h
+        src/fluidrender/CD3D11ManagedShader.cpp
+        include/fluidrender/CD3D11ManagedShader.h)
 
 target_include_directories(
         gelly_fluid_renderer

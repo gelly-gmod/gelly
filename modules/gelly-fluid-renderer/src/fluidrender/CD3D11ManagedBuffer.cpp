@@ -118,10 +118,57 @@ void CD3D11ManagedBuffer::AttachToContext(IRenderContext *context) {
 
 void *CD3D11ManagedBuffer::GetBufferResource() { return buffer; }
 
-GellyObserverPtr<ID3D11ShaderResourceView> CD3D11ManagedBuffer::GetSRV() {
+void CD3D11ManagedBuffer::BindToPipeline(
+	const ShaderType shaderType, const uint8_t slot
+) {
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	switch (desc.type) {
+		case BufferType::CONSTANT:
+			switch (shaderType) {
+				case ShaderType::Vertex:
+					deviceContext->VSSetConstantBuffers(slot, 1, &buffer);
+					break;
+				case ShaderType::Pixel:
+					deviceContext->PSSetConstantBuffers(slot, 1, &buffer);
+					break;
+			}
+			break;
+		case BufferType::SHADER_RESOURCE:
+			switch (shaderType) {
+				case ShaderType::Vertex:
+					deviceContext->VSSetShaderResources(slot, 1, &srv);
+					break;
+				case ShaderType::Pixel:
+					deviceContext->PSSetShaderResources(slot, 1, &srv);
+					break;
+			}
+		default:
+			throw std::runtime_error(
+				"CD3D11ManagedBuffer::BindToPipeline called with an invalid "
+				"buffer type"
+			);
+			break;
+	}
+}
+
+void CD3D11ManagedBuffer::BindAsVertexBuffer(const uint8_t slot) {
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	const UINT stride = desc.stride;
+	const UINT offset = 0;
+	deviceContext->IASetVertexBuffers(slot, 1, &buffer, &stride, &offset);
+}
+
+GellyObserverPtr<ID3D11ShaderResourceView> CD3D11ManagedBuffer::GetSRV() const {
 	return srv;
 }
 
-GellyObserverPtr<ID3D11UnorderedAccessView> CD3D11ManagedBuffer::GetUAV() {
+GellyObserverPtr<ID3D11UnorderedAccessView> CD3D11ManagedBuffer::GetUAV(
+) const {
 	return uav;
 }

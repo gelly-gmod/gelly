@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "GellyInterface.h"
+#include "IManagedShader.h"
 #include "IRenderContext.h"
 
 namespace Gelly {
@@ -93,6 +94,9 @@ public:
 	 * @return The underlying buffer.
 	 */
 	virtual void *GetBufferResource() = 0;
+
+	virtual void BindToPipeline(ShaderType shaderType, uint8_t slot) = 0;
+	virtual void BindAsVertexBuffer(uint8_t slot) = 0;
 };
 
 #endif	// GELLY_IMANAGEDBUFFER_H

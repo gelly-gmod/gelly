@@ -26,9 +26,12 @@ public:
 	void AttachToContext(IRenderContext *context) override;
 
 	void *GetBufferResource() override;
-	
-	GellyObserverPtr<ID3D11ShaderResourceView> GetSRV();
-	GellyObserverPtr<ID3D11UnorderedAccessView> GetUAV();
+
+	void BindToPipeline(ShaderType shaderType, uint8_t slot) override;
+	void BindAsVertexBuffer(uint8_t slot) override;
+
+	GellyObserverPtr<ID3D11ShaderResourceView> GetSRV() const;
+	GellyObserverPtr<ID3D11UnorderedAccessView> GetUAV() const;
 };
 
 #endif	// GELLY_CD3D11MANAGEDBUFFER_H
