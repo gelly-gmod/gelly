@@ -7,15 +7,15 @@ class CD3D11ManagedBufferLayout : public IManagedBufferLayout {
 private:
 	ID3D11InputLayout *layout;
 	GellyObserverPtr<IManagedBuffer> buffers[8]{};
-	Gelly::BufferLayoutDesc desc;
+	BufferLayoutDesc desc;
 	GellyObserverPtr<IRenderContext> context;
 
 public:
 	CD3D11ManagedBufferLayout();
 	~CD3D11ManagedBufferLayout() override;
 
-	const Gelly::BufferLayoutDesc &GetLayoutDesc() override;
-	void SetLayoutDesc(const Gelly::BufferLayoutDesc &desc) override;
+	const BufferLayoutDesc &GetLayoutDesc() override;
+	void SetLayoutDesc(const BufferLayoutDesc &desc) override;
 
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
 

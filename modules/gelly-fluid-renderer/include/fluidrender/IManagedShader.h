@@ -2,6 +2,7 @@
 #define IMANAGEDSHADER_H
 
 #include <GellyInterface.h>
+#include <GellyObserverPtr.h>
 
 enum class ShaderType {
 	Vertex,

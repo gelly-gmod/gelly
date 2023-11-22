@@ -76,15 +76,15 @@ void CD3D11ManagedShader::Create() {
 void CD3D11ManagedShader::Destroy() {
 	if (!IsEmpty()) {
 		switch (type) {
-			case ShaderType::Vertex:
+			case ShaderType::Vertex: {
 				const auto vertexShader =
 					std::get<ID3D11VertexShader *>(shader);
 				vertexShader->Release();
-				break;
-			case ShaderType::Pixel:
+			} break;
+			case ShaderType::Pixel: {
 				const auto pixelShader = std::get<ID3D11PixelShader *>(shader);
 				pixelShader->Release();
-				break;
+			} break;
 		}
 		shader = std::monostate{};
 	}

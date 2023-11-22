@@ -145,7 +145,7 @@ void CD3D11ManagedBuffer::BindToPipeline(
 					deviceContext->PSSetShaderResources(slot, 1, &srv);
 					break;
 			}
-		case BufferType::VERTEX:
+		case BufferType::VERTEX: {
 			// Shader type is not used here. But, the vertex shader is the only
 			// shader that can use vertex buffers.
 			const UINT stride = static_cast<UINT>(desc.stride);
@@ -154,8 +154,7 @@ void CD3D11ManagedBuffer::BindToPipeline(
 			deviceContext->IASetVertexBuffers(
 				slot, 1, &buffer, &stride, &offset
 			);
-
-			break;
+		} break;
 		default:
 			throw std::runtime_error(
 				"CD3D11ManagedBuffer::BindToPipeline called with an invalid "
