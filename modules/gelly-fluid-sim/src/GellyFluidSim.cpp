@@ -2,22 +2,23 @@
 
 #include "fluidsim/CD3D11SimContext.h"
 
-ISimContext *GFluidSim_CreateD3D11SimContext(
+ISimContext *Gelly::CreateD3D11SimContext(
 	ID3D11Device *device, ID3D11DeviceContext *deviceContext
 ) {
-	return new CD3D11SimContext(device, deviceContext);
+	auto *context = new CD3D11SimContext();
+	context->SetAPIHandle(SimContextHandle::D3D11_DEVICE, device);
+	context->SetAPIHandle(
+		SimContextHandle::D3D11_DEVICE_CONTEXT, deviceContext
+	);
+	return context;
 }
 
-void GFluidSim_DestroyD3D11SimContext(ISimContext *context) { delete context; }
-
-CD3D11DebugFluidSimulation *GFluidSim_CreateD3D11DebugFluidSimulation(
-	int maxParticles
+IFluidSimulation *Gelly::CreateD3D11DebugFluidSimulation(
+	const GellyObserverPtr<ISimContext> context, const int maxParticles
 ) {
-	return new CD3D11DebugFluidSimulation(maxParticles);
-}
+	auto *sim = new CD3D11DebugFluidSimulation();
+	sim->AttachToContext(context);
+	sim->Initialize(maxParticles);
 
-void GFluidSim_DestroyD3D11DebugFluidSimulation(
-	CD3D11DebugFluidSimulation *simulation
-) {
-	delete simulation;
+	return sim;
 }
