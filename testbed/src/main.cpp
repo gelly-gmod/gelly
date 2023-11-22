@@ -1,12 +1,12 @@
 #include <cstdio>
 
 #include "Camera.h"
+#include "Gelly.h"
 #include "Logging.h"
 #include "Rendering.h"
 #include "SSFX.h"
 #include "Scene.h"
 #include "Shaders.h"
-#include "Textures.h"
 #include "Window.h"
 #include "ssfx\Shading.h"
 
@@ -31,6 +31,7 @@ int main() {
 	InitializeSceneSystem(logger);
 	InitializeSSFXSystem(logger, rendererDevice);
 	ssfx::InitializeShadingSSFX(logger);
+	InitializeGelly(rendererDevice, logger);
 
 	LoadScene({"assets/test_suzanne.gltf"});
 	bool isRunning = true;

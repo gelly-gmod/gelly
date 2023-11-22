@@ -21,6 +21,7 @@ public:
 	bool IsBufferLinked(SimBufferType type) override;
 
 	void *GetLinkedBuffer(SimBufferType type) override;
+	SimContextAPI GetAPI() override;
 };
 
 #endif	// GELLY_CD3D11CPUSIMDATA_H

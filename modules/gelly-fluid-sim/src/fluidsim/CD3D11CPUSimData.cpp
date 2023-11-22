@@ -33,3 +33,5 @@ void *CD3D11CPUSimData::GetLinkedBuffer(SimBufferType type) {
 	}
 	return nullptr;
 }
+
+SimContextAPI CD3D11CPUSimData::GetAPI() { return SimContextAPI::D3D11; }

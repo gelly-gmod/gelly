@@ -14,7 +14,7 @@ void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
 		);
 	}
 
-	if (simData->GetAPI() != SimDataAPI::D3D11) {
+	if (simData->GetAPI() != SimContextAPI::D3D11) {
 		throw std::logic_error(
 			"CD3D11DebugFluidRenderer::SetSimData: simData must be backed by "
 			"D3D11"

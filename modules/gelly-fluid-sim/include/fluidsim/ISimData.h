@@ -21,7 +21,7 @@ public:
 	/**
 	 * Destroys the underlying buffers.
 	 */
-	virtual ~ISimData() = 0;
+	virtual ~ISimData() = default;
 
 	/**
 	 * Sets the underlying pointer to a buffer resource in the same rendering
@@ -30,10 +30,11 @@ public:
 	 * Basically, this function links a buffer to the simulation data, which is
 	 * useful for rendering without having to perform CPU readbacks.
 	 */
-	virtual void LinkBuffer(SimBufferType type, void *buffer);
-	virtual bool IsBufferLinked(SimBufferType type);
+	virtual void LinkBuffer(SimBufferType type, void *buffer) = 0;
+	virtual bool IsBufferLinked(SimBufferType type) = 0;
 
-	virtual void *GetLinkedBuffer(SimBufferType type);
+	virtual void *GetLinkedBuffer(SimBufferType type) = 0;
+	virtual SimContextAPI GetAPI() = 0;
 };
 
 #endif	// GELLY_ISIMDATA_H

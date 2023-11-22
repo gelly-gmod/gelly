@@ -70,7 +70,7 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 		);
 	}
 
-	ID3D11Buffer *linkedBuffer = static_cast<ID3D11Buffer *>(
+	auto *linkedBuffer = static_cast<ID3D11Buffer *>(
 		simData->GetLinkedBuffer(SimBufferType::POSITION)
 	);
 

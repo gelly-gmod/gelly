@@ -19,7 +19,7 @@ public:
 	// Note: subclasses of this class shouldn't really have anything to destroy
 	virtual ~ISimContext() = default;
 
-	virtual SimContextAPI GetAPI();
+	virtual SimContextAPI GetAPI() = 0;
 
 	/**
 	 * \brief Sets a handle for the render API.
