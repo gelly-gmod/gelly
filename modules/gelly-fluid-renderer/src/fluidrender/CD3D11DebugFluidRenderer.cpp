@@ -7,7 +7,22 @@
 CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
 	: context(nullptr), simData(nullptr), buffers({}) {}
 
-void CD3D11DebugFluidRenderer::CreateBuffers() { buffers.positions = context-> }
+void CD3D11DebugFluidRenderer::CreateBuffers() {
+	if (maxParticles <= 0) {
+		throw std::logic_error(
+			"CD3D11DebugFluidRenderer::CreateBuffers: maxParticles is not set."
+		);
+	}
+
+	BufferDesc positionBufferDesc = {};
+	positionBufferDesc.type = BufferType::VERTEX;
+	positionBufferDesc.usage = BufferUsage::DEFAULT;
+	positionBufferDesc.byteWidth = sizeof(SimFloat4) * maxParticles;
+	positionBufferDesc.stride = sizeof(SimFloat4);
+	positionBufferDesc.initialData = nullptr;
+
+	buffers.positions = context->CreateBuffer(positionBufferDesc);
+}
 
 void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
 	if (simData == nullptr) {
@@ -23,7 +38,28 @@ void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
 		);
 	}
 
+	if (buffers.positions == nullptr) {
+		throw std::logic_error(
+			"CD3D11DebugFluidRenderer::SetSimData: buffers.positions is null. "
+			"Cannot link."
+		);
+	}
+
 	this->simData = simData;
+	simData->LinkBuffer(
+		SimBufferType::POSITION, buffers.positions->GetBufferResource()
+	);
+}
+
+void CD3D11DebugFluidRenderer::SetMaxParticles(int maxParticles) {
+	if (maxParticles <= 0) {
+		throw std::invalid_argument(
+			"CD3D11DebugFluidRenderer::SetMaxParticles: maxParticles must be "
+			"greater than 0."
+		);
+	}
+
+	this->maxParticles = maxParticles;
 }
 
 void CD3D11DebugFluidRenderer::AttachToContext(

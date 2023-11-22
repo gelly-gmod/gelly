@@ -17,6 +17,7 @@ private:
 	CD3D11DebugFluidTextures textures;
 
 	Gelly::FluidRenderSettings settings;
+	int maxParticles;
 
 	struct {
 		GellyObserverPtr<IManagedBuffer> positions;
@@ -29,6 +30,7 @@ public:
 	~CD3D11DebugFluidRenderer() override = default;
 
 	void SetSimData(GellyObserverPtr<ISimData> simData) override;
+	void SetMaxParticles(int maxParticles) override;
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
 	GellyObserverPtr<IFluidTextures> GetFluidTextures() override;
 	void Render() override;
