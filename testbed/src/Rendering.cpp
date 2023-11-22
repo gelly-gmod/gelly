@@ -119,6 +119,42 @@ void CreateImGUIElements() {
 		}
 
 		lastRasterizerFlags = rasterizerFlags;
+
+		if (ImGui::CollapsingHeader("Buffers")) {
+			ImGui::Image(
+				GetTextureSRV(GBUFFER_DEPTH_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+
+			ImGui::SameLine();
+
+			ImGui::Image(
+				GetTextureSRV(GBUFFER_POSITION_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+
+			ImGui::SameLine();
+
+			ImGui::Image(
+				GetTextureSRV(GBUFFER_NORMAL_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+
+			ImGui::SameLine();
+
+			ImGui::Image(
+				GetTextureSRV(GBUFFER_ALBEDO_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+		}
 	}
 
 	ImGui::End();
@@ -413,7 +449,7 @@ void testbed::StartFrame() {
 	);
 	deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
 
-	constexpr float nullFeatureColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	constexpr float nullFeatureColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	deviceContext->ClearRenderTargetView(
 		GetTextureRTV(GBUFFER_ALBEDO_TEXNAME), nullFeatureColor
 	);
@@ -438,7 +474,17 @@ void testbed::EndFrame() {
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	// Just clear to red
-	ERROR_IF_FAILED("Failed to present swapchain", swapchain->Present(0, 0));
+	if (const auto result = swapchain->Present(0, 0); FAILED(result)) {
+		logger->Warning("Failed to present. Error code: %d", result);
+		logger->Warning("Reviewing to determine if device is lost");
+
+		if (const auto reasonCode = device->GetDeviceRemovedReason();
+			reasonCode != S_OK) {
+			logger->Warning("Device lost. Reason code: %08X", reasonCode);
+			logger->Warning("Attempting to recover");
+			InitializeRenderer(logger);
+		}
+	}
 }
 
 MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
