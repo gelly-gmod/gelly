@@ -14,11 +14,10 @@ ISimContext *Gelly::CreateD3D11SimContext(
 }
 
 IFluidSimulation *Gelly::CreateD3D11DebugFluidSimulation(
-	const GellyObserverPtr<ISimContext> context, const int maxParticles
+	const GellyObserverPtr<ISimContext> context
 ) {
 	auto *sim = new CD3D11DebugFluidSimulation();
 	sim->AttachToContext(context);
-	sim->Initialize(maxParticles);
 
 	return sim;
 }

@@ -5,7 +5,9 @@
 #include <stdexcept>
 
 CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
-	: context(nullptr), simData(nullptr) {}
+	: context(nullptr), simData(nullptr), buffers({}) {}
+
+void CD3D11DebugFluidRenderer::CreateBuffers() { buffers.positions = context-> }
 
 void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
 	if (simData == nullptr) {
@@ -41,6 +43,7 @@ void CD3D11DebugFluidRenderer::AttachToContext(
 	}
 
 	this->context = context;
+	CreateBuffers();
 }
 
 GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {

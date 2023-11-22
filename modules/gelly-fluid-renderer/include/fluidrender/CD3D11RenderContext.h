@@ -47,6 +47,9 @@ public:
 		const uint8_t *bytecode, size_t bytecodeSize, ShaderType type
 	) override;
 
+	GellyObserverPtr<IManagedBuffer> CreateBuffer(const BufferDesc &desc
+	) override;
+
 	void DestroyTexture(const char *name) override;
 
 	void SetDimensions(uint16_t width, uint16_t height) override;

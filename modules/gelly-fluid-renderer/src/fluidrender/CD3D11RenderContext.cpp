@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 
+#include "fluidrender/CD3D11ManagedBuffer.h"
 #include "fluidrender/CD3D11ManagedShader.h"
 #include "fluidrender/CD3D11to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
@@ -80,7 +81,7 @@ IManagedTexture *CD3D11RenderContext::CreateTexture(
 		throw std::logic_error("Texture already exists");
 	}
 
-	auto texture = new CD3D11ManagedTexture();
+	auto *texture = new CD3D11ManagedTexture();
 	texture->SetDesc(desc);
 	texture->AttachToContext(this);
 	texture->Create();
@@ -104,7 +105,7 @@ GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
 GellyObserverPtr<IManagedShader> CD3D11RenderContext::CreateShader(
 	const uint8_t *bytecode, size_t bytecodeSize, ShaderType type
 ) {
-	const auto shader = new CD3D11ManagedShader();
+	auto *shader = new CD3D11ManagedShader();
 	shader->AttachToContext(this);
 	shader->SetBytecode(bytecode, bytecodeSize);
 	shader->SetType(type);
@@ -113,8 +114,18 @@ GellyObserverPtr<IManagedShader> CD3D11RenderContext::CreateShader(
 	return shader;
 }
 
+GellyObserverPtr<IManagedBuffer> CD3D11RenderContext::CreateBuffer(
+	const BufferDesc &desc
+) {
+	auto *buffer = new CD3D11ManagedBuffer();
+	buffer->SetDesc(desc);
+	buffer->AttachToContext(this);
+	buffer->Create();
+	return buffer;
+}
+
 void CD3D11RenderContext::DestroyTexture(const char *name) {
-	auto texture = textures.find(name);
+	const auto texture = textures.find(name);
 	if (texture == textures.end()) {
 		throw std::logic_error("Texture does not exist");
 	}

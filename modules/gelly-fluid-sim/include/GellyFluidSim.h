@@ -12,7 +12,7 @@ ISimContext *CreateD3D11SimContext(
 );
 
 IFluidSimulation *CreateD3D11DebugFluidSimulation(
-	GellyObserverPtr<ISimContext>, int maxParticles
+	GellyObserverPtr<ISimContext> context
 );
 }  // namespace Gelly
 #endif	// GELLY_GELLYFLUIDSIM_H

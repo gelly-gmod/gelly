@@ -18,6 +18,12 @@ private:
 
 	Gelly::FluidRenderSettings settings;
 
+	struct {
+		GellyObserverPtr<IManagedBuffer> positions;
+	} buffers;
+
+	void CreateBuffers();
+
 public:
 	CD3D11DebugFluidRenderer();
 	~CD3D11DebugFluidRenderer() override = default;

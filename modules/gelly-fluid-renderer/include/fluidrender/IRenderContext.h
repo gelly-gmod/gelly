@@ -7,6 +7,7 @@
 #include <cstdint>
 
 #include "GellyObserverPtr.h"
+#include "IManagedBuffer.h"
 #include "IManagedShader.h"
 #include "IManagedTexture.h"
 
@@ -66,6 +67,9 @@ public:
 
 	virtual GellyObserverPtr<IManagedShader> CreateShader(
 		const uint8_t *bytecode, size_t bytecodeSize, ShaderType type
+	) = 0;
+
+	virtual GellyObserverPtr<IManagedBuffer> CreateBuffer(const BufferDesc &desc
 	) = 0;
 
 	/**

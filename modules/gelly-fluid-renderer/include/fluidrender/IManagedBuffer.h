@@ -5,7 +5,6 @@
 
 #include "GellyInterface.h"
 #include "IManagedShader.h"
-#include "IRenderContext.h"
 
 namespace Gelly {
 enum class BufferType : uint8_t {
@@ -76,6 +75,8 @@ constexpr enum BufferUsage operator|(
 constexpr bool operator==(const enum BufferUsage a, const int b) {
 	return static_cast<uint8_t>(a) == static_cast<uint8_t>(b);
 }
+
+class IRenderContext;
 
 gelly_interface IManagedBuffer {
 public:

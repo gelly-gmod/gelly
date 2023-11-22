@@ -22,7 +22,7 @@ void testbed::InitializeGelly(
 			rendererDevice, GetRendererContext(rendererDevice)
 		);
 		logger->Info("Creating the Gelly fluid simulation...");
-		fluidSim = CreateD3D11DebugFluidSimulation(simContext, maxParticles);
+		fluidSim = CreateD3D11DebugFluidSimulation(simContext);
 	} catch (const std::exception &e) {
 		logger->Error("Failed to call Gelly: %s", e.what());
 		throw;
