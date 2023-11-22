@@ -10,18 +10,23 @@
  */
 class CD3D11DebugFluidSimulation : public IFluidSimulation {
 private:
+	GellyObserverPtr<ISimContext> context;
 	CD3D11CPUSimData *simData;
+	ID3D11Buffer *positionBuffer;
+
 	int maxParticles;
 
+	void CreateBuffers();
 	void GenerateRandomParticles();
 
 public:
-	explicit CD3D11DebugFluidSimulation(int maxParticles);
+	explicit CD3D11DebugFluidSimulation();
 	~CD3D11DebugFluidSimulation() override;
 
+	void Initialize(int maxParticles) override;
 	ISimData *GetSimulationData() override;
-	void AttachToContext(ISimContext *context) override;
-	FluidSimCompute GetComputeType() override;
+	SimContextAPI GetComputeAPI() override;
+	void AttachToContext(GellyObserverPtr<ISimContext> context) override;
 	void Update(float deltaTime) override;
 };
 

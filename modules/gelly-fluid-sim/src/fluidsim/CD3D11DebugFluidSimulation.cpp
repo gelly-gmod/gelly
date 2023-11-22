@@ -1,42 +1,131 @@
 #include "fluidsim/CD3D11DebugFluidSimulation.h"
 
-CD3D11DebugFluidSimulation::CD3D11DebugFluidSimulation(int maxParticles)
-	: maxParticles(maxParticles), simData(nullptr) {}
+#include <stdexcept>
 
-void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
-	if (!simData) {
-		return;
+CD3D11DebugFluidSimulation::CD3D11DebugFluidSimulation()
+	: simData(nullptr), positionBuffer(nullptr), maxParticles(0) {}
+
+CD3D11DebugFluidSimulation::~CD3D11DebugFluidSimulation() {
+	if (simData != nullptr) {
+		delete simData;
 	}
 
-	SimFloat4 *positions = simData->MapBuffer(SimBuffer::Position);
-
-	for (int i = 0; i < maxParticles; i++) {
-		positions[i].x = static_cast<float>(rand()) / RAND_MAX;
-		positions[i].y = static_cast<float>(rand()) / RAND_MAX;
-		positions[i].z = static_cast<float>(rand()) / RAND_MAX;
-		positions[i].w = 1.0f;
+	if (positionBuffer != nullptr) {
+		positionBuffer->Release();
 	}
-
-	simData->UnmapBuffer(SimBuffer::Position);
 }
 
-CD3D11DebugFluidSimulation::~CD3D11DebugFluidSimulation() { delete simData; }
+void CD3D11DebugFluidSimulation::CreateBuffers() {
+	D3D11_BUFFER_DESC positionBufferDesc = {};
+	positionBufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	positionBufferDesc.ByteWidth = sizeof(SimFloat4) * maxParticles;
+	positionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	positionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
-ISimData *CD3D11DebugFluidSimulation::GetSimulationData() { return simData; }
+	auto *device = static_cast<ID3D11Device *>(
+		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE)
+	);
 
-void CD3D11DebugFluidSimulation::AttachToContext(ISimContext *context) {
-	delete simData;
+	if (const auto result =
+			device->CreateBuffer(&positionBufferDesc, nullptr, &positionBuffer);
+		FAILED(result)) {
+		throw std::runtime_error(
+			"CD3D11DebugFluidSimulation::CreateBuffers: Failed to create "
+			"position buffer."
+		);
+	}
+}
 
-	simData = new CD3D11CPUSimData(context);
-	simData->Initialize(maxParticles);
+void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE_CONTEXT)
+	);
 
+	D3D11_MAPPED_SUBRESOURCE mappedSubresource = {};
+	if (const auto result = deviceContext->Map(
+			positionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource
+		);
+		FAILED(result)) {
+		throw std::runtime_error(
+			"CD3D11DebugFluidSimulation::GenerateRandomParticles: Failed to "
+			"map the position buffer."
+		);
+	}
+
+	auto *positionData = static_cast<SimFloat4 *>(mappedSubresource.pData);
+	for (int i = 0; i < maxParticles; i++) {
+		positionData[i].x = static_cast<float>(rand()) / RAND_MAX;
+		positionData[i].y = static_cast<float>(rand()) / RAND_MAX;
+		positionData[i].z = static_cast<float>(rand()) / RAND_MAX;
+		positionData[i].w = 1.0f;
+	}
+
+	deviceContext->Unmap(positionBuffer, 0);
+
+	// Copy to the specified buffer in the simulation data.
+	if (!simData->IsBufferLinked(SimBufferType::POSITION)) {
+		throw std::runtime_error(
+			"CD3D11DebugFluidSimulation::GenerateRandomParticles: Position "
+			"buffer is not linked."
+		);
+	}
+
+	ID3D11Buffer *linkedBuffer = static_cast<ID3D11Buffer *>(
+		simData->GetLinkedBuffer(SimBufferType::POSITION)
+	);
+
+	ID3D11Resource *positionResource = nullptr;
+	if (const auto result = positionBuffer->QueryInterface(
+			__uuidof(ID3D11Resource),
+			reinterpret_cast<void **>(&positionResource)
+		);
+		FAILED(result)) {
+		throw std::runtime_error(
+			"CD3D11DebugFluidSimulation::GenerateRandomParticles: Failed to "
+			"get position buffer resource."
+		);
+	}
+
+	ID3D11Buffer *linkedResource = nullptr;
+	if (const auto result = linkedBuffer->QueryInterface(
+			__uuidof(ID3D11Buffer), reinterpret_cast<void **>(&linkedResource)
+		);
+		FAILED(result)) {
+		throw std::runtime_error(
+			"CD3D11DebugFluidSimulation::GenerateRandomParticles: Failed to "
+			"get linked buffer resource."
+		);
+	}
+
+	deviceContext->CopyResource(linkedResource, positionResource);
+	deviceContext->Flush();	 // send off the copy command
+}
+
+void CD3D11DebugFluidSimulation::Initialize(const int maxParticles) {
+	if (!context) {
+		throw std::runtime_error(
+			"CD3D11DebugFluidSimulation::Initialize: No context attached."
+		);
+	}
+
+	this->maxParticles = maxParticles;
+	simData = new CD3D11CPUSimData();
+	CreateBuffers();
 	GenerateRandomParticles();
 }
 
-FluidSimCompute CD3D11DebugFluidSimulation::GetComputeType() {
-	return FluidSimCompute::D3D11;
+ISimData *CD3D11DebugFluidSimulation::GetSimulationData() { return simData; }
+
+SimContextAPI CD3D11DebugFluidSimulation::GetComputeAPI() {
+	return SimContextAPI::D3D11;
 }
 
-void CD3D11DebugFluidSimulation::Update(float deltaTime) {
-	// Nothing!
+void CD3D11DebugFluidSimulation::AttachToContext(
+	const GellyObserverPtr<ISimContext> context
+) {
+	this->context = context;
+}
+
+void CD3D11DebugFluidSimulation::Update(const float deltaTime) {
+	// Do nothing.
 }

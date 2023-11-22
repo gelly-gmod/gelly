@@ -3,21 +3,18 @@
 
 #include "GellyInterface.h"
 
+namespace Gelly {
 struct SimFloat4 {
 	float x, y, z, w;
 };
 
-enum class SimBuffer {
-	Position,
-	Velocity,
+enum class SimBufferType {
+	POSITION,
+	VELOCITY,
 };
+}  // namespace Gelly
 
-enum class SimDataAPI {
-	/**
-	 * CPU-based simulation also uses D3D11.
-	 */
-	D3D11,
-};
+using namespace Gelly;
 
 gelly_interface ISimData {
 public:
@@ -26,22 +23,17 @@ public:
 	 */
 	virtual ~ISimData() = 0;
 
-	virtual void Initialize(int maxParticles) = 0;
-
 	/**
-	 * Returns a buffer created in a rendering API. The exact one is determined
-	 * by the implementation.
-	 * @note If a null pointer is returned, then the simulation does not support
-	 * the requested buffer.
-	 * @param buffer
-	 * @return A pointer to the underlying buffer.
+	 * Sets the underlying pointer to a buffer resource in the same rendering
+	 * API as the parent simulation is in.
+	 *
+	 * Basically, this function links a buffer to the simulation data, which is
+	 * useful for rendering without having to perform CPU readbacks.
 	 */
-	virtual void *GetRenderBuffer(SimBuffer buffer) = 0;
+	virtual void LinkBuffer(SimBufferType type, void *buffer);
+	virtual bool IsBufferLinked(SimBufferType type);
 
-	virtual SimFloat4 *MapBuffer(SimBuffer buffer) = 0;
-	virtual void UnmapBuffer(SimBuffer buffer) = 0;
-
-	virtual SimDataAPI GetAPI() = 0;
+	virtual void *GetLinkedBuffer(SimBufferType type);
 };
 
 #endif	// GELLY_ISIMDATA_H

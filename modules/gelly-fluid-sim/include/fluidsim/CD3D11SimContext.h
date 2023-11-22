@@ -11,10 +11,12 @@ private:
 	ID3D11DeviceContext *deviceContext;
 
 public:
-	CD3D11SimContext(ID3D11Device *device, ID3D11DeviceContext *deviceContext);
-	~CD3D11SimContext() = default;
+	explicit CD3D11SimContext();
 
-	void *GetRenderAPIHandle(RenderAPIHandle handle) override;
+	SimContextAPI GetAPI() override;
+
+	void SetAPIHandle(SimContextHandle handle, void *value) override;
+	void *GetAPIHandle(SimContextHandle handle) override;
 };
 
 #endif	// GELLY_CD3D11SIMCONTEXT_H

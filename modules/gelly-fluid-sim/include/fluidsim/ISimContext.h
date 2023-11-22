@@ -3,17 +3,31 @@
 
 #include <GellyInterface.h>
 
-enum class RenderAPIHandle {
-	D3D11Device,
-	D3D11DeviceContext,
+namespace Gelly {
+enum class SimContextHandle {
+	D3D11_DEVICE,
+	D3D11_DEVICE_CONTEXT,
 };
+
+enum class SimContextAPI { D3D11 };
+}  // namespace Gelly
+
+using namespace Gelly;
 
 gelly_interface ISimContext {
 public:
 	// Note: subclasses of this class shouldn't really have anything to destroy
 	virtual ~ISimContext() = default;
 
-	virtual void *GetRenderAPIHandle(RenderAPIHandle handle) = 0;
+	virtual SimContextAPI GetAPI();
+
+	/**
+	 * \brief Sets a handle for the render API.
+	 * \param handle Which handle to set.
+	 * \param value Value of said handle,
+	 */
+	virtual void SetAPIHandle(SimContextHandle handle, void *value) = 0;
+	virtual void *GetAPIHandle(SimContextHandle handle) = 0;
 };
 
 #endif	// GELLY_ISIMCONTEXT_H

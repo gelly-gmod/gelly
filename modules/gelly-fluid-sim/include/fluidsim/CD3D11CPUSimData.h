@@ -2,6 +2,7 @@
 #define GELLY_CD3D11CPUSIMDATA_H
 
 #include <GellyD3D.h>
+#include <GellyObserverPtr.h>
 #include <d3d11.h>
 
 #include "ISimContext.h"
@@ -9,22 +10,17 @@
 
 class CD3D11CPUSimData : public ISimData {
 private:
-	d3d11::Buffer<SimFloat4> positions;
-	ID3D11Device *device;
-	ID3D11DeviceContext *deviceContext;
+	ID3D11Buffer *positionBuffer;
+	ID3D11Buffer *velocityBuffer;
 
 public:
-	explicit CD3D11CPUSimData(ISimContext *context);
+	explicit CD3D11CPUSimData();
 	~CD3D11CPUSimData() override = default;
 
-	void Initialize(int maxParticles) override;
+	void LinkBuffer(SimBufferType type, void *buffer) override;
+	bool IsBufferLinked(SimBufferType type) override;
 
-	void *GetRenderBuffer(SimBuffer buffer) override;
-
-	SimFloat4 *MapBuffer(SimBuffer buffer) override;
-	void UnmapBuffer(SimBuffer buffer) override;
-
-	SimDataAPI GetAPI() override;
+	void *GetLinkedBuffer(SimBufferType type) override;
 };
 
 #endif	// GELLY_CD3D11CPUSIMDATA_H
