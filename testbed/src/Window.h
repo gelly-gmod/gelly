@@ -2,10 +2,12 @@
 #define GELLY_WINDOW_H
 
 #define SDL_MAIN_HANDLED
+
 #include <SDL.h>
 #include <windows.h>
 
 #include "ILogger.h"
+#include "Memory.h"
 
 namespace testbed {
 extern const int WINDOW_WIDTH;

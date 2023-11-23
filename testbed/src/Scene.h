@@ -1,6 +1,8 @@
 #ifndef GELLY_SCENE_H
 #define GELLY_SCENE_H
+
 #include "ILogger.h"
+#include "Memory.h"
 
 /**
  * Since testbed is not a game engine, most of our stuff is static, and the

@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Gelly.h"
 #include "Logging.h"
+#include "Memory.h"
 #include "Rendering.h"
 #include "SSFX.h"
 #include "Scene.h"
@@ -34,7 +35,7 @@ int main() {
 	ssfx::InitializeShadingSSFX(logger);
 	InitializeGelly(rendererDevice, logger);
 
-	LoadScene({"assets/01_gelly_springs.gltf"});
+	LoadScene({"assets/DamagedHelmet.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();

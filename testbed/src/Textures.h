@@ -4,6 +4,7 @@
 #include <d3d11.h>
 
 #include "ILogger.h"
+#include "Memory.h"
 
 #define BUILTIN_BACKBUFFER_TEXNAME "backbuffer_tex"
 

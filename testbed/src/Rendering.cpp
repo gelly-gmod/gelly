@@ -446,25 +446,34 @@ ID3D11RenderTargetView *testbed::GetBackBufferRTV(ID3D11Device *device) {
 
 void testbed::StartFrame() {
 	ZoneScoped;
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplSDL2_NewFrame(GetTestbedWindow());
-	ImGui::NewFrame();
+	{
+		ZoneScopedN("ImGUI new frame");
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplSDL2_NewFrame(GetTestbedWindow());
+		ImGui::NewFrame();
+	}
 
-	CreateImGUIElements();
+	{
+		ZoneScopedN("ImGUI UI creation");
+		CreateImGUIElements();
+	}
 
-	constexpr float color[4] = {0.3f, 0.3f, 1.0f, 1.0f};
-	deviceContext->ClearRenderTargetView(backbufferRTV, color);
-	// Clear depth stencil
-	deviceContext->ClearDepthStencilView(
-		depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
-	);
-	deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
-
-	constexpr float nullFeatureColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-	for (auto &cachedGBufferRTV : cachedGBufferRTVs) {
-		deviceContext->ClearRenderTargetView(
-			cachedGBufferRTV, nullFeatureColor
+	{
+		ZoneScopedN("Clearing buffers");
+		constexpr float color[4] = {0.3f, 0.3f, 1.0f, 1.0f};
+		deviceContext->ClearRenderTargetView(backbufferRTV, color);
+		// Clear depth stencil
+		deviceContext->ClearDepthStencilView(
+			depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0
 		);
+		deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
+
+		constexpr float nullFeatureColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		for (auto &cachedGBufferRTV : cachedGBufferRTVs) {
+			deviceContext->ClearRenderTargetView(
+				cachedGBufferRTV, nullFeatureColor
+			);
+		}
 	}
 }
 

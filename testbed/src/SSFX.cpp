@@ -252,6 +252,9 @@ void testbed::UpdateSSFXEffectConstants(const char *name) {
 	rendererContext->Unmap(it->second->constantBuffer.Get(), 0);
 }
 
+constexpr ID3D11ShaderResourceView *nullSRVs[8] = {nullptr};
+constexpr ID3D11SamplerState *nullSamplers[8] = {nullptr};
+
 void testbed::ApplySSFXEffect(const char *name) {
 	ZoneScoped;
 	const auto it = effects.find(name);
@@ -265,75 +268,77 @@ void testbed::ApplySSFXEffect(const char *name) {
 	const auto &srvs = effect->cachedSRVs;
 	const auto &samplers = effect->cachedSamplers;
 
-	D3D11_VIEWPORT viewport{};
-	viewport.Width = static_cast<float>(WINDOW_WIDTH);
-	viewport.Height = static_cast<float>(WINDOW_HEIGHT);
-	viewport.MaxDepth = 1.f;
-	viewport.MinDepth = 0.f;
+	{
+		ZoneScopedN("Rasterizer setup");
+		D3D11_VIEWPORT viewport{};
+		viewport.Width = static_cast<float>(WINDOW_WIDTH);
+		viewport.Height = static_cast<float>(WINDOW_HEIGHT);
+		viewport.MaxDepth = 1.f;
+		viewport.MinDepth = 0.f;
 
-	rendererContext->RSSetViewports(1, &viewport);
-	rendererContext->RSSetState(ssfxRasterizerState);
-
-	rendererContext->OMSetRenderTargets(
-		static_cast<UINT>(rtvs.size()), rtvs.data(), nullptr
-	);
-
-	rendererContext->PSSetShaderResources(
-		0, static_cast<UINT>(srvs.size()), srvs.data()
-	);
-
-	rendererContext->VSSetShaderResources(
-		0, static_cast<UINT>(srvs.size()), srvs.data()
-	);
-
-	rendererContext->PSSetSamplers(
-		0, static_cast<UINT>(samplers.size()), samplers.data()
-	);
-
-	rendererContext->VSSetSamplers(
-		0, static_cast<UINT>(samplers.size()), samplers.data()
-	);
-
-	rendererContext->IASetInputLayout(quadInputLayout);
-	rendererContext->IASetPrimitiveTopology(
-		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
-	);
-	rendererContext->IASetVertexBuffers(
-		0, 1, &quadVertexBuffer, &VERTEX_SIZE, &VERTEX_OFFSET
-	);
-
-	rendererContext->VSSetShader(quadVertexShader, nullptr, 0);
-	rendererContext->PSSetShader(effect->pixelShader.Get(), nullptr, 0);
-
-	if (effect->HasConstantBuffer()) {
-		rendererContext->PSSetConstantBuffers(
-			1, 1, effect->constantBuffer.GetAddressOf()
-		);
-
-		rendererContext->VSSetConstantBuffers(
-			1, 1, effect->constantBuffer.GetAddressOf()
-		);
+		rendererContext->RSSetViewports(1, &viewport);
+		rendererContext->RSSetState(ssfxRasterizerState);
 	}
 
-	rendererContext->Draw(4, 0);
-	rendererContext->Flush();
+	{
+		ZoneScopedN("SSFX effect state setup");
+		rendererContext->OMSetRenderTargets(
+			static_cast<UINT>(rtvs.size()), rtvs.data(), nullptr
+		);
 
-	// Clear and reset for the next frame
+		rendererContext->PSSetShaderResources(
+			0, static_cast<UINT>(srvs.size()), srvs.data()
+		);
 
-	// Set every srv and rtv to null
-	ID3D11ShaderResourceView *nullSRVs[8] = {nullptr};
-	ID3D11SamplerState *nullSamplers[8] = {nullptr};
+		rendererContext->VSSetShaderResources(
+			0, static_cast<UINT>(srvs.size()), srvs.data()
+		);
 
-	rendererContext->OMSetRenderTargets(0, nullptr, nullptr);
-	rendererContext->VSSetShader(nullptr, nullptr, 0);
-	rendererContext->PSSetShader(nullptr, nullptr, 0);
-	rendererContext->VSSetConstantBuffers(0, 0, nullptr);
-	rendererContext->PSSetConstantBuffers(0, 0, nullptr);
-	rendererContext->VSSetShaderResources(0, 8, nullSRVs);
-	rendererContext->PSSetShaderResources(0, 8, nullSRVs);
-	rendererContext->VSSetSamplers(0, 8, nullSamplers);
-	rendererContext->PSSetSamplers(0, 8, nullSamplers);
-	rendererContext->IASetInputLayout(nullptr);
-	rendererContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED);
-	rendererContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+		rendererContext->PSSetSamplers(
+			0, static_cast<UINT>(samplers.size()), samplers.data()
+		);
+
+		rendererContext->VSSetSamplers(
+			0, static_cast<UINT>(samplers.size()), samplers.data()
+		);
+
+		rendererContext->IASetInputLayout(quadInputLayout);
+		rendererContext->IASetPrimitiveTopology(
+			D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
+		);
+		rendererContext->IASetVertexBuffers(
+			0, 1, &quadVertexBuffer, &VERTEX_SIZE, &VERTEX_OFFSET
+		);
+
+		rendererContext->VSSetShader(quadVertexShader, nullptr, 0);
+		rendererContext->PSSetShader(effect->pixelShader.Get(), nullptr, 0);
+
+		if (effect->HasConstantBuffer()) {
+			rendererContext->PSSetConstantBuffers(
+				1, 1, effect->constantBuffer.GetAddressOf()
+			);
+
+			rendererContext->VSSetConstantBuffers(
+				1, 1, effect->constantBuffer.GetAddressOf()
+			);
+		}
+	}
+
+	{
+		ZoneScopedN("Draw");
+		rendererContext->Draw(4, 0);
+	}
+
+	{
+		ZoneScopedN("Clear and reset");
+		rendererContext->OMSetRenderTargets(0, nullptr, nullptr);
+		rendererContext->VSSetShader(nullptr, nullptr, 0);
+		rendererContext->PSSetShader(nullptr, nullptr, 0);
+		rendererContext->VSSetConstantBuffers(0, 0, nullptr);
+		rendererContext->PSSetConstantBuffers(0, 0, nullptr);
+		rendererContext->VSSetShaderResources(0, 8, nullSRVs);
+		rendererContext->PSSetShaderResources(0, 8, nullSRVs);
+		rendererContext->VSSetSamplers(0, 8, nullSamplers);
+		rendererContext->PSSetSamplers(0, 8, nullSamplers);
+	}
 }

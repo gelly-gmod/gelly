@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ILogger.h"
+#include "Memory.h"
 #include "d3d11.h"
 
 namespace testbed {

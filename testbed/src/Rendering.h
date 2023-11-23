@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "ILogger.h"
+#include "Memory.h"
 
 using namespace DirectX;
 

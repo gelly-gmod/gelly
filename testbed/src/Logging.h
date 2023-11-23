@@ -2,6 +2,7 @@
 #define GELLY_LOGGING_H
 
 #include "ILogger.h"
+#include "Memory.h"
 
 namespace testbed {
 enum class LoggerType { Console };

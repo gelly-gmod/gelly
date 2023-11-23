@@ -2,6 +2,7 @@
 #define GELLY_CCONSOLELOGGER_H
 
 #include "ILogger.h"
+#include "Memory.h"
 
 namespace testbed {
 class CConsoleLogger : public ILogger {

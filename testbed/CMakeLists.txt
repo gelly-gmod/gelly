@@ -27,6 +27,8 @@ add_executable(testbed
         src/ssfx/Shading.h
         src/Gelly.h
         src/Gelly.cpp
+        src/Memory.h
+        src/Memory.cpp
 )
 
 add_subdirectory(vendor/SDL)

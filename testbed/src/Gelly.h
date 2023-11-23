@@ -4,6 +4,7 @@
 #include <GellyFluidSim.h>
 
 #include "ILogger.h"
+#include "Memory.h"
 
 #define GELLY_ALBEDO_TEXNAME "gelly/albedo"
 

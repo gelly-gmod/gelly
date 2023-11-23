@@ -3,6 +3,7 @@
 
 #include <DirectXMath.h>
 
+#include "Memory.h"
 #include "Rendering.h"
 
 namespace testbed {
