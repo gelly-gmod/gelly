@@ -46,6 +46,7 @@ int main() {
 		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		EndFrame();
 		FrameMark;
+
 #ifdef _DEBUG
 		LogRenderDebugMessages(debugLayer);
 #endif

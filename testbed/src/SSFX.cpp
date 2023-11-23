@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <tracy/Tracy.hpp>
 #include <unordered_map>
 
 #include "Rendering.h"
@@ -34,6 +35,10 @@ struct SSFXEffectResources {
 	ComPtr<ID3D11Buffer> constantBuffer;
 	ComPtr<ID3D11PixelShader> pixelShader;
 
+	std::vector<ID3D11ShaderResourceView *> cachedSRVs;
+	std::vector<ID3D11SamplerState *> cachedSamplers;
+	std::vector<ID3D11RenderTargetView *> cachedRTVs;
+
 	[[nodiscard]] inline bool HasConstantBuffer() const {
 		return constantBuffer != nullptr;
 	}
@@ -41,6 +46,21 @@ struct SSFXEffectResources {
 
 using SSFXEffectResourcesPtr = std::shared_ptr<SSFXEffectResources>;
 static std::unordered_map<std::string, SSFXEffectResourcesPtr> effects;
+
+static void CacheEffectResources(const SSFXEffectResourcesPtr &effect) {
+	effect->cachedSRVs.reserve(effect->effectData.inputTextures.size());
+	effect->cachedSamplers.reserve(effect->effectData.inputTextures.size());
+	effect->cachedRTVs.reserve(effect->effectData.outputTextures.size());
+
+	for (const auto &inputTextureName : effect->effectData.inputTextures) {
+		effect->cachedSRVs.push_back(GetTextureSRV(inputTextureName));
+		effect->cachedSamplers.push_back(GetTextureSampler(inputTextureName));
+	}
+
+	for (const auto &outputTextureName : effect->effectData.outputTextures) {
+		effect->cachedRTVs.push_back(GetTextureRTV(outputTextureName));
+	}
+}
 
 static void CreateNDCQuadResources() {
 	// Need to add vertex positions in NDC space along with
@@ -176,6 +196,8 @@ void testbed::RegisterSSFXEffect(const char *name, const SSFXEffect &effect) {
 		GetPixelShaderFromFile(rendererDevice, effect.pixelShaderPath)
 	);
 
+	CacheEffectResources(resources);
+
 	effects[name] = std::move(resources);
 }
 
@@ -231,29 +253,17 @@ void testbed::UpdateSSFXEffectConstants(const char *name) {
 }
 
 void testbed::ApplySSFXEffect(const char *name) {
+	ZoneScoped;
 	const auto it = effects.find(name);
 	if (it == effects.end()) {
 		logger->Error("SSFX effect with name %s does not exist", name);
 		return;
 	}
 
-	std::vector<ID3D11ShaderResourceView *> srvs;
-	std::vector<ID3D11RenderTargetView *> rtvs;
-	std::vector<ID3D11SamplerState *> samplers;
-
-	srvs.reserve(it->second->effectData.inputTextures.size());
-	samplers.reserve(it->second->effectData.inputTextures.size());
-	rtvs.reserve(it->second->effectData.outputTextures.size());
-
-	const auto effect = it->second;
-	for (const auto &inputTextureName : effect->effectData.inputTextures) {
-		srvs.push_back(GetTextureSRV(inputTextureName));
-		samplers.push_back(GetTextureSampler(inputTextureName));
-	}
-
-	for (const auto &outputTextureName : effect->effectData.outputTextures) {
-		rtvs.push_back(GetTextureRTV(outputTextureName));
-	}
+	const auto &effect = it->second;
+	const auto &rtvs = effect->cachedRTVs;
+	const auto &srvs = effect->cachedSRVs;
+	const auto &samplers = effect->cachedSamplers;
 
 	D3D11_VIEWPORT viewport{};
 	viewport.Width = static_cast<float>(WINDOW_WIDTH);

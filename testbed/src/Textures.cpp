@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <tracy/Tracy.hpp>
 #include <unordered_map>
 
 #include "Rendering.h"
@@ -216,6 +217,7 @@ void testbed::CreateUnownedTexture(
 }
 
 ID3D11RenderTargetView *testbed::GetTextureRTV(const char *name) {
+	ZoneScoped;
 	if (OwnedTextureExists(name)) {
 		return GetOwnedTexture(name)->rtv.Get();
 	}
@@ -229,6 +231,8 @@ ID3D11RenderTargetView *testbed::GetTextureRTV(const char *name) {
 }
 
 ID3D11ShaderResourceView *testbed::GetTextureSRV(const char *name) {
+	ZoneScoped;
+
 	if (OwnedTextureExists(name)) {
 		return GetOwnedTexture(name)->srv.Get();
 	}
@@ -242,6 +246,7 @@ ID3D11ShaderResourceView *testbed::GetTextureSRV(const char *name) {
 }
 
 ID3D11SamplerState *testbed::GetTextureSampler(const char *name) {
+	ZoneScoped;
 	if (OwnedTextureExists(name)) {
 		return GetOwnedTexture(name)->sampler.Get();
 	}

@@ -1,5 +1,6 @@
 #include "Shading.h"
 
+#include <tracy/Tracy.hpp>
 #include <vector>
 
 #include "Rendering.h"
@@ -47,6 +48,7 @@ void ssfx::InitializeShadingSSFX(ILogger *logger) {
 }
 
 void ssfx::UpdateShadingSSFXConstants() {
+	ZoneScoped;
 	static float t = 0.0f;
 	t += 0.01f;
 	cbuffer.lights[0].position = float3(2.0f * cosf(t), 1.0f, 2.0f * sinf(t));

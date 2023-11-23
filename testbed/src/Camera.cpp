@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <tracy/Tracy.hpp>
+
 #include "Logging.h"
 #include "SDL.h"
 #include "Window.h"
@@ -59,6 +61,7 @@ void CameraEventInterceptor(SDL_Event *event) {
 }
 
 void testbed::UpdateCamera() {
+	ZoneScoped;
 	if (!cameraEnabled) {
 		return;
 	}

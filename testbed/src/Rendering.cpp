@@ -6,6 +6,7 @@
 #include <d3d11.h>
 #include <imgui.h>
 
+#include <tracy/Tracy.hpp>
 #include <unordered_map>
 
 #include "Logging.h"
@@ -246,6 +247,10 @@ void LoadGenericWorldLit() {
 	FreeShaderBuffer(vsBuffer);
 }
 
+static ID3D11RenderTargetView *cachedGBufferRTVs[4] = {
+	nullptr, nullptr, nullptr, nullptr
+};
+
 void CreateGBufferTextures() {
 	FeatureTextureInfo albedoTexInfo{};
 	albedoTexInfo.width = WINDOW_WIDTH;
@@ -274,6 +279,11 @@ void CreateGBufferTextures() {
 	positionTexInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 	CreateFeatureTexture(GBUFFER_POSITION_TEXNAME, positionTexInfo);
+
+	cachedGBufferRTVs[0] = GetTextureRTV(GBUFFER_ALBEDO_TEXNAME);
+	cachedGBufferRTVs[1] = GetTextureRTV(GBUFFER_NORMAL_TEXNAME);
+	cachedGBufferRTVs[2] = GetTextureRTV(GBUFFER_DEPTH_TEXNAME);
+	cachedGBufferRTVs[3] = GetTextureRTV(GBUFFER_POSITION_TEXNAME);
 }
 
 void ImGuiSDLEventInterceptor(SDL_Event *event) {
@@ -435,6 +445,7 @@ ID3D11RenderTargetView *testbed::GetBackBufferRTV(ID3D11Device *device) {
 }
 
 void testbed::StartFrame() {
+	ZoneScoped;
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplSDL2_NewFrame(GetTestbedWindow());
 	ImGui::NewFrame();
@@ -450,24 +461,15 @@ void testbed::StartFrame() {
 	deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
 
 	constexpr float nullFeatureColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-	deviceContext->ClearRenderTargetView(
-		GetTextureRTV(GBUFFER_ALBEDO_TEXNAME), nullFeatureColor
-	);
-
-	deviceContext->ClearRenderTargetView(
-		GetTextureRTV(GBUFFER_NORMAL_TEXNAME), nullFeatureColor
-	);
-
-	deviceContext->ClearRenderTargetView(
-		GetTextureRTV(GBUFFER_DEPTH_TEXNAME), nullFeatureColor
-	);
-
-	deviceContext->ClearRenderTargetView(
-		GetTextureRTV(GBUFFER_POSITION_TEXNAME), nullFeatureColor
-	);
+	for (auto &cachedGBufferRTV : cachedGBufferRTVs) {
+		deviceContext->ClearRenderTargetView(
+			cachedGBufferRTV, nullFeatureColor
+		);
+	}
 }
 
 void testbed::EndFrame() {
+	ZoneScoped;
 	deviceContext->OMSetRenderTargets(1, &backbufferRTV, nullptr);
 
 	ImGui::Render();
@@ -549,6 +551,7 @@ void testbed::DestroyWorldMesh(const MeshReference &mesh) {
 void testbed::RenderWorldList(
 	const WorldRenderList &list, const Camera &camera
 ) {
+	ZoneScopedN("World render");
 	// Set up cbuffer
 	GenericRenderCBuffer cbuffer = {};
 	XMStoreFloat4(&cbuffer.eyePos, XMLoadFloat3(&camera.position));
@@ -576,16 +579,11 @@ void testbed::RenderWorldList(
 
 	// Set up depth stencil
 	deviceContext->OMSetDepthStencilState(depthStencilState, 1);
-	ID3D11RenderTargetView *gbufferRtvs[4] = {
-		GetTextureRTV(GBUFFER_ALBEDO_TEXNAME),
-		GetTextureRTV(GBUFFER_NORMAL_TEXNAME),
-		GetTextureRTV(GBUFFER_DEPTH_TEXNAME),
-		GetTextureRTV(GBUFFER_POSITION_TEXNAME)
-	};
-	deviceContext->OMSetRenderTargets(4, gbufferRtvs, depthStencilView);
+	deviceContext->OMSetRenderTargets(4, cachedGBufferRTVs, depthStencilView);
 
 	// Render each object
 	for (auto i = list.cbegin(); i != list.cend(); ++i) {
+		ZoneScopedN("Object render");
 		const auto &object = *i;
 		const auto &mesh = worldMeshes[object.mesh];
 
