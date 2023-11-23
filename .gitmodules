@@ -56,3 +56,6 @@
 [submodule "testbed/vendor/imgui"]
 	path = testbed/vendor/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "testbed/vendor/tracy"]
+	path = testbed/vendor/tracy
+	url = https://github.com/wolfpld/tracy.git

@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <tracy/Tracy.hpp>
 
 #include "Camera.h"
 #include "Gelly.h"
@@ -33,7 +34,7 @@ int main() {
 	ssfx::InitializeShadingSSFX(logger);
 	InitializeGelly(rendererDevice, logger);
 
-	LoadScene({"assets/test_suzanne.gltf"});
+	LoadScene({"assets/01_gelly_springs.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
@@ -44,7 +45,7 @@ int main() {
 		ssfx::UpdateShadingSSFXConstants();
 		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		EndFrame();
-
+		FrameMark;
 #ifdef _DEBUG
 		LogRenderDebugMessages(debugLayer);
 #endif

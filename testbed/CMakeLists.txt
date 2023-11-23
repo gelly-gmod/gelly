@@ -32,12 +32,18 @@ add_executable(testbed
 add_subdirectory(vendor/SDL)
 add_subdirectory(vendor/fastgltf)
 
+# Tracy integration
+option(TRACY_ENABLE "" ON)
+option(TRACY_ON_DEMAND "" ON)
+add_subdirectory(vendor/tracy)
+
 generate_gelly_config()
 
 target_link_libraries(
         testbed
         SDL2
         fastgltf
+        Tracy::TracyClient
         ${GELLY_LIBS}
 )
 
@@ -48,6 +54,7 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL/include
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fastgltf/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy/public
         ${GELLY_INCLUDE_DIRS}
 )
 
