@@ -25,20 +25,27 @@ void testbed::InitializeGelly(
 ) {
 	logger = newLogger;
 	try {
-		logger->Info("Creating the Gelly sim context...");
-		simContext = CreateD3D11SimContext(
-			rendererDevice, GetRendererContext(rendererDevice)
-		);
-
-		logger->Info("Creating the Gelly fluid simulation...");
-		fluidSim = CreateD3D11DebugFluidSimulation(simContext);
-
 		logger->Info("Creating the Gelly render context...");
 		renderContext =
 			CreateD3D11FluidRenderContext(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 		logger->Info("Creating the Gelly fluid renderer...");
 		fluidRenderer = CreateD3D11DebugFluidRenderer(renderContext);
+
+		logger->Info("Creating the Gelly sim context...");
+		simContext = CreateD3D11SimContext(
+			static_cast<ID3D11Device *>(renderContext->GetRenderAPIResource(
+				RenderAPIResource::D3D11Device
+			)),
+			static_cast<ID3D11DeviceContext *>(
+				renderContext->GetRenderAPIResource(
+					RenderAPIResource::D3D11DeviceContext
+				)
+			)
+		);
+
+		logger->Info("Creating the Gelly fluid simulation...");
+		fluidSim = CreateD3D11DebugFluidSimulation(simContext);
 
 		logger->Info("Linking the Gelly fluid simulation and renderer...");
 		fluidSim->SetMaxParticles(maxParticles);

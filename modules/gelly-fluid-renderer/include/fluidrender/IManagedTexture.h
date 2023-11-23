@@ -3,6 +3,7 @@
 
 #include <GellyInterface.h>
 #include <GellyObserverPtr.h>
+#include <dxgiformat.h>
 
 #include <cstdint>
 #include <stdexcept>

@@ -88,9 +88,9 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 		);
 	}
 
-	ID3D11Buffer *linkedResource = nullptr;
+	ID3D11Resource *linkedResource = nullptr;
 	if (const auto result = linkedBuffer->QueryInterface(
-			__uuidof(ID3D11Buffer), reinterpret_cast<void **>(&linkedResource)
+			__uuidof(ID3D11Resource), reinterpret_cast<void **>(&linkedResource)
 		);
 		FAILED(result)) {
 		throw std::runtime_error(
