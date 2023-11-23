@@ -58,6 +58,8 @@ ID3D11ShaderResourceView *GetTextureSRV(const char *name);
 
 ID3D11SamplerState *GetTextureSampler(const char *name);
 
+HANDLE GetTextureSharedHandle(const char *name);
+
 }  // namespace testbed
 
 #endif	// TEXTURES_H

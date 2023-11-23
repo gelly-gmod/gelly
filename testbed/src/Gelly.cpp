@@ -6,6 +6,7 @@
 #include "GellyFluidRender.h"
 #include "ILogger.h"
 #include "Rendering.h"
+#include "Textures.h"
 #include "Window.h"
 #include "fluidrender/IFluidRenderer.h"
 #include "fluidrender/IRenderContext.h"
@@ -18,7 +19,31 @@ static IFluidSimulation *fluidSim = nullptr;
 static IRenderContext *renderContext = nullptr;
 static IFluidRenderer *fluidRenderer = nullptr;
 
+static GellyObserverPtr<IManagedTexture> fluidAlbedoTexture;
+
 constexpr int maxParticles = 1000;
+
+void CreateGellyTextures() {
+	// Basically, the process is that we use our own texture system,
+	// and then we create a texture in Gelly, and then we link them by
+	// using DXGI's shared surfaces. The flow is game <- Gelly. It is not
+	// the reverse. Gelly will not own the textures, but it will use them.
+
+	FeatureTextureInfo fluidAlbedoTextureInfo{};
+	fluidAlbedoTextureInfo.width = WINDOW_WIDTH;
+	fluidAlbedoTextureInfo.height = WINDOW_HEIGHT;
+	fluidAlbedoTextureInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+
+	CreateFeatureTexture(GELLY_ALBEDO_TEXNAME, fluidAlbedoTextureInfo);
+	fluidAlbedoTexture = renderContext->CreateSharedTexture(
+		"testbed/albedo", GetTextureSharedHandle(GELLY_ALBEDO_TEXNAME)
+	);
+
+	// Link the texture to the fluid renderer
+	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
+		FluidFeatureType::ALBEDO, fluidAlbedoTexture
+	);
+}
 
 void testbed::InitializeGelly(
 	ID3D11Device *rendererDevice, ILogger *newLogger
@@ -52,6 +77,10 @@ void testbed::InitializeGelly(
 		fluidRenderer->SetSimData(fluidSim->GetSimulationData());
 
 		fluidSim->Initialize();
+
+		logger->Info("Creating Gelly GBuffers...");
+		CreateGellyTextures();
+		logger->Info("Gelly GBuffers successfully created and linked");
 	} catch (const std::exception &e) {
 #ifdef _DEBUG
 		renderContext->PrintDebugInfo();

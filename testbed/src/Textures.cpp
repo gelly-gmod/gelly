@@ -4,6 +4,7 @@
 #include <wrl.h>
 
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
@@ -247,6 +248,52 @@ ID3D11SamplerState *testbed::GetTextureSampler(const char *name) {
 
 	if (UnownedTextureExists(name)) {
 		return GetUnownedTexture(name)->sampler;
+	}
+
+	logger->Error("Texture with name %s does not exist", name);
+	return nullptr;
+}
+
+HANDLE testbed::GetTextureSharedHandle(const char *name) {
+	if (UnownedTextureExists(name)) {
+		IDXGIResource *resource;
+		if (const auto result =
+				GetUnownedTexture(name)->texture->QueryInterface(
+					__uuidof(IDXGIResource),
+					reinterpret_cast<void **>(&resource)
+				);
+			FAILED(result)) {
+			throw std::runtime_error("Failed to get DXGI resource");
+		}
+
+		HANDLE handle;
+
+		if (const auto result = resource->GetSharedHandle(&handle);
+			FAILED(result)) {
+			throw std::runtime_error("Failed to get shared handle");
+		}
+
+		resource->Release();
+		return handle;
+	}
+
+	if (OwnedTextureExists(name)) {
+		// We can use ComPtr's fancy methods here.
+		// It will also automatically release the resource when it goes out of
+		// scope.
+		ComPtr<IDXGIResource> resource;
+		if (const auto result = GetOwnedTexture(name)->texture.As(&resource);
+			FAILED(result)) {
+			throw std::runtime_error("Failed to get DXGI resource");
+		}
+
+		HANDLE handle;
+		if (const auto result = resource->GetSharedHandle(&handle);
+			FAILED(result)) {
+			throw std::runtime_error("Failed to get shared handle");
+		}
+
+		return handle;
 	}
 
 	logger->Error("Texture with name %s does not exist", name);

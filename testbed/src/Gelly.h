@@ -5,6 +5,8 @@
 
 #include "ILogger.h"
 
+#define GELLY_ALBEDO_TEXNAME "gelly/albedo"
+
 namespace testbed {
 void InitializeGelly(ID3D11Device *rendererDevice, ILogger *newLogger);
 IFluidSimulation *GetGellyFluidSim();
