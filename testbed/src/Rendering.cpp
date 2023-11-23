@@ -597,17 +597,37 @@ void testbed::RenderWorldList(
 		const auto &mesh = worldMeshes[object.mesh];
 
 		// Set up vertex buffers
-		mesh.vertices->SetAtSlot(deviceContext, 0, genericWorldLitInputLayout);
-		mesh.normals->SetAtSlot(deviceContext, 1, genericWorldLitInputLayout);
-		deviceContext->IASetIndexBuffer(mesh.indices, DXGI_FORMAT_R16_UINT, 0);
+		{
+			ZoneScopedN("Vertex buffer setup");
+			mesh.vertices->SetAtSlot(
+				deviceContext, 0, genericWorldLitInputLayout
+			);
+			mesh.normals->SetAtSlot(
+				deviceContext, 1, genericWorldLitInputLayout
+			);
+			deviceContext->IASetIndexBuffer(
+				mesh.indices, DXGI_FORMAT_R16_UINT, 0
+			);
+		}
 
 		// Set up cbuffer
-		GenerateCameraMatrices(
-			camera, &object.transform, &cbuffer.mvp, &cbuffer.invMvp
-		);
-		worldRenderConstants.Set(deviceContext, &cbuffer);
-		worldRenderConstants.BindToShaders(deviceContext, 0);
+		{
+			ZoneScopedN("C-buffer setup");
+			GenerateCameraMatrices(
+				camera, &object.transform, &cbuffer.mvp, &cbuffer.invMvp
+			);
+		}
+
+		{
+			ZoneScopedN("Unique C-buffer update");
+			worldRenderConstants.Set(deviceContext, &cbuffer);
+			worldRenderConstants.BindToShaders(deviceContext, 0);
+		}
+
 		// Draw
-		deviceContext->DrawIndexed(mesh.indexCount, 0, 0);
+		{
+			ZoneScopedN("Draw");
+			deviceContext->DrawIndexed(mesh.indexCount, 0, 0);
+		}
 	}
 }

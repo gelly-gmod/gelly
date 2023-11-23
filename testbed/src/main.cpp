@@ -35,7 +35,7 @@ int main() {
 	ssfx::InitializeShadingSSFX(logger);
 	InitializeGelly(rendererDevice, logger);
 
-	LoadScene({"assets/DamagedHelmet.gltf"});
+	LoadScene({"assets/01_gelly_springs.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
