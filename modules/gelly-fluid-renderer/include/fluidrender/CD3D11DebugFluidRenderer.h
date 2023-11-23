@@ -30,7 +30,6 @@ public:
 	~CD3D11DebugFluidRenderer() override = default;
 
 	void SetSimData(GellyObserverPtr<ISimData> simData) override;
-	void SetMaxParticles(int maxParticles) override;
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
 	GellyObserverPtr<IFluidTextures> GetFluidTextures() override;
 	void Render() override;

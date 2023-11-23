@@ -4,6 +4,8 @@
 
 #include <stdexcept>
 
+#include "fluidrender/IRenderContext.h"
+
 CD3D11ManagedBuffer::CD3D11ManagedBuffer()
 	: buffer(nullptr), srv(nullptr), uav(nullptr), context(nullptr), desc({}) {}
 
@@ -18,7 +20,7 @@ const Gelly::BufferDesc &CD3D11ManagedBuffer::GetDesc() const { return desc; }
 bool CD3D11ManagedBuffer::Create() {
 	D3D11_BUFFER_DESC d3dBufferDesc = {};
 	d3dBufferDesc.ByteWidth = desc.byteWidth;
-
+	d3dBufferDesc.StructureByteStride = desc.stride;
 	D3D11_USAGE usage = D3D11_USAGE_DEFAULT;
 	switch (desc.usage) {
 		case BufferUsage::DEFAULT:
@@ -31,7 +33,7 @@ bool CD3D11ManagedBuffer::Create() {
 
 	d3dBufferDesc.Usage = usage;
 
-	unsigned long bindFlags = 0;
+	unsigned int bindFlags = 0;
 	if ((desc.type & BufferType::VERTEX) != 0) {
 		bindFlags |= D3D11_BIND_VERTEX_BUFFER;
 	}
@@ -57,16 +59,21 @@ bool CD3D11ManagedBuffer::Create() {
 	D3D11_SUBRESOURCE_DATA d3dSubresourceData = {};
 	d3dSubresourceData.pSysMem = desc.initialData;
 
+	auto *subresourcePtr = &d3dSubresourceData;
+	if (desc.initialData == nullptr) {
+		subresourcePtr = nullptr;
+	}
+
 	auto *device = static_cast<ID3D11Device *>(
 		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
 	);
 
 	DX("Failed to create D3D11 buffer",
-	   device->CreateBuffer(&d3dBufferDesc, &d3dSubresourceData, &buffer));
+	   device->CreateBuffer(&d3dBufferDesc, subresourcePtr, &buffer));
 
 	if ((desc.type & BufferType::SHADER_RESOURCE) != 0) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc = {};
-		d3dSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
+		d3dSRVDesc.Format = GetDXGIFormat(desc.format);
 		d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 		d3dSRVDesc.Buffer.FirstElement = 0;
 		d3dSRVDesc.Buffer.NumElements = desc.byteWidth / desc.stride;

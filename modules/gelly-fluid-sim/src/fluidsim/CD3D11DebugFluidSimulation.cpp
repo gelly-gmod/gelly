@@ -3,7 +3,9 @@
 #include <stdexcept>
 
 CD3D11DebugFluidSimulation::CD3D11DebugFluidSimulation()
-	: simData(nullptr), positionBuffer(nullptr), maxParticles(0) {}
+	: simData(new CD3D11CPUSimData()),
+	  positionBuffer(nullptr),
+	  maxParticles(0) {}
 
 CD3D11DebugFluidSimulation::~CD3D11DebugFluidSimulation() {
 	if (simData != nullptr) {
@@ -101,15 +103,19 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 	deviceContext->Flush();	 // send off the copy command
 }
 
-void CD3D11DebugFluidSimulation::Initialize(const int maxParticles) {
-	if (!context) {
-		throw std::runtime_error(
-			"CD3D11DebugFluidSimulation::Initialize: No context attached."
+void CD3D11DebugFluidSimulation::SetMaxParticles(int maxParticles) {
+	if (maxParticles <= 0) {
+		throw std::invalid_argument(
+			"CD3D11DebugFluidSimulation::SetMaxParticles: maxParticles must be "
+			"greater than 0."
 		);
 	}
 
 	this->maxParticles = maxParticles;
-	simData = new CD3D11CPUSimData();
+	simData->SetMaxParticles(maxParticles);
+}
+
+void CD3D11DebugFluidSimulation::Initialize() {
 	CreateBuffers();
 	GenerateRandomParticles();
 }

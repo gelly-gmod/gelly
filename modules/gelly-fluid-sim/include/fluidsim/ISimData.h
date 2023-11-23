@@ -35,6 +35,9 @@ public:
 
 	virtual void *GetLinkedBuffer(SimBufferType type) = 0;
 	virtual SimContextAPI GetAPI() = 0;
+
+	virtual void SetMaxParticles(int maxParticles) = 0;
+	virtual int GetMaxParticles() = 0;
 };
 
 #endif	// GELLY_ISIMDATA_H

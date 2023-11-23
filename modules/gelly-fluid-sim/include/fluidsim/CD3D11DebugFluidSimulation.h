@@ -23,7 +23,8 @@ public:
 	explicit CD3D11DebugFluidSimulation();
 	~CD3D11DebugFluidSimulation() override;
 
-	void Initialize(int maxParticles) override;
+	void SetMaxParticles(int maxParticles) override;
+	void Initialize() override;
 	ISimData *GetSimulationData() override;
 	SimContextAPI GetComputeAPI() override;
 	void AttachToContext(GellyObserverPtr<ISimContext> context) override;

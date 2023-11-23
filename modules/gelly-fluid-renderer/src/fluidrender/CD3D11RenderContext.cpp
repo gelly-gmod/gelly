@@ -10,18 +10,27 @@
 #include "fluidrender/IRenderContext.h"
 
 CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
-	: device(nullptr), deviceContext(nullptr), width(width), height(height) {
+	: device(nullptr),
+	  deviceContext(nullptr),
+	  width(width),
+	  height(height),
+	  textures({}),
+	  shaders({}) {
 	CreateDeviceAndContext();
 }
 
 void CD3D11RenderContext::CreateDeviceAndContext() {
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+	UINT deviceFlags = 0;
+#ifdef _DEBUG
+	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 	DX("Failed to create D3D11 device",
 	   D3D11CreateDevice(
 		   nullptr,
 		   D3D_DRIVER_TYPE_HARDWARE,
 		   nullptr,
-		   0,
+		   deviceFlags,
 		   nullptr,
 		   0,
 		   D3D11_SDK_VERSION,
@@ -29,6 +38,18 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 		   &featureLevel,
 		   &deviceContext
 	   ));
+
+#ifdef _DEBUG
+	DX("Failed to get D3D11 debug interface",
+	   device->QueryInterface(
+		   __uuidof(ID3D11Debug), reinterpret_cast<void **>(&debug)
+	   ));
+
+	DX("Failed to get D3D11 info queue",
+	   debug->QueryInterface(
+		   __uuidof(ID3D11InfoQueue), reinterpret_cast<void **>(&infoQueue)
+	   ));
+#endif
 }
 
 void CD3D11RenderContext::CreateAllTextures() {
@@ -192,3 +213,24 @@ void CD3D11RenderContext::ReleaseDevice() {
 		device = nullptr;
 	}
 }
+
+#ifdef _DEBUG
+void CD3D11RenderContext::PrintDebugInfo() {
+	if (infoQueue == nullptr) {
+		return;
+	}
+
+	const auto messageCount = infoQueue->GetNumStoredMessages();
+	for (UINT i = 0; i < messageCount; i++) {
+		SIZE_T messageLength;
+		infoQueue->GetMessage(i, nullptr, &messageLength);
+
+		auto *message = static_cast<D3D11_MESSAGE *>(malloc(messageLength));
+		infoQueue->GetMessage(i, message, &messageLength);
+
+		printf("%s\n", message->pDescription);
+
+		free(message);
+	}
+}
+#endif

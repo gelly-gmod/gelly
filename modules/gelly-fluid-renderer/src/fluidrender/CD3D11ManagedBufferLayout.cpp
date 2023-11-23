@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "fluidrender/IRenderContext.h"
+
 DXGI_FORMAT BufferLayoutFormatToDXGI(const BufferLayoutFormat &format) {
 	switch (format) {
 		case BufferLayoutFormat::FLOAT2:

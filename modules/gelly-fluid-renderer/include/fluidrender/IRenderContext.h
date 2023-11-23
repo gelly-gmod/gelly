@@ -39,7 +39,7 @@ gelly_interface IRenderContext {
 public:
 	// All subclasses must destroy their resources here, but also in the event
 	// of a device reset.
-	virtual ~IRenderContext() = 0;
+	virtual ~IRenderContext() = default;
 
 	virtual void *GetRenderAPIResource(RenderAPIResource resource) = 0;
 	virtual ContextRenderAPI GetRenderAPI() = 0;
@@ -94,6 +94,10 @@ public:
 	 * recreated.
 	 */
 	virtual void SubmitWork() = 0;
+
+#ifdef _DEBUG
+	virtual void PrintDebugInfo() = 0;
+#endif
 };
 
 #endif	// GELLY_IRENDERCONTEXT_H

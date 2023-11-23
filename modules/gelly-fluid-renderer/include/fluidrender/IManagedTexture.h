@@ -5,6 +5,7 @@
 #include <GellyObserverPtr.h>
 
 #include <cstdint>
+#include <stdexcept>
 
 class IRenderContext;
 
@@ -46,6 +47,19 @@ enum class TextureResource : uint8_t {
 	D3D11_RTV,
 	D3D11_UAV,
 };
+
+inline DXGI_FORMAT GetDXGIFormat(const TextureFormat format) {
+	switch (format) {
+		case TextureFormat::R8G8B8A8_UNORM:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case TextureFormat::R32G32B32A32_FLOAT:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case TextureFormat::R16G16B16A16_FLOAT:
+			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		default:
+			throw std::logic_error("Invalid texture format");
+	}
+}
 }  // namespace Gelly
 
 using namespace Gelly;
@@ -81,7 +95,7 @@ constexpr bool operator==(const enum TextureAccess a, const int b) {
  */
 gelly_interface IManagedTexture {
 public:
-	virtual ~IManagedTexture() = 0;
+	virtual ~IManagedTexture() = default;
 
 	virtual void SetDesc(const TextureDesc &desc) = 0;
 	[[nodiscard]] virtual const TextureDesc &GetDesc() const = 0;

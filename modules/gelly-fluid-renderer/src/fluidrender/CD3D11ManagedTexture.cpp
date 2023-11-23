@@ -40,19 +40,7 @@ bool CD3D11ManagedTexture::Create() {
 		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
 	);
 
-	auto format = static_cast<DXGI_FORMAT>(0);
-
-	switch (desc.format) {
-		case TextureFormat::R8G8B8A8_UNORM:
-			format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			break;
-		case TextureFormat::R32G32B32A32_FLOAT:
-			format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			break;
-		case TextureFormat::R16G16B16A16_FLOAT:
-			format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-			break;
-	}
+	auto format = GetDXGIFormat(desc.format);
 
 	D3D11_TEXTURE2D_DESC texDesc = {};
 	texDesc.Width = desc.width;

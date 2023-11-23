@@ -1,7 +1,7 @@
 #include "fluidsim/CD3D11CPUSimData.h"
 
 CD3D11CPUSimData::CD3D11CPUSimData()
-	: positionBuffer(nullptr), velocityBuffer(nullptr) {}
+	: positionBuffer(nullptr), velocityBuffer(nullptr), maxParticles(0) {}
 
 void CD3D11CPUSimData::LinkBuffer(SimBufferType type, void *buffer) {
 	switch (type) {
@@ -35,3 +35,9 @@ void *CD3D11CPUSimData::GetLinkedBuffer(SimBufferType type) {
 }
 
 SimContextAPI CD3D11CPUSimData::GetAPI() { return SimContextAPI::D3D11; }
+
+void CD3D11CPUSimData::SetMaxParticles(const int maxParticles) {
+	this->maxParticles = maxParticles;
+}
+
+int CD3D11CPUSimData::GetMaxParticles() { return maxParticles; }

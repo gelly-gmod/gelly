@@ -2,6 +2,7 @@
 #define CD3D11MANAGEDBUFFERLAYOUT_H
 
 #include "IManagedBufferLayout.h"
+#include <d3d11.h>
 
 class CD3D11ManagedBufferLayout : public IManagedBufferLayout {
 private:

@@ -11,11 +11,8 @@ IRenderContext *Gelly::CreateD3D11FluidRenderContext(
 	return context;
 }
 
-IFluidRenderer *Gelly::CreateD3D11DebugFluidRenderer(
-	IRenderContext *context, const int maxParticles
-) {
+IFluidRenderer *Gelly::CreateD3D11DebugFluidRenderer(IRenderContext *context) {
 	auto *renderer = new CD3D11DebugFluidRenderer();
-	renderer->SetMaxParticles(maxParticles);
 	renderer->AttachToContext(context);
 	return renderer;
 }

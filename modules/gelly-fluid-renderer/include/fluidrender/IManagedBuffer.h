@@ -5,8 +5,11 @@
 
 #include "GellyInterface.h"
 #include "IManagedShader.h"
+#include "IManagedTexture.h"
 
 namespace Gelly {
+using BufferFormat = TextureFormat;
+
 enum class BufferType : uint8_t {
 	NONE = 0b000,
 	VERTEX,
@@ -26,10 +29,11 @@ enum class BufferUsage : uint8_t {
 };
 
 struct BufferDesc {
-	uint8_t byteWidth{};
+	uint32_t byteWidth{};
 	uint16_t stride{};
 	BufferType type{};
 	BufferUsage usage{};
+	BufferFormat format{};
 	void *initialData{};
 };
 }  // namespace Gelly
@@ -80,7 +84,7 @@ class IRenderContext;
 
 gelly_interface IManagedBuffer {
 public:
-	virtual ~IManagedBuffer() = 0;
+	virtual ~IManagedBuffer() = default;
 
 	virtual void SetDesc(const BufferDesc &desc) = 0;
 	[[nodiscard]] virtual const BufferDesc &GetDesc() const = 0;

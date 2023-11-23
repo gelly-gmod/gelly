@@ -13,6 +13,8 @@ private:
 	ID3D11Buffer *positionBuffer;
 	ID3D11Buffer *velocityBuffer;
 
+	int maxParticles;
+
 public:
 	explicit CD3D11CPUSimData();
 	~CD3D11CPUSimData() override = default;
@@ -22,6 +24,9 @@ public:
 
 	void *GetLinkedBuffer(SimBufferType type) override;
 	SimContextAPI GetAPI() override;
+
+	void SetMaxParticles(int maxParticles) override;
+	int GetMaxParticles() override;
 };
 
 #endif	// GELLY_CD3D11CPUSIMDATA_H

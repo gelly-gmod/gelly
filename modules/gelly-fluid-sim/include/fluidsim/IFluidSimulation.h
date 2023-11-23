@@ -10,6 +10,7 @@ gelly_interface IFluidSimulation {
 public:
 	virtual ~IFluidSimulation() = default;
 
+	virtual void SetMaxParticles(int maxParticles) = 0;
 	/**
 	 * \brief Signals to the underlying simulation that it should initialize.
 	 * This is called for you by the simulation context, usually. However, if
@@ -18,7 +19,8 @@ public:
 	 * \note This is not a way to clear particles, it will completely
 	 * reinitialize the simulation to default values.
 	 */
-	virtual void Initialize(int maxParticles) = 0;
+	virtual void Initialize() = 0;
+
 	virtual ISimData *GetSimulationData() = 0;
 	virtual SimContextAPI GetComputeAPI() = 0;
 	virtual void AttachToContext(GellyObserverPtr<ISimContext> context) = 0;

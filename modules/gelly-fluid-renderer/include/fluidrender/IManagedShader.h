@@ -13,7 +13,7 @@ class IRenderContext;
 
 gelly_interface IManagedShader {
 public:
-	virtual ~IManagedShader() = 0;
+	virtual ~IManagedShader() = default;
 
 	virtual void AttachToContext(GellyObserverPtr<IRenderContext> context) = 0;
 	virtual void SetBytecode(const uint8_t *bytecode, size_t bytecodeSize) = 0;

@@ -15,6 +15,11 @@ private:
 	ID3D11Device *device;
 	ID3D11DeviceContext *deviceContext;
 
+#ifdef _DEBUG
+	ID3D11Debug *debug = nullptr;
+	ID3D11InfoQueue *infoQueue = nullptr;
+#endif
+
 	std::unordered_map<std::string, IManagedTexture *> textures;
 	std::vector<IManagedShader *> shaders{};
 
@@ -56,6 +61,10 @@ public:
 	void GetDimensions(uint16_t &width, uint16_t &height) override;
 
 	void SubmitWork() override;
+
+#ifdef _DEBUG
+	void PrintDebugInfo() override;
+#endif
 };
 
 #endif	// GELLY_D3D11RENDERCONTEXT_H

@@ -5,9 +5,7 @@
 
 namespace Gelly {
 IRenderContext *CreateD3D11FluidRenderContext(uint16_t width, uint16_t height);
-IFluidRenderer *CreateD3D11DebugFluidRenderer(
-	IRenderContext *context, int maxParticles
-);
+IFluidRenderer *CreateD3D11DebugFluidRenderer(IRenderContext *context);
 }  // namespace Gelly
 
 #endif	// GELLY_GELLYFLUIDRENDER_H
