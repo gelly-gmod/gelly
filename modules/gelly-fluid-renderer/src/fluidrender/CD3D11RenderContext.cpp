@@ -207,6 +207,12 @@ void CD3D11RenderContext::SubmitWork() {
 	}
 }
 
+void CD3D11RenderContext::Draw(
+	const uint32_t vertexCount, const uint32_t startVertex
+) {
+	deviceContext->Draw(vertexCount, startVertex);
+}
+
 CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllTextures();
 	DestroyAllShaders();

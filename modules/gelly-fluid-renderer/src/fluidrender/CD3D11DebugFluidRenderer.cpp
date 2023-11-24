@@ -142,6 +142,16 @@ void CD3D11DebugFluidRenderer::Render() {
 	);
 
 	buffers.positionsLayout->BindAsVertexBuffer();
+
+	shaders.splattingGS->Bind();
+	shaders.splattingPS->Bind();
+	shaders.splattingVS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+
+	context->Draw(maxParticles, 0);
 }
 
 void CD3D11DebugFluidRenderer::SetSettings(

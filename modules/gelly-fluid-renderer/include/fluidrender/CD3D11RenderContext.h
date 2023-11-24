@@ -66,6 +66,8 @@ public:
 
 	void SubmitWork() override;
 
+	void Draw(uint32_t vertexCount, uint32_t startVertex) override;
+
 #ifdef _DEBUG
 	void PrintDebugInfo() override;
 #endif
