@@ -2,12 +2,14 @@
 #define GELLY_IRENDERCONTEXT_H
 
 #include <GellyInterface.h>
+#include <GellyInterfaceRef.h>
 #include <d3d11.h>
 
 #include <cstdint>
 
 #include "GellyObserverPtr.h"
 #include "IManagedBuffer.h"
+#include "IManagedBufferLayout.h"
 #include "IManagedShader.h"
 #include "IManagedTexture.h"
 
@@ -70,6 +72,10 @@ public:
 	) = 0;
 
 	virtual GellyObserverPtr<IManagedBuffer> CreateBuffer(const BufferDesc &desc
+	) = 0;
+
+	virtual GellyInterfaceVal<IManagedBufferLayout> CreateBufferLayout(
+		const BufferLayoutDesc &desc
 	) = 0;
 
 	/**

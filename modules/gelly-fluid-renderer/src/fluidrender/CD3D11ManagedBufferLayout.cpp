@@ -17,6 +17,17 @@ DXGI_FORMAT BufferLayoutFormatToDXGI(const BufferLayoutFormat &format) {
 	}
 }
 
+D3D11_PRIMITIVE_TOPOLOGY BufferLayoutTopologyToD3D11(
+	const BufferLayoutTopology &topology
+) {
+	switch (topology) {
+		case BufferLayoutTopology::POINTS:
+			return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+		default:
+			return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+	}
+}
+
 CD3D11ManagedBufferLayout::CD3D11ManagedBufferLayout()
 	: layout(nullptr), desc{}, context(nullptr){};
 
@@ -115,6 +126,9 @@ void CD3D11ManagedBufferLayout::BindAsVertexBuffer() {
 	);
 
 	deviceContext->IASetInputLayout(layout);
+	deviceContext->IASetPrimitiveTopology(
+		BufferLayoutTopologyToD3D11(desc.topology)
+	);
 	for (int slot = 0; slot < 8; slot++) {
 		if (buffers[slot] != nullptr) {
 			buffers[slot]->BindToPipeline(ShaderType::Vertex, slot);

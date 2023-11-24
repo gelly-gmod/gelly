@@ -4,7 +4,7 @@
 static const float2 corners[4] = {
     float2(0.0, 1.0), float2(0.0, 0.0),
     float2(1.0, 1.0), float2(1.0, 0.0)
-}
+};
 
 static const float particleRadius = 3;
 
@@ -26,7 +26,7 @@ void main(point VS_INPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
 
         output.Pos = position;
         output.Tex = tex;
-        
+
         stream.Append(output);
     }
 }

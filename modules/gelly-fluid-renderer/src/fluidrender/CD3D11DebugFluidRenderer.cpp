@@ -4,10 +4,33 @@
 
 #include <stdexcept>
 
+#include "SplattingGS.h"
+#include "SplattingPS.h"
+#include "SplattingVS.h"
 #include "fluidrender/util/CBuffers.h"
 
 CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
 	: context(nullptr), simData(nullptr), buffers({}) {}
+
+void CD3D11DebugFluidRenderer::CreateShaders() {
+	shaders.splattingGS = context->CreateShader(
+		gsc::SplattingGS::GetBytecode(),
+		gsc::SplattingGS::GetBytecodeSize(),
+		ShaderType::Geometry
+	);
+
+	shaders.splattingPS = context->CreateShader(
+		gsc::SplattingPS::GetBytecode(),
+		gsc::SplattingPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
+
+	shaders.splattingVS = context->CreateShader(
+		gsc::SplattingVS::GetBytecode(),
+		gsc::SplattingVS::GetBytecodeSize(),
+		ShaderType::Vertex
+	);
+}
 
 void CD3D11DebugFluidRenderer::CreateBuffers() {
 	if (maxParticles <= 0) {
@@ -27,6 +50,17 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 	buffers.positions = context->CreateBuffer(positionBufferDesc);
 	buffers.fluidRenderCBuffer =
 		util::CreateCBuffer<FluidRenderCBuffer>(context);
+
+	BufferLayoutDesc positionLayoutDesc = {};
+	positionLayoutDesc.items[0] = {
+		0, "SV_POSITION", 0, BufferLayoutFormat::FLOAT4
+	};
+	positionLayoutDesc.itemCount = 1;
+	positionLayoutDesc.vertexShader = shaders.splattingVS;
+	positionLayoutDesc.topology = BufferLayoutTopology::POINTS;
+
+	buffers.positionsLayout = context->CreateBufferLayout(positionLayoutDesc);
+	buffers.positionsLayout->AttachBufferAtSlot(buffers.positions, 0);
 }
 
 void CD3D11DebugFluidRenderer::CreateTextures() {
@@ -102,7 +136,12 @@ void CD3D11DebugFluidRenderer::Render() {
 		);
 	}
 
-	// .. unimplemented as there is still a few things to figure out.
+	// First we'll render out the depth.
+	internalTextures.unfilteredDepth->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0
+	);
+
+	buffers.positionsLayout->BindAsVertexBuffer();
 }
 
 void CD3D11DebugFluidRenderer::SetSettings(

@@ -26,9 +26,14 @@ struct BufferLayoutItem {
 	BufferLayoutFormat format;
 };
 
+enum class BufferLayoutTopology {
+	POINTS,
+};
+
 struct BufferLayoutDesc {
 	BufferLayoutItem items[8];
 	uint8_t itemCount;
+	BufferLayoutTopology topology;
 	GellyObserverPtr<IManagedShader> vertexShader;
 };
 }  // namespace Gelly
@@ -50,7 +55,9 @@ public:
 	virtual void Create() = 0;
 	virtual void Destroy() = 0;
 
-	virtual void AttachBufferAtSlot(GellyObserverPtr<IManagedBuffer> buffer, uint8_t slot) = 0;
+	virtual void AttachBufferAtSlot(
+		GellyObserverPtr<IManagedBuffer> buffer, uint8_t slot
+	) = 0;
 
 	virtual void BindAsVertexBuffer() = 0;
 };

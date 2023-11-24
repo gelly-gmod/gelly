@@ -15,4 +15,5 @@ PS_OUTPUT main(GS_OUTPUT input) {
     normal.z = sqrt(1.0 - magnitude);
 
     output.DepthOut = float4(normal * 0.5 + 0.5, 1.0); // for debugging
+    return output;
 }

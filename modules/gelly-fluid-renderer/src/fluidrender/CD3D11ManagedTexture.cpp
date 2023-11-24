@@ -165,3 +165,41 @@ void *CD3D11ManagedTexture::GetResource(TextureResource resource) {
 			return nullptr;
 	}
 }
+
+void CD3D11ManagedTexture::BindToPipeline(
+	const TextureBindStage stage, const uint8_t slot
+) {
+	if (!context) {
+		throw std::logic_error(
+			"CD3D11ManagedTexture::BindToPipeline: context is null."
+		);
+	}
+
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	switch (stage) {
+		case TextureBindStage::PIXEL_SHADER_READ:
+			if (srv == nullptr) {
+				throw std::logic_error(
+					"CD3D11ManagedTexture::BindToPipeline: SRV is null."
+				);
+			}
+
+			deviceContext->PSSetShaderResources(slot, 1, &srv);
+			break;
+		case TextureBindStage::RENDER_TARGET_OUTPUT:
+			if (rtv == nullptr) {
+				throw std::logic_error(
+					"CD3D11ManagedTexture::BindToPipeline: RTV is null."
+				);
+			}
+
+			// TODO: Add a depth buffer interface, and then use it here.
+			deviceContext->OMSetRenderTargets(1, &rtv, nullptr);
+			break;
+		default:
+			break;
+	}
+}

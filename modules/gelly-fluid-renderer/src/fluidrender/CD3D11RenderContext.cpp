@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "fluidrender/CD3D11ManagedBuffer.h"
+#include "fluidrender/CD3D11ManagedBufferLayout.h"
 #include "fluidrender/CD3D11ManagedShader.h"
 #include "fluidrender/CD3D11to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
@@ -143,6 +144,16 @@ GellyObserverPtr<IManagedBuffer> CD3D11RenderContext::CreateBuffer(
 	buffer->AttachToContext(this);
 	buffer->Create();
 	return buffer;
+}
+
+GellyInterfaceVal<IManagedBufferLayout> CD3D11RenderContext::CreateBufferLayout(
+	const BufferLayoutDesc &desc
+) {
+	auto *layout = new CD3D11ManagedBufferLayout();
+	layout->SetLayoutDesc(desc);
+	layout->AttachToContext(this);
+	layout->Create();
+	return layout;
 }
 
 void CD3D11RenderContext::DestroyTexture(const char *name) {

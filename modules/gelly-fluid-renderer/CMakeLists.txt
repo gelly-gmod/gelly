@@ -44,5 +44,6 @@ add_custom_target(
 
 add_dependencies(
         gelly_fluid_renderer
+        gsc
         GellyShaderCompile
 )

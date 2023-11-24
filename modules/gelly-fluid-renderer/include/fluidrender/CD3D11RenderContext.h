@@ -55,6 +55,10 @@ public:
 	GellyObserverPtr<IManagedBuffer> CreateBuffer(const BufferDesc &desc
 	) override;
 
+	GellyInterfaceVal<IManagedBufferLayout> CreateBufferLayout(
+		const BufferLayoutDesc &desc
+	) override;
+
 	void DestroyTexture(const char *name) override;
 
 	void SetDimensions(uint16_t width, uint16_t height) override;

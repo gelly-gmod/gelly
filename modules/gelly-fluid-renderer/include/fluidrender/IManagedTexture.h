@@ -11,6 +11,11 @@
 class IRenderContext;
 
 namespace Gelly {
+enum class TextureBindStage : uint8_t {
+	PIXEL_SHADER_READ,
+	RENDER_TARGET_OUTPUT,
+};
+
 enum class TextureFormat : uint8_t {
 	R8G8B8A8_UNORM,
 	R32G32B32A32_FLOAT,
@@ -122,6 +127,8 @@ public:
 	virtual void *GetSharedHandle() = 0;
 
 	virtual void *GetResource(TextureResource resource) = 0;
+
+	virtual void BindToPipeline(TextureBindStage stage, uint8_t slot) = 0;
 };
 
 #endif	// GELLY_IMANAGEDTEXTURE_H
