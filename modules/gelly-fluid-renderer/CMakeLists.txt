@@ -16,7 +16,8 @@ add_library(
         include/fluidrender/CD3D11ManagedShader.h
         include/fluidrender/IManagedBufferLayout.h
         include/fluidrender/CD3D11ManagedBufferLayout.h
-        src/fluidrender/CD3D11ManagedBufferLayout.cpp)
+        src/fluidrender/CD3D11ManagedBufferLayout.cpp
+        include/fluidrender/util/CBuffers.h)
 
 target_include_directories(
         gelly_fluid_renderer

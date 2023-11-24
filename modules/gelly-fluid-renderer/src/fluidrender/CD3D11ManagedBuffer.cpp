@@ -171,6 +171,28 @@ void CD3D11ManagedBuffer::BindToPipeline(
 	}
 }
 
+void CD3D11ManagedBuffer::Modify(const ModifierFn &modifier) {
+	if ((desc.usage & BufferUsage::DYNAMIC) == 0) {
+		throw std::runtime_error(
+			"CD3D11ManagedBuffer::Modify called on a non-dynamic buffer"
+		);
+	}
+
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	D3D11_MAPPED_SUBRESOURCE mappedSubresource = {};
+	DX("Failed to map D3D11 buffer",
+	   deviceContext->Map(
+		   buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource
+	   ));
+
+	modifier(mappedSubresource.pData);
+
+	deviceContext->Unmap(buffer, 0);
+}
+
 GellyObserverPtr<ID3D11ShaderResourceView> CD3D11ManagedBuffer::GetSRV() const {
 	return srv;
 }

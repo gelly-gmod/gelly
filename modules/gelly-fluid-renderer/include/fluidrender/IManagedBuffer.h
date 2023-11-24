@@ -2,6 +2,7 @@
 #define GELLY_IMANAGEDBUFFER_H
 
 #include <cstdint>
+#include <functional>
 
 #include "GellyInterface.h"
 #include "IManagedShader.h"
@@ -84,6 +85,9 @@ class IRenderContext;
 
 gelly_interface IManagedBuffer {
 public:
+	using RawBufferPtr = void *;
+	using ModifierFn = std::function<void(RawBufferPtr)>;
+
 	virtual ~IManagedBuffer() = default;
 
 	virtual void SetDesc(const BufferDesc &desc) = 0;
@@ -101,6 +105,15 @@ public:
 	virtual void *GetBufferResource() = 0;
 
 	virtual void BindToPipeline(ShaderType shaderType, uint8_t slot) = 0;
+
+	/**
+	 * \brief Allows you to modify the buffer data. Anything in the modifier
+	 * should not be held on to.
+	 * \note Will throw if the buffer is not dynamic.
+	 * \param modifier A function which takes a
+	 * pointer to the raw buffer data and modifies it.
+	 */
+	virtual void Modify(const ModifierFn &modifier) = 0;
 };
 
 #endif	// GELLY_IMANAGEDBUFFER_H

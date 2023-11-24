@@ -31,6 +31,7 @@ public:
 	void *GetBufferResource() override;
 
 	void BindToPipeline(ShaderType shaderType, uint8_t slot) override;
+	void Modify(const ModifierFn &modifier) override;
 
 	GellyObserverPtr<ID3D11ShaderResourceView> GetSRV() const;
 	GellyObserverPtr<ID3D11UnorderedAccessView> GetUAV() const;
