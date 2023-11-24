@@ -15,6 +15,9 @@ void ShaderFileCompiler::CompileToBytecode() {
 		case ShaderProfile::PS:
 			fxcProfile = "ps_5_0";
 			break;
+		case ShaderProfile::GS:
+			fxcProfile = "gs_5_0";
+			break;
 		default:
 			throw std::runtime_error("Unknown shader profile");
 			break;

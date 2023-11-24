@@ -53,6 +53,10 @@ void ShaderFile::ComputeFriendlyNameAndProfile() {
 			shaderTypeString = "PS";
 			profile = ShaderProfile::PS;
 			break;
+		case 'g':
+			shaderTypeString = "GS";
+			profile = ShaderProfile::GS;
+			break;
 		default:
 			throw std::runtime_error("Unknown shader type");
 			break;

@@ -29,8 +29,15 @@ private:
 		GellyObserverPtr<IManagedTexture> unfilteredDepth;
 	} internalTextures{};
 
+	struct {
+		GellyObserverPtr<IManagedShader> splattingPS;
+		GellyObserverPtr<IManagedShader> splattingVS;
+		GellyObserverPtr<IManagedShader> splattingGS;
+	} shaders;
+
 	void CreateBuffers();
 	void CreateTextures();
+	void CreateShaders();
 
 public:
 	CD3D11DebugFluidRenderer();

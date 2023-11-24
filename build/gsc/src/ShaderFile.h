@@ -9,6 +9,7 @@ namespace fs = std::filesystem;
 enum class ShaderProfile {
 	PS,
 	VS,
+	GS,
 };
 
 class ShaderFile {
