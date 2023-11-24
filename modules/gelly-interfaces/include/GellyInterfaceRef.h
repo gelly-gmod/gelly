@@ -9,4 +9,7 @@ using GellyInterfaceCRef = const GellyObserverPtr<T> &;
 template <typename T>
 using GellyInterfaceRef = GellyObserverPtr<T> &;
 
+template <typename T>
+using GellyInterfaceVal = GellyObserverPtr<T>;
+
 #endif	// GELLYINTERFACEREF_H
