@@ -2,6 +2,7 @@
 #define GELLY_CD3D11DEBUGFLUIDRENDERER_H
 
 #include <GellyFluidSim.h>
+#include <GellyInterfaceRef.h>
 
 #include "CD3D11DebugFluidTextures.h"
 #include "CD3D11ManagedBuffer.h"
@@ -10,30 +11,40 @@
 
 class CD3D11DebugFluidRenderer : public IFluidRenderer {
 private:
-	GellyObserverPtr<IRenderContext> context;
+	struct FluidRenderCBuffer {
+		XMFLOAT4X4 view;
+		XMFLOAT4X4 proj;
+		XMFLOAT4X4 invView;
+		XMFLOAT4X4 invProj;
+	};
+
+	GellyInterfaceVal<IRenderContext> context;
 	/**
 	 * The particle data comes from here, but the renderer does not own it.
 	 */
-	GellyObserverPtr<ISimData> simData;
+	GellyInterfaceVal<ISimData> simData;
 	CD3D11DebugFluidTextures outputTextures;
 
 	Gelly::FluidRenderSettings settings;
 	int maxParticles{};
 
+	FluidRenderCBuffer cbufferData{};
+
 	struct {
-		GellyObserverPtr<IManagedBuffer> positions;
-		GellyObserverPtr<IManagedBufferLayout> positionsLayout;
+		GellyInterfaceVal<IManagedBuffer> positions;
+		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
+		GellyInterfaceVal<IManagedBuffer> fluidRenderCBuffer;
 	} buffers;
 
 	struct {
-		GellyObserverPtr<IManagedTexture> unfilteredDepth;
+		GellyInterfaceVal<IManagedTexture> unfilteredDepth;
 	} internalTextures{};
 
 	struct {
-		GellyObserverPtr<IManagedShader> splattingPS;
-		GellyObserverPtr<IManagedShader> splattingVS;
-		GellyObserverPtr<IManagedShader> splattingGS;
-	} shaders;
+		GellyInterfaceVal<IManagedShader> splattingPS;
+		GellyInterfaceVal<IManagedShader> splattingVS;
+		GellyInterfaceVal<IManagedShader> splattingGS;
+	} shaders{};
 
 	void CreateBuffers();
 	void CreateTextures();
@@ -49,6 +60,7 @@ public:
 	void Render() override;
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;
+	void SetPerFrameParams(const Gelly::FluidRenderParams &params) override;
 };
 
 #endif	// GELLY_CD3D11DEBUGFLUIDRENDERER_H

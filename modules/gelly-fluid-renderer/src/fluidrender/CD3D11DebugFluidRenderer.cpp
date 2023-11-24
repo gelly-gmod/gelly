@@ -4,6 +4,8 @@
 
 #include <stdexcept>
 
+#include "fluidrender/util/CBuffers.h"
+
 CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
 	: context(nullptr), simData(nullptr), buffers({}) {}
 
@@ -21,9 +23,10 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 	positionBufferDesc.byteWidth =
 		sizeof(SimFloat4) * simData->GetMaxParticles();
 	positionBufferDesc.stride = sizeof(SimFloat4);
-	positionBufferDesc.initialData = nullptr;
 
 	buffers.positions = context->CreateBuffer(positionBufferDesc);
+	buffers.fluidRenderCBuffer =
+		util::CreateCBuffer<FluidRenderCBuffer>(context);
 }
 
 void CD3D11DebugFluidRenderer::CreateTextures() {
@@ -106,4 +109,15 @@ void CD3D11DebugFluidRenderer::SetSettings(
 	const Gelly::FluidRenderSettings &settings
 ) {
 	this->settings = settings;
+}
+
+void CD3D11DebugFluidRenderer::SetPerFrameParams(
+	const Gelly::FluidRenderParams &params
+) {
+	cbufferData.view = params.view;
+	cbufferData.proj = params.proj;
+	cbufferData.invView = params.invView;
+	cbufferData.invProj = params.invProj;
+
+	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
 }
