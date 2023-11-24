@@ -118,7 +118,7 @@ GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
 		throw std::logic_error("Texture already exists");
 	}
 
-	auto texture = new CD3D11to11SharedTexture(sharedHandle);
+	const auto texture = new CD3D11to11SharedTexture(sharedHandle);
 	texture->AttachToContext(this);
 	textures[name] = texture;
 	return texture;
@@ -211,6 +211,11 @@ void CD3D11RenderContext::Draw(
 	const uint32_t vertexCount, const uint32_t startVertex
 ) {
 	deviceContext->Draw(vertexCount, startVertex);
+}
+
+void CD3D11RenderContext::ResetPipeline() {
+	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+	deviceContext->ClearState();
 }
 
 CD3D11RenderContext::~CD3D11RenderContext() {

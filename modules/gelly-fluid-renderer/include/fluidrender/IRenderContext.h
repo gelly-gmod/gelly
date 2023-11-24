@@ -103,6 +103,12 @@ public:
 
 	virtual void Draw(uint32_t vertexCount, uint32_t startVertex) = 0;
 
+	/**
+	 * \brief Causes everything to be reset to their original state. This should be used after a Draw
+	 * command.
+	 */
+	virtual void ResetPipeline() = 0;
+
 #ifdef _DEBUG
 	virtual void PrintDebugInfo() = 0;
 #endif

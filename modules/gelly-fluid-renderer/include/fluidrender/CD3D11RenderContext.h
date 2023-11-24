@@ -68,6 +68,8 @@ public:
 
 	void Draw(uint32_t vertexCount, uint32_t startVertex) override;
 
+	void ResetPipeline() override;
+
 #ifdef _DEBUG
 	void PrintDebugInfo() override;
 #endif

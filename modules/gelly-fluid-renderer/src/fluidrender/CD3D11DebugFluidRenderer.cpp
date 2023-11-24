@@ -33,6 +33,13 @@ void CD3D11DebugFluidRenderer::CreateShaders() {
 }
 
 void CD3D11DebugFluidRenderer::CreateBuffers() {
+	if (!shaders.splattingVS) {
+		throw std::logic_error(
+			"CD3D11DebugFluidRenderer::CreateBuffers: shaders.splattingVS is "
+			"null."
+		);
+	}
+
 	if (maxParticles <= 0) {
 		throw std::logic_error(
 			"CD3D11DebugFluidRenderer::CreateBuffers: maxParticles is not set."
@@ -117,6 +124,8 @@ void CD3D11DebugFluidRenderer::AttachToContext(
 	}
 
 	this->context = context;
+	CreateTextures();
+	CreateShaders();
 }
 
 GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
@@ -152,6 +161,9 @@ void CD3D11DebugFluidRenderer::Render() {
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
 
 	context->Draw(maxParticles, 0);
+	// we're not using a swapchain, so we need to queue up work manually
+	context->SubmitWork();
+	context->ResetPipeline();
 }
 
 void CD3D11DebugFluidRenderer::SetSettings(

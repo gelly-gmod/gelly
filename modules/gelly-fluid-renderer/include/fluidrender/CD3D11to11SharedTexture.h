@@ -3,13 +3,14 @@
 
 #include <d3d11.h>
 
+#include "CD3D11ManagedTexture.h"
 #include "GellyObserverPtr.h"
 #include "IManagedTexture.h"
 /**
  * Implements a shared texture which can be used for inter D3D11 device
  * textures.
  */
-class CD3D11to11SharedTexture : public IManagedTexture {
+class CD3D11to11SharedTexture : public CD3D11ManagedTexture {
 private:
 	IRenderContext *context;
 
