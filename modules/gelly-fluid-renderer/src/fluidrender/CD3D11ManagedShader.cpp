@@ -68,6 +68,21 @@ void CD3D11ManagedShader::Create() {
 					"Failed to create pixel shader: " + std::to_string(result)
 				);
 			}
+			shader = pixelShader;
+			break;
+		}
+		case ShaderType::Geometry: {
+			ID3D11GeometryShader *geometryShader;
+			if (const auto result = device->CreateGeometryShader(
+					bytecode, bytecodeSize, nullptr, &geometryShader
+				);
+				FAILED(result)) {
+				throw std::runtime_error(
+					"Failed to create geometry shader: " +
+					std::to_string(result)
+				);
+			}
+			shader = geometryShader;
 			break;
 		}
 	}
@@ -84,6 +99,11 @@ void CD3D11ManagedShader::Destroy() {
 			case ShaderType::Pixel: {
 				const auto pixelShader = std::get<ID3D11PixelShader *>(shader);
 				pixelShader->Release();
+			} break;
+			case ShaderType::Geometry: {
+				const auto geometryShader =
+					std::get<ID3D11GeometryShader *>(shader);
+				geometryShader->Release();
 			} break;
 		}
 		shader = std::monostate{};
@@ -108,6 +128,11 @@ void CD3D11ManagedShader::Bind() {
 		case ShaderType::Pixel:
 			deviceContext->PSSetShader(
 				std::get<ID3D11PixelShader *>(shader), nullptr, 0
+			);
+			break;
+		case ShaderType::Geometry:
+			deviceContext->GSSetShader(
+				std::get<ID3D11GeometryShader *>(shader), nullptr, 0
 			);
 			break;
 	}

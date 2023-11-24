@@ -7,6 +7,7 @@
 enum class ShaderType {
 	Vertex,
 	Pixel,
+	Geometry
 };
 
 class IRenderContext;

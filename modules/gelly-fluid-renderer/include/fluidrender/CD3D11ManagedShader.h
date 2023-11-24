@@ -10,7 +10,11 @@
 
 class CD3D11ManagedShader : public IManagedShader {
 private:
-	std::variant<std::monostate, ID3D11VertexShader *, ID3D11PixelShader *>
+	std::variant<
+		std::monostate,
+		ID3D11VertexShader *,
+		ID3D11PixelShader *,
+		ID3D11GeometryShader *>
 		shader;
 
 	GellyObserverPtr<IRenderContext> context;
