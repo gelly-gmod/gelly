@@ -26,6 +26,17 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 	buffers.positions = context->CreateBuffer(positionBufferDesc);
 }
 
+void CD3D11DebugFluidRenderer::CreateTextures() {
+	TextureDesc unfilteredDepthDesc = {};
+	unfilteredDepthDesc.isFullscreen = true;
+	unfilteredDepthDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+	unfilteredDepthDesc.format = TextureFormat::R32G32B32A32_FLOAT;
+
+	internalTextures.unfilteredDepth = context->CreateTexture(
+		"splatrenderer/unfilteredDepth", unfilteredDepthDesc
+	);
+}
+
 void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
 	if (simData == nullptr) {
 		throw std::invalid_argument(
@@ -35,7 +46,8 @@ void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
 
 	if (simData->GetAPI() != SimContextAPI::D3D11) {
 		throw std::logic_error(
-			"CD3D11DebugFluidRenderer::SetSimData: simData must be backed by "
+			"CD3D11DebugFluidRenderer::SetSimData: simData must be backed "
+			"by "
 			"D3D11"
 		);
 	}
@@ -54,13 +66,15 @@ void CD3D11DebugFluidRenderer::AttachToContext(
 ) {
 	if (context == nullptr) {
 		throw std::invalid_argument(
-			"CD3D11DebugFluidRenderer::AttachToContext: context cannot be null."
+			"CD3D11DebugFluidRenderer::AttachToContext: context cannot be "
+			"null."
 		);
 	}
 
 	if (context->GetRenderAPI() != ContextRenderAPI::D3D11) {
 		throw std::logic_error(
-			"CD3D11DebugFluidRenderer::AttachToContext: context must be backed "
+			"CD3D11DebugFluidRenderer::AttachToContext: context must be "
+			"backed "
 			"by D3D11"
 		);
 	}
@@ -69,7 +83,7 @@ void CD3D11DebugFluidRenderer::AttachToContext(
 }
 
 GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
-	return &textures;
+	return &outputTextures;
 }
 
 void CD3D11DebugFluidRenderer::Render() {
