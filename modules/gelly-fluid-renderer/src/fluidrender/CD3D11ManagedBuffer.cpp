@@ -141,6 +141,9 @@ void CD3D11ManagedBuffer::BindToPipeline(
 				case ShaderType::Pixel:
 					deviceContext->PSSetConstantBuffers(slot, 1, &buffer);
 					break;
+				case ShaderType::Geometry:
+					deviceContext->GSSetConstantBuffers(slot, 1, &buffer);
+					break;
 			}
 			break;
 		case BufferType::SHADER_RESOURCE:
@@ -150,6 +153,9 @@ void CD3D11ManagedBuffer::BindToPipeline(
 					break;
 				case ShaderType::Pixel:
 					deviceContext->PSSetShaderResources(slot, 1, &srv);
+					break;
+				case ShaderType::Geometry:
+					deviceContext->GSSetShaderResources(slot, 1, &srv);
 					break;
 			}
 		case BufferType::VERTEX: {

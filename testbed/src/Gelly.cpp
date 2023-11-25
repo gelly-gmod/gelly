@@ -98,6 +98,16 @@ void testbed::InitializeGelly(
 		logger->Info("Creating Gelly GBuffers...");
 		CreateGellyTextures();
 		logger->Info("Gelly GBuffers successfully created and linked");
+
+#ifdef GELLY_OVERRIDE_RENDERDOC
+		logger->Info("Enabling Gelly RenderDoc captures...");
+		if (!fluidRenderer->EnableRenderDocCaptures()) {
+			logger->Warning(
+				"Failed to enable Gelly RenderDoc captures. This is normal "
+				"if RenderDoc is not running or if the API has changed."
+			);
+		}
+#endif
 	} catch (const std::exception &e) {
 #ifdef _DEBUG
 		renderContext->PrintDebugInfo();

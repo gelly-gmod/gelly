@@ -1,6 +1,8 @@
 # Since Testbed is programmed in tandem with Gelly, we do skip
 # the part where we would add the gelly subdirectory.
 
+option(GELLY_OVERRIDE_RENDERDOC "" ON)
+
 set(CMAKE_CXX_STANDARD 17)
 
 set(IMGUI_SOURCES
@@ -59,6 +61,9 @@ target_include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy/public
         ${GELLY_INCLUDE_DIRS}
 )
+
+# Expose GELLY_OVERRIDE_RENDERDOC to the executable
+target_compile_definitions(testbed PRIVATE GELLY_OVERRIDE_RENDERDOC=${GELLY_OVERRIDE_RENDERDOC})
 
 # https://github.com/libsdl-org/SDL/issues/6399#issuecomment-1280612287
 if (WIN32)
