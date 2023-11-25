@@ -111,3 +111,5 @@ void testbed::InitializeGelly(
 IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }
 
 IFluidRenderer *testbed::GetGellyFluidRenderer() { return fluidRenderer; }
+
+IRenderContext *testbed::GetGellyRenderContext() { return renderContext; }

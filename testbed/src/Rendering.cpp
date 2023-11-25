@@ -71,8 +71,8 @@ void CreateRasterizerState() {
 		rasterizerState->Release();
 	}
 
-	bool wireframe = rasterizerFlags & RASTERIZER_FLAG_WIREFRAME;
-	bool cull = !(rasterizerFlags & RASTERIZER_FLAG_NOCULL);
+	const bool wireframe = rasterizerFlags & RASTERIZER_FLAG_WIREFRAME;
+	const bool cull = !(rasterizerFlags & RASTERIZER_FLAG_NOCULL);
 
 	D3D11_RASTERIZER_DESC rasterizerDesc = {};
 	rasterizerDesc.FillMode =
@@ -102,7 +102,7 @@ void CreateImGUIElements() {
 
 		if (ImGui::CollapsingHeader("Textures")) {
 			ImGui::Image(
-				GetTextureSRV(GELLY_ALBEDO_TEXNAME),
+				GetTextureSRV(GELLY_DEPTH_TEXNAME),
 				ImVec2(128, 128),
 				ImVec2(0, 0),
 				ImVec2(1, 1)
@@ -213,6 +213,37 @@ void GenerateCameraMatrices(
 	invMvpMatrix = XMMatrixInverse(nullptr, invMvpMatrix);
 
 	XMStoreFloat4x4(invMvp, invMvpMatrix);
+}
+
+void GenerateGellyCameraMatrices(
+	const Camera &camera,
+	XMFLOAT4X4 *view,
+	XMFLOAT4X4 *proj,
+	XMFLOAT4X4 *invView,
+	XMFLOAT4X4 *invProj
+) {
+	XMStoreFloat4x4(
+		proj,
+		XMMatrixPerspectiveFovRH(
+			XMConvertToRadians(camera.fov),
+			camera.aspectRatio,
+			camera.nearPlane,
+			camera.farPlane
+		)
+	);
+
+	const XMVECTOR dir = XMLoadFloat3(&camera.dir);
+	const XMVECTOR pos = XMLoadFloat3(&camera.position);
+	const XMVECTOR up = XMLoadFloat3(&UP_VECTOR);
+
+	XMStoreFloat4x4(view, XMMatrixLookToRH(pos, dir, up));
+
+	// Invert
+	const XMMATRIX viewMatrix = XMLoadFloat4x4(view);
+	const XMMATRIX projMatrix = XMLoadFloat4x4(proj);
+
+	XMStoreFloat4x4(invView, XMMatrixInverse(nullptr, viewMatrix));
+	XMStoreFloat4x4(invProj, XMMatrixInverse(nullptr, projMatrix));
 }
 
 void LoadGenericWorldLit() {
@@ -506,8 +537,6 @@ void testbed::EndFrame() {
 			InitializeRenderer(logger);
 		}
 	}
-
-	GetGellyFluidRenderer()->Render();
 }
 
 MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
@@ -640,6 +669,33 @@ void testbed::RenderWorldList(
 		{
 			ZoneScopedN("Draw");
 			deviceContext->DrawIndexed(mesh.indexCount, 0, 0);
+		}
+	}
+
+	{
+		ZoneScopedN("Gelly render");
+		Gelly::FluidRenderParams params{};
+
+		{
+			ZoneScopedN("Matrix gen");
+			GenerateGellyCameraMatrices(
+				camera,
+				&params.view,
+				&params.proj,
+				&params.invView,
+				&params.invProj
+			);
+		}
+
+		{
+			ZoneScopedN("Fluid render");
+			auto *fluidRenderer = GetGellyFluidRenderer();
+			fluidRenderer->SetPerFrameParams(params);
+			fluidRenderer->Render();
+
+#ifdef _DEBUG
+			GetGellyRenderContext()->PrintDebugInfo();
+#endif
 		}
 	}
 }

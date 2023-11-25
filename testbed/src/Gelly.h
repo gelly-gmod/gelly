@@ -14,5 +14,6 @@ namespace testbed {
 void InitializeGelly(ID3D11Device *rendererDevice, ILogger *newLogger);
 IFluidSimulation *GetGellyFluidSim();
 IFluidRenderer *GetGellyFluidRenderer();
+IRenderContext *GetGellyRenderContext();
 }  // namespace testbed
 #endif	// GELLY_H

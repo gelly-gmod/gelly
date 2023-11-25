@@ -156,28 +156,23 @@ void CD3D11DebugFluidRenderer::Render() {
 	}
 
 	// First we'll render out the depth.
-	// internalTextures.unfilteredDepth->BindToPipeline(
-	// 	TextureBindStage::RENDER_TARGET_OUTPUT, 0
-	// );
-	//
-	// buffers.positionsLayout->BindAsVertexBuffer();
-	//
-	// shaders.splattingGS->Bind();
-	// shaders.splattingPS->Bind();
-	// shaders.splattingVS->Bind();
-	//
-	// buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-	// buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
-	// buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
-	//
-	// context->Draw(maxParticles, 0);
-	// // we're not using a swapchain, so we need to queue up work manually
-	// context->SubmitWork();
-	// context->ResetPipeline();
-
-	constexpr float clearColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 	outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH)
-		->Clear(clearColor);
+		->BindToPipeline(TextureBindStage::RENDER_TARGET_OUTPUT, 0);
+
+	buffers.positionsLayout->BindAsVertexBuffer();
+
+	shaders.splattingGS->Bind();
+	shaders.splattingPS->Bind();
+	shaders.splattingVS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+
+	context->Draw(maxParticles, 0);
+	// we're not using a swapchain, so we need to queue up work manually
+	context->SubmitWork();
+	context->ResetPipeline();
 }
 
 void CD3D11DebugFluidRenderer::SetSettings(

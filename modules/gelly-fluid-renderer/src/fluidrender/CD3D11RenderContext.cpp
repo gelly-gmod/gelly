@@ -211,6 +211,12 @@ void CD3D11RenderContext::SubmitWork() {
 void CD3D11RenderContext::Draw(
 	const uint32_t vertexCount, const uint32_t startVertex
 ) {
+	D3D11_VIEWPORT viewport = {};
+	viewport.Width = static_cast<float>(width);
+	viewport.Height = static_cast<float>(height);
+	viewport.MaxDepth = 1.0f;
+	viewport.MinDepth = 0.0f;
+	deviceContext->RSSetViewports(1, &viewport);
 	deviceContext->Draw(vertexCount, startVertex);
 }
 
