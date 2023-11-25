@@ -10,7 +10,7 @@ CD3D11DebugFluidTextures::CD3D11DebugFluidTextures()
 void CD3D11DebugFluidTextures::SetFeatureTexture(
 	FluidFeatureType feature, GellyObserverPtr<IManagedTexture> texture
 ) {
-	auto context = texture->GetParentContext();
+	const auto context = texture->GetParentContext();
 	if (context == nullptr) {
 		throw std::logic_error(
 			"CD3D11DebugFluidTextures::SetFeatureTexture() encountered a "
@@ -61,6 +61,4 @@ GellyObserverPtr<IManagedTexture> CD3D11DebugFluidTextures::GetFeatureTexture(
 	}
 }
 
-bool CD3D11DebugFluidTextures::IsInitialized() {
-	return albedo != nullptr && normal != nullptr && depth != nullptr;
-}
+bool CD3D11DebugFluidTextures::IsInitialized() { return depth != nullptr; }

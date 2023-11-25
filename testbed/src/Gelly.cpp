@@ -20,6 +20,7 @@ static IRenderContext *renderContext = nullptr;
 static IFluidRenderer *fluidRenderer = nullptr;
 
 static GellyObserverPtr<IManagedTexture> fluidAlbedoTexture;
+static GellyObserverPtr<IManagedTexture> fluidDepthTexture;
 
 constexpr int maxParticles = 1000;
 
@@ -33,15 +34,31 @@ void CreateGellyTextures() {
 	fluidAlbedoTextureInfo.width = WINDOW_WIDTH;
 	fluidAlbedoTextureInfo.height = WINDOW_HEIGHT;
 	fluidAlbedoTextureInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	fluidAlbedoTextureInfo.shared = true;
 
 	CreateFeatureTexture(GELLY_ALBEDO_TEXNAME, fluidAlbedoTextureInfo);
 	fluidAlbedoTexture = renderContext->CreateSharedTexture(
-		"testbed/albedo", GetTextureSharedHandle(GELLY_ALBEDO_TEXNAME)
+		"testbed/gelly/albedo", GetTextureSharedHandle(GELLY_ALBEDO_TEXNAME)
 	);
 
-	// Link the texture to the fluid renderer
+	FeatureTextureInfo fluidDepthTextureInfo{};
+	fluidDepthTextureInfo.width = WINDOW_WIDTH;
+	fluidDepthTextureInfo.height = WINDOW_HEIGHT;
+	fluidDepthTextureInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	fluidDepthTextureInfo.shared = true;
+
+	CreateFeatureTexture(GELLY_DEPTH_TEXNAME, fluidDepthTextureInfo);
+	fluidDepthTexture = renderContext->CreateSharedTexture(
+		"testbed/gelly/depth", GetTextureSharedHandle(GELLY_DEPTH_TEXNAME)
+	);
+
+	// Link the textures to the fluid renderer
 	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
 		FluidFeatureType::ALBEDO, fluidAlbedoTexture
+	);
+
+	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
+		FluidFeatureType::DEPTH, fluidDepthTexture
 	);
 }
 
@@ -92,3 +109,5 @@ void testbed::InitializeGelly(
 }
 
 IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }
+
+IFluidRenderer *testbed::GetGellyFluidRenderer() { return fluidRenderer; }

@@ -35,6 +35,7 @@ public:
 	void *GetResource(TextureResource resource) override;
 
 	void BindToPipeline(TextureBindStage stage, uint8_t slot) override;
+	void Clear(const float color[4]) override;
 };
 
 #endif	// GELLY_CD3D11MANAGEDTEXTURE_H

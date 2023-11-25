@@ -26,6 +26,7 @@ struct FeatureTextureInfo {
 	unsigned int width;
 	unsigned int height;
 	DXGI_FORMAT format;
+	bool shared = false;
 };
 
 struct UnownedTextureInfo {

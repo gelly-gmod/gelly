@@ -5,11 +5,14 @@
 
 #include "ILogger.h"
 #include "Memory.h"
+#include "fluidrender/IFluidRenderer.h"
 
 #define GELLY_ALBEDO_TEXNAME "gelly/albedo"
+#define GELLY_DEPTH_TEXNAME "gelly/depth"
 
 namespace testbed {
 void InitializeGelly(ID3D11Device *rendererDevice, ILogger *newLogger);
 IFluidSimulation *GetGellyFluidSim();
+IFluidRenderer *GetGellyFluidRenderer();
 }  // namespace testbed
 #endif	// GELLY_H

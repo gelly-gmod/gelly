@@ -120,6 +120,7 @@ GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
 
 	const auto texture = new CD3D11to11SharedTexture(sharedHandle);
 	texture->AttachToContext(this);
+	texture->Create();
 	textures[name] = texture;
 	return texture;
 }

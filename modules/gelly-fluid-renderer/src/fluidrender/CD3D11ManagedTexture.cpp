@@ -203,3 +203,16 @@ void CD3D11ManagedTexture::BindToPipeline(
 			break;
 	}
 }
+
+// array-pointer decay is used here, so thats why it takes a pointer
+void CD3D11ManagedTexture::Clear(const float *color) {
+	if (!context) {
+		throw std::logic_error("CD3D11ManagedTexture::Clear: context is null.");
+	}
+
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	deviceContext->ClearRenderTargetView(rtv, color);
+}

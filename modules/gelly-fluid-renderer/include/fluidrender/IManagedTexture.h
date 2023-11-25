@@ -129,6 +129,7 @@ public:
 	virtual void *GetResource(TextureResource resource) = 0;
 
 	virtual void BindToPipeline(TextureBindStage stage, uint8_t slot) = 0;
+	virtual void Clear(const float color[4]) = 0;
 };
 
 #endif	// GELLY_IMANAGEDTEXTURE_H

@@ -9,6 +9,7 @@
 #include <tracy/Tracy.hpp>
 #include <unordered_map>
 
+#include "Gelly.h"
 #include "Logging.h"
 #include "Scene.h"
 #include "Shaders.h"
@@ -98,6 +99,15 @@ void CreateImGUIElements() {
 	if (ImGui::CollapsingHeader("Gelly Integration")) {
 		ImGui::Text("Gelly renderer backend: D3D11");
 		ImGui::Text("Gelly simulation backend: FleX using D3D11");
+
+		if (ImGui::CollapsingHeader("Textures")) {
+			ImGui::Image(
+				GetTextureSRV(GELLY_ALBEDO_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+		}
 	}
 
 	if (ImGui::CollapsingHeader("Scene Info")) {
@@ -496,6 +506,8 @@ void testbed::EndFrame() {
 			InitializeRenderer(logger);
 		}
 	}
+
+	GetGellyFluidRenderer()->Render();
 }
 
 MeshReference testbed::CreateWorldMesh(const WorldMesh &mesh) {
