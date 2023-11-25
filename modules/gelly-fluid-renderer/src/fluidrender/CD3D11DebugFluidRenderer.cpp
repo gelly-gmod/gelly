@@ -9,6 +9,10 @@
 #include "SplattingVS.h"
 #include "fluidrender/util/CBuffers.h"
 
+#ifdef _DEBUG
+#include <windows.h>
+#endif
+
 CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
 	: context(nullptr), simData(nullptr), buffers({}) {}
 
@@ -155,6 +159,16 @@ void CD3D11DebugFluidRenderer::Render() {
 		);
 	}
 
+#ifdef _DEBUG
+	auto *device = static_cast<ID3D11Device *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
+	);
+
+	if (renderDocApi != nullptr) {
+		renderDocApi->StartFrameCapture(device, nullptr);
+	}
+#endif
+
 	// First we'll render out the depth.
 	outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH)
 		->BindToPipeline(TextureBindStage::RENDER_TARGET_OUTPUT, 0);
@@ -173,6 +187,12 @@ void CD3D11DebugFluidRenderer::Render() {
 	// we're not using a swapchain, so we need to queue up work manually
 	context->SubmitWork();
 	context->ResetPipeline();
+
+#ifdef _DEBUG
+	if (renderDocApi != nullptr) {
+		renderDocApi->EndFrameCapture(device, nullptr);
+	}
+#endif
 }
 
 void CD3D11DebugFluidRenderer::SetSettings(
@@ -191,3 +211,26 @@ void CD3D11DebugFluidRenderer::SetPerFrameParams(
 
 	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
 }
+
+#ifdef _DEBUG
+bool CD3D11DebugFluidRenderer::EnableRenderDocCaptures() {
+	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");
+	if (renderDocModule == nullptr) {
+		return false;
+	}
+
+	const auto RENDERDOC_GetAPI = reinterpret_cast<pRENDERDOC_GetAPI>(
+		GetProcAddress(renderDocModule, "RENDERDOC_GetAPI")
+	);
+
+	if (const auto ret = RENDERDOC_GetAPI(
+			eRENDERDOC_API_Version_1_1_2,
+			reinterpret_cast<void **>(&renderDocApi)
+		);
+		ret != 1) {
+		return false;
+	}
+
+	return true;
+}
+#endif

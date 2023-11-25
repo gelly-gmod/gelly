@@ -27,6 +27,8 @@ target_include_directories(
         ../gelly-interfaces/include
         ../gelly-d3d/include
         ../gelly-fluid-sim/include
+        # For the in-application API
+        vendor/renderdoc/renderdoc/api/app
 )
 
 target_link_libraries(

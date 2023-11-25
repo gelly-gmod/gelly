@@ -37,6 +37,16 @@ public:
 
 	virtual void SetSettings(const FluidRenderSettings &settings) = 0;
 	virtual void SetPerFrameParams(const FluidRenderParams &params) = 0;
+
+#ifdef _DEBUG
+	/**
+	 * \brief Uses RenderDoc to capture the fluid renderer's output. Normally,
+	 * RenderDoc will only capture the output of the user's application. \note
+	 * The API may change each time RenderDoc is updated, so this function may
+	 * return false if the RenderDoc being used is incompatible.
+	 */
+	virtual bool EnableRenderDocCaptures() = 0;
+#endif
 };
 
 #endif	// GELLY_IFLUIDRENDERER_H

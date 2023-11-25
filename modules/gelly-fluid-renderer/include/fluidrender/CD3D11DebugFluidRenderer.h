@@ -8,6 +8,7 @@
 #include "CD3D11ManagedBuffer.h"
 #include "IFluidRenderer.h"
 #include "IManagedBufferLayout.h"
+#include "renderdoc_app.h"
 
 class CD3D11DebugFluidRenderer : public IFluidRenderer {
 private:
@@ -46,6 +47,10 @@ private:
 		GellyInterfaceVal<IManagedShader> splattingGS;
 	} shaders{};
 
+#ifdef _DEBUG
+	RENDERDOC_API_1_1_2 *renderDocApi = nullptr;
+#endif
+
 	void CreateBuffers();
 	void CreateTextures();
 	void CreateShaders();
@@ -61,6 +66,8 @@ public:
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;
 	void SetPerFrameParams(const Gelly::FluidRenderParams &params) override;
+
+	bool EnableRenderDocCaptures() override;
 };
 
 #endif	// GELLY_CD3D11DEBUGFLUIDRENDERER_H
