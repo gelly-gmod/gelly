@@ -10,7 +10,7 @@
  * Implements a shared texture which can be used for inter D3D11 device
  * textures.
  */
-class CD3D11to11SharedTexture : public CD3D11ManagedTexture {
+class CD3D11to11SharedTexture : public IManagedTexture {
 private:
 	IRenderContext *context;
 
@@ -39,6 +39,9 @@ public:
 	void SetFullscreenSize() override;
 	void *GetSharedHandle() override;
 	void *GetResource(TextureResource resource) override;
+
+	void BindToPipeline(TextureBindStage stage, uint8_t slot) override;
+	void Clear(const float color[4]) override;
 };
 
 #endif	// GELLY_CD3D11TO11SHAREDTEXTURE_H

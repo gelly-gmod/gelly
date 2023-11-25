@@ -204,3 +204,43 @@ void *CD3D11to11SharedTexture::GetResource(TextureResource resource) {
 			return nullptr;
 	}
 }
+
+void CD3D11to11SharedTexture::BindToPipeline(
+	TextureBindStage stage, uint8_t slot
+) {
+	if (!context) {
+		throw std::logic_error(
+			"CD3D11to11SharedTexture::BindToPipeline() encountered a null "
+			"context"
+		);
+	}
+
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	switch (stage) {
+		case TextureBindStage::PIXEL_SHADER_READ:
+			deviceContext->PSSetShaderResources(slot, 1, &srv);
+			break;
+		case TextureBindStage::RENDER_TARGET_OUTPUT:
+			deviceContext->OMSetRenderTargets(1, &rtv, nullptr);
+			break;
+		default:
+			break;
+	}
+}
+
+void CD3D11to11SharedTexture::Clear(const float color[4]) {
+	if (!context) {
+		throw std::logic_error(
+			"CD3D11to11SharedTexture::Clear() encountered a null context"
+		);
+	}
+
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	deviceContext->ClearRenderTargetView(rtv, color);
+}
