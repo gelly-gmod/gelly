@@ -134,6 +134,7 @@ static void CreateRasterizerState() {
 	D3D11_RASTERIZER_DESC rasterizerDesc{};
 	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.DepthClipEnable = true;
 
 	auto hr = rendererDevice->CreateRasterizerState(
 		&rasterizerDesc, &ssfxRasterizerState
@@ -255,7 +256,7 @@ void testbed::UpdateSSFXEffectConstants(const char *name) {
 constexpr ID3D11ShaderResourceView *nullSRVs[8] = {nullptr};
 constexpr ID3D11SamplerState *nullSamplers[8] = {nullptr};
 
-void testbed::ApplySSFXEffect(const char *name) {
+void testbed::ApplySSFXEffect(const char *name, bool depthBufferEnabled) {
 	ZoneScoped;
 	const auto it = effects.find(name);
 	if (it == effects.end()) {
@@ -282,8 +283,16 @@ void testbed::ApplySSFXEffect(const char *name) {
 
 	{
 		ZoneScopedN("SSFX effect state setup");
+		if (depthBufferEnabled) {
+			rendererContext->OMSetDepthStencilState(
+				GetDepthBufferState(rendererDevice), 0
+			);
+		}
+
 		rendererContext->OMSetRenderTargets(
-			static_cast<UINT>(rtvs.size()), rtvs.data(), nullptr
+			static_cast<UINT>(rtvs.size()),
+			rtvs.data(),
+			depthBufferEnabled ? GetDepthBufferDSV(rendererDevice) : nullptr
 		);
 
 		rendererContext->PSSetShaderResources(

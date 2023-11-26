@@ -436,6 +436,7 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 	depthStencilStateDesc.DepthEnable = true;
 	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthStencilStateDesc.StencilEnable = false;
 
 	ERROR_IF_FAILED(
 		"Failed to create depth stencil state",
@@ -483,6 +484,24 @@ ID3D11RenderTargetView *testbed::GetBackBufferRTV(ID3D11Device *device) {
 	}
 
 	return backbufferRTV;
+}
+
+ID3D11DepthStencilView *testbed::GetDepthBufferDSV(ID3D11Device *device) {
+	if (device != ::device) {
+		logger->Error("Device does not match renderer device");
+		return nullptr;
+	}
+
+	return depthStencilView;
+}
+
+ID3D11DepthStencilState *testbed::GetDepthBufferState(ID3D11Device *device) {
+	if (device != ::device) {
+		logger->Error("Device does not match renderer device");
+		return nullptr;
+	}
+
+	return depthStencilState;
 }
 
 void testbed::StartFrame() {
@@ -628,7 +647,7 @@ void testbed::RenderWorldList(
 	deviceContext->IASetInputLayout(genericWorldLitInputLayout);
 
 	// Set up depth stencil
-	deviceContext->OMSetDepthStencilState(depthStencilState, 1);
+	deviceContext->OMSetDepthStencilState(depthStencilState, 0);
 	deviceContext->OMSetRenderTargets(4, cachedGBufferRTVs, depthStencilView);
 
 	// Render each object

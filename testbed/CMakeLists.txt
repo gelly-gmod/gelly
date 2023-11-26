@@ -65,7 +65,9 @@ target_include_directories(
 )
 
 # Expose GELLY_OVERRIDE_RENDERDOC to the executable
-target_compile_definitions(testbed PRIVATE GELLY_OVERRIDE_RENDERDOC=${GELLY_OVERRIDE_RENDERDOC})
+if (GELLY_OVERRIDE_RENDERDOC)
+    target_compile_definitions(testbed PRIVATE GELLY_OVERRIDE_RENDERDOC)
+endif ()
 
 # https://github.com/libsdl-org/SDL/issues/6399#issuecomment-1280612287
 if (WIN32)

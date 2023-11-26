@@ -24,11 +24,12 @@ PS_OUTPUT main(GS_OUTPUT input) {
     viewPosition /= viewPosition.w;
 
     float4 nudgedPosition = viewPosition;
-    nudgedPosition.z += normal.z * (particleRadius * 0.5f); // only the hemisphere of the normal is used
+    nudgedPosition.z += normal.z * (particleRadius);
     nudgedPosition = mul(g_Projection, nudgedPosition);
 
     float depth = nudgedPosition.z / nudgedPosition.w;
 
-    output.DepthOut = float4(depth, 0.0, 0.0, 1.f);
+    output.DepthOut = float4(depth, depth, depth, 1.f);
+    output.Depth = depth;
     return output;
 }

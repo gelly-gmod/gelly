@@ -39,7 +39,7 @@ SSFXEffect::ConstantDataPtr GetSSFXEffectConstantData(const char *name);
  * \param name Name of the effect
  */
 void UpdateSSFXEffectConstants(const char *name);
-void ApplySSFXEffect(const char *name);
+void ApplySSFXEffect(const char *name, bool depthBufferEnabled = false);
 
 template <typename T>
 inline void SetStructAsEffectConstant(
