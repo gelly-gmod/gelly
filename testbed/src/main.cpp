@@ -37,7 +37,7 @@ int main() {
 	ssfx::InitializeShadingSSFX(logger);
 	ssfx::InitializeCompositeSSFX(logger);
 
-	LoadScene({"assets/01_gelly_springs.gltf"});
+	LoadScene({"assets/03_gelly_sandbox.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
