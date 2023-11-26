@@ -191,7 +191,7 @@ void CD3D11ManagedTexture::BindToPipeline(
 
 			deviceContext->PSSetShaderResources(slot, 1, &srv);
 			break;
-		case TextureBindStage::RENDER_TARGET_OUTPUT:
+		case TextureBindStage::RENDER_TARGET_OUTPUT: {
 			if (rtv == nullptr) {
 				throw std::logic_error(
 					"CD3D11ManagedTexture::BindToPipeline: RTV is null."
@@ -215,9 +215,9 @@ void CD3D11ManagedTexture::BindToPipeline(
 				}
 			}
 
-			// TODO: Add a depth buffer interface, and then use it here.
 			deviceContext->OMSetRenderTargets(1, &rtv, dsv);
 			break;
+		}
 		default:
 			break;
 	}

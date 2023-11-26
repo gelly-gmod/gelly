@@ -72,6 +72,12 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 
 	buffers.positionsLayout = context->CreateBufferLayout(positionLayoutDesc);
 	buffers.positionsLayout->AttachBufferAtSlot(buffers.positions, 0);
+
+	DepthBufferDesc depthBufferDesc = {};
+	depthBufferDesc.format = DepthFormat::D24S8;
+	depthBufferDesc.depthOp = DepthOp::LESS_EQUAL;
+
+	buffers.depthBuffer = context->CreateDepthBuffer(depthBufferDesc);
 }
 
 void CD3D11DebugFluidRenderer::CreateTextures() {
@@ -177,12 +183,16 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 
 	// First we'll render out the depth.
+	buffers.depthBuffer->Clear(1.0f);
+
 	constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	auto *depthTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
 	depthTexture->Clear(clearColor);
-	depthTexture->BindToPipeline(TextureBindStage::RENDER_TARGET_OUTPUT, 0);
+	depthTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
+	);
 
 	buffers.positionsLayout->BindAsVertexBuffer();
 

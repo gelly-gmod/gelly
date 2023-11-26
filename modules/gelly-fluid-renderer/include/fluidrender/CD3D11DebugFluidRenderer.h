@@ -39,6 +39,7 @@ private:
 		GellyInterfaceVal<IManagedBuffer> positions;
 		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
 		GellyInterfaceVal<IManagedBuffer> fluidRenderCBuffer;
+		GellyInterfaceVal<IManagedDepthBuffer> depthBuffer;
 	} buffers;
 
 	struct {

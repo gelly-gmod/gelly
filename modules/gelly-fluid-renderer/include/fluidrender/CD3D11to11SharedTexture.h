@@ -40,7 +40,9 @@ public:
 	void *GetSharedHandle() override;
 	void *GetResource(TextureResource resource) override;
 
-	void BindToPipeline(TextureBindStage stage, uint8_t slot) override;
+	void BindToPipeline(
+		TextureBindStage stage, uint8_t slot, OptionalDepthBuffer depthBuffer
+	) override;
 	void Clear(const float color[4]) override;
 };
 

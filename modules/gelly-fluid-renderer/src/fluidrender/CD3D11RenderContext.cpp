@@ -6,6 +6,7 @@
 
 #include "fluidrender/CD3D11ManagedBuffer.h"
 #include "fluidrender/CD3D11ManagedBufferLayout.h"
+#include "fluidrender/CD3D11ManagedDepthBuffer.h"
 #include "fluidrender/CD3D11ManagedShader.h"
 #include "fluidrender/CD3D11to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
@@ -164,6 +165,16 @@ GellyInterfaceVal<IManagedBufferLayout> CD3D11RenderContext::CreateBufferLayout(
 	layout->AttachToContext(this);
 	layout->Create();
 	return layout;
+}
+
+GellyInterfaceVal<IManagedDepthBuffer> CD3D11RenderContext::CreateDepthBuffer(
+	const DepthBufferDesc &desc
+) {
+	auto *depthBuffer = new CD3D11ManagedDepthBuffer();
+	depthBuffer->SetDesc(desc);
+	depthBuffer->AttachToContext(this);
+	depthBuffer->Create();
+	return depthBuffer;
 }
 
 void CD3D11RenderContext::DestroyTexture(const char *name) {

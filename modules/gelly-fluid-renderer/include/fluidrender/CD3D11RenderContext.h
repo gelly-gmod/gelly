@@ -62,6 +62,10 @@ public:
 		const BufferLayoutDesc &desc
 	) override;
 
+	GellyObserverPtr<IManagedDepthBuffer> CreateDepthBuffer(
+		const DepthBufferDesc &desc
+	) override;
+
 	void DestroyTexture(const char *name) override;
 
 	void SetDimensions(uint16_t width, uint16_t height) override;

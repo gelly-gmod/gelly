@@ -206,7 +206,7 @@ void *CD3D11to11SharedTexture::GetResource(TextureResource resource) {
 }
 
 void CD3D11to11SharedTexture::BindToPipeline(
-	TextureBindStage stage, uint8_t slot
+	TextureBindStage stage, uint8_t slot, OptionalDepthBuffer depthBuffer
 ) {
 	if (!context) {
 		throw std::logic_error(
@@ -223,9 +223,33 @@ void CD3D11to11SharedTexture::BindToPipeline(
 		case TextureBindStage::PIXEL_SHADER_READ:
 			deviceContext->PSSetShaderResources(slot, 1, &srv);
 			break;
-		case TextureBindStage::RENDER_TARGET_OUTPUT:
-			deviceContext->OMSetRenderTargets(1, &rtv, nullptr);
+		case TextureBindStage::RENDER_TARGET_OUTPUT: {
+			if (rtv == nullptr) {
+				throw std::logic_error(
+					"CD3D11to11SharedTexture::BindToPipeline: RTV is null."
+				);
+			}
+
+			ID3D11DepthStencilView *dsv = nullptr;
+
+			if (depthBuffer.has_value()) {
+				dsv = static_cast<ID3D11DepthStencilView *>(
+					depthBuffer.value()->RequestResource(
+						DepthBufferResource::D3D11_DSV
+					)
+				);
+
+				if (dsv == nullptr) {
+					throw std::logic_error(
+						"CD3D11to11SharedTexture::BindToPipeline: Failed to "
+						"request a D3D11 DSV from the provided depth buffer."
+					);
+				}
+			}
+
+			deviceContext->OMSetRenderTargets(1, &rtv, dsv);
 			break;
+		}
 		default:
 			break;
 	}
