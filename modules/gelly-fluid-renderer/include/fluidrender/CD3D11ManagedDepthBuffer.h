@@ -2,6 +2,7 @@
 #define CD3D11MANAGEDDEPTHBUFFER_H
 
 #include <d3d11.h>
+
 #include "IManagedDepthBuffer.h"
 
 class CD3D11ManagedDepthBuffer : public IManagedDepthBuffer {
@@ -12,6 +13,7 @@ private:
 
 	GellyInterfaceVal<IRenderContext> context;
 	Gelly::DepthBufferDesc desc;
+
 public:
 	CD3D11ManagedDepthBuffer();
 	~CD3D11ManagedDepthBuffer() override;
@@ -21,6 +23,9 @@ public:
 
 	void AttachToContext(GellyInterfaceVal<IRenderContext> context) override;
 	void Clear(float depth) override;
+
+	void Create() override;
+	void Destroy() override;
 
 	void *RequestResource(Gelly::DepthBufferResource resource) override;
 };

@@ -41,6 +41,9 @@ public:
 	virtual void AttachToContext(GellyInterfaceVal<IRenderContext> context) = 0;
 	virtual void Clear(float depth) = 0;
 
+	virtual void Create() = 0;
+	virtual void Destroy() = 0;
+
 	/**
 	 * \brief Allows users of this class to request the underlying resources of
 	 * the depth buffer. For example, the D3D11 users will want to get the D3D11
