@@ -12,4 +12,4 @@ struct PS_OUTPUT {
     float Depth : SV_Depth;
 };
 
-static const float particleRadius = 0.1;
+static const float particleRadius = 0.03f;

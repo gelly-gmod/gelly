@@ -22,7 +22,7 @@ static IFluidRenderer *fluidRenderer = nullptr;
 static GellyObserverPtr<IManagedTexture> fluidAlbedoTexture;
 static GellyObserverPtr<IManagedTexture> fluidDepthTexture;
 
-constexpr int maxParticles = 1000;
+constexpr int maxParticles = 1000000;
 
 void CreateGellyTextures() {
 	// Basically, the process is that we use our own texture system,
@@ -100,6 +100,7 @@ void testbed::InitializeGelly(
 		logger->Info("Gelly GBuffers successfully created and linked");
 
 #ifdef GELLY_OVERRIDE_RENDERDOC
+#ifdef _DEBUG
 		logger->Info("Enabling Gelly RenderDoc captures...");
 		if (!fluidRenderer->EnableRenderDocCaptures()) {
 			logger->Warning(
@@ -107,6 +108,7 @@ void testbed::InitializeGelly(
 				"if RenderDoc is not running or if the API has changed."
 			);
 		}
+#endif
 #endif
 	} catch (const std::exception &e) {
 #ifdef _DEBUG

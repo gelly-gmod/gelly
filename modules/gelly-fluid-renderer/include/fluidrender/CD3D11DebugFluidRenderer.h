@@ -72,7 +72,9 @@ public:
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;
 	void SetPerFrameParams(const Gelly::FluidRenderParams &params) override;
 
+#ifdef _DEBUG
 	bool EnableRenderDocCaptures() override;
+#endif
 };
 
 #endif	// GELLY_CD3D11DEBUGFLUIDRENDERER_H
