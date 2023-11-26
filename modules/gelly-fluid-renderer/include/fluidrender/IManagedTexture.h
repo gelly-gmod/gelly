@@ -6,7 +6,10 @@
 #include <dxgiformat.h>
 
 #include <cstdint>
+#include <optional>
 #include <stdexcept>
+
+#include "IManagedDepthBuffer.h"
 
 class IRenderContext;
 
@@ -101,6 +104,8 @@ constexpr bool operator==(const enum TextureAccess a, const int b) {
  */
 gelly_interface IManagedTexture {
 public:
+	using OptionalDepthBuffer = std::optional<GellyObserverPtr<IManagedDepthBuffer>>;
+
 	virtual ~IManagedTexture() = default;
 
 	virtual void SetDesc(const TextureDesc &desc) = 0;
@@ -128,7 +133,12 @@ public:
 
 	virtual void *GetResource(TextureResource resource) = 0;
 
-	virtual void BindToPipeline(TextureBindStage stage, uint8_t slot) = 0;
+	virtual void BindToPipeline(
+		TextureBindStage stage,
+		uint8_t slot,
+		OptionalDepthBuffer depthBuffer
+	) = 0;
+
 	virtual void Clear(const float color[4]) = 0;
 };
 

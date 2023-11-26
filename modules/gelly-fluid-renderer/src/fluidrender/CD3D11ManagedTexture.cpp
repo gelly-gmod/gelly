@@ -167,7 +167,9 @@ void *CD3D11ManagedTexture::GetResource(TextureResource resource) {
 }
 
 void CD3D11ManagedTexture::BindToPipeline(
-	const TextureBindStage stage, const uint8_t slot
+	const TextureBindStage stage,
+	const uint8_t slot,
+	const OptionalDepthBuffer depthBuffer
 ) {
 	if (!context) {
 		throw std::logic_error(
@@ -196,8 +198,25 @@ void CD3D11ManagedTexture::BindToPipeline(
 				);
 			}
 
+			ID3D11DepthStencilView *dsv = nullptr;
+
+			if (depthBuffer.has_value()) {
+				dsv = static_cast<ID3D11DepthStencilView *>(
+					depthBuffer.value()->RequestResource(
+						DepthBufferResource::D3D11_DSV
+					)
+				);
+
+				if (dsv == nullptr) {
+					throw std::logic_error(
+						"CD3D11ManagedTexture::BindToPipeline: Failed to "
+						"request a D3D11 DSV from the provided depth buffer."
+					);
+				}
+			}
+
 			// TODO: Add a depth buffer interface, and then use it here.
-			deviceContext->OMSetRenderTargets(1, &rtv, nullptr);
+			deviceContext->OMSetRenderTargets(1, &rtv, dsv);
 			break;
 		default:
 			break;

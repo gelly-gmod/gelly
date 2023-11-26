@@ -10,6 +10,7 @@
 #include "GellyObserverPtr.h"
 #include "IManagedBuffer.h"
 #include "IManagedBufferLayout.h"
+#include "IManagedDepthBuffer.h"
 #include "IManagedShader.h"
 #include "IManagedTexture.h"
 
@@ -98,6 +99,10 @@ public:
 
 	virtual GellyInterfaceVal<IManagedBufferLayout> CreateBufferLayout(
 		const BufferLayoutDesc &desc
+	) = 0;
+
+	virtual GellyObserverPtr<IManagedDepthBuffer> CreateDepthBuffer(
+		const DepthBufferDesc &desc
 	) = 0;
 
 	/**

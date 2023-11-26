@@ -5,6 +5,7 @@
 #include <GellyInterfaceRef.h>
 
 class IRenderContext;
+
 namespace Gelly {
 enum class DepthFormat {
 	D24S8,
