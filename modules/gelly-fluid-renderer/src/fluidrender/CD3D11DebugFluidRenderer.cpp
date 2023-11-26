@@ -133,6 +133,11 @@ void CD3D11DebugFluidRenderer::AttachToContext(
 	this->context = context;
 	CreateTextures();
 	CreateShaders();
+	uint16_t width = 0, height = 0;
+	context->GetDimensions(width, height);
+
+	cbufferData.width = static_cast<float>(width);
+	cbufferData.height = static_cast<float>(height);
 }
 
 GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
@@ -159,6 +164,8 @@ void CD3D11DebugFluidRenderer::Render() {
 		);
 	}
 
+	context->SetRasterizerFlags(RasterizerFlags::DISABLE_CULL);
+
 #ifdef _DEBUG
 	auto *device = static_cast<ID3D11Device *>(
 		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
@@ -170,8 +177,12 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 
 	// First we'll render out the depth.
-	outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH)
-		->BindToPipeline(TextureBindStage::RENDER_TARGET_OUTPUT, 0);
+	constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	auto *depthTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+
+	depthTexture->Clear(clearColor);
+	depthTexture->BindToPipeline(TextureBindStage::RENDER_TARGET_OUTPUT, 0);
 
 	buffers.positionsLayout->BindAsVertexBuffer();
 
@@ -186,7 +197,6 @@ void CD3D11DebugFluidRenderer::Render() {
 	context->Draw(maxParticles, 0);
 	// we're not using a swapchain, so we need to queue up work manually
 	context->SubmitWork();
-	context->ResetPipeline();
 
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {

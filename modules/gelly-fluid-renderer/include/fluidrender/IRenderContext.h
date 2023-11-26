@@ -27,6 +27,28 @@ enum class ContextRenderAPI {
 	D3D11,
 };
 
+enum class RasterizerFlags { NONE = 0, DISABLE_CULL = 0b1 };
+
+constexpr enum RasterizerFlags operator&(
+	const enum RasterizerFlags a, const enum RasterizerFlags b
+) {
+	return static_cast<RasterizerFlags>(
+		static_cast<uint8_t>(a) & static_cast<uint8_t>(b)
+	);
+}
+
+constexpr enum RasterizerFlags operator|(
+	const enum RasterizerFlags a, const enum RasterizerFlags b
+) {
+	return static_cast<RasterizerFlags>(
+		static_cast<uint8_t>(a) | static_cast<uint8_t>(b)
+	);
+}
+
+constexpr bool operator==(const enum RasterizerFlags a, const int b) {
+	return static_cast<uint8_t>(a) == static_cast<uint8_t>(b);
+}
+
 /**
  * The render context abstracts the host rendering API for fluid renderers.
  * This enables higher compatibility, and also allows for automated resource
@@ -104,10 +126,12 @@ public:
 	virtual void Draw(uint32_t vertexCount, uint32_t startVertex) = 0;
 
 	/**
-	 * \brief Causes everything to be reset to their original state. This should be used after a Draw
-	 * command.
+	 * \brief Causes everything to be reset to their original state. This should
+	 * be used after a Draw command.
 	 */
 	virtual void ResetPipeline() = 0;
+
+	virtual void SetRasterizerFlags(RasterizerFlags flags) = 0;
 
 #ifdef _DEBUG
 	virtual void PrintDebugInfo() = 0;

@@ -10,6 +10,7 @@
 #include "Scene.h"
 #include "Shaders.h"
 #include "Window.h"
+#include "ssfx\Composite.h"
 #include "ssfx\Shading.h"
 
 #ifdef _DEBUG
@@ -32,8 +33,9 @@ int main() {
 	InitializeShaderSystem(logger);
 	InitializeSceneSystem(logger);
 	InitializeSSFXSystem(logger, rendererDevice);
-	ssfx::InitializeShadingSSFX(logger);
 	InitializeGelly(rendererDevice, logger);
+	ssfx::InitializeShadingSSFX(logger);
+	ssfx::InitializeCompositeSSFX(logger);
 
 	LoadScene({"assets/01_gelly_springs.gltf"});
 	bool isRunning = true;
@@ -45,6 +47,7 @@ int main() {
 		RenderScene();
 		ssfx::UpdateShadingSSFXConstants();
 		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
+		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME);
 		EndFrame();
 		FrameMark;
 

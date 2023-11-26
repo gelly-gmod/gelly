@@ -20,6 +20,9 @@ private:
 	ID3D11InfoQueue *infoQueue = nullptr;
 #endif
 
+	ID3D11RasterizerState *rasterizerState;
+	RasterizerFlags rasterizerFlags = RasterizerFlags::NONE;
+
 	std::unordered_map<std::string, IManagedTexture *> textures;
 	std::vector<IManagedShader *> shaders{};
 
@@ -69,6 +72,8 @@ public:
 	void Draw(uint32_t vertexCount, uint32_t startVertex) override;
 
 	void ResetPipeline() override;
+
+	void SetRasterizerFlags(RasterizerFlags flags) override;
 
 #ifdef _DEBUG
 	void PrintDebugInfo() override;

@@ -13,6 +13,8 @@ set(IMGUI_SOURCES
         vendor/imgui/imgui_tables.cpp
         vendor/imgui/backends/imgui_impl_sdl2.cpp
         vendor/imgui/backends/imgui_impl_dx11.cpp
+        src/ssfx/Composite.h
+        src/ssfx/Composite.cpp
 )
 
 add_executable(testbed

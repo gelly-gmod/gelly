@@ -10,3 +10,5 @@ struct GS_OUTPUT {
 struct PS_OUTPUT {
     float4 DepthOut : SV_Target0;
 };
+
+static const float particleRadius = 0.1;

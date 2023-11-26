@@ -17,6 +17,10 @@ private:
 		XMFLOAT4X4 proj;
 		XMFLOAT4X4 invView;
 		XMFLOAT4X4 invProj;
+
+		float width;
+		float height;
+		float pad0, pad1;
 	};
 
 	GellyInterfaceVal<IRenderContext> context;

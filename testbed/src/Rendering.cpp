@@ -675,7 +675,6 @@ void testbed::RenderWorldList(
 	{
 		ZoneScopedN("Gelly render");
 		Gelly::FluidRenderParams params{};
-
 		{
 			ZoneScopedN("Matrix gen");
 			GenerateGellyCameraMatrices(

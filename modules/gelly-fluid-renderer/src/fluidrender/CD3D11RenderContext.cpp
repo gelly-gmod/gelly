@@ -16,7 +16,8 @@ CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 	  width(width),
 	  height(height),
 	  textures({}),
-	  shaders({}) {
+	  shaders({}),
+	  rasterizerState(nullptr) {
 	CreateDeviceAndContext();
 }
 
@@ -51,6 +52,14 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 		   __uuidof(ID3D11InfoQueue), reinterpret_cast<void **>(&infoQueue)
 	   ));
 #endif
+
+	D3D11_RASTERIZER_DESC rasterizerDesc = {};
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+	DX("Failed to create D3D11 rasterizer state",
+	   device->CreateRasterizerState(&rasterizerDesc, &rasterizerState));
+
+	deviceContext->RSSetState(rasterizerState);
 }
 
 void CD3D11RenderContext::CreateAllTextures() {
@@ -223,6 +232,37 @@ void CD3D11RenderContext::Draw(
 void CD3D11RenderContext::ResetPipeline() {
 	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext->ClearState();
+}
+
+void CD3D11RenderContext::SetRasterizerFlags(RasterizerFlags flags) {
+	if (rasterizerFlags == flags) {
+		return;
+	}
+
+	rasterizerFlags = flags;
+
+	D3D11_RASTERIZER_DESC rasterizerDesc = {};
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+
+	if ((flags & RasterizerFlags::DISABLE_CULL) != 0) {
+		rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	}
+
+	rasterizerDesc.FrontCounterClockwise = false;
+	rasterizerDesc.DepthBias = 0;
+	rasterizerDesc.DepthBiasClamp = 0.0f;
+	rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.ScissorEnable = false;
+	rasterizerDesc.MultisampleEnable = false;
+	rasterizerDesc.AntialiasedLineEnable = false;
+
+	rasterizerState->Release();
+
+	DX("Failed to create D3D11 rasterizer state",
+	   device->CreateRasterizerState(&rasterizerDesc, &rasterizerState));
+	deviceContext->RSSetState(rasterizerState);
 }
 
 CD3D11RenderContext::~CD3D11RenderContext() {

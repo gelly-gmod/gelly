@@ -6,8 +6,6 @@ static const float2 corners[4] = {
     float2(1.0, 1.0), float2(1.0, 0.0)
 };
 
-static const float particleRadius = 3;
-
 [maxvertexcount(4)]
 void main(point VS_INPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
     GS_OUTPUT output = (GS_OUTPUT)0;
