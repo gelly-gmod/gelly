@@ -212,7 +212,6 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderUnfilteredDepth();
 
 
-
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {
 		renderDocApi->EndFrameCapture(device, nullptr);

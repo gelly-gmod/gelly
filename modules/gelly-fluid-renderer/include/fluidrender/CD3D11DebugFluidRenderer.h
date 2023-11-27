@@ -40,6 +40,9 @@ private:
 		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
 		GellyInterfaceVal<IManagedBuffer> fluidRenderCBuffer;
 		GellyInterfaceVal<IManagedDepthBuffer> depthBuffer;
+
+		GellyInterfaceVal<IManagedBuffer> screenQuad;
+		GellyInterfaceVal<IManagedBufferLayout> screenQuadLayout;
 	} buffers;
 
 	struct {
@@ -50,6 +53,9 @@ private:
 		GellyInterfaceVal<IManagedShader> splattingPS;
 		GellyInterfaceVal<IManagedShader> splattingVS;
 		GellyInterfaceVal<IManagedShader> splattingGS;
+
+		GellyInterfaceVal<IManagedShader> screenQuadVS;
+		GellyInterfaceVal<IManagedShader> filterDepthPS;
 	} shaders{};
 
 #ifdef _DEBUG
