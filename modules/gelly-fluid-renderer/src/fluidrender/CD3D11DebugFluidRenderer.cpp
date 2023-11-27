@@ -168,13 +168,12 @@ GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
 	return &outputTextures;
 }
 
+constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
 void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	// First we'll render out the depth.
 	buffers.depthBuffer->Clear(1.0f);
-
-	constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	auto *depthTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+	auto *depthTexture = internalTextures.unfilteredDepth;
 
 	depthTexture->Clear(clearColor);
 	depthTexture->BindToPipeline(
@@ -194,7 +193,9 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	context->Draw(maxParticles, 0);
 	// we're not using a swapchain, so we need to queue up work manually
 	context->SubmitWork();
+	context->ResetPipeline();
 }
+
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {
 		throw std::logic_error(
@@ -228,6 +229,28 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 
 	RenderUnfilteredDepth();
+
+	// Now we'll filter the depth.
+	auto *depthTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+
+	depthTexture->Clear(clearColor);
+	depthTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
+	);
+
+	internalTextures.unfilteredDepth->BindToPipeline(
+		TextureBindStage::PIXEL_SHADER_READ, 0, nullptr
+	);
+
+	shaders.screenQuadVS->Bind();
+	shaders.filterDepthPS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.screenQuadLayout->BindAsVertexBuffer();
+
+	context->Draw(4, 0);
+	context->SubmitWork();
 
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {

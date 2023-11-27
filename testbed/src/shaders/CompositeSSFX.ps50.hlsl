@@ -21,7 +21,7 @@ PS_OUTPUT main(VS_INPUT input)
 
     PS_OUTPUT output = (PS_OUTPUT)0;
     output.Color = float4(depth.xyz, 1.0f);
-    output.Depth = depth.x;
+    output.Depth = 0.f;
 
     return output;
 }

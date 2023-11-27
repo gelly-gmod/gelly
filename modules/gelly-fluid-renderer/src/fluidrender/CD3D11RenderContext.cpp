@@ -237,6 +237,7 @@ void CD3D11RenderContext::Draw(
 	viewport.MaxDepth = 1.0f;
 	viewport.MinDepth = 0.0f;
 	deviceContext->RSSetViewports(1, &viewport);
+	deviceContext->RSSetState(rasterizerState);
 	deviceContext->Draw(vertexCount, startVertex);
 }
 

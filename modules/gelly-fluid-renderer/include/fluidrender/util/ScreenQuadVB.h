@@ -43,6 +43,7 @@ inline ScreenQuadTuple GenerateScreenQuad(
 	layoutDesc.vertexShader = vertexShader;
 
 	auto *layout = context->CreateBufferLayout(layoutDesc);
+	layout->AttachBufferAtSlot(buffer, 0);
 
 	return std::make_tuple(buffer, layout);
 }
