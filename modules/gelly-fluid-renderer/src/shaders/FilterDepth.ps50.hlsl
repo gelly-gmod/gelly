@@ -18,15 +18,20 @@ float4 BlurDepth(float2 tex) {
     float4 color = 0.0f;
     float2 texelSize = 1.0f / float2(g_ViewportWidth, g_ViewportHeight);
     
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(-texelSize.x, -texelSize.y)) * g_blurWeights[0];
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(0.0f, -texelSize.y)) * g_blurWeights[1];
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(texelSize.x, -texelSize.y)) * g_blurWeights[2];
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(-texelSize.x, 0.0f)) * g_blurWeights[3];
-    color += InputDepth.Sample(InputDepthSampler, tex) * g_blurWeights[4];
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(texelSize.x, 0.0f)) * g_blurWeights[5];
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(-texelSize.x, texelSize.y)) * g_blurWeights[6];
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(0.0f, texelSize.y)) * g_blurWeights[7];
-    color += InputDepth.Sample(InputDepthSampler, tex + float2(texelSize.x, texelSize.y)) * g_blurWeights[8];
+    for (int i = 0; i < 9; ++i) {
+        float2 offset = float2(i % 3 - 1, i / 3 - 1) * texelSize;
+        float4 gausSample = InputDepth.Sample(InputDepthSampler, tex + offset);
+        gausSample.xyz *= g_blurWeights[i];
+
+        // if (gausSample.a == 0.f) {
+        //     gausSample = InputDepth.Sample(InputDepthSampler, tex) * g_blurWeights[i];
+        // }
+        // branchless
+        // we just take the original sample if the current sample is null
+        gausSample = lerp(gausSample, InputDepth.Sample(InputDepthSampler, tex) * g_blurWeights[i], 1.f - gausSample.a);
+
+        color += gausSample;
+    }
 
     return color;
 }

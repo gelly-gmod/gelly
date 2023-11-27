@@ -204,7 +204,7 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 }
 
 void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
-	for (int i = 0; i < 15; i++) {
+	for (int i = 0; i < 35; i++) {
 		auto *depthTexture =
 			outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
