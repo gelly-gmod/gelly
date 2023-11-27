@@ -150,6 +150,33 @@ GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
 	return &outputTextures;
 }
 
+void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
+	// First we'll render out the depth.
+	buffers.depthBuffer->Clear(1.0f);
+
+	constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	auto *depthTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+
+	depthTexture->Clear(clearColor);
+	depthTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
+	);
+
+	buffers.positionsLayout->BindAsVertexBuffer();
+
+	shaders.splattingGS->Bind();
+	shaders.splattingPS->Bind();
+	shaders.splattingVS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+
+	context->Draw(maxParticles, 0);
+	// we're not using a swapchain, so we need to queue up work manually
+	context->SubmitWork();
+}
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {
 		throw std::logic_error(
@@ -182,31 +209,9 @@ void CD3D11DebugFluidRenderer::Render() {
 	}
 #endif
 
-	// First we'll render out the depth.
-	buffers.depthBuffer->Clear(1.0f);
+	RenderUnfilteredDepth();
 
-	constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	auto *depthTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
-	depthTexture->Clear(clearColor);
-	depthTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
-	);
-
-	buffers.positionsLayout->BindAsVertexBuffer();
-
-	shaders.splattingGS->Bind();
-	shaders.splattingPS->Bind();
-	shaders.splattingVS->Bind();
-
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
-
-	context->Draw(maxParticles, 0);
-	// we're not using a swapchain, so we need to queue up work manually
-	context->SubmitWork();
 
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {

@@ -23,6 +23,8 @@ D3D11_PRIMITIVE_TOPOLOGY BufferLayoutTopologyToD3D11(
 	switch (topology) {
 		case BufferLayoutTopology::POINTS:
 			return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+		case BufferLayoutTopology::TRIANGLE_STRIP:
+			return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 		default:
 			return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	}

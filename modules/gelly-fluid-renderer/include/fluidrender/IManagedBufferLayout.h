@@ -28,6 +28,7 @@ struct BufferLayoutItem {
 
 enum class BufferLayoutTopology {
 	POINTS,
+	TRIANGLE_STRIP,
 };
 
 struct BufferLayoutDesc {

@@ -67,6 +67,7 @@ public:
 	void SetSimData(GellyObserverPtr<ISimData> simData) override;
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
 	GellyObserverPtr<IFluidTextures> GetFluidTextures() override;
+	void RenderUnfilteredDepth();
 	void Render() override;
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;

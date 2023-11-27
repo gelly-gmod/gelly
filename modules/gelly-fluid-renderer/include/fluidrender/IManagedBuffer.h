@@ -35,7 +35,7 @@ struct BufferDesc {
 	BufferType type{};
 	BufferUsage usage{};
 	BufferFormat format{};
-	void *initialData{};
+	const void *initialData{};
 };
 }  // namespace Gelly
 
