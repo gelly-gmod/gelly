@@ -33,11 +33,11 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float3 p3 = WorldPosFromDepth(input.Tex + float2(-texelSize.x, 0.f));
     
     // Check for a discontinuity
-    if (abs(p0.z - p1.z) > 0.1f || abs(p0.z - p3.z) > 0.1f) {
+    if (abs(p0.z - p1.z) > 0.05f || abs(p0.z - p3.z) > 0.05f) {
         discard;
     }
 
     float3 normal = normalize(cross(p1 - p0, p3 - p0));
-    output.Color = float4(normal, 1.f);
+    output.Color = float4(-normal * 0.5f + 0.5f, 1.f);
     return output;
 }

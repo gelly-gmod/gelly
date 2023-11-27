@@ -20,7 +20,7 @@ void testbed::ssfx::InitializeCompositeSSFX(ILogger *logger) {
 		GELLY_DEPTH_TEXNAME, GELLY_NORMAL_TEXNAME
 	};
 
-	compositeSSFXEffect.outputTextures = {BUILTIN_BACKBUFFER_TEXNAME};
+	compositeSSFXEffect.outputTextures = {GBUFFER_NORMAL_TEXNAME};
 	compositeSSFXEffect.shaderConstantData = nullptr;
 
 	RegisterSSFXEffect(COMPOSITESSFX_EFFECT_NAME, compositeSSFXEffect);

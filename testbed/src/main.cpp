@@ -37,7 +37,7 @@ int main() {
 	ssfx::InitializeShadingSSFX(logger);
 	ssfx::InitializeCompositeSSFX(logger);
 
-	LoadScene({"assets/03_gelly_sandbox.gltf"});
+	LoadScene({"assets/01_gelly_springs.gltf"});
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
@@ -46,8 +46,8 @@ int main() {
 		StartFrame();
 		RenderScene();
 		ssfx::UpdateShadingSSFXConstants();
-		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME, true);
+		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		EndFrame();
 		FrameMark;
 

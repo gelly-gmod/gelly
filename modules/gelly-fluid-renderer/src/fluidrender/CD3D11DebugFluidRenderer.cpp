@@ -178,7 +178,6 @@ GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
 constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
-	// First we'll render out the depth.
 	buffers.depthBuffer->Clear(1.0f);
 	auto *depthTexture = internalTextures.unfilteredDepth;
 
