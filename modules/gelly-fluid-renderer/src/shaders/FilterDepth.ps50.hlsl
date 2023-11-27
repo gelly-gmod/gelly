@@ -1,4 +1,5 @@
 #include "FluidRenderCBuffer.hlsli"
+#include "ScreenQuadStructs.hlsli"
 
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);

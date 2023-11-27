@@ -8,6 +8,7 @@
 #include "SplattingPS.h"
 #include "SplattingVS.h"
 #include "fluidrender/util/CBuffers.h"
+#include "fluidrender/util/ScreenQuadVB.h"
 
 #ifdef _DEBUG
 #include <windows.h>
@@ -33,6 +34,18 @@ void CD3D11DebugFluidRenderer::CreateShaders() {
 		gsc::SplattingVS::GetBytecode(),
 		gsc::SplattingVS::GetBytecodeSize(),
 		ShaderType::Vertex
+	);
+
+	shaders.screenQuadVS = context->CreateShader(
+		gsc::ScreenQuadVS::GetBytecode(),
+		gsc::ScreenQuadVS::GetBytecodeSize(),
+		ShaderType::Vertex
+	);
+
+	shaders.filterDepthPS = context->CreateShader(
+		gsc::FilterDepthPS::GetBytecode(),
+		gsc::FilterDepthPS::GetBytecodeSize(),
+		ShaderType::Pixel
 	);
 }
 
@@ -78,6 +91,9 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 	depthBufferDesc.depthOp = DepthOp::LESS_EQUAL;
 
 	buffers.depthBuffer = context->CreateDepthBuffer(depthBufferDesc);
+
+	std::tie(buffers.screenQuad, buffers.screenQuadLayout) =
+		util::GenerateScreenQuad(context, shaders.screenQuadVS);
 }
 
 void CD3D11DebugFluidRenderer::CreateTextures() {
@@ -210,7 +226,6 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 
 	RenderUnfilteredDepth();
-
 
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {

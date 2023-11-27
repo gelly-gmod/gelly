@@ -23,20 +23,24 @@ ShellCmd::ShellCmd(
 	strcpy_s(commandLineBuffer, commandLine.c_str());
 
 	if (const auto result = CreateProcess(
-		nullptr,
-		commandLineBuffer,
-		nullptr,
-		nullptr,
-		TRUE,
-		0,
-		nullptr,
-		workingDirectory.c_str(),
-		&startupInfo,
-		&processInfo
-	); !result) {
+			nullptr,
+			commandLineBuffer,
+			nullptr,
+			nullptr,
+			TRUE,
+			0,
+			nullptr,
+			workingDirectory.c_str(),
+			&startupInfo,
+			&processInfo
+		);
+		!result) {
+		printf("CreateProcess failed (%lu).\n", GetLastError());
 		isValid = false;
 		return;
 	}
+
+	isValid = true;
 }
 
 ShellCmd::~ShellCmd() {
