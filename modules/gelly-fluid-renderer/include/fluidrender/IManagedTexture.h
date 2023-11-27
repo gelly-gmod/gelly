@@ -66,6 +66,7 @@ enum class TextureResource : uint8_t {
 	D3D11_SRV,
 	D3D11_RTV,
 	D3D11_UAV,
+	D3D11_RESOURCE	// The IDXGIResource
 };
 
 inline D3D11_TEXTURE_ADDRESS_MODE TextureAddressModeToD3D11(
@@ -162,7 +163,6 @@ public:
 	 * @return
 	 */
 	virtual void *GetSharedHandle() = 0;
-
 	virtual void *GetResource(TextureResource resource) = 0;
 
 	virtual void BindToPipeline(
@@ -170,6 +170,11 @@ public:
 	) = 0;
 
 	virtual void Clear(const float color[4]) = 0;
+	/**
+	 * \brief This will usually perform a GPU copy operation, not a CPU copy.
+	 * \param texture Other texture to copy to.
+	 */
+	virtual void CopyToTexture(GellyInterfaceRef<IManagedTexture> texture) = 0;
 };
 
 #endif	// GELLY_IMANAGEDTEXTURE_H

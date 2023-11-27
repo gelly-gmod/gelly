@@ -17,6 +17,8 @@ private:
 	ID3D11UnorderedAccessView *uav;
 	ID3D11SamplerState *sampler;
 
+	ID3D11Resource *d3d11Resource;
+
 public:
 	CD3D11ManagedTexture();
 	~CD3D11ManagedTexture() override;
@@ -38,7 +40,10 @@ public:
 	void BindToPipeline(
 		TextureBindStage stage, uint8_t slot, OptionalDepthBuffer depthBuffer
 	) override;
+
 	void Clear(const float color[4]) override;
+
+	void CopyToTexture(GellyInterfaceRef<IManagedTexture> texture) override;
 };
 
 #endif	// GELLY_CD3D11MANAGEDTEXTURE_H

@@ -147,6 +147,11 @@ bool CD3D11to11SharedTexture::Create() {
 	DX("Failed to create D3D11 sampler",
 	   device->CreateSamplerState(&samplerDesc, &sampler));
 
+	DX("Failed to query ID3D11Resource from texture",
+	   texture->QueryInterface(
+		   __uuidof(ID3D11Resource), reinterpret_cast<void **>(&d3d11Resource)
+	   ));
+
 	return true;
 }
 
@@ -211,6 +216,8 @@ void *CD3D11to11SharedTexture::GetResource(TextureResource resource) {
 			return rtv;
 		case TextureResource::D3D11_UAV:
 			return uav;
+		case TextureResource::D3D11_RESOURCE:
+			return d3d11Resource;
 		default:
 			return nullptr;
 	}
@@ -280,4 +287,32 @@ void CD3D11to11SharedTexture::Clear(const float color[4]) {
 	);
 
 	deviceContext->ClearRenderTargetView(rtv, color);
+}
+
+void CD3D11to11SharedTexture::CopyToTexture(
+	GellyInterfaceRef<IManagedTexture> texture
+) {
+	if (!context) {
+		throw std::logic_error(
+			"CD3D11to11SharedTexture::CopyToTexture() encountered a null "
+			"context"
+		);
+	}
+
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	auto *otherResource = static_cast<ID3D11Resource *>(
+		texture->GetResource(TextureResource::D3D11_RESOURCE)
+	);
+
+	if (otherResource == nullptr) {
+		throw std::logic_error(
+			"CD3D11to11SharedTexture::CopyToTexture() encountered a null "
+			"resource"
+		);
+	}
+
+	deviceContext->CopyResource(d3d11Resource, otherResource);
 }

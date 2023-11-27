@@ -231,26 +231,34 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderUnfilteredDepth();
 
 	// Now we'll filter the depth.
-	auto *depthTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+	for (int i = 0; i < 10; i++) {
+		auto *depthTexture =
+			outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
-	depthTexture->Clear(clearColor);
-	depthTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
-	);
+		depthTexture->Clear(clearColor);
+		depthTexture->BindToPipeline(
+			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+		);
 
-	internalTextures.unfilteredDepth->BindToPipeline(
-		TextureBindStage::PIXEL_SHADER_READ, 0, nullptr
-	);
+		internalTextures.unfilteredDepth->BindToPipeline(
+			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+		);
 
-	shaders.screenQuadVS->Bind();
-	shaders.filterDepthPS->Bind();
+		shaders.screenQuadVS->Bind();
+		shaders.filterDepthPS->Bind();
 
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-	buffers.screenQuadLayout->BindAsVertexBuffer();
+		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+		buffers.screenQuadLayout->BindAsVertexBuffer();
 
-	context->Draw(4, 0);
-	context->SubmitWork();
+		context->Draw(4, 0);
+		context->SubmitWork();
+		context->ResetPipeline();
+
+		// Copy the filtered depth back to the unfiltered depth.
+		// for the next iteration.
+		depthTexture->CopyToTexture(internalTextures.unfilteredDepth);
+		context->SubmitWork();
+	}
 
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {

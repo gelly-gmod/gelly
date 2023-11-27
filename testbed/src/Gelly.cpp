@@ -22,7 +22,7 @@ static IFluidRenderer *fluidRenderer = nullptr;
 static GellyObserverPtr<IManagedTexture> fluidAlbedoTexture;
 static GellyObserverPtr<IManagedTexture> fluidDepthTexture;
 
-constexpr int maxParticles = 250000;
+constexpr int maxParticles = 50000;
 
 void CreateGellyTextures() {
 	// Basically, the process is that we use our own texture system,

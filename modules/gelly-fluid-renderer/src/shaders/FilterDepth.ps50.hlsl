@@ -33,18 +33,11 @@ float4 BlurDepth(float2 tex) {
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Color = BlurDepth(input.Tex);
+    float4 original = InputDepth.Sample(InputDepthSampler, input.Tex);
+    if (original.a == 0.f) {
+        discard;
+    }
 
-    float depth = output.Color.x;
-    float4 pos = float4(input.Pos.xyz, 1.0f);
-    pos.xy /= float2(g_ViewportWidth, g_ViewportHeight);
-    pos.xy = float2(pos.x * 2.0f - 1.0f, (1.0f - pos.y) * 2.0f - 1.0f);
-    pos.z = depth;
-    pos = mul(g_InverseProjection, pos);
-    pos = mul(g_InverseView, pos);
-    pos.xyz /= pos.w;
-    
-    float3 normal = normalize(cross(ddy_fine(pos.xyz), ddx_fine(pos.xyz)));
-    output.Color = float4(normal, 1.0f);
+    output.Color = BlurDepth(input.Tex);
     return output;
 }

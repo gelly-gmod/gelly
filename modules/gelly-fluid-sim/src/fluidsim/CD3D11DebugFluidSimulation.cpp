@@ -38,6 +38,7 @@ void CD3D11DebugFluidSimulation::CreateBuffers() {
 	}
 }
 
+static float t = 0.0f;
 void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
 		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE_CONTEXT)
@@ -55,10 +56,19 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 	}
 
 	auto *positionData = static_cast<SimFloat4 *>(mappedSubresource.pData);
+	t += 0.01f;
 	for (int i = 0; i < maxParticles; i++) {
-		positionData[i].x = static_cast<float>(rand()) / RAND_MAX;
-		positionData[i].y = static_cast<float>(rand()) / RAND_MAX;
-		positionData[i].z = static_cast<float>(rand()) / RAND_MAX;
+		// A sphere
+		float r = 0.5f;
+		float theta = 2.0f * 3.1415926f * rand() / RAND_MAX;
+		float phi = acos(2.0f * rand() / RAND_MAX - 1.0f);
+		float x = r * sin(phi) * cos(theta);
+		float y = r * sin(phi) * sin(theta);
+		float z = r * cos(phi);
+
+		positionData[i].x = x;
+		positionData[i].y = y;
+		positionData[i].z = z;
 		positionData[i].w = 1.0f;
 	}
 
@@ -134,4 +144,5 @@ void CD3D11DebugFluidSimulation::AttachToContext(
 
 void CD3D11DebugFluidSimulation::Update(const float deltaTime) {
 	// Do nothing.
+	GenerateRandomParticles();
 }
