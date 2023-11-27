@@ -52,6 +52,17 @@ void CreateGellyTextures() {
 		"testbed/gelly/depth", GetTextureSharedHandle(GELLY_DEPTH_TEXNAME)
 	);
 
+	FeatureTextureInfo fluidNormalsTextureInfo{};
+	fluidNormalsTextureInfo.width = WINDOW_WIDTH;
+	fluidNormalsTextureInfo.height = WINDOW_HEIGHT;
+	fluidNormalsTextureInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	fluidNormalsTextureInfo.shared = true;
+
+	CreateFeatureTexture(GELLY_NORMAL_TEXNAME, fluidNormalsTextureInfo);
+	auto fluidNormalsTexture = renderContext->CreateSharedTexture(
+		"testbed/gelly/normals", GetTextureSharedHandle(GELLY_NORMAL_TEXNAME)
+	);
+
 	// Link the textures to the fluid renderer
 	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
 		FluidFeatureType::ALBEDO, fluidAlbedoTexture
@@ -59,6 +70,10 @@ void CreateGellyTextures() {
 
 	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
 		FluidFeatureType::DEPTH, fluidDepthTexture
+	);
+
+	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
+		FluidFeatureType::NORMALS, fluidNormalsTexture
 	);
 }
 

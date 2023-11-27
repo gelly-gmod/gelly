@@ -16,7 +16,9 @@ void testbed::ssfx::InitializeCompositeSSFX(ILogger *logger) {
 
 	compositeSSFXEffect.pixelShaderPath =
 		"shaders/CompositeSSFX.ps50.hlsl.dxbc";
-	compositeSSFXEffect.inputTextures = {GELLY_DEPTH_TEXNAME};
+	compositeSSFXEffect.inputTextures = {
+		GELLY_DEPTH_TEXNAME, GELLY_NORMAL_TEXNAME
+	};
 
 	compositeSSFXEffect.outputTextures = {BUILTIN_BACKBUFFER_TEXNAME};
 	compositeSSFXEffect.shaderConstantData = nullptr;

@@ -7,6 +7,13 @@ SamplerState GellyDepthSampler {
     AddressV = Clamp;
 };
 
+Texture2D GellyNormal : register(t1);
+SamplerState GellyNormalSampler {
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
+
 struct PS_OUTPUT {
     float4 Color : SV_Target0;
     float Depth : SV_Depth;
@@ -20,7 +27,7 @@ PS_OUTPUT main(VS_INPUT input)
     }
 
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Color = float4(depth.xyz, 1.0f);
+    output.Color = GellyNormal.Sample(GellyNormalSampler, input.Tex);
     output.Depth = depth.x;
     return output;
 }

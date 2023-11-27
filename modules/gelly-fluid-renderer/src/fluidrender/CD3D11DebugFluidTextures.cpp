@@ -61,4 +61,6 @@ GellyObserverPtr<IManagedTexture> CD3D11DebugFluidTextures::GetFeatureTexture(
 	}
 }
 
-bool CD3D11DebugFluidTextures::IsInitialized() { return depth != nullptr; }
+bool CD3D11DebugFluidTextures::IsInitialized() {
+	return depth != nullptr && normal != nullptr;
+}

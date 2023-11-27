@@ -107,6 +107,15 @@ void CreateImGUIElements() {
 				ImVec2(0, 0),
 				ImVec2(1, 1)
 			);
+
+			ImGui::SameLine();
+
+			ImGui::Image(
+				GetTextureSRV(GELLY_NORMAL_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
 		}
 	}
 

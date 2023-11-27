@@ -9,6 +9,8 @@
 #include "SplattingGS.h"
 #include "SplattingPS.h"
 #include "SplattingVS.h"
+#include "EstimateNormalPS.h"
+
 #include "fluidrender/util/CBuffers.h"
 #include "fluidrender/util/ScreenQuadVB.h"
 
@@ -47,6 +49,12 @@ void CD3D11DebugFluidRenderer::CreateShaders() {
 	shaders.filterDepthPS = context->CreateShader(
 		gsc::FilterDepthPS::GetBytecode(),
 		gsc::FilterDepthPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
+
+	shaders.estimateNormalPS = context->CreateShader(
+		gsc::EstimateNormalPS::GetBytecode(),
+		gsc::EstimateNormalPS::GetBytecodeSize(),
 		ShaderType::Pixel
 	);
 }
@@ -196,6 +204,36 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	context->ResetPipeline();
 }
 
+void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
+	for (int i = 0; i < 30; i++) {
+		auto *depthTexture =
+			outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+
+		depthTexture->Clear(clearColor);
+		depthTexture->BindToPipeline(
+			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+		);
+
+		internalTextures.unfilteredDepth->BindToPipeline(
+			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+		);
+
+		shaders.screenQuadVS->Bind();
+		shaders.filterDepthPS->Bind();
+
+		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+		buffers.screenQuadLayout->BindAsVertexBuffer();
+
+		context->Draw(4, 0);
+		context->SubmitWork();
+		context->ResetPipeline();
+
+		// Copy the filtered depth back to the unfiltered depth.
+		// for the next iteration.
+		depthTexture->CopyToTexture(internalTextures.unfilteredDepth);
+		context->SubmitWork();
+	}
+}
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {
 		throw std::logic_error(
@@ -231,34 +269,34 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderUnfilteredDepth();
 
 	// Now we'll filter the depth.
-	for (int i = 0; i < 10; i++) {
-		auto *depthTexture =
-			outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+	RenderFilteredDepth();
 
-		depthTexture->Clear(clearColor);
-		depthTexture->BindToPipeline(
-			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
-		);
+	// Finally, we'll estimate the normals.
 
-		internalTextures.unfilteredDepth->BindToPipeline(
-			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
-		);
+	auto *normalsTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS);
 
-		shaders.screenQuadVS->Bind();
-		shaders.filterDepthPS->Bind();
+	auto *depthTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
-		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-		buffers.screenQuadLayout->BindAsVertexBuffer();
+	normalsTexture->Clear(clearColor);
+	normalsTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+	);
 
-		context->Draw(4, 0);
-		context->SubmitWork();
-		context->ResetPipeline();
+	depthTexture->BindToPipeline(
+		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+	);
 
-		// Copy the filtered depth back to the unfiltered depth.
-		// for the next iteration.
-		depthTexture->CopyToTexture(internalTextures.unfilteredDepth);
-		context->SubmitWork();
-	}
+	shaders.screenQuadVS->Bind();
+	shaders.estimateNormalPS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.screenQuadLayout->BindAsVertexBuffer();
+
+	context->Draw(4, 0);
+	context->SubmitWork();
+	context->ResetPipeline();
 
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {
