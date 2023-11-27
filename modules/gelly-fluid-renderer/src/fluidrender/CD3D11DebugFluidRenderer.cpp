@@ -4,6 +4,8 @@
 
 #include <stdexcept>
 
+#include "FilterDepthPS.h"
+#include "ScreenQuadVS.h"
 #include "SplattingGS.h"
 #include "SplattingPS.h"
 #include "SplattingVS.h"
