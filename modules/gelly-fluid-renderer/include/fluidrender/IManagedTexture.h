@@ -3,6 +3,7 @@
 
 #include <GellyInterface.h>
 #include <GellyObserverPtr.h>
+#include <d3d11.h>
 #include <dxgiformat.h>
 
 #include <cstdint>
@@ -37,9 +38,19 @@ enum class TextureAccess : uint8_t {
 	WRITE = 0b10,
 };
 
+enum class TextureFilter : uint8_t {
+	POINT,
+};
+
+enum class TextureAddressMode : uint8_t {
+	WRAP,
+};
+
 struct TextureDesc {
-	TextureFormat format;
-	TextureAccess access;
+	TextureFormat format{};
+	TextureAccess access{};
+	TextureFilter filter = TextureFilter::POINT;
+	TextureAddressMode addressMode = TextureAddressMode::WRAP;
 
 	uint16_t width{};
 	uint16_t height{};
@@ -56,6 +67,26 @@ enum class TextureResource : uint8_t {
 	D3D11_RTV,
 	D3D11_UAV,
 };
+
+inline D3D11_TEXTURE_ADDRESS_MODE TextureAddressModeToD3D11(
+	const TextureAddressMode &mode
+) {
+	switch (mode) {
+		case TextureAddressMode::WRAP:
+			return D3D11_TEXTURE_ADDRESS_WRAP;
+		default:
+			return D3D11_TEXTURE_ADDRESS_CLAMP;
+	}
+}
+
+inline D3D11_FILTER TextureFilterToD3D11(const TextureFilter &filter) {
+	switch (filter) {
+		case TextureFilter::POINT:
+			return D3D11_FILTER_MIN_MAG_MIP_POINT;
+		default:
+			return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	}
+}
 
 inline DXGI_FORMAT GetDXGIFormat(const TextureFormat format) {
 	switch (format) {
@@ -104,7 +135,8 @@ constexpr bool operator==(const enum TextureAccess a, const int b) {
  */
 gelly_interface IManagedTexture {
 public:
-	using OptionalDepthBuffer = std::optional<GellyObserverPtr<IManagedDepthBuffer>>;
+	using OptionalDepthBuffer =
+		std::optional<GellyObserverPtr<IManagedDepthBuffer>>;
 
 	virtual ~IManagedTexture() = default;
 
@@ -134,9 +166,7 @@ public:
 	virtual void *GetResource(TextureResource resource) = 0;
 
 	virtual void BindToPipeline(
-		TextureBindStage stage,
-		uint8_t slot,
-		OptionalDepthBuffer depthBuffer
+		TextureBindStage stage, uint8_t slot, OptionalDepthBuffer depthBuffer
 	) = 0;
 
 	virtual void Clear(const float color[4]) = 0;

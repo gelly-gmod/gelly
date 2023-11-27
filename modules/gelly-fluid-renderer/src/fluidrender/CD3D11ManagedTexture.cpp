@@ -92,6 +92,14 @@ bool CD3D11ManagedTexture::Create() {
 		   device->CreateUnorderedAccessView(texture, &uavDesc, &uav));
 	}
 
+	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = TextureFilterToD3D11(desc.filter);
+	samplerDesc.AddressU = samplerDesc.AddressV = samplerDesc.AddressW =
+		TextureAddressModeToD3D11(desc.addressMode);
+
+	DX("Failed to create D3D11 sampler",
+	   device->CreateSamplerState(&samplerDesc, &sampler));
+
 	return true;
 }
 
@@ -190,6 +198,7 @@ void CD3D11ManagedTexture::BindToPipeline(
 			}
 
 			deviceContext->PSSetShaderResources(slot, 1, &srv);
+			deviceContext->PSSetSamplers(slot, 1, &sampler);
 			break;
 		case TextureBindStage::RENDER_TARGET_OUTPUT: {
 			if (rtv == nullptr) {

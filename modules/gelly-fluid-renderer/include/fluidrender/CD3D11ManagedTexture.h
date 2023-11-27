@@ -15,6 +15,7 @@ private:
 	ID3D11ShaderResourceView *srv;
 	ID3D11RenderTargetView *rtv;
 	ID3D11UnorderedAccessView *uav;
+	ID3D11SamplerState *sampler;
 
 public:
 	CD3D11ManagedTexture();
