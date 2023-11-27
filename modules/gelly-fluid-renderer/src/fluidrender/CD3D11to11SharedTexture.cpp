@@ -314,5 +314,5 @@ void CD3D11to11SharedTexture::CopyToTexture(
 		);
 	}
 
-	deviceContext->CopyResource(d3d11Resource, otherResource);
+	deviceContext->CopyResource(otherResource, d3d11Resource);
 }

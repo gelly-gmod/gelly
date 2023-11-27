@@ -38,6 +38,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
         discard;
     }
 
-    output.Color = BlurDepth(input.Tex);
+    output.Color = float4(BlurDepth(input.Tex).xyz, 1.0f);
     return output;
 }

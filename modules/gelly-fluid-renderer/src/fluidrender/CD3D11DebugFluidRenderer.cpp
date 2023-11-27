@@ -4,13 +4,12 @@
 
 #include <stdexcept>
 
+#include "EstimateNormalPS.h"
 #include "FilterDepthPS.h"
 #include "ScreenQuadVS.h"
 #include "SplattingGS.h"
 #include "SplattingPS.h"
 #include "SplattingVS.h"
-#include "EstimateNormalPS.h"
-
 #include "fluidrender/util/CBuffers.h"
 #include "fluidrender/util/ScreenQuadVB.h"
 
@@ -205,7 +204,7 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 }
 
 void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < 15; i++) {
 		auto *depthTexture =
 			outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
