@@ -68,6 +68,12 @@ public:
 
 	void DestroyTexture(const char *name) override;
 
+	void BindMultipleTexturesAsOutput(
+		GellyInterfaceVal<IManagedTexture> *textures,
+		uint8_t count,
+		IManagedTexture::OptionalDepthBuffer depthBuffer
+	) override;
+
 	void SetDimensions(uint16_t width, uint16_t height) override;
 	void GetDimensions(uint16_t &width, uint16_t &height) override;
 

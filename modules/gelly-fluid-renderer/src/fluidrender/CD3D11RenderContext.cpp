@@ -188,6 +188,54 @@ void CD3D11RenderContext::DestroyTexture(const char *name) {
 	textures.erase(texture);
 }
 
+void CD3D11RenderContext::BindMultipleTexturesAsOutput(
+	GellyInterfaceVal<IManagedTexture> *textures,
+	const uint8_t count,
+	const IManagedTexture::OptionalDepthBuffer depthBuffer
+) {
+	ID3D11RenderTargetView *renderTargetViews[8] = {};
+	ID3D11DepthStencilView *depthStencilView = nullptr;
+
+	for (uint8_t i = 0; i < count; i++) {
+		auto *texture = textures[i];
+		if (texture == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMultipleTexturesAsOutput encountered "
+				"a null texture"
+			);
+		}
+
+		auto *rtv = texture->GetResource(TextureResource::D3D11_RTV);
+		if (rtv == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMultipleTexturesAsOutput encountered "
+				"a null RTV"
+			);
+		}
+
+		renderTargetViews[i] = static_cast<ID3D11RenderTargetView *>(rtv);
+	}
+
+	if (depthBuffer.has_value()) {
+		auto *dsv =
+			depthBuffer.value()->RequestResource(DepthBufferResource::D3D11_DSV
+			);
+
+		if (dsv == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMultipleTexturesAsOutput encountered "
+				"a null DSV"
+			);
+		}
+
+		depthStencilView = static_cast<ID3D11DepthStencilView *>(dsv);
+	}
+
+	deviceContext->OMSetRenderTargets(
+		count, renderTargetViews, depthStencilView
+	);
+}
+
 void CD3D11RenderContext::SetDimensions(uint16_t width, uint16_t height) {
 	this->width = width;
 	this->height = height;

@@ -35,6 +35,9 @@ void CD3D11DebugFluidTextures::SetFeatureTexture(
 		case FluidFeatureType::DEPTH:
 			depth = texture;
 			break;
+		case FluidFeatureType::POSITIONS:
+			positions = texture;
+			break;
 		default:
 			throw std::logic_error(
 				"CD3D11DebugFluidTextures::SetFeatureTexture() encountered an "
@@ -53,6 +56,8 @@ GellyObserverPtr<IManagedTexture> CD3D11DebugFluidTextures::GetFeatureTexture(
 			return normal;
 		case FluidFeatureType::DEPTH:
 			return depth;
+		case FluidFeatureType::POSITIONS:
+			return positions;
 		default:
 			throw std::logic_error(
 				"CD3D11DebugFluidTextures::GetFeatureTexture() encountered an "
@@ -62,5 +67,6 @@ GellyObserverPtr<IManagedTexture> CD3D11DebugFluidTextures::GetFeatureTexture(
 }
 
 bool CD3D11DebugFluidTextures::IsInitialized() {
-	return depth != nullptr && normal != nullptr;
+	return depth != nullptr && normal != nullptr && albedo != nullptr &&
+		   positions != nullptr;
 }

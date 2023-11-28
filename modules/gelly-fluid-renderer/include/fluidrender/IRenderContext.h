@@ -105,6 +105,12 @@ public:
 		const DepthBufferDesc &desc
 	) = 0;
 
+	virtual void BindMultipleTexturesAsOutput(
+		GellyInterfaceVal<IManagedTexture> * textures,
+		uint8_t count,
+		IManagedTexture::OptionalDepthBuffer depthBuffer
+	) = 0;
+
 	/**
 	 * Will throw an exception if the texture does not exist!
 	 * @param name

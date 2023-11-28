@@ -8,6 +8,7 @@ private:
 	GellyObserverPtr<IManagedTexture> albedo;
 	GellyObserverPtr<IManagedTexture> normal;
 	GellyObserverPtr<IManagedTexture> depth;
+	GellyObserverPtr<IManagedTexture> positions;
 
 public:
 	CD3D11DebugFluidTextures();

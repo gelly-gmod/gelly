@@ -180,10 +180,15 @@ constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	buffers.depthBuffer->Clear(1.0f);
 	auto *depthTexture = internalTextures.unfilteredDepth;
+	auto *albedoTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::ALBEDO);
 
 	depthTexture->Clear(clearColor);
-	depthTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
+	albedoTexture->Clear(clearColor);
+
+	IManagedTexture *renderTargets[] = {depthTexture, albedoTexture};
+	context->BindMultipleTexturesAsOutput(
+		renderTargets, ARRAYSIZE(renderTargets), buffers.depthBuffer
 	);
 
 	buffers.positionsLayout->BindAsVertexBuffer();
@@ -229,6 +234,16 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 		// Copy the filtered depth back to the unfiltered depth.
 		// for the next iteration.
 		depthTexture->CopyToTexture(internalTextures.unfilteredDepth);
+		context->SubmitWork();
+	}
+
+	if (settings.filterIterations == 0) {
+		// Just copy the unfiltered depth to the filtered depth without any
+		// filtering.
+		auto *depthTexture =
+			outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+
+		internalTextures.unfilteredDepth->CopyToTexture(depthTexture);
 		context->SubmitWork();
 	}
 }

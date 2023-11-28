@@ -121,7 +121,7 @@ void CreateImGUIElements() {
 		if (ImGui::CollapsingHeader("Render Settings")) {
 			auto settings = GetGellyFluidRenderSettings();
 			if (ImGui::SliderInt(
-					"Smoothing iterations", &settings.filterIterations, 1, 100
+					"Smoothing iterations", &settings.filterIterations, 0, 100
 				)) {
 				// Update only if changed
 				UpdateGellyFluidRenderSettings(settings);

@@ -8,9 +8,7 @@ CD3D11DebugFluidSimulation::CD3D11DebugFluidSimulation()
 	  maxParticles(0) {}
 
 CD3D11DebugFluidSimulation::~CD3D11DebugFluidSimulation() {
-	if (simData != nullptr) {
-		delete simData;
-	}
+	delete simData;
 
 	if (positionBuffer != nullptr) {
 		positionBuffer->Release();
@@ -59,7 +57,7 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 	t += 0.01f;
 	for (int i = 0; i < maxParticles; i++) {
 		// A sphere
-		float r = 0.5f;
+		float r = 1.f;
 		float theta = 2.0f * 3.1415926f * rand() / RAND_MAX;
 		float phi = acos(2.0f * rand() / RAND_MAX - 1.0f);
 		float x = r * sin(phi) * cos(theta);
