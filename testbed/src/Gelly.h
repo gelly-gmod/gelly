@@ -16,5 +16,7 @@ void InitializeGelly(ID3D11Device *rendererDevice, ILogger *newLogger);
 IFluidSimulation *GetGellyFluidSim();
 IFluidRenderer *GetGellyFluidRenderer();
 IRenderContext *GetGellyRenderContext();
+Gelly::FluidRenderSettings GetGellyFluidRenderSettings();
+void UpdateGellyFluidRenderSettings(const Gelly::FluidRenderSettings &settings);
 }  // namespace testbed
 #endif	// GELLY_H

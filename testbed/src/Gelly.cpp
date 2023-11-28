@@ -18,6 +18,7 @@ static ISimContext *simContext = nullptr;
 static IFluidSimulation *fluidSim = nullptr;
 static IRenderContext *renderContext = nullptr;
 static IFluidRenderer *fluidRenderer = nullptr;
+static FluidRenderSettings fluidRenderSettings{};
 
 static GellyObserverPtr<IManagedTexture> fluidAlbedoTexture;
 static GellyObserverPtr<IManagedTexture> fluidDepthTexture;
@@ -140,3 +141,14 @@ IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }
 IFluidRenderer *testbed::GetGellyFluidRenderer() { return fluidRenderer; }
 
 IRenderContext *testbed::GetGellyRenderContext() { return renderContext; }
+
+Gelly::FluidRenderSettings testbed::GetGellyFluidRenderSettings() {
+	return fluidRenderSettings;
+}
+
+void testbed::UpdateGellyFluidRenderSettings(
+	const Gelly::FluidRenderSettings &settings
+) {
+	fluidRenderSettings = settings;
+	fluidRenderer->SetSettings(settings);
+}
