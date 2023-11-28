@@ -17,10 +17,19 @@ void testbed::ssfx::InitializeCompositeSSFX(ILogger *logger) {
 	compositeSSFXEffect.pixelShaderPath =
 		"shaders/CompositeSSFX.ps50.hlsl.dxbc";
 	compositeSSFXEffect.inputTextures = {
-		GELLY_DEPTH_TEXNAME, GELLY_NORMAL_TEXNAME
+		GELLY_DEPTH_TEXNAME,
+		GELLY_NORMAL_TEXNAME,
+		GELLY_ALBEDO_TEXNAME,
+		GELLY_POSITIONS_TEXNAME
 	};
 
-	compositeSSFXEffect.outputTextures = {GBUFFER_NORMAL_TEXNAME};
+	compositeSSFXEffect.outputTextures = {
+		GBUFFER_NORMAL_TEXNAME,
+		GBUFFER_ALBEDO_TEXNAME,
+		GBUFFER_DEPTH_TEXNAME,
+		GBUFFER_POSITION_TEXNAME
+	};
+
 	compositeSSFXEffect.shaderConstantData = nullptr;
 
 	RegisterSSFXEffect(COMPOSITESSFX_EFFECT_NAME, compositeSSFXEffect);

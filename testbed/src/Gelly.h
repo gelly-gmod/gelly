@@ -10,6 +10,7 @@
 #define GELLY_ALBEDO_TEXNAME "gelly/albedo"
 #define GELLY_DEPTH_TEXNAME "gelly/depth"
 #define GELLY_NORMAL_TEXNAME "gelly/normals"
+#define GELLY_POSITIONS_TEXNAME "gelly/positions"
 
 namespace testbed {
 void InitializeGelly(ID3D11Device *rendererDevice, ILogger *newLogger);

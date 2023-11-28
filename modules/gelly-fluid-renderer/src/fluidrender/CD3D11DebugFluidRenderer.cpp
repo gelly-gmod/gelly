@@ -289,12 +289,18 @@ void CD3D11DebugFluidRenderer::Render() {
 	auto *normalsTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS);
 
+	auto *positionsTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::POSITIONS);
+
 	auto *depthTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
 	normalsTexture->Clear(clearColor);
-	normalsTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+	positionsTexture->Clear(clearColor);
+
+	IManagedTexture *renderTargets[] = {normalsTexture, positionsTexture};
+	context->BindMultipleTexturesAsOutput(
+		renderTargets, ARRAYSIZE(renderTargets), std::nullopt
 	);
 
 	depthTexture->BindToPipeline(

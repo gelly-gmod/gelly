@@ -102,6 +102,15 @@ void CreateImGUIElements() {
 
 		if (ImGui::CollapsingHeader("Textures")) {
 			ImGui::Image(
+				GetTextureSRV(GELLY_ALBEDO_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+
+			ImGui::SameLine();
+
+			ImGui::Image(
 				GetTextureSRV(GELLY_DEPTH_TEXNAME),
 				ImVec2(128, 128),
 				ImVec2(0, 0),
@@ -112,6 +121,15 @@ void CreateImGUIElements() {
 
 			ImGui::Image(
 				GetTextureSRV(GELLY_NORMAL_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
+
+			ImGui::SameLine();
+
+			ImGui::Image(
+				GetTextureSRV(GELLY_POSITIONS_TEXNAME),
 				ImVec2(128, 128),
 				ImVec2(0, 0),
 				ImVec2(1, 1)

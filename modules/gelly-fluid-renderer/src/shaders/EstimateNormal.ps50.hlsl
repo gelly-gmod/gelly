@@ -14,7 +14,8 @@ float3 WorldPosFromDepth(float2 tex) {
 }
 
 struct PS_OUTPUT {
-    float4 Color : SV_Target0;
+    float4 PositiveNormal : SV_Target0;
+    float4 WorldPosition : SV_Target1;
 };
 
 PS_OUTPUT main(VS_OUTPUT input) {
@@ -38,6 +39,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
     }
 
     float3 normal = normalize(cross(p1 - p0, p3 - p0));
-    output.Color = float4(-normal * 0.5f + 0.5f, 1.f);
+    output.PositiveNormal = float4(-normal * 0.5f + 0.5f, 1.f);
+    output.WorldPosition = float4(WorldPosFromDepth(input.Tex), 1.f);
     return output;
 }

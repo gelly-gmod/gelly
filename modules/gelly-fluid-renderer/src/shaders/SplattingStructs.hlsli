@@ -8,7 +8,8 @@ struct GS_OUTPUT {
 };
 
 struct PS_OUTPUT {
-    float4 DepthOut : SV_Target0;
+    float4 ShaderDepth : SV_Target0;
+    float4 Albedo : SV_Target1;
     float Depth : SV_Depth;
 };
 

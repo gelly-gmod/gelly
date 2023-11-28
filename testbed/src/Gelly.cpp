@@ -64,6 +64,18 @@ void CreateGellyTextures() {
 		"testbed/gelly/normals", GetTextureSharedHandle(GELLY_NORMAL_TEXNAME)
 	);
 
+	FeatureTextureInfo fluidPositionsTextureInfo{};
+	fluidPositionsTextureInfo.width = WINDOW_WIDTH;
+	fluidPositionsTextureInfo.height = WINDOW_HEIGHT;
+	fluidPositionsTextureInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	fluidPositionsTextureInfo.shared = true;
+
+	CreateFeatureTexture(GELLY_POSITIONS_TEXNAME, fluidPositionsTextureInfo);
+	auto fluidPositionsTexture = renderContext->CreateSharedTexture(
+		"testbed/gelly/positions",
+		GetTextureSharedHandle(GELLY_POSITIONS_TEXNAME)
+	);
+
 	// Link the textures to the fluid renderer
 	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
 		FluidFeatureType::ALBEDO, fluidAlbedoTexture
@@ -75,6 +87,10 @@ void CreateGellyTextures() {
 
 	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
 		FluidFeatureType::NORMALS, fluidNormalsTexture
+	);
+
+	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
+		FluidFeatureType::POSITIONS, fluidPositionsTexture
 	);
 }
 
