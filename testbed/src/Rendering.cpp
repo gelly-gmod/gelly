@@ -94,6 +94,7 @@ void CreateImGUIElements() {
 	ImGui::Begin("Testbed");
 	if (ImGui::CollapsingHeader("Frame Stats")) {
 		ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+		ImGui::Text("Frame time: %.2f ms", ImGui::GetIO().DeltaTime * 1000.0f);
 	}
 
 	if (ImGui::CollapsingHeader("Gelly Integration")) {

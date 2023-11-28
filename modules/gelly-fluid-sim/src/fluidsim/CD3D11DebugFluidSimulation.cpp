@@ -56,13 +56,10 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 	auto *positionData = static_cast<SimFloat4 *>(mappedSubresource.pData);
 	t += 0.01f;
 	for (int i = 0; i < maxParticles; i++) {
-		// A sphere
-		float r = 1.f;
-		float theta = 2.0f * 3.1415926f * rand() / RAND_MAX;
-		float phi = acos(2.0f * rand() / RAND_MAX - 1.0f);
-		float x = r * sin(phi) * cos(theta);
-		float y = r * sin(phi) * sin(theta);
-		float z = r * cos(phi);
+		// A cube
+		float x = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		float y = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		float z = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 
 		positionData[i].x = x;
 		positionData[i].y = y;
