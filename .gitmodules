@@ -62,3 +62,6 @@
 [submodule "modules/gelly-fluid-renderer/vendor/renderdoc"]
 	path = modules/gelly-fluid-renderer/vendor/renderdoc
 	url = https://github.com/baldurk/renderdoc.git
+[submodule "modules/gelly-fluid-sim/vendor/FleX"]
+	path = modules/gelly-fluid-sim/vendor/FleX
+	url = https://github.com/NVIDIAGameWorks/FleX.git
