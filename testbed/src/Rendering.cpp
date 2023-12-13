@@ -66,6 +66,10 @@ static unsigned int lastRasterizerFlags = 0b00;
 static const unsigned int RASTERIZER_FLAG_WIREFRAME = 0b01;
 static const unsigned int RASTERIZER_FLAG_NOCULL = 0b10;
 
+constexpr unsigned int MAX_FRAME_TIME_HISTORY = 512;
+static float frameTimeHistory[MAX_FRAME_TIME_HISTORY] = {};
+static unsigned int frameTimeHistoryIndex = 0;
+
 void CreateRasterizerState() {
 	if (rasterizerState) {
 		rasterizerState->Release();
@@ -95,6 +99,26 @@ void CreateImGUIElements() {
 	if (ImGui::CollapsingHeader("Frame Stats")) {
 		ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
 		ImGui::Text("Frame time: %.2f ms", ImGui::GetIO().DeltaTime * 1000.0f);
+
+		// collect frame time history
+		if (frameTimeHistoryIndex == MAX_FRAME_TIME_HISTORY) {
+			frameTimeHistoryIndex = 0;
+		}
+
+		frameTimeHistory[frameTimeHistoryIndex] =
+			ImGui::GetIO().DeltaTime * 1000.0f;
+		frameTimeHistoryIndex++;
+
+		ImGui::PlotLines(
+			"Frame time history",
+			frameTimeHistory,
+			MAX_FRAME_TIME_HISTORY,
+			static_cast<int>(frameTimeHistoryIndex),
+			nullptr,
+			0.0f,
+			25.f,
+			ImVec2(0, 80)
+		);
 	}
 
 	if (ImGui::CollapsingHeader("Gelly Integration")) {
