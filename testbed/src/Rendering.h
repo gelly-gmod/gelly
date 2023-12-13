@@ -73,6 +73,8 @@ ID3D11RenderTargetView *GetBackBufferRTV(ID3D11Device *device);
 ID3D11DepthStencilView *GetDepthBufferDSV(ID3D11Device *device);
 ID3D11DepthStencilState *GetDepthBufferState(ID3D11Device *device);
 
+GenericRenderCBuffer CreateGenericRenderCBuffer(const Camera &camera);
+
 void StartFrame();
 void EndFrame();
 MeshReference CreateWorldMesh(const WorldMesh &mesh);

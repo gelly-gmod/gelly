@@ -30,7 +30,7 @@ float4 BlurDepth(float2 tex) {
         // we just take the original sample if the current sample is null
         gausSample = lerp(gausSample, InputDepth.Sample(InputDepthSampler, tex) * g_blurWeights[i], 1.f - gausSample.a);
 
-        color += gausSample;
+        color += float4(gausSample.xyz, 1.0f);
     }
 
     return color;

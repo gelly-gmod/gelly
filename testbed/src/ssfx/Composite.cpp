@@ -30,8 +30,6 @@ void testbed::ssfx::InitializeCompositeSSFX(ILogger *logger) {
 		GBUFFER_POSITION_TEXNAME
 	};
 
-	compositeSSFXEffect.shaderConstantData = nullptr;
-
 	RegisterSSFXEffect(COMPOSITESSFX_EFFECT_NAME, compositeSSFXEffect);
 
 	logger->Info("Done!");

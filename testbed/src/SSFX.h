@@ -21,7 +21,8 @@ struct SSFXEffect {
 	 * \brief Raw constant data for the specified pixel shader. This will be
 	 * uploaded as a constant buffer in slot 1.
 	 */
-	ConstantDataPtr shaderConstantData;
+	ConstantDataPtr shaderConstantData[8];
+	unsigned int shaderConstantBufferCount = 0;
 };
 
 void InitializeSSFXSystem(ILogger *newLogger, ID3D11Device *rendererDevice);
@@ -32,7 +33,9 @@ bool IsSSFXInitialized();
  * \param effect The effect layout
  */
 void RegisterSSFXEffect(const char *name, const SSFXEffect &effect);
-SSFXEffect::ConstantDataPtr GetSSFXEffectConstantData(const char *name);
+SSFXEffect::ConstantDataPtr GetSSFXEffectConstantData(
+	const char *name, int slot = 0
+);
 /**
  * \brief Ensures that the constant data on the CPU is synchronized with the
  * GPU. Use after each call to UpdateSSFXEffectConstants
@@ -43,9 +46,9 @@ void ApplySSFXEffect(const char *name, bool depthBufferEnabled = false);
 
 template <typename T>
 inline void SetStructAsEffectConstant(
-	T *unownedDataPtr, const char *effectName
+	T *unownedDataPtr, const char *effectName, const int slot = 0
 ) {
-	const auto constantData = GetSSFXEffectConstantData(effectName);
+	const auto constantData = GetSSFXEffectConstantData(effectName, slot);
 	memcpy(constantData->data(), unownedDataPtr, sizeof(T));
 	UpdateSSFXEffectConstants(effectName);
 }

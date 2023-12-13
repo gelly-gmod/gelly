@@ -32,15 +32,16 @@ static constexpr const char *NDCQUAD_VERTEX_SHADER_PATH =
 
 struct SSFXEffectResources {
 	SSFXEffect effectData;
-	ComPtr<ID3D11Buffer> constantBuffer;
+	ComPtr<ID3D11Buffer> constantBuffers[8];
+
 	ComPtr<ID3D11PixelShader> pixelShader;
 
 	std::vector<ID3D11ShaderResourceView *> cachedSRVs;
 	std::vector<ID3D11SamplerState *> cachedSamplers;
 	std::vector<ID3D11RenderTargetView *> cachedRTVs;
 
-	[[nodiscard]] inline bool HasConstantBuffer() const {
-		return constantBuffer != nullptr;
+	[[nodiscard]] inline bool HasConstantBuffers() const {
+		return effectData.shaderConstantBufferCount > 0;
 	}
 };
 
@@ -170,26 +171,39 @@ void testbed::RegisterSSFXEffect(const char *name, const SSFXEffect &effect) {
 	SSFXEffectResourcesPtr resources = std::make_shared<SSFXEffectResources>();
 	resources->effectData = effect;
 
-	if (effect.shaderConstantData) {
-		D3D11_BUFFER_DESC constantBufferDesc{};
-		constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		constantBufferDesc.ByteWidth =
-			static_cast<UINT>(effect.shaderConstantData->size());
-		constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	if (effect.shaderConstantBufferCount > 0) {
+		for (int i = 0; i < effect.shaderConstantBufferCount; i++) {
+			auto &constantData = effect.shaderConstantData[i];
+			if (constantData == nullptr) {
+				logger->Error(
+					"SSFX effect %s has a null constant buffer at index %d",
+					name,
+					i
+				);
+				return;
+			}
 
-		D3D11_SUBRESOURCE_DATA constantBufferData{};
-		constantBufferData.pSysMem = effect.shaderConstantData->data();
+			D3D11_BUFFER_DESC constantBufferDesc{};
+			constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			constantBufferDesc.ByteWidth =
+				static_cast<UINT>(constantData->size());
+			constantBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
-		HRESULT hr = rendererDevice->CreateBuffer(
-			&constantBufferDesc, &constantBufferData, &resources->constantBuffer
-		);
+			D3D11_SUBRESOURCE_DATA constantBufferData{};
+			constantBufferData.pSysMem = constantData->data();
 
-		if (FAILED(hr)) {
-			logger->Error(
-				"Failed to create constant buffer for SSFX effect %s", name
-			);
-			return;
+			if (const HRESULT hr = rendererDevice->CreateBuffer(
+					&constantBufferDesc,
+					&constantBufferData,
+					&resources->constantBuffers[i]
+				);
+				FAILED(hr)) {
+				logger->Error(
+					"Failed to create constant buffer for SSFX effect %s", name
+				);
+				return;
+			}
 		}
 	}
 
@@ -202,7 +216,8 @@ void testbed::RegisterSSFXEffect(const char *name, const SSFXEffect &effect) {
 	effects[name] = std::move(resources);
 }
 
-SSFXEffect::ConstantDataPtr testbed::GetSSFXEffectConstantData(const char *name
+SSFXEffect::ConstantDataPtr testbed::GetSSFXEffectConstantData(
+	const char *name, int slot
 ) {
 	const auto it = effects.find(name);
 	if (it == effects.end()) {
@@ -210,12 +225,12 @@ SSFXEffect::ConstantDataPtr testbed::GetSSFXEffectConstantData(const char *name
 		return nullptr;
 	}
 
-	if (!it->second->HasConstantBuffer()) {
+	if (!it->second->HasConstantBuffers()) {
 		logger->Error("SSFX effect %s does not have a constant buffer", name);
 		return nullptr;
 	}
 
-	return it->second->effectData.shaderConstantData;
+	return it->second->effectData.shaderConstantData[slot];
 }
 
 void testbed::UpdateSSFXEffectConstants(const char *name) {
@@ -225,32 +240,34 @@ void testbed::UpdateSSFXEffectConstants(const char *name) {
 		return;
 	}
 
-	if (!it->second->HasConstantBuffer()) {
+	if (!it->second->HasConstantBuffers()) {
 		logger->Error("SSFX effect %s does not have a constant buffer", name);
 		return;
 	}
 
-	D3D11_MAPPED_SUBRESOURCE mappedResource{};
-	HRESULT hr = rendererContext->Map(
-		it->second->constantBuffer.Get(),
-		0,
-		D3D11_MAP_WRITE_DISCARD,
-		0,
-		&mappedResource
-	);
+	for (int i = 0; i < it->second->effectData.shaderConstantBufferCount; i++) {
+		const auto &constantBuffer = it->second->constantBuffers[i];
 
-	if (FAILED(hr)) {
-		logger->Error("Failed to map constant buffer for SSFX effect %s", name);
-		return;
+		D3D11_MAPPED_SUBRESOURCE mappedResource{};
+		HRESULT hr = rendererContext->Map(
+			constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource
+		);
+
+		if (FAILED(hr)) {
+			logger->Error(
+				"Failed to map constant buffer for SSFX effect %s", name
+			);
+			return;
+		}
+
+		std::memcpy(
+			mappedResource.pData,
+			it->second->effectData.shaderConstantData[i]->data(),
+			it->second->effectData.shaderConstantData[i]->size()
+		);
+
+		rendererContext->Unmap(constantBuffer.Get(), 0);
 	}
-
-	std::memcpy(
-		mappedResource.pData,
-		it->second->effectData.shaderConstantData->data(),
-		it->second->effectData.shaderConstantData->size()
-	);
-
-	rendererContext->Unmap(it->second->constantBuffer.Get(), 0);
 }
 
 constexpr ID3D11ShaderResourceView *nullSRVs[8] = {nullptr};
@@ -322,13 +339,17 @@ void testbed::ApplySSFXEffect(const char *name, bool depthBufferEnabled) {
 		rendererContext->VSSetShader(quadVertexShader, nullptr, 0);
 		rendererContext->PSSetShader(effect->pixelShader.Get(), nullptr, 0);
 
-		if (effect->HasConstantBuffer()) {
+		if (effect->HasConstantBuffers()) {
 			rendererContext->PSSetConstantBuffers(
-				1, 1, effect->constantBuffer.GetAddressOf()
+				0,
+				effect->effectData.shaderConstantBufferCount,
+				effect->constantBuffers[0].GetAddressOf()
 			);
 
 			rendererContext->VSSetConstantBuffers(
-				1, 1, effect->constantBuffer.GetAddressOf()
+				0,
+				effect->effectData.shaderConstantBufferCount,
+				effect->constantBuffers[0].GetAddressOf()
 			);
 		}
 	}

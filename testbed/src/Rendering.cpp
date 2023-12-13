@@ -542,6 +542,26 @@ ID3D11DepthStencilState *testbed::GetDepthBufferState(ID3D11Device *device) {
 	return depthStencilState;
 }
 
+GenericRenderCBuffer testbed::CreateGenericRenderCBuffer(const Camera &camera) {
+	GenericRenderCBuffer cbuffer = {};
+	XMStoreFloat4(&cbuffer.eyePos, XMLoadFloat3(&camera.position));
+	cbuffer.windowSize = {
+		static_cast<float>(WINDOW_WIDTH),
+		static_cast<float>(WINDOW_HEIGHT),
+		0.0f,
+		0.0f
+	};
+
+	XMFLOAT4X4 identityModelMatrix = {};
+	XMStoreFloat4x4(&identityModelMatrix, XMMatrixIdentity());
+
+	GenerateCameraMatrices(
+		camera, &identityModelMatrix, &cbuffer.mvp, &cbuffer.invMvp
+	);
+
+	return cbuffer;
+}
+
 void testbed::StartFrame() {
 	ZoneScoped;
 	{
