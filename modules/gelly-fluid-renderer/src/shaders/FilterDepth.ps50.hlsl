@@ -21,6 +21,12 @@ float4 BlurDepth(float2 tex) {
     for (int i = 0; i < 9; ++i) {
         float2 offset = float2(i % 3 - 1, i / 3 - 1) * texelSize;
         float4 gausSample = InputDepth.Sample(InputDepthSampler, tex + offset);
+
+        // Also, if the depth is too far away, we're going to assume that it's a discontinuity and discard it
+        if (abs(gausSample.z - InputDepth.Sample(InputDepthSampler, tex).z) > 0.01f) {
+            gausSample = InputDepth.Sample(InputDepthSampler, tex);
+        }
+
         gausSample.xyz *= g_blurWeights[i];
 
         // if (gausSample.a == 0.f) {
@@ -29,7 +35,6 @@ float4 BlurDepth(float2 tex) {
         // branchless
         // we just take the original sample if the current sample is null
         gausSample = lerp(gausSample, InputDepth.Sample(InputDepthSampler, tex) * g_blurWeights[i], 1.f - gausSample.a);
-
         color += float4(gausSample.xyz, 1.0f);
     }
 

@@ -141,7 +141,6 @@ void CreateImGUIElements() {
 				ImVec2(0, 0),
 				ImVec2(1, 1)
 			);
-
 			ImGui::SameLine();
 
 			ImGui::Image(

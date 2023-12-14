@@ -7,8 +7,8 @@
 
 using namespace testbed;
 
-const int testbed::WINDOW_WIDTH = 1280;
-const int testbed::WINDOW_HEIGHT = 720;
+const int testbed::WINDOW_WIDTH = 1920;
+const int testbed::WINDOW_HEIGHT = 1080;
 
 static SDL_Window *window = nullptr;
 static std::vector<EventInterceptor> eventInterceptors;

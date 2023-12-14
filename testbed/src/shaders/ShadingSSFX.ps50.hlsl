@@ -61,12 +61,17 @@ PS_OUTPUT main(VS_OUTPUT input)
         float3 reflectionDir = reflect(-lightDir, normal);
         float specularStrength = pow(max(dot(reflectionDir, eyeDir), 0.0f), 32.0f);
 
-        specular += light.color * specularStrength;
+        specular += light.color * light.power * specularStrength;
     }
 
     float3 diffuse = brdf * Li;
-    float fresnel = SchlicksDielectric(dot(normal, eyeDir), 1.33f);
-    float3 shading = fresnel * specular + (1.0f - fresnel) * diffuse;
-    output.Color = float4(shading, 1.0f);
+    float fresnel = min(1.f, SchlicksDielectric(dot(normal, eyeDir), 1.33f));
+
+    if (fresnel >= 1.f)
+    {
+        fresnel = 0.f;
+    }
+
+    output.Color = float4((1.f - fresnel) * diffuse + fresnel * specular, 1.0f);
     return output;
 }

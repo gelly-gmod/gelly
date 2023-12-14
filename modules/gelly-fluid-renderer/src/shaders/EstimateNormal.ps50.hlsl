@@ -38,8 +38,10 @@ PS_OUTPUT main(VS_OUTPUT input) {
         discard;
     }
 
-    float3 normal = normalize(cross(p1 - p0, p3 - p0));
-    output.PositiveNormal = float4(-normal * 0.5f + 0.5f, 1.f);
+    float3 normal = -normalize(cross(p1 - p0, p3 - p0));
+    
+
+    output.PositiveNormal = float4(normal * 0.5f + 0.5f, 1.f);
     output.WorldPosition = float4(WorldPosFromDepth(input.Tex), 1.f);
     return output;
 }
