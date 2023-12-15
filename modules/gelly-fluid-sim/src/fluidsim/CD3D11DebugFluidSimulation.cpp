@@ -59,7 +59,7 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 		// A simple sphere
 		float theta = 2.0f * 3.1415926f * rand() / RAND_MAX;
 		float phi = acos(2.0f * rand() / RAND_MAX - 1.0f);
-		float r = 6.f;
+		float r = 1.f;
 		float x = r * sinf(phi) * cosf(theta);
 		float y = r * sinf(phi) * sinf(theta);
 		float z = r * cosf(phi);
