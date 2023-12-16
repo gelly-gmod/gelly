@@ -84,6 +84,10 @@ static bool IsParticlePositionFile(const std::filesystem::path &filePath) {
 	return filePath.extension() == ".pos";
 }
 
+static bool IsParticleAnisotropyFile(const std::filesystem::path &filePath) {
+	return filePath.extension() == ".ani";
+}
+
 static uint FindFrameCount(const std::filesystem::path &datasetPath) {
 	uint frameCount = 0;
 	const auto &fluidFrameDir = datasetPath / "FluidFrame";
@@ -102,7 +106,7 @@ static bool IsAnisotropyPresent(const std::filesystem::path &datasetPath) {
 	const auto &fluidFrameDir = datasetPath / "FluidFrame";
 	for (const auto &entry :
 		 std::filesystem::directory_iterator(fluidFrameDir)) {
-		if (entry.path().extension() == ".ani") {
+		if (IsParticleAnisotropyFile(entry.path())) {
 			anisotropyFramePresent = true;
 			break;
 		}

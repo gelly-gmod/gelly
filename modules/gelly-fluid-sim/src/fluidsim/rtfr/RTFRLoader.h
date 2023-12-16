@@ -16,7 +16,6 @@ struct DatasetInfo {
 	std::string name;
 
 	bool anisotropyPresent;
-
 	uint frameCount;
 	float particleRadius;
 	uint particleCount;
