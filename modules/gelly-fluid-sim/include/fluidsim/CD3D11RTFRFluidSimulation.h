@@ -1,0 +1,7 @@
+#ifndef CD3D11RTFRFLUIDSIMULATION_H
+#define CD3D11RTFRFLUIDSIMULATION_H
+
+#include "CD3D11CPUSimData.h"
+#include "IFluidSimulation.h"
+
+#endif	// CD3D11RTFRFLUIDSIMULATION_H

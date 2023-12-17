@@ -136,6 +136,7 @@ rtfr::DatasetInfo rtfr::LoadDatasetInfo(const std::filesystem::path &datasetPath
 	const auto vizInfo = ParseVizInfo(vizInfoData);
 	return DatasetInfo{
 		GetDatasetName(datasetPath),
+		datasetPath,
 		IsAnisotropyPresent(datasetPath),
 		FindFrameCount(datasetPath),
 		std::get<PARTICLE_RADIUS>(vizInfo),

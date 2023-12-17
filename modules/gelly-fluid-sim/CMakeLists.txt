@@ -10,6 +10,10 @@ add_library(
         src/fluidsim/rtfr/RTFRLoader.h
         src/fluidsim/rtfr/FrameParser.cpp
         src/fluidsim/rtfr/FrameParser.h
+        src/fluidsim/rtfr/Dataset.cpp
+        src/fluidsim/rtfr/Dataset.h
+        src/fluidsim/CD3D11RTFRFluidSimulation.cpp
+        include/fluidsim/CD3D11RTFRFluidSimulation.h
 )
 
 GetFleXArchitecture()

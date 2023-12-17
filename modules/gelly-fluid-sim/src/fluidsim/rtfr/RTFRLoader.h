@@ -14,6 +14,7 @@ using namespace Gelly::DataTypes;
 namespace rtfr {
 struct DatasetInfo {
 	std::string name;
+	std::filesystem::path path;
 
 	bool anisotropyPresent;
 	uint frameCount;

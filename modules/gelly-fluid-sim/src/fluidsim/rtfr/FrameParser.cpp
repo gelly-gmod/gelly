@@ -34,3 +34,7 @@ void rtfr::LoadFrameData(
 	frameFile.seekg(sizeof(FrameHeader));  // Skip the header.
 	frameFile.read(reinterpret_cast<char *>(destinationPtr), frameSize);
 }
+
+uint rtfr::GetFrameSize(const FrameHeader &header) {
+	return header.particleCount * PARTICLE_POS_SIZE;
+}

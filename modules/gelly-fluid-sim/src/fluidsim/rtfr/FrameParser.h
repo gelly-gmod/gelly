@@ -39,6 +39,13 @@ void LoadFrameData(
 	byte *destinationPtr
 );
 
+/**
+ * \brief Returns the size of the frame in bytes.
+ * \param header Header of the frame to get the size of.
+ * \return The size of the frame in bytes.
+ */
+uint GetFrameSize(const FrameHeader &header);
+
 }  // namespace rtfr
 
 #endif	// FRAMEPARSER_H
