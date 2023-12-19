@@ -10,6 +10,9 @@
 #include "SplattingGS.h"
 #include "SplattingPS.h"
 #include "SplattingVS.h"
+#include "ThicknessGS.h"
+#include "ThicknessPS.h"
+#include "ThicknessVS.h"
 #include "fluidrender/util/CBuffers.h"
 #include "fluidrender/util/ScreenQuadVB.h"
 
@@ -36,6 +39,24 @@ void CD3D11DebugFluidRenderer::CreateShaders() {
 	shaders.splattingVS = context->CreateShader(
 		gsc::SplattingVS::GetBytecode(),
 		gsc::SplattingVS::GetBytecodeSize(),
+		ShaderType::Vertex
+	);
+
+	shaders.thicknessGS = context->CreateShader(
+		gsc::ThicknessGS::GetBytecode(),
+		gsc::ThicknessGS::GetBytecodeSize(),
+		ShaderType::Geometry
+	);
+
+	shaders.thicknessPS = context->CreateShader(
+		gsc::ThicknessPS::GetBytecode(),
+		gsc::ThicknessPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
+
+	shaders.thicknessVS = context->CreateShader(
+		gsc::ThicknessVS::GetBytecode(),
+		gsc::ThicknessVS::GetBytecodeSize(),
 		ShaderType::Vertex
 	);
 
@@ -247,6 +268,39 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 		context->SubmitWork();
 	}
 }
+void CD3D11DebugFluidRenderer::RenderNormals() {
+	auto *normalsTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS);
+
+	auto *positionsTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::POSITIONS);
+
+	auto *depthTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+
+	normalsTexture->Clear(clearColor);
+	positionsTexture->Clear(clearColor);
+
+	IManagedTexture *renderTargets[] = {normalsTexture, positionsTexture};
+	context->BindMultipleTexturesAsOutput(
+		renderTargets, ARRAYSIZE(renderTargets), std::nullopt
+	);
+
+	depthTexture->BindToPipeline(
+		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+	);
+
+	shaders.screenQuadVS->Bind();
+	shaders.estimateNormalPS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.screenQuadLayout->BindAsVertexBuffer();
+
+	context->Draw(4, 0);
+	context->SubmitWork();
+	context->ResetPipeline();
+}
+
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {
 		throw std::logic_error(
@@ -284,36 +338,33 @@ void CD3D11DebugFluidRenderer::Render() {
 	// Now we'll filter the depth.
 	RenderFilteredDepth();
 
-	// Finally, we'll estimate the normals.
+	// Then we'll estimate the normals.
 
-	auto *normalsTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS);
+	RenderNormals();
 
-	auto *positionsTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::POSITIONS);
+	// and FINALLY we'll render the thickness.
 
-	auto *depthTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+	auto *thicknessTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
 
-	normalsTexture->Clear(clearColor);
-	positionsTexture->Clear(clearColor);
-
-	IManagedTexture *renderTargets[] = {normalsTexture, positionsTexture};
-	context->BindMultipleTexturesAsOutput(
-		renderTargets, ARRAYSIZE(renderTargets), std::nullopt
+	thicknessTexture->Clear(clearColor);
+	// No depth buffer needed for this pass.
+	thicknessTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 	);
 
-	depthTexture->BindToPipeline(
-		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
-	);
+	buffers.positionsLayout->BindAsVertexBuffer();
 
-	shaders.screenQuadVS->Bind();
-	shaders.estimateNormalPS->Bind();
+	shaders.thicknessGS->Bind();
+	shaders.thicknessPS->Bind();
+	shaders.thicknessVS->Bind();
 
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-	buffers.screenQuadLayout->BindAsVertexBuffer();
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
 
-	context->Draw(4, 0);
+	context->Draw(simData->GetActiveParticles(), 0, true);
+	// we're not using a swapchain, so we need to queue up work manually
 	context->SubmitWork();
 	context->ResetPipeline();
 

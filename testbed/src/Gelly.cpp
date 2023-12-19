@@ -76,6 +76,18 @@ void CreateGellyTextures() {
 		GetTextureSharedHandle(GELLY_POSITIONS_TEXNAME)
 	);
 
+	FeatureTextureInfo fluidThicknessTextureInfo{};
+	fluidThicknessTextureInfo.width = WINDOW_WIDTH;
+	fluidThicknessTextureInfo.height = WINDOW_HEIGHT;
+	fluidThicknessTextureInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	fluidThicknessTextureInfo.shared = true;
+
+	CreateFeatureTexture(GELLY_THICKNESS_TEXNAME, fluidThicknessTextureInfo);
+	auto fluidThicknessTexture = renderContext->CreateSharedTexture(
+		"testbed/gelly/thickness",
+		GetTextureSharedHandle(GELLY_THICKNESS_TEXNAME)
+	);
+
 	// Link the textures to the fluid renderer
 	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
 		FluidFeatureType::ALBEDO, fluidAlbedoTexture
@@ -91,6 +103,10 @@ void CreateGellyTextures() {
 
 	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
 		FluidFeatureType::POSITIONS, fluidPositionsTexture
+	);
+
+	fluidRenderer->GetFluidTextures()->SetFeatureTexture(
+		FluidFeatureType::THICKNESS, fluidThicknessTexture
 	);
 }
 
@@ -120,7 +136,7 @@ void testbed::InitializeGelly(
 
 		logger->Info("Creating the Gelly fluid simulation...");
 		fluidSim = CreateD3D11RTFRFluidSimulation(
-			simContext, "D:/Simulations/SphereEmitter"
+			simContext, "D:/Simulations/DamBreakBunny"
 		);
 
 		logger->Info("Linking the Gelly fluid simulation and renderer...");

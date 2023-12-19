@@ -12,6 +12,7 @@ enum FluidFeatureType {
 	NORMALS,
 	DEPTH,
 	POSITIONS,
+	THICKNESS,
 	// The rest beyond these will likely depend on the renderer.
 	// The above are considered critical for rendering.
 };

@@ -9,6 +9,7 @@ private:
 	GellyObserverPtr<IManagedTexture> normal;
 	GellyObserverPtr<IManagedTexture> depth;
 	GellyObserverPtr<IManagedTexture> positions;
+	GellyObserverPtr<IManagedTexture> thickness;
 
 public:
 	CD3D11DebugFluidTextures();

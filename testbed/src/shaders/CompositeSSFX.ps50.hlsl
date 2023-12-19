@@ -1,4 +1,5 @@
 #include "NDCQuad.hlsli"
+#include "math/BeersLaw.hlsli"
 
 Texture2D GellyDepth : register(t0);
 SamplerState GellyDepthSampler {
@@ -28,6 +29,12 @@ SamplerState GellyPositionsSampler {
     AddressV = Clamp;
 };
 
+texture2D GellyThickness : register(t4);
+SamplerState GellyThicknessSampler {
+    Filter = MIN_MAG_MIP_POINT;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
 
 struct PS_OUTPUT {
     float4 Normal : SV_Target0;
@@ -37,6 +44,9 @@ struct PS_OUTPUT {
     float Depth : SV_Depth;
 };
 
+static const float MINIMUM_THICKNESS = 0.03f;
+static const float3 ABSORPTION = float3(4.f, 1.f, 4.f); // dont absorb too much blue light to give the gelly a blueish tint
+
 PS_OUTPUT main(VS_INPUT input)
 {
     float4 depth = GellyDepth.Sample(GellyDepthSampler, input.Tex);
@@ -44,9 +54,14 @@ PS_OUTPUT main(VS_INPUT input)
         discard;
     }
 
+    float thickness = GellyThickness.Sample(GellyThicknessSampler, input.Tex).x;
+    if (thickness < MINIMUM_THICKNESS) {
+        discard;
+    }
+
     PS_OUTPUT output = (PS_OUTPUT)0;
     output.Normal = float4(GellyNormal.Sample(GellyNormalSampler, input.Tex).xyz * 2.f - 1.f, 1.0f);
-    output.Albedo = GellyAlbedo.Sample(GellyAlbedoSampler, input.Tex);
+    output.Albedo = float4(ComputeAbsorption(ABSORPTION, thickness), 1.0f);
     output.DepthOut = float4(depth.y, depth.y, depth.y, 1.0f);
     output.Positions = GellyPositions.Sample(GellyPositionsSampler, input.Tex);
     output.Depth = depth.y;

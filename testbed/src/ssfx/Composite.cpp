@@ -20,7 +20,8 @@ void testbed::ssfx::InitializeCompositeSSFX(ILogger *logger) {
 		GELLY_DEPTH_TEXNAME,
 		GELLY_NORMAL_TEXNAME,
 		GELLY_ALBEDO_TEXNAME,
-		GELLY_POSITIONS_TEXNAME
+		GELLY_POSITIONS_TEXNAME,
+		GELLY_THICKNESS_TEXNAME
 	};
 
 	compositeSSFXEffect.outputTextures = {

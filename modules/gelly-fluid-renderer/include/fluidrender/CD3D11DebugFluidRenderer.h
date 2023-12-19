@@ -54,6 +54,10 @@ private:
 		GellyInterfaceVal<IManagedShader> splattingVS;
 		GellyInterfaceVal<IManagedShader> splattingGS;
 
+		GellyInterfaceVal<IManagedShader> thicknessPS;
+		GellyInterfaceVal<IManagedShader> thicknessVS;
+		GellyInterfaceVal<IManagedShader> thicknessGS;
+
 		GellyInterfaceVal<IManagedShader> screenQuadVS;
 		GellyInterfaceVal<IManagedShader> filterDepthPS;
 		GellyInterfaceVal<IManagedShader> estimateNormalPS;
@@ -76,6 +80,7 @@ public:
 	GellyObserverPtr<IFluidTextures> GetFluidTextures() override;
 	void RenderUnfilteredDepth();
 	void RenderFilteredDepth();
+	void RenderNormals();
 	void Render() override;
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;

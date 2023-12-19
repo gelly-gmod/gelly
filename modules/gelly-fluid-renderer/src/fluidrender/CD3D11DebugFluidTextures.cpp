@@ -38,6 +38,9 @@ void CD3D11DebugFluidTextures::SetFeatureTexture(
 		case FluidFeatureType::POSITIONS:
 			positions = texture;
 			break;
+		case FluidFeatureType::THICKNESS:
+			thickness = texture;
+			break;
 		default:
 			throw std::logic_error(
 				"CD3D11DebugFluidTextures::SetFeatureTexture() encountered an "
@@ -58,6 +61,8 @@ GellyObserverPtr<IManagedTexture> CD3D11DebugFluidTextures::GetFeatureTexture(
 			return depth;
 		case FluidFeatureType::POSITIONS:
 			return positions;
+		case FluidFeatureType::THICKNESS:
+			return thickness;
 		default:
 			throw std::logic_error(
 				"CD3D11DebugFluidTextures::GetFeatureTexture() encountered an "

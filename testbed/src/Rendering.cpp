@@ -170,6 +170,15 @@ void CreateImGUIElements() {
 				ImVec2(0, 0),
 				ImVec2(1, 1)
 			);
+
+			ImGui::SameLine();
+
+			ImGui::Image(
+				GetTextureSRV(GELLY_THICKNESS_TEXNAME),
+				ImVec2(128, 128),
+				ImVec2(0, 0),
+				ImVec2(1, 1)
+			);
 		}
 
 		if (ImGui::CollapsingHeader("Render Settings")) {

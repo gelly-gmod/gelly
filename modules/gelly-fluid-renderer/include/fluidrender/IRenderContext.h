@@ -134,7 +134,7 @@ public:
 	 */
 	virtual void SubmitWork() = 0;
 
-	virtual void Draw(uint32_t vertexCount, uint32_t startVertex) = 0;
+	virtual void Draw(uint32_t vertexCount, uint32_t startVertex, bool accumulate = false) = 0;
 
 	/**
 	 * \brief Causes everything to be reset to their original state. This should

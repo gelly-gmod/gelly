@@ -61,6 +61,24 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 	   device->CreateRasterizerState(&rasterizerDesc, &rasterizerState));
 
 	deviceContext->RSSetState(rasterizerState);
+
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	// This is our thickness RT, we basically just wanna
+	// accumulate the thickness of the particles
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+		D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+
+	DX("Failed to create D3D11 blend state",
+	   device->CreateBlendState(&blendDesc, &blendState));
 }
 
 void CD3D11RenderContext::CreateAllTextures() {
@@ -277,7 +295,9 @@ void CD3D11RenderContext::SubmitWork() {
 }
 
 void CD3D11RenderContext::Draw(
-	const uint32_t vertexCount, const uint32_t startVertex
+	const uint32_t vertexCount,
+	const uint32_t startVertex,
+	const bool accumulate
 ) {
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(width);
@@ -286,6 +306,9 @@ void CD3D11RenderContext::Draw(
 	viewport.MinDepth = 0.0f;
 	deviceContext->RSSetViewports(1, &viewport);
 	deviceContext->RSSetState(rasterizerState);
+	if (accumulate) {
+		deviceContext->OMSetBlendState(blendState, nullptr, 0xffffffff);
+	}
 	deviceContext->Draw(vertexCount, startVertex);
 }
 
