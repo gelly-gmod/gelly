@@ -41,11 +41,11 @@ struct PS_OUTPUT {
     float4 Albedo : SV_Target1;
     float4 DepthOut : SV_Target2;
     float4 Positions : SV_Target3;
-    float Depth : SV_Depth;
+    float Depth : SV_DepthLessEqual;
 };
 
-static const float MINIMUM_THICKNESS = 0.01f;
-static const float3 ABSORPTION = float3(4.f, 1.f, 4.f); // dont absorb too much blue light to give the gelly a blueish tint
+static const float MINIMUM_THICKNESS = 0.05f;
+static const float3 ABSORPTION = float3(12.f, 12.f, 1.f); // dont absorb too much blue light to give the gelly a blueish tint
 
 PS_OUTPUT main(VS_INPUT input)
 {

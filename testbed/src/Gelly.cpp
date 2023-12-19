@@ -135,7 +135,7 @@ void testbed::InitializeGelly(
 
 		logger->Info("Creating the Gelly fluid simulation...");
 		fluidSim = CreateD3D11RTFRFluidSimulation(
-			simContext, "D:/Simulations/SphereDropGround/SphereDropGround"
+			simContext, "D:/Simulations/DamBreakBunny"
 		);
 
 		logger->Info("Linking the Gelly fluid simulation and renderer...");
