@@ -30,6 +30,23 @@ Dataset::Dataset(const DatasetInfo &info)
 	LoadAllFrameFiles(info);
 }
 
+bool Dataset::IsLoaded() const { return !frameMemory.empty(); }
+
+void Dataset::LoadDataset(const DatasetInfo &info) {
+	if (!frameMemory.empty()) {
+		for (const auto &frame : frameMemory) {
+			delete[] frame;
+		}
+	}
+
+	frameMemory.clear();
+	frameHeaders.clear();
+	frameMemory.resize(info.frameCount);
+	frameHeaders.resize(info.frameCount);
+
+	LoadAllFrameFiles(info);
+}
+
 Dataset::~Dataset() {
 	for (const auto &frame : frameMemory) {
 		delete[] frame;
@@ -37,6 +54,12 @@ Dataset::~Dataset() {
 }
 
 float *Dataset::GetParticle(uint particleIndex, uint frameIndex) const {
-	const auto frameOffset = particleIndex * PARTICLE_POS_SIZE;
-	return reinterpret_cast<float *>(frameMemory[frameIndex] + frameOffset);
+	const uintptr_t frameOffset = particleIndex * PARTICLE_POS_SIZE;
+	return reinterpret_cast<float *>(
+		reinterpret_cast<char *>(frameMemory[frameIndex]) + frameOffset
+	);
+}
+
+uint Dataset::GetParticleCount(uint frameIndex) const {
+	return frameHeaders[frameIndex].particleCount;
 }

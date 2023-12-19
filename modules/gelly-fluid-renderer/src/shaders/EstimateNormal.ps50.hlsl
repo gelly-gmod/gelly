@@ -5,7 +5,8 @@ Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
 
 float3 WorldPosFromDepth(float2 tex) {
-    float depth = InputDepth.Sample(InputDepthSampler, tex).r;
+    float depth = InputDepth.Sample(InputDepthSampler, tex).g;
+
     float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
     pos = mul(g_InverseProjection, pos);
     pos = mul(g_InverseView, pos);

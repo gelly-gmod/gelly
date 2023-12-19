@@ -41,3 +41,9 @@ void CD3D11CPUSimData::SetMaxParticles(const int maxParticles) {
 }
 
 int CD3D11CPUSimData::GetMaxParticles() { return maxParticles; }
+
+void CD3D11CPUSimData::SetActiveParticles(const int activeParticles) {
+	this->activeParticles = activeParticles;
+}
+
+int CD3D11CPUSimData::GetActiveParticles() { return activeParticles; }

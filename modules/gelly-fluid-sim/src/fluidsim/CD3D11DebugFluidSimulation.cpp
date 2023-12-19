@@ -120,6 +120,7 @@ void CD3D11DebugFluidSimulation::SetMaxParticles(int maxParticles) {
 
 	this->maxParticles = maxParticles;
 	simData->SetMaxParticles(maxParticles);
+	simData->SetActiveParticles(maxParticles);
 }
 
 void CD3D11DebugFluidSimulation::Initialize() {

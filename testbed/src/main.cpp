@@ -38,6 +38,9 @@ int main() {
 	ssfx::InitializeCompositeSSFX(logger);
 
 	LoadScene({"assets/01_gelly_springs.gltf"});
+	std::chrono::high_resolution_clock::time_point lastFrameTime =
+		std::chrono::high_resolution_clock::now();
+
 	bool isRunning = true;
 	while (isRunning) {
 		isRunning = HandleWindowMessages();
@@ -46,9 +49,19 @@ int main() {
 		StartFrame();
 		RenderScene();
 		ssfx::UpdateShadingSSFXConstants();
-		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME, true);
+
+		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME, false);
 		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		EndFrame();
+
+		std::chrono::high_resolution_clock::time_point thisFrameTime =
+			std::chrono::high_resolution_clock::now();
+
+		const float deltaTime =
+			std::chrono::duration<float>(thisFrameTime - lastFrameTime).count();
+		GetGellyFluidSim()->Update(deltaTime);
+
+		lastFrameTime = thisFrameTime;
 		FrameMark;
 
 #ifdef _DEBUG

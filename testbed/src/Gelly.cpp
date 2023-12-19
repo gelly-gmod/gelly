@@ -119,10 +119,11 @@ void testbed::InitializeGelly(
 		);
 
 		logger->Info("Creating the Gelly fluid simulation...");
-		fluidSim = CreateD3D11DebugFluidSimulation(simContext);
+		fluidSim = CreateD3D11RTFRFluidSimulation(
+			simContext, "D:/Simulations/SphereEmitter"
+		);
 
 		logger->Info("Linking the Gelly fluid simulation and renderer...");
-		fluidSim->SetMaxParticles(maxParticles);
 		fluidRenderer->SetSimData(fluidSim->GetSimulationData());
 
 		fluidSim->Initialize();

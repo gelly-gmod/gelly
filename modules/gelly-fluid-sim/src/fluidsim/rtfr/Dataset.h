@@ -16,9 +16,13 @@ private:
 	void LoadAllFrameFiles(const DatasetInfo &info);
 
 public:
+	Dataset() = default;  // Vectors are going to be empty, so its fine.
 	explicit Dataset(const DatasetInfo &info);
 	~Dataset();
 
+	void LoadDataset(const DatasetInfo &info);
+
+	[[nodiscard]] bool IsLoaded() const;
 	/**
 	 * \brief Retrieves the position of a particle from a given frame.
 	 * \param particleIndex Index of the particle to get.
@@ -27,6 +31,7 @@ public:
 	 * Usually this is three floats.
 	 */
 	[[nodiscard]] float *GetParticle(uint particleIndex, uint frameIndex) const;
+	[[nodiscard]] uint GetParticleCount(uint frameIndex) const;
 };
 }  // namespace rtfr
 

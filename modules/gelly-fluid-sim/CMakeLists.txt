@@ -38,11 +38,13 @@ set(FLEX_DLLS
 target_include_directories(
         gelly_fluid_sim
         PUBLIC
+        src/fluidsim
         include
         ../gelly-interfaces/include
         ../gelly-d3d/include
         ${FLEX_PATH}/include
 )
+
 
 target_link_libraries(
         gelly_fluid_sim

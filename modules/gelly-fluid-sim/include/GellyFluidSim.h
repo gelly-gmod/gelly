@@ -3,6 +3,8 @@
 
 #include <d3d11.h>
 
+#include <filesystem>
+
 #include "fluidsim/CD3D11DebugFluidSimulation.h"
 #include "fluidsim/ISimContext.h"
 
@@ -13,6 +15,11 @@ ISimContext *CreateD3D11SimContext(
 
 IFluidSimulation *CreateD3D11DebugFluidSimulation(
 	GellyObserverPtr<ISimContext> context
+);
+
+IFluidSimulation *CreateD3D11RTFRFluidSimulation(
+	GellyObserverPtr<ISimContext> context,
+	const std::filesystem::path &folderPath
 );
 }  // namespace Gelly
 #endif	// GELLY_GELLYFLUIDSIM_H

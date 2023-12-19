@@ -38,6 +38,9 @@ public:
 
 	virtual void SetMaxParticles(int maxParticles) = 0;
 	virtual int GetMaxParticles() = 0;
+
+	virtual void SetActiveParticles(int activeParticles) = 0;
+	virtual int GetActiveParticles() = 0;
 };
 
 #endif	// GELLY_ISIMDATA_H

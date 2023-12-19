@@ -14,6 +14,7 @@ private:
 	ID3D11Buffer *velocityBuffer;
 
 	int maxParticles;
+	int activeParticles;
 
 public:
 	explicit CD3D11CPUSimData();
@@ -27,6 +28,9 @@ public:
 
 	void SetMaxParticles(int maxParticles) override;
 	int GetMaxParticles() override;
+
+	void SetActiveParticles(int activeParticles) override;
+	int GetActiveParticles() override;
 };
 
 #endif	// GELLY_CD3D11CPUSIMDATA_H

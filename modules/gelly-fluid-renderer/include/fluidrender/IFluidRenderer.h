@@ -11,7 +11,7 @@
 namespace Gelly {
 struct FluidRenderSettings {
 	float particleRadius = 0.1f;
-	int filterIterations = 35;
+	int filterIterations = 1;
 };
 
 struct FluidRenderParams {

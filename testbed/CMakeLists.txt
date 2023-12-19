@@ -69,6 +69,8 @@ if (GELLY_OVERRIDE_RENDERDOC)
     target_compile_definitions(testbed PRIVATE GELLY_OVERRIDE_RENDERDOC)
 endif ()
 
+target_compile_definitions(testbed PRIVATE GELLY_OVERRIDE_RENDERDOC)
+
 # https://github.com/libsdl-org/SDL/issues/6399#issuecomment-1280612287
 if (WIN32)
     add_custom_command(

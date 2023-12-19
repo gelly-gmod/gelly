@@ -201,7 +201,7 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
 
-	context->Draw(maxParticles, 0);
+	context->Draw(simData->GetActiveParticles(), 0);
 	// we're not using a swapchain, so we need to queue up work manually
 	context->SubmitWork();
 	context->ResetPipeline();

@@ -125,6 +125,16 @@ void CreateImGUIElements() {
 		ImGui::Text("Gelly renderer backend: D3D11");
 		ImGui::Text("Gelly simulation backend: FleX using D3D11");
 
+		ImGui::Text(
+			"Sim max particle count: %d",
+			GetGellyFluidSim()->GetSimulationData()->GetMaxParticles()
+		);
+
+		ImGui::Text(
+			"Sim active particle count: %d",
+			GetGellyFluidSim()->GetSimulationData()->GetActiveParticles()
+		);
+
 		if (ImGui::CollapsingHeader("Textures")) {
 			ImGui::Image(
 				GetTextureSRV(GELLY_ALBEDO_TEXNAME),

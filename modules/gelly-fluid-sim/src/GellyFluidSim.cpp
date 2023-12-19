@@ -1,5 +1,6 @@
 #include "GellyFluidSim.h"
 
+#include "fluidsim/CD3D11RTFRFluidSimulation.h"
 #include "fluidsim/CD3D11SimContext.h"
 
 ISimContext *Gelly::CreateD3D11SimContext(
@@ -18,6 +19,17 @@ IFluidSimulation *Gelly::CreateD3D11DebugFluidSimulation(
 ) {
 	auto *sim = new CD3D11DebugFluidSimulation();
 	sim->AttachToContext(context);
+
+	return sim;
+}
+
+IFluidSimulation *Gelly::CreateD3D11RTFRFluidSimulation(
+	GellyObserverPtr<ISimContext> context,
+	const std::filesystem::path &folderPath
+) {
+	auto *sim = new CD3D11RTFRFluidSimulation();
+	sim->AttachToContext(context);
+	sim->LoadDatasetFromFolder(folderPath);
 
 	return sim;
 }
