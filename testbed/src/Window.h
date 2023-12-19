@@ -12,6 +12,8 @@
 namespace testbed {
 extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
+extern const int LOWRES_WINDOW_WIDTH;
+extern const int LOWRES_WINDOW_HEIGHT;
 
 using EventInterceptor = void (*)(SDL_Event *event);
 

@@ -359,6 +359,11 @@ void CD3D11DebugFluidRenderer::Render() {
 	shaders.thicknessPS->Bind();
 	shaders.thicknessVS->Bind();
 
+	// For thickness, it may be rendered at a lower resolution than the
+	// original render target, so we need to update the width and height of
+	// the cbuffer. We can also do this pretty much one time only since this
+	// is the last pass.
+
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);

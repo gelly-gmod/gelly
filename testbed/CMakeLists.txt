@@ -15,6 +15,9 @@ set(IMGUI_SOURCES
         vendor/imgui/backends/imgui_impl_dx11.cpp
         src/ssfx/Composite.h
         src/ssfx/Composite.cpp
+        src/ui/TestbedWindow.cpp
+        src/ui/TestbedWindow.h
+        src/ui/UIData.h
 )
 
 add_executable(testbed

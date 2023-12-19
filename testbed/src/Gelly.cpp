@@ -77,8 +77,8 @@ void CreateGellyTextures() {
 	);
 
 	FeatureTextureInfo fluidThicknessTextureInfo{};
-	fluidThicknessTextureInfo.width = WINDOW_WIDTH;
-	fluidThicknessTextureInfo.height = WINDOW_HEIGHT;
+	fluidThicknessTextureInfo.width = LOWRES_WINDOW_WIDTH;
+	fluidThicknessTextureInfo.height = LOWRES_WINDOW_HEIGHT;
 	fluidThicknessTextureInfo.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	fluidThicknessTextureInfo.shared = true;
 
@@ -114,6 +114,7 @@ void testbed::InitializeGelly(
 	ID3D11Device *rendererDevice, ILogger *newLogger
 ) {
 	logger = newLogger;
+
 	try {
 		logger->Info("Creating the Gelly render context...");
 		renderContext =
@@ -136,7 +137,7 @@ void testbed::InitializeGelly(
 
 		logger->Info("Creating the Gelly fluid simulation...");
 		fluidSim = CreateD3D11RTFRFluidSimulation(
-			simContext, "D:/Simulations/DamBreakBunny"
+			simContext, "D:/Simulations/SphereEmitter"
 		);
 
 		logger->Info("Linking the Gelly fluid simulation and renderer...");

@@ -31,7 +31,7 @@ SamplerState GellyPositionsSampler {
 
 texture2D GellyThickness : register(t4);
 SamplerState GellyThicknessSampler {
-    Filter = MIN_MAG_MIP_POINT;
+    Filter = MIN_MAG_MIP_LINEAR;
     AddressU = Clamp;
     AddressV = Clamp;
 };

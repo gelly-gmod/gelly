@@ -15,6 +15,7 @@
 #include "Shaders.h"
 #include "Textures.h"
 #include "Window.h"
+#include "ui/TestbedWindow.h"
 
 static testbed::ILogger *logger = nullptr;
 
@@ -61,24 +62,15 @@ static ID3D11InputLayout *genericWorldLitInputLayout = nullptr;
 static d3d11::ConstantBuffer<GenericRenderCBuffer> worldRenderConstants;
 static std::unordered_map<MeshReference, D3D11WorldMesh> worldMeshes;
 
-static float thresholdRatio = 16.5f;
-
-static unsigned int rasterizerFlags = 0b00;
-static unsigned int lastRasterizerFlags = 0b00;
-static const unsigned int RASTERIZER_FLAG_WIREFRAME = 0b01;
-static const unsigned int RASTERIZER_FLAG_NOCULL = 0b10;
-
-constexpr unsigned int MAX_FRAME_TIME_HISTORY = 512;
-static float frameTimeHistory[MAX_FRAME_TIME_HISTORY] = {};
-static unsigned int frameTimeHistoryIndex = 0;
-
 void CreateRasterizerState() {
 	if (rasterizerState) {
 		rasterizerState->Release();
 	}
 
-	const bool wireframe = rasterizerFlags & RASTERIZER_FLAG_WIREFRAME;
-	const bool cull = !(rasterizerFlags & RASTERIZER_FLAG_NOCULL);
+	const bool wireframe =
+		UI_DATA(TestbedWindow, rasterizerFlags) & RASTERIZER_FLAG_WIREFRAME;
+	const bool cull =
+		!(UI_DATA(TestbedWindow, rasterizerFlags) & RASTERIZER_FLAG_NOCULL);
 
 	D3D11_RASTERIZER_DESC rasterizerDesc = {};
 	rasterizerDesc.FillMode =
@@ -96,163 +88,12 @@ void CreateRasterizerState() {
 // not going to run out of them.
 static MeshReference meshReferenceCounter = 0;
 
-void CreateImGUIElements() {
-	ImGui::Begin("Testbed");
-	if (ImGui::CollapsingHeader("Frame Stats")) {
-		ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
-		ImGui::Text("Frame time: %.2f ms", ImGui::GetIO().DeltaTime * 1000.0f);
-
-		// collect frame time history
-		if (frameTimeHistoryIndex == MAX_FRAME_TIME_HISTORY) {
-			frameTimeHistoryIndex = 0;
-		}
-
-		frameTimeHistory[frameTimeHistoryIndex] =
-			ImGui::GetIO().DeltaTime * 1000.0f;
-		frameTimeHistoryIndex++;
-
-		ImGui::PlotLines(
-			"Frame time history",
-			frameTimeHistory,
-			MAX_FRAME_TIME_HISTORY,
-			static_cast<int>(frameTimeHistoryIndex),
-			nullptr,
-			0.0f,
-			25.f,
-			ImVec2(0, 80)
-		);
+void UpdateUI() {
+	RENDER_WINDOW(TestbedWindow);
+	if (UI_DATA(TestbedWindow, rasterizerFlags) ^
+		UI_DATA(TestbedWindow, lastRasterizerFlags)) {
+		CreateRasterizerState();
 	}
-
-	if (ImGui::CollapsingHeader("Gelly Integration")) {
-		ImGui::Text("Gelly renderer backend: D3D11");
-		ImGui::Text("Gelly simulation backend: FleX using D3D11");
-
-		ImGui::Text(
-			"Sim max particle count: %d",
-			GetGellyFluidSim()->GetSimulationData()->GetMaxParticles()
-		);
-
-		ImGui::Text(
-			"Sim active particle count: %d",
-			GetGellyFluidSim()->GetSimulationData()->GetActiveParticles()
-		);
-
-		if (ImGui::CollapsingHeader("Textures")) {
-			ImGui::Image(
-				GetTextureSRV(GELLY_ALBEDO_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-
-			ImGui::SameLine();
-
-			ImGui::Image(
-				GetTextureSRV(GELLY_DEPTH_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-			ImGui::SameLine();
-
-			ImGui::Image(
-				GetTextureSRV(GELLY_NORMAL_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-
-			ImGui::SameLine();
-
-			ImGui::Image(
-				GetTextureSRV(GELLY_POSITIONS_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-
-			ImGui::SameLine();
-
-			ImGui::Image(
-				GetTextureSRV(GELLY_THICKNESS_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-		}
-
-		if (ImGui::CollapsingHeader("Render Settings")) {
-			auto settings = GetGellyFluidRenderSettings();
-			if (ImGui::SliderInt(
-					"Smoothing iterations", &settings.filterIterations, 0, 100
-				)) {
-				// Update only if changed
-				UpdateGellyFluidRenderSettings(settings);
-			}
-
-			ImGui::SliderFloat("Threshold ratio", &thresholdRatio, 0.0f, 30.0f);
-		}
-	}
-
-	if (ImGui::CollapsingHeader("Scene Info")) {
-		auto sceneMetadata = GetCurrentSceneMetadata();
-		ImGui::Text("Scene file: %s", sceneMetadata.filepath);
-		ImGui::Text("Triangles: %d", sceneMetadata.triangles);
-	}
-
-	if (ImGui::CollapsingHeader("Rendering")) {
-		if (ImGui::Button("Toggle wireframe")) {
-			rasterizerFlags ^= RASTERIZER_FLAG_WIREFRAME;
-		}
-
-		if (ImGui::Button("Toggle no culling")) {
-			rasterizerFlags ^= RASTERIZER_FLAG_NOCULL;
-		}
-
-		if (rasterizerFlags ^ lastRasterizerFlags) {
-			CreateRasterizerState();
-		}
-
-		lastRasterizerFlags = rasterizerFlags;
-
-		if (ImGui::CollapsingHeader("Buffers")) {
-			ImGui::Image(
-				GetTextureSRV(GBUFFER_DEPTH_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-
-			ImGui::SameLine();
-
-			ImGui::Image(
-				GetTextureSRV(GBUFFER_POSITION_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-
-			ImGui::SameLine();
-
-			ImGui::Image(
-				GetTextureSRV(GBUFFER_NORMAL_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-
-			ImGui::SameLine();
-
-			ImGui::Image(
-				GetTextureSRV(GBUFFER_ALBEDO_TEXNAME),
-				ImVec2(128, 128),
-				ImVec2(0, 0),
-				ImVec2(1, 1)
-			);
-		}
-	}
-
-	ImGui::End();
 }
 
 void GenerateCameraMatrices(
@@ -619,7 +460,7 @@ void testbed::StartFrame() {
 
 	{
 		ZoneScopedN("ImGUI UI creation");
-		CreateImGUIElements();
+		UpdateUI();
 	}
 
 	{
@@ -798,7 +639,7 @@ void testbed::RenderWorldList(
 	{
 		ZoneScopedN("Gelly render");
 		Gelly::FluidRenderParams params{};
-		params.thresholdRatio = thresholdRatio;
+		params.thresholdRatio = UI_DATA(TestbedWindow, thresholdRatio);
 		{
 			ZoneScopedN("Matrix gen");
 			GenerateGellyCameraMatrices(
