@@ -6,5 +6,6 @@ cbuffer fluidRender : register(b0) {
 
     float g_ViewportWidth;
     float g_ViewportHeight;
-    float2 padding;
+    float g_ThresholdRatio;
+    float pad0;
 };

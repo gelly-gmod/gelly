@@ -20,7 +20,7 @@ private:
 
 		float width;
 		float height;
-		float pad0, pad1;
+		float thresholdRatio, pad0;
 	};
 
 	GellyInterfaceVal<IRenderContext> context;

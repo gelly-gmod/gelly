@@ -19,6 +19,7 @@ struct FluidRenderParams {
 	XMFLOAT4X4 proj;
 	XMFLOAT4X4 invView;
 	XMFLOAT4X4 invProj;
+	float thresholdRatio = 0.f;
 };
 }  // namespace Gelly
 

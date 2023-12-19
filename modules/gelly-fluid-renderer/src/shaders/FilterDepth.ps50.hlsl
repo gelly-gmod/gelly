@@ -11,7 +11,6 @@ struct PS_OUTPUT {
 static const float g_ParticleRadius = 0.03f;
 static const float g_FarPlane = 1000.0f;
 static const float g_NearPlane = 0.1f;
-static const float g_ThresholdRatio = 5.f;
 
 static const float g_blurWeights[9] = {
     0.0625f, 0.125f, 0.0625f,
@@ -130,33 +129,49 @@ void main()
 }
 */
 
+float SampleNoDiscontinuity(float2 tex, float zc) {
+    float4 frag = InputDepth.Sample(InputDepthSampler, tex);
+    float depth = lerp(zc, frag.r, frag.a); // If sampling nothing, a = 0, so we just return the original depth
+    
+    if (abs(depth - zc) > g_ParticleRadius * g_ThresholdRatio) {
+        depth = zc;
+    }
+
+    return depth;
+}
+
 float3 GetMeanCurvature(float2 pos) {
     float2 dx = float2(1.0f / g_ViewportWidth, 0.0f);
     float2 dy = float2(0.0f, 1.0f / g_ViewportHeight);
 
-    float zc = InputDepth.Sample(InputDepthSampler, pos).r - 1.0f;
+    // float zc = InputDepth.Sample(InputDepthSampler, pos).r - 1.0f;
+    // float zdxpyp = InputDepth.Sample(InputDepthSampler, pos + dx + dy).r - 1.0f;
+    // float zdxnyn = InputDepth.Sample(InputDepthSampler, pos - dx - dy).r - 1.0f;
+    // float zdxpyn = InputDepth.Sample(InputDepthSampler, pos + dx - dy).r - 1.0f;
+    // float zdxnyp = InputDepth.Sample(InputDepthSampler, pos - dx + dy).r - 1.0f;
+    // float zdxp = InputDepth.Sample(InputDepthSampler, pos + dx).r - 1.0f;
+    // float zdxn = InputDepth.Sample(InputDepthSampler, pos - dx).r - 1.0f;
+    // float zdyp = InputDepth.Sample(InputDepthSampler, pos + dy).r - 1.0f;
+    // float zdyn = InputDepth.Sample(InputDepthSampler, pos - dy).r - 1.0f;
 
-    float zdxp = InputDepth.Sample(InputDepthSampler, pos + dx).r - 1.0f;
-    float zdxn = InputDepth.Sample(InputDepthSampler, pos - dx).r - 1.0f;
+    float zc = InputDepth.Sample(InputDepthSampler, pos).r;
+    float zdxpyp = SampleNoDiscontinuity(pos + dx + dy, zc);
+    float zdxnyn = SampleNoDiscontinuity(pos - dx - dy, zc);
+    float zdxpyn = SampleNoDiscontinuity(pos + dx - dy, zc);
+    float zdxnyp = SampleNoDiscontinuity(pos - dx + dy, zc);
+    float zdxp = SampleNoDiscontinuity(pos + dx, zc);
+    float zdxn = SampleNoDiscontinuity(pos - dx, zc);
+    float zdyp = SampleNoDiscontinuity(pos + dy, zc);
+    float zdyn = SampleNoDiscontinuity(pos - dy, zc);
+
 
     float zdx = 0.5f * (zdxp - zdxn);
-
-    float zdyp = InputDepth.Sample(InputDepthSampler, pos + dy).r - 1.0f;
-    float zdyn = InputDepth.Sample(InputDepthSampler, pos - dy).r - 1.0f;
-
     float zdy = 0.5f * (zdyp - zdyn);
 
     float zdx2 = zdxp + zdxn - 2.0f * zc;
     float zdy2 = zdyp + zdyn - 2.0f * zc;
 
-    float zdxpyp = InputDepth.Sample(InputDepthSampler, pos + dx + dy).r - 1.0f;
-    float zdxnyn = InputDepth.Sample(InputDepthSampler, pos - dx - dy).r - 1.0f;
-    float zdxpyn = InputDepth.Sample(InputDepthSampler, pos + dx - dy).r - 1.0f;
-    float zdxnyp = InputDepth.Sample(InputDepthSampler, pos - dx + dy).r - 1.0f;
-
     float zdxy = (zdxpyp + zdxnyn - zdxpyn - zdxnyp) / 4.0f;
-
-
 
     float cx = 2.0f / (g_ViewportWidth * -g_Projection[0][0]);
     float cy = 2.0f / (g_ViewportHeight * -g_Projection[1][1]);

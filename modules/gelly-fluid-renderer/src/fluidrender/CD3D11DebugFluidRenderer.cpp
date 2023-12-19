@@ -337,6 +337,7 @@ void CD3D11DebugFluidRenderer::SetPerFrameParams(
 	cbufferData.proj = params.proj;
 	cbufferData.invView = params.invView;
 	cbufferData.invProj = params.invProj;
+	cbufferData.thresholdRatio = params.thresholdRatio;
 
 	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
 }

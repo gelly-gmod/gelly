@@ -61,6 +61,8 @@ static ID3D11InputLayout *genericWorldLitInputLayout = nullptr;
 static d3d11::ConstantBuffer<GenericRenderCBuffer> worldRenderConstants;
 static std::unordered_map<MeshReference, D3D11WorldMesh> worldMeshes;
 
+static float thresholdRatio = 0.f;
+
 static unsigned int rasterizerFlags = 0b00;
 static unsigned int lastRasterizerFlags = 0b00;
 static const unsigned int RASTERIZER_FLAG_WIREFRAME = 0b01;
@@ -178,6 +180,8 @@ void CreateImGUIElements() {
 				// Update only if changed
 				UpdateGellyFluidRenderSettings(settings);
 			}
+
+			ImGui::SliderFloat("Threshold ratio", &thresholdRatio, 0.0f, 30.0f);
 		}
 	}
 
@@ -785,6 +789,7 @@ void testbed::RenderWorldList(
 	{
 		ZoneScopedN("Gelly render");
 		Gelly::FluidRenderParams params{};
+		params.thresholdRatio = thresholdRatio;
 		{
 			ZoneScopedN("Matrix gen");
 			GenerateGellyCameraMatrices(

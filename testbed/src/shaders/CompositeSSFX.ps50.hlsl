@@ -47,8 +47,8 @@ PS_OUTPUT main(VS_INPUT input)
     PS_OUTPUT output = (PS_OUTPUT)0;
     output.Normal = float4(GellyNormal.Sample(GellyNormalSampler, input.Tex).xyz * 2.f - 1.f, 1.0f);
     output.Albedo = GellyAlbedo.Sample(GellyAlbedoSampler, input.Tex);
-    output.DepthOut = depth;
+    output.DepthOut = float4(depth.y, depth.y, depth.y, 1.0f);
     output.Positions = GellyPositions.Sample(GellyPositionsSampler, input.Tex);
-    output.Depth = depth.x;
+    output.Depth = depth.y;
     return output;
 }
