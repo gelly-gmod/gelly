@@ -10,5 +10,3 @@ struct GS_OUTPUT {
 struct PS_OUTPUT {
     float4 Thickness : SV_Target0;
 };
-
-static const float particleRadius = 0.03f;

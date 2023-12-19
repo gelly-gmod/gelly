@@ -13,6 +13,9 @@
 #define DEFINE_UI_DATA(group, name, default) \
 	decltype(default) UI_DATA(group, name) = default;
 
+#define BIND_MEMBER_TO_UI_DATA(structName, group, name) \
+	structName.name = UI_DATA(group, name);
+
 #define DEFINE_WINDOW(name) void Render##name##Window();
 #define IMPLEMENT_WINDOW(name) void Render##name##Window()
 #define RENDER_WINDOW(name) Render##name##Window();

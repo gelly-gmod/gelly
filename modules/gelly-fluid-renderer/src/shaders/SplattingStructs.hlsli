@@ -12,5 +12,3 @@ struct PS_OUTPUT {
     float4 Albedo : SV_Target1;
     float Depth : SV_Depth;
 };
-
-static const float particleRadius = 0.03f;

@@ -12,17 +12,6 @@
 
 class CD3D11DebugFluidRenderer : public IFluidRenderer {
 private:
-	struct FluidRenderCBuffer {
-		XMFLOAT4X4 view;
-		XMFLOAT4X4 proj;
-		XMFLOAT4X4 invView;
-		XMFLOAT4X4 invProj;
-
-		float width;
-		float height;
-		float thresholdRatio, pad0;
-	};
-
 	GellyInterfaceVal<IRenderContext> context;
 	/**
 	 * The particle data comes from here, but the renderer does not own it.
@@ -33,7 +22,7 @@ private:
 	Gelly::FluidRenderSettings settings;
 	int maxParticles{};
 
-	FluidRenderCBuffer cbufferData{};
+	FluidRenderParams cbufferData{};
 
 	struct {
 		GellyInterfaceVal<IManagedBuffer> positions;

@@ -638,8 +638,10 @@ void testbed::RenderWorldList(
 
 	{
 		ZoneScopedN("Gelly render");
-		Gelly::FluidRenderParams params{};
-		params.thresholdRatio = UI_DATA(TestbedWindow, thresholdRatio);
+		FluidRenderParams params{};
+		BIND_MEMBER_TO_UI_DATA(params, TestbedWindow, thresholdRatio);
+		BIND_MEMBER_TO_UI_DATA(params, TestbedWindow, particleRadius);
+
 		{
 			ZoneScopedN("Matrix gen");
 			GenerateGellyCameraMatrices(

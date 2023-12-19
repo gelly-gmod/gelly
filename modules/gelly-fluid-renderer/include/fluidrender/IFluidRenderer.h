@@ -14,12 +14,28 @@ struct FluidRenderSettings {
 	int filterIterations = 33;
 };
 
+/**
+ * \brief This struct is shared between the GPU and the CPU for host
+ * performance, so it always must be 16-byte aligned.
+ * Some members will be filled out by the renderer, check the member
+ * documentation for more information.
+ */
 struct FluidRenderParams {
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 proj;
 	XMFLOAT4X4 invView;
 	XMFLOAT4X4 invProj;
-	float thresholdRatio = 16.5f;
+
+	/**
+	 * \note Automatically filled out by the renderer.
+	 */
+	float width;
+	/**
+	 * \note Automatically filled out by the renderer.
+	 */
+	float height;
+	float thresholdRatio;
+	float particleRadius;
 };
 }  // namespace Gelly
 

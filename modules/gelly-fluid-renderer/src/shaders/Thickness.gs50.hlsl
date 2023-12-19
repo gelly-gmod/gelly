@@ -15,7 +15,7 @@ void main(point VS_INPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
     for (uint i = 0; i < 4; i++) {
         const float2 corner = corners[i];
         float4 position = viewPosition;
-        float size = particleRadius * 2;
+        float size = g_ParticleRadius * 2;
         position.xy += size * (corner - float2(0.5, 0.5));
         position = mul(g_Projection, position);
 

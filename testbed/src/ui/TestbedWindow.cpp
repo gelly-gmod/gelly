@@ -7,6 +7,7 @@
 #include "imgui.h"
 
 DEFINE_UI_DATA(TestbedWindow, thresholdRatio, 16.5f);
+DEFINE_UI_DATA(TestbedWindow, particleRadius, 0.03f);
 DEFINE_UI_DATA(TestbedWindow, rasterizerFlags, 0u);
 DEFINE_UI_DATA(TestbedWindow, lastRasterizerFlags, 0u);
 
@@ -115,6 +116,16 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 				&UI_DATA(TestbedWindow, thresholdRatio),
 				0.0f,
 				30.0f
+			);
+
+			// ideally this'd be driven by the simulation but
+			// particle radius varies WILDLY with simulation techniques so
+			// it actually is best to just tune it manually
+			ImGui::SliderFloat(
+				"Particle radius",
+				&UI_DATA(TestbedWindow, particleRadius),
+				0.0f,
+				1.0f
 			);
 		}
 	}

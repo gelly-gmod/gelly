@@ -103,7 +103,7 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 
 	buffers.positions = context->CreateBuffer(positionBufferDesc);
 	buffers.fluidRenderCBuffer =
-		util::CreateCBuffer<FluidRenderCBuffer>(context);
+		util::CreateCBuffer<FluidRenderParams>(context);
 
 	BufferLayoutDesc positionLayoutDesc = {};
 	positionLayoutDesc.items[0] = {
@@ -389,11 +389,14 @@ void CD3D11DebugFluidRenderer::SetSettings(
 void CD3D11DebugFluidRenderer::SetPerFrameParams(
 	const Gelly::FluidRenderParams &params
 ) {
-	cbufferData.view = params.view;
-	cbufferData.proj = params.proj;
-	cbufferData.invView = params.invView;
-	cbufferData.invProj = params.invProj;
-	cbufferData.thresholdRatio = params.thresholdRatio;
+	// Copy it, but overwrite the automatically filled out members.
+	cbufferData = params;
+	uint16_t width = 0, height = 0;
+	context->GetDimensions(width, height);
+
+	// TODO: Can't the shader just use a uint instead of a float?
+	cbufferData.width = static_cast<float>(width);
+	cbufferData.height = static_cast<float>(height);
 
 	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
 }

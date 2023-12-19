@@ -8,7 +8,6 @@ struct PS_OUTPUT {
     float4 Color : SV_Target0;
 };
 
-static const float g_ParticleRadius = 0.03f;
 static const float g_FarPlane = 1000.0f;
 static const float g_NearPlane = 0.1f;
 
