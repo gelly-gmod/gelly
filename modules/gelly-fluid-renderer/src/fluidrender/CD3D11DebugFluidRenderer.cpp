@@ -301,6 +301,32 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 	context->ResetPipeline();
 }
 
+void CD3D11DebugFluidRenderer::RenderThickness() {
+	auto *thicknessTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
+
+	thicknessTexture->Clear(clearColor);
+	// No depth buffer needed for this pass.
+	thicknessTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+	);
+
+	buffers.positionsLayout->BindAsVertexBuffer();
+
+	shaders.thicknessGS->Bind();
+	shaders.thicknessPS->Bind();
+	shaders.thicknessVS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+
+	context->Draw(simData->GetActiveParticles(), 0, true);
+	// we're not using a swapchain, so we need to queue up work manually
+	context->SubmitWork();
+	context->ResetPipeline();
+}
+
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {
 		throw std::logic_error(
@@ -334,44 +360,9 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 
 	RenderUnfilteredDepth();
-
-	// Now we'll filter the depth.
 	RenderFilteredDepth();
-
-	// Then we'll estimate the normals.
-
 	RenderNormals();
-
-	// and FINALLY we'll render the thickness.
-
-	auto *thicknessTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
-
-	thicknessTexture->Clear(clearColor);
-	// No depth buffer needed for this pass.
-	thicknessTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
-	);
-
-	buffers.positionsLayout->BindAsVertexBuffer();
-
-	shaders.thicknessGS->Bind();
-	shaders.thicknessPS->Bind();
-	shaders.thicknessVS->Bind();
-
-	// For thickness, it may be rendered at a lower resolution than the
-	// original render target, so we need to update the width and height of
-	// the cbuffer. We can also do this pretty much one time only since this
-	// is the last pass.
-
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
-
-	context->Draw(simData->GetActiveParticles(), 0, true);
-	// we're not using a swapchain, so we need to queue up work manually
-	context->SubmitWork();
-	context->ResetPipeline();
+	RenderThickness();
 
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {

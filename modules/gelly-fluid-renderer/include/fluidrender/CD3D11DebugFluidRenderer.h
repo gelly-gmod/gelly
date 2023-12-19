@@ -70,6 +70,7 @@ public:
 	void RenderUnfilteredDepth();
 	void RenderFilteredDepth();
 	void RenderNormals();
+	void RenderThickness();
 	void Render() override;
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;

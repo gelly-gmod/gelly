@@ -23,8 +23,6 @@ static FluidRenderSettings fluidRenderSettings{};
 static GellyObserverPtr<IManagedTexture> fluidAlbedoTexture;
 static GellyObserverPtr<IManagedTexture> fluidDepthTexture;
 
-constexpr int maxParticles = 1000000;
-
 void CreateGellyTextures() {
 	// Basically, the process is that we use our own texture system,
 	// and then we create a texture in Gelly, and then we link them by
@@ -137,7 +135,7 @@ void testbed::InitializeGelly(
 
 		logger->Info("Creating the Gelly fluid simulation...");
 		fluidSim = CreateD3D11RTFRFluidSimulation(
-			simContext, "D:/Simulations/SphereEmitter"
+			simContext, "D:/Simulations/SphereDropGround/SphereDropGround"
 		);
 
 		logger->Info("Linking the Gelly fluid simulation and renderer...");

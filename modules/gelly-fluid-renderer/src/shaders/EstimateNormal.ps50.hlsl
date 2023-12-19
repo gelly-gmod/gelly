@@ -6,7 +6,6 @@ SamplerState InputDepthSampler : register(s0);
 
 float3 WorldPosFromDepth(float2 tex) {
     float depth = InputDepth.Sample(InputDepthSampler, tex).g;
-
     float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
     pos = mul(g_InverseProjection, pos);
     pos = mul(g_InverseView, pos);
@@ -35,12 +34,8 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float3 p3 = WorldPosFromDepth(input.Tex + float2(-texelSize.x, 0.f));
     
     // Check for a discontinuity
-    if (abs(p0.z - p1.z) > 0.05f || abs(p0.z - p3.z) > 0.05f) {
-        discard;
-    }
 
     float3 normal = -normalize(cross(p1 - p0, p3 - p0));
-    
 
     output.PositiveNormal = float4(normal * 0.5f + 0.5f, 1.f);
     output.WorldPosition = float4(WorldPosFromDepth(input.Tex), 1.f);
