@@ -61,7 +61,7 @@ static ID3D11InputLayout *genericWorldLitInputLayout = nullptr;
 static d3d11::ConstantBuffer<GenericRenderCBuffer> worldRenderConstants;
 static std::unordered_map<MeshReference, D3D11WorldMesh> worldMeshes;
 
-static float thresholdRatio = 0.f;
+static float thresholdRatio = 16.5f;
 
 static unsigned int rasterizerFlags = 0b00;
 static unsigned int lastRasterizerFlags = 0b00;
