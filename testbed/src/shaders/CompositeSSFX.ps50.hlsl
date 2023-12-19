@@ -41,7 +41,7 @@ struct PS_OUTPUT {
     float4 Albedo : SV_Target1;
     float4 DepthOut : SV_Target2;
     float4 Positions : SV_Target3;
-    float Depth : SV_DepthLessEqual;
+    float Depth : SV_Depth;
 };
 
 static const float MINIMUM_THICKNESS = 0.05f;

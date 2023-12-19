@@ -204,7 +204,8 @@ PS_OUTPUT main(VS_OUTPUT input) {
     // Convert view depth to projection depth
     //z_ndc = ( -z_eye * (f+n)/(f-n) - 2*f*n/(f-n) ) / -z_eye
     float projDepth = (-depth * (g_FarPlane + g_NearPlane) / (g_FarPlane - g_NearPlane) - 2.0f * g_FarPlane * g_NearPlane / (g_FarPlane - g_NearPlane)) / -depth;
-
+    projDepth = projDepth * 0.5f + 0.5f;
+    
     output.Color = float4(depth, projDepth, depth, 1.0f);
     return output;
 }
