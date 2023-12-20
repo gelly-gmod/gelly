@@ -133,15 +133,9 @@ void testbed::InitializeGelly(
 			)
 		);
 
-		logger->Info("Creating the Gelly fluid simulation...");
-		fluidSim = CreateD3D11RTFRFluidSimulation(
-			simContext, "D:/Simulations/DamBreakBunny"
+		InitializeNewGellySim(
+			GellySimInit{GellySimMode::DEBUG, GellySimInit::DebugInfo{10000}}
 		);
-
-		logger->Info("Linking the Gelly fluid simulation and renderer...");
-		fluidRenderer->SetSimData(fluidSim->GetSimulationData());
-
-		fluidSim->Initialize();
 
 		logger->Info("Creating Gelly GBuffers...");
 		CreateGellyTextures();
@@ -166,6 +160,40 @@ void testbed::InitializeGelly(
 		throw;
 	}
 	logger->Info("Gelly initialized");
+}
+
+void testbed::InitializeNewGellySim(const GellySimInit &init) {
+	if (fluidSim) {
+		DestroyGellyFluidSim(fluidSim);
+		logger->Info("Destroyed old Gelly simulation");
+		fluidSim = nullptr;
+	}
+
+	logger->Info("Initializing new Gelly simulation...");
+	switch (init.mode) {
+		case GellySimMode::DEBUG: {
+			const auto &debugInfo =
+				std::get<GellySimInit::DebugInfo>(init.modeInfo);
+
+			fluidSim = CreateD3D11DebugFluidSimulation(simContext);
+			fluidSim->SetMaxParticles(debugInfo.maxParticles);
+			break;
+		}
+
+		case GellySimMode::RTFR: {
+			const auto &rtfrInfo =
+				std::get<GellySimInit::RTFRInfo>(init.modeInfo);
+
+			fluidSim =
+				CreateD3D11RTFRFluidSimulation(simContext, rtfrInfo.folderPath);
+			break;
+		}
+	}
+
+	logger->Info("Linking the Gelly fluid simulation and renderer...");
+	fluidRenderer->SetSimData(fluidSim->GetSimulationData());
+	fluidSim->Initialize();
+	logger->Info("Gelly simulation initialized");
 }
 
 IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }

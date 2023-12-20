@@ -33,3 +33,5 @@ IFluidSimulation *Gelly::CreateD3D11RTFRFluidSimulation(
 
 	return sim;
 }
+
+void Gelly::DestroyGellyFluidSim(IFluidSimulation *sim) { delete sim; }
