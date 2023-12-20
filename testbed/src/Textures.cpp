@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 #include "Rendering.h"
+#include "Window.h"
 #include "d3d11.h"
 
 using namespace testbed;
@@ -34,6 +35,7 @@ static std::unordered_map<std::string, UnownedTexturePtr> unownedTextures;
 
 static ILogger *logger = nullptr;
 static ID3D11Device *rendererDevice = nullptr;
+static ID3D11DeviceContext *rendererContext = nullptr;
 
 bool OwnedTextureExists(const char *name) {
 	return textures.find(name) != textures.end();
@@ -66,10 +68,13 @@ UnownedTexturePtr GetUnownedTexture(const char *name) {
 }
 
 void testbed::InitializeTextureSystem(
-	ILogger *newLogger, ID3D11Device *rendererDevice
+	ILogger *newLogger,
+	ID3D11Device *rendererDevice,
+	ID3D11DeviceContext *rendererContext
 ) {
 	logger = newLogger;
 	::rendererDevice = rendererDevice;
+	::rendererContext = rendererContext;
 
 	logger->Info("Initialized texture system");
 
@@ -112,6 +117,17 @@ void testbed::InitializeTextureSystem(
 
 	CreateUnownedTexture(BUILTIN_BACKBUFFER_TEXNAME, backBufferInfo);
 	logger->Info("Created unowned texture to the backbuffer");
+
+	FeatureTextureInfo backBufferOpaqueInfo{};
+	backBufferOpaqueInfo.width = WINDOW_WIDTH;
+	backBufferOpaqueInfo.height = WINDOW_HEIGHT;
+	backBufferOpaqueInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	CreateFeatureTexture(
+		BUILTIN_BACKBUFFER_OPAQUE_TEXNAME, backBufferOpaqueInfo
+	);
+
+	logger->Info("Created feature texture to the backbuffer");
 }
 
 void testbed::CreateFeatureTexture(
@@ -261,6 +277,35 @@ ID3D11SamplerState *testbed::GetTextureSampler(const char *name) {
 
 	logger->Error("Texture with name %s does not exist", name);
 	return nullptr;
+}
+
+void testbed::CopyTexture(const char *srcName, const char *dstName) {
+	ZoneScoped;
+
+	ID3D11Texture2D *srcTexture = nullptr;
+	ID3D11Texture2D *dstTexture = nullptr;
+
+	if (OwnedTextureExists(srcName)) {
+		srcTexture = GetOwnedTexture(srcName)->texture.Get();
+	} else if (UnownedTextureExists(srcName)) {
+		srcTexture = GetUnownedTexture(srcName)->texture;
+	} else {
+		logger->Error("Source texture with name %s does not exist", srcName);
+		return;
+	}
+
+	if (OwnedTextureExists(dstName)) {
+		dstTexture = GetOwnedTexture(dstName)->texture.Get();
+	} else if (UnownedTextureExists(dstName)) {
+		dstTexture = GetUnownedTexture(dstName)->texture;
+	} else {
+		logger->Error(
+			"Destination texture with name %s does not exist", dstName
+		);
+		return;
+	}
+
+	rendererContext->CopyResource(dstTexture, srcTexture);
 }
 
 HANDLE testbed::GetTextureSharedHandle(const char *name) {

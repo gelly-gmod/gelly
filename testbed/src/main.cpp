@@ -9,7 +9,9 @@
 #include "SSFX.h"
 #include "Scene.h"
 #include "Shaders.h"
+#include "Textures.h"
 #include "Window.h"
+#include "ssfx/ShadingWater.h"
 #include "ssfx\Composite.h"
 #include "ssfx\Shading.h"
 
@@ -35,6 +37,7 @@ int main() {
 	InitializeSSFXSystem(logger, rendererDevice);
 	InitializeGelly(rendererDevice, logger);
 	ssfx::InitializeShadingSSFX(logger);
+	ssfx::InitializeShadingWaterSSFX(logger);
 	ssfx::InitializeCompositeSSFX(logger);
 
 	LoadScene({"assets/01_gelly_springs.gltf"});
@@ -49,9 +52,15 @@ int main() {
 		StartFrame();
 		RenderScene();
 		ssfx::UpdateShadingSSFXConstants();
+		ssfx::UpdateShadingWaterSSFXConstants();
 
-		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME, false);
 		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
+		CopyTexture(
+			BUILTIN_BACKBUFFER_TEXNAME, BUILTIN_BACKBUFFER_OPAQUE_TEXNAME
+		);
+		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME, false);
+		ApplySSFXEffect(SHADINGWATERSSFX_EFFECT_NAME);
+
 		EndFrame();
 
 		std::chrono::high_resolution_clock::time_point thisFrameTime =

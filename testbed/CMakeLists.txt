@@ -18,6 +18,8 @@ set(IMGUI_SOURCES
         src/ui/TestbedWindow.cpp
         src/ui/TestbedWindow.h
         src/ui/UIData.h
+        src/ssfx/ShadingWater.cpp
+        src/ssfx/ShadingWater.h
 )
 
 add_executable(testbed

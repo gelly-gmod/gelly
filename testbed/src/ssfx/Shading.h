@@ -21,8 +21,15 @@ struct ShadingCBuffer {
 	float pad1_;
 	float pad2_;
 };
+
 void InitializeShadingSSFX(ILogger *logger);
 void UpdateShadingSSFXConstants();
+/**
+ * \brief Used primarily for keeping the water shading and opaque shading in
+ * sync
+ * \return Returns a copy of the shading SSFX effect's constant buffer.
+ */
+ShadingCBuffer GetShadingSSFXCBuffer();
 }  // namespace testbed::ssfx
 
 #endif	// TESTSSFX_H

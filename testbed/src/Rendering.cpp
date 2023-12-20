@@ -376,7 +376,8 @@ ID3D11Device *testbed::InitializeRenderer(ILogger *newLogger) {
 
 	logger->Info("Renderer initialized");
 
-	InitializeTextureSystem(logger, device);
+	InitializeTextureSystem(logger, device, deviceContext);
+	logger->Info("Texture system initialized");
 
 	logger->Info("Creating GBuffer textures");
 	CreateGBufferTextures();

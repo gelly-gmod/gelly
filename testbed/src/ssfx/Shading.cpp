@@ -69,3 +69,5 @@ void ssfx::UpdateShadingSSFXConstants() {
 	const auto &renderCB = CreateGenericRenderCBuffer(GetCamera());
 	SetStructAsEffectConstant(&renderCB, SHADINGSSFX_EFFECT_NAME);
 }
+
+ssfx::ShadingCBuffer ssfx::GetShadingSSFXCBuffer() { return cbuffer; }

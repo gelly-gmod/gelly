@@ -7,6 +7,7 @@
 #include "Memory.h"
 
 #define BUILTIN_BACKBUFFER_TEXNAME "backbuffer_tex"
+#define BUILTIN_BACKBUFFER_OPAQUE_TEXNAME "backbuffer_opaque_tex"
 
 namespace testbed {
 /**
@@ -36,13 +37,14 @@ struct UnownedTextureInfo {
 	ID3D11SamplerState *sampler;
 };
 
-void InitializeTextureSystem(ILogger *newLogger, ID3D11Device *rendererDevice);
+void InitializeTextureSystem(
+	ILogger *newLogger,
+	ID3D11Device *rendererDevice,
+	ID3D11DeviceContext *rendererContext
+);
 
 void CreateFeatureTexture(const char *name, const FeatureTextureInfo &info);
 void CreateUnownedTexture(const char *name, const UnownedTextureInfo &info);
-// TODO: Add source texture creation
-
-// TODO: Switch to actual weak smart pointers
 
 /**
  * \brief
@@ -59,6 +61,8 @@ ID3D11RenderTargetView *GetTextureRTV(const char *name);
 ID3D11ShaderResourceView *GetTextureSRV(const char *name);
 
 ID3D11SamplerState *GetTextureSampler(const char *name);
+
+void CopyTexture(const char *srcName, const char *dstName);
 
 HANDLE GetTextureSharedHandle(const char *name);
 
