@@ -44,15 +44,18 @@ struct PS_OUTPUT {
     float Depth : SV_Depth;
 };
 
-static const float MINIMUM_THICKNESS = 0.00f;
-static const float3 ABSORPTION = float3(12.f, 12.f, 1.f); // dont absorb too much blue light to give the gelly a blueish tint
+static const float MINIMUM_THICKNESS = 0.03f;
+static const float3 ABSORPTION = float3(6.f, 6.f, 3.f); // dont absorb too much blue light to give the gelly a blueish tint
 
 PS_OUTPUT main(VS_INPUT input)
 {
     float4 depth = GellyDepth.Sample(GellyDepthSampler, input.Tex);
-    if (depth.a == 0.0f) {
+    float4 normalFrag = GellyNormal.Sample(GellyNormalSampler, input.Tex);
+    if (normalFrag.x == 0.f && normalFrag.y == 0.f && normalFrag.z == 0.f) {
         discard;
     }
+
+    float3 normal = normalFrag.xyz;
 
     float thickness = GellyThickness.Sample(GellyThicknessSampler, input.Tex).x;
     if (thickness < MINIMUM_THICKNESS) {
@@ -60,7 +63,7 @@ PS_OUTPUT main(VS_INPUT input)
     }
 
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Normal = float4(GellyNormal.Sample(GellyNormalSampler, input.Tex).xyz * 2.f - 1.f, 1.0f);
+    output.Normal = float4(normal * 2.f - 1.f, 1.0f);
     output.Albedo = float4(ComputeAbsorption(ABSORPTION, thickness), 0.5f);
     output.DepthOut = float4(depth.y, depth.y, depth.y, 1.0f);
     output.Positions = GellyPositions.Sample(GellyPositionsSampler, input.Tex);

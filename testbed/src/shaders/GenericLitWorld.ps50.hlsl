@@ -3,7 +3,7 @@
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output;
-    output.Albedo = input.Color.xyz;
+    output.Albedo = float4(input.Color.rgb, 1.f);
     output.Normal = input.Normal.xyz;
     output.Depth = input.Pos.z;
     float4 clipPos = float4(input.Pos.x / windowSize.x, 1.f - input.Pos.y / windowSize.y, input.Pos.z, 1.f);

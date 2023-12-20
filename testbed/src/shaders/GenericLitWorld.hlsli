@@ -14,7 +14,7 @@ struct VS_INPUT {
 };
 
 struct PS_OUTPUT {
-    float3 Albedo : SV_TARGET0;
+    float4 Albedo : SV_TARGET0;
     float3 Normal : SV_TARGET1;
     float Depth : SV_TARGET2;
     float4 Position : SV_TARGET3;

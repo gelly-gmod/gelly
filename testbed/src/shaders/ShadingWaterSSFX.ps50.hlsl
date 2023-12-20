@@ -49,7 +49,8 @@ PS_OUTPUT main(VS_OUTPUT input)
     float4 albedo = Albedo.Sample(AlbedoSampler, input.Tex);
     bool isWater = albedo.a < 0.7f;
     if (!isWater) {
-        discard;
+        output.Color = OpaqueBackBuffer.Sample(OpaqueBackBufferSampler, input.Tex);
+        return output;
     }
 
 
