@@ -72,6 +72,6 @@ PS_OUTPUT main(VS_OUTPUT input)
         fresnel = 0.f;
     }
 
-    output.Color = float4((1.f - fresnel) * diffuse + fresnel * specular, 1.0f);
+    output.Color = float4((1.f - fresnel) * diffuse + fresnel * specular, 1.f);
     return output;
 }

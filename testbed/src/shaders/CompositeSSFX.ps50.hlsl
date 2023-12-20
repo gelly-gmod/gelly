@@ -44,7 +44,7 @@ struct PS_OUTPUT {
     float Depth : SV_Depth;
 };
 
-static const float MINIMUM_THICKNESS = 0.05f;
+static const float MINIMUM_THICKNESS = 0.00f;
 static const float3 ABSORPTION = float3(12.f, 12.f, 1.f); // dont absorb too much blue light to give the gelly a blueish tint
 
 PS_OUTPUT main(VS_INPUT input)
@@ -61,7 +61,7 @@ PS_OUTPUT main(VS_INPUT input)
 
     PS_OUTPUT output = (PS_OUTPUT)0;
     output.Normal = float4(GellyNormal.Sample(GellyNormalSampler, input.Tex).xyz * 2.f - 1.f, 1.0f);
-    output.Albedo = float4(ComputeAbsorption(ABSORPTION, thickness), 1.0f);
+    output.Albedo = float4(0.3f, 0.3f, 0.9f, 1.f);
     output.DepthOut = float4(depth.y, depth.y, depth.y, 1.0f);
     output.Positions = GellyPositions.Sample(GellyPositionsSampler, input.Tex);
     output.Depth = depth.y;

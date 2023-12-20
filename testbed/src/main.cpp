@@ -50,7 +50,7 @@ int main() {
 		RenderScene();
 		ssfx::UpdateShadingSSFXConstants();
 
-		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME, true);
+		ApplySSFXEffect(COMPOSITESSFX_EFFECT_NAME, false);
 		ApplySSFXEffect(SHADINGSSFX_EFFECT_NAME);
 		EndFrame();
 

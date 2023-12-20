@@ -1,5 +1,6 @@
 #include "FluidRenderCBuffer.hlsli"
 #include "ScreenQuadStructs.hlsli"
+#include "util/EyeToProjDepth.hlsli"
 
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
@@ -7,9 +8,6 @@ SamplerState InputDepthSampler : register(s0);
 struct PS_OUTPUT {
     float4 Color : SV_Target0;
 };
-
-static const float g_FarPlane = 1000.0f;
-static const float g_NearPlane = 0.1f;
 
 static const float g_blurWeights[9] = {
     0.0625f, 0.125f, 0.0625f,
@@ -203,8 +201,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float depth = original.r + dxyz.z * dt * (1.0f + (abs(dxyz.x) + abs(dxyz.y)) * dzt);
     // Convert view depth to projection depth
     //z_ndc = ( -z_eye * (f+n)/(f-n) - 2*f*n/(f-n) ) / -z_eye
-    float projDepth = (-depth * (g_FarPlane + g_NearPlane) / (g_FarPlane - g_NearPlane) - 2.0f * g_FarPlane * g_NearPlane / (g_FarPlane - g_NearPlane)) / -depth;
-    projDepth = projDepth * 0.5f + 0.5f;
+    float projDepth = EyeToProjDepth(depth);
     
     output.Color = float4(depth, projDepth, depth, 1.0f);
     return output;

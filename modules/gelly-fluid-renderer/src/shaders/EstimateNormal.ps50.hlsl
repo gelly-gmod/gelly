@@ -1,16 +1,19 @@
 #include "FluidRenderCBuffer.hlsli"
 #include "ScreenQuadStructs.hlsli"
+#include "util/EyeToProjDepth.hlsli"
 
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
 
 float SampleNoDiscontinuity(float2 tex, float4 zc) {
     float4 frag = InputDepth.Sample(InputDepthSampler, tex);
-    return frag.g;
+
+    return frag.r;
 }
 
 float3 WorldPosFromDepth(float2 tex, float4 zc) {
     float depth = SampleNoDiscontinuity(tex, zc);
+    depth = EyeToProjDepth(depth);
     float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
     pos = mul(g_InverseProjection, pos);
     pos = mul(g_InverseView, pos);
@@ -19,6 +22,7 @@ float3 WorldPosFromDepth(float2 tex, float4 zc) {
 }
 
 float3 WorldPosFromDepthF(float2 tex, float depth) {
+    depth = EyeToProjDepth(depth);
     float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
     pos = mul(g_InverseProjection, pos);
     pos = mul(g_InverseView, pos);
@@ -77,12 +81,12 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float t1 = SampleNoDiscontinuity(input.Tex + float2(0, 1) * texelSize, zc);
     float t2 = SampleNoDiscontinuity(input.Tex + float2(0, 2) * texelSize, zc);
 
-    float dl = abs(l1 * l2 / (2.0 * l2 - l1) - zc.g);
-    float dr = abs(r1 * r2 / (2.0 * r2 - r1) - zc.g);
-    float db = abs(b1 * b2 / (2.0 * b2 - b1) - zc.g);
-    float dt = abs(t1 * t2 / (2.0 * t2 - t1) - zc.g);
+    float dl = abs(l1 * l2 / (2.0 * l2 - l1) - zc.r);
+    float dr = abs(r1 * r2 / (2.0 * r2 - r1) - zc.r);
+    float db = abs(b1 * b2 / (2.0 * b2 - b1) - zc.r);
+    float dt = abs(t1 * t2 / (2.0 * t2 - t1) - zc.r);
 
-    float3 ce = WorldPosFromDepthF(input.Tex, zc.g);
+    float3 ce = WorldPosFromDepthF(input.Tex, zc.r);
 
     float3 dpdx = (dl < dr) ? ce - WorldPosFromDepthF(input.Tex - float2(1, 0) * texelSize, l1) :
         -ce + WorldPosFromDepthF(input.Tex + float2(1, 0) * texelSize, r1);
