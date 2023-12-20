@@ -38,6 +38,8 @@ add_executable(testbed
         src/Gelly.cpp
         src/Memory.h
         src/Memory.cpp
+        src/ui/ChangeSimWindow.cpp
+        src/ui/ChangeSimWindow.h
 )
 
 add_subdirectory(vendor/SDL)

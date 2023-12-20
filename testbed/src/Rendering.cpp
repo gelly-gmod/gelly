@@ -15,6 +15,7 @@
 #include "Shaders.h"
 #include "Textures.h"
 #include "Window.h"
+#include "ui/ChangeSimWindow.h"
 #include "ui/TestbedWindow.h"
 
 static testbed::ILogger *logger = nullptr;
@@ -93,6 +94,22 @@ void UpdateUI() {
 	if (UI_DATA(TestbedWindow, rasterizerFlags) ^
 		UI_DATA(TestbedWindow, lastRasterizerFlags)) {
 		CreateRasterizerState();
+	}
+
+	if (UI_DATA(ChangeSim, popupVisible)) {
+		RENDER_WINDOW(ChangeSim);
+	}
+
+	// only open though if it changed, to prevent opening on every frame
+	if (UI_DATA(ChangeSim, popupVisible) ^
+		UI_DATA(ChangeSim, lastPopupVisible)) {
+		ImGui::OpenPopup("Change Simulation");
+		UI_DATA(ChangeSim, lastPopupVisible) = UI_DATA(ChangeSim, popupVisible);
+
+		if (UI_DATA(ChangeSim, submitted)) {
+			UI_DATA(ChangeSim, submitted) = false;
+			InitializeNewGellySim(UIData::ChangeSim::GetGellySimInit());
+		}
 	}
 }
 

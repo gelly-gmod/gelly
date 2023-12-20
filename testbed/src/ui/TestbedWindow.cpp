@@ -1,5 +1,6 @@
 #include "TestbedWindow.h"
 
+#include "ChangeSimWindow.h"
 #include "Gelly.h"
 #include "Rendering.h"
 #include "Scene.h"
@@ -47,6 +48,10 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 	if (ImGui::CollapsingHeader("Gelly Integration")) {
 		ImGui::Text("Gelly renderer backend: D3D11");
 		ImGui::Text("Gelly simulation backend: FleX using D3D11");
+
+		if (ImGui::Button("Change simulation type")) {
+			UI_DATA(ChangeSim, popupVisible) = true;
+		}
 
 		ImGui::Text(
 			"Sim max particle count: %d",

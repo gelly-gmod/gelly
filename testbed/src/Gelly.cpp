@@ -163,37 +163,43 @@ void testbed::InitializeGelly(
 }
 
 void testbed::InitializeNewGellySim(const GellySimInit &init) {
-	if (fluidSim) {
-		DestroyGellyFluidSim(fluidSim);
-		logger->Info("Destroyed old Gelly simulation");
-		fluidSim = nullptr;
-	}
-
-	logger->Info("Initializing new Gelly simulation...");
-	switch (init.mode) {
-		case GellySimMode::DEBUG: {
-			const auto &debugInfo =
-				std::get<GellySimInit::DebugInfo>(init.modeInfo);
-
-			fluidSim = CreateD3D11DebugFluidSimulation(simContext);
-			fluidSim->SetMaxParticles(debugInfo.maxParticles);
-			break;
+	try {
+		if (fluidSim) {
+			DestroyGellyFluidSim(fluidSim);
+			logger->Info("Destroyed old Gelly simulation");
+			fluidSim = nullptr;
 		}
 
-		case GellySimMode::RTFR: {
-			const auto &rtfrInfo =
-				std::get<GellySimInit::RTFRInfo>(init.modeInfo);
+		logger->Info("Initializing new Gelly simulation...");
+		switch (init.mode) {
+			case GellySimMode::DEBUG: {
+				const auto &debugInfo =
+					std::get<GellySimInit::DebugInfo>(init.modeInfo);
 
-			fluidSim =
-				CreateD3D11RTFRFluidSimulation(simContext, rtfrInfo.folderPath);
-			break;
+				fluidSim = CreateD3D11DebugFluidSimulation(simContext);
+				fluidSim->SetMaxParticles(debugInfo.maxParticles);
+				break;
+			}
+
+			case GellySimMode::RTFR: {
+				const auto &rtfrInfo =
+					std::get<GellySimInit::RTFRInfo>(init.modeInfo);
+
+				fluidSim = CreateD3D11RTFRFluidSimulation(
+					simContext, rtfrInfo.folderPath
+				);
+				break;
+			}
 		}
-	}
 
-	logger->Info("Linking the Gelly fluid simulation and renderer...");
-	fluidRenderer->SetSimData(fluidSim->GetSimulationData());
-	fluidSim->Initialize();
-	logger->Info("Gelly simulation initialized");
+		logger->Info("Linking the Gelly fluid simulation and renderer...");
+		fluidRenderer->SetSimData(fluidSim->GetSimulationData());
+		fluidSim->Initialize();
+		logger->Info("Gelly simulation initialized");
+	} catch (const std::exception &e) {
+		logger->Error("Failed to initialize Gelly simulation: %s", e.what());
+		throw;
+	}
 }
 
 IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }
