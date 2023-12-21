@@ -15,6 +15,9 @@ add_library(
         src/fluidsim/CD3D11RTFRFluidSimulation.cpp
         include/fluidsim/CD3D11RTFRFluidSimulation.h
         include/fluidsim/ISimScene.h
+        include/fluidsim/ISimCommandList.h
+        include/fluidsim/CSimpleSimCommandList.cpp
+        include/fluidsim/CSimpleSimCommandList.h
 )
 
 GetFleXArchitecture()

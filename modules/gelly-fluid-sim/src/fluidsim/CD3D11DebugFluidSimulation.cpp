@@ -129,6 +129,46 @@ SimContextAPI CD3D11DebugFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;
 }
 
+ISimCommandList *CD3D11DebugFluidSimulation::CreateCommandList() {
+	auto *commandList = new CSimpleSimCommandList(supportedCommands);
+	commandLists.push_back(commandList);
+	return commandList;
+}
+
+void CD3D11DebugFluidSimulation::DestroyCommandList(ISimCommandList *commandList
+) {
+	// delete on nullptr is a no-op so it's fine to call this after the
+	// simulation is destroyed.
+	delete commandList;
+}
+
+void CD3D11DebugFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
+) {
+	if (commandList == nullptr) {
+		throw std::invalid_argument(
+			"CD3D11DebugFluidSimulation::ExecuteCommandList: commandList must "
+			"not be null."
+		);
+	}
+
+	for (const auto &command : commandList->GetCommands()) {
+		std::visit(
+			[&](auto &&arg) {
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, Reset>) {
+					GenerateRandomParticles();
+				} else {
+					throw std::runtime_error(
+						"CD3D11DebugFluidSimulation::ExecuteCommandList: "
+						"Unsupported command type."
+					);
+				}
+			},
+			command
+		);
+	}
+}
+
 void CD3D11DebugFluidSimulation::AttachToContext(
 	const GellyObserverPtr<ISimContext> context
 ) {

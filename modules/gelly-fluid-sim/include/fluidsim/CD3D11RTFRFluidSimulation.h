@@ -33,6 +33,11 @@ public:
 	ISimData *GetSimulationData() override;
 	ISimScene *GetScene() override;
 	SimContextAPI GetComputeAPI() override;
+
+	ISimCommandList *CreateCommandList() override;
+	void DestroyCommandList(ISimCommandList *commandList) override;
+	void ExecuteCommandList(ISimCommandList *commandList) override;
+
 	void AttachToContext(GellyObserverPtr<ISimContext> context) override;
 
 	void Update(float deltaTime) override;

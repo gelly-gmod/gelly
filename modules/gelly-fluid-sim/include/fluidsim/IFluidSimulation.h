@@ -3,6 +3,7 @@
 
 #include "GellyInterface.h"
 #include "GellyObserverPtr.h"
+#include "ISimCommandList.h"
 #include "ISimContext.h"
 #include "ISimData.h"
 #include "ISimScene.h"
@@ -32,6 +33,21 @@ public:
 	virtual ISimScene *GetScene() = 0;
 	virtual SimContextAPI GetComputeAPI() = 0;
 	virtual void AttachToContext(GellyObserverPtr<ISimContext> context) = 0;
+
+	/**
+	 * \brief Creates a new command list for the simulation.
+	 * \note This pointer is owned by the simulation, and will
+	 * point to nothing after the simulation is destroyed.
+	 * \return A new empty command list.
+	 */
+	virtual ISimCommandList *CreateCommandList() = 0;
+	/**
+	 * \brief Recommended, but each command list will be destroyed when the
+	 * simulation is destroyed.
+	 * \param commandList The command list to destroy.
+	 */
+	virtual void DestroyCommandList(ISimCommandList * commandList) = 0;
+	virtual void ExecuteCommandList(ISimCommandList * commandList) = 0;
 
 	/**
 	 * \brief Will throw if the simulation data buffers are not linked.
