@@ -56,16 +56,10 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 	auto *positionData = static_cast<SimFloat4 *>(mappedSubresource.pData);
 	t += 0.01f;
 	for (int i = 0; i < maxParticles; i++) {
-		// A simple sphere
-		float theta = 2.0f * 3.1415926f * rand() / RAND_MAX;
-		float phi = acos(2.0f * rand() / RAND_MAX - 1.0f);
-		float r = 1.f;
-		float x = r * sinf(phi) * cosf(theta);
-		float y = r * sinf(phi) * sinf(theta);
-		float z = r * cosf(phi);
-		positionData[i].x = x;
-		positionData[i].y = y;
-		positionData[i].z = z;
+		// A simple cube
+		positionData[i].x = (rand() % 1000) / 1000.0f;
+		positionData[i].y = (rand() % 1000) / 1000.0f;
+		positionData[i].z = (rand() % 1000) / 1000.0f;
 		positionData[i].w = 1.0f;
 	}
 
@@ -129,6 +123,7 @@ void CD3D11DebugFluidSimulation::Initialize() {
 }
 
 ISimData *CD3D11DebugFluidSimulation::GetSimulationData() { return simData; }
+ISimScene *CD3D11DebugFluidSimulation::GetScene() { return nullptr; }
 
 SimContextAPI CD3D11DebugFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;
@@ -142,5 +137,4 @@ void CD3D11DebugFluidSimulation::AttachToContext(
 
 void CD3D11DebugFluidSimulation::Update(const float deltaTime) {
 	// Do nothing.
-	GenerateRandomParticles();
 }

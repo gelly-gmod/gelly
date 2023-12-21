@@ -196,6 +196,10 @@ void testbed::InitializeNewGellySim(const GellySimInit &init) {
 		fluidRenderer->SetSimData(fluidSim->GetSimulationData());
 		fluidSim->Initialize();
 		logger->Info("Gelly simulation initialized");
+
+		if (!fluidSim->GetScene()) {
+			logger->Warning("Simulation has no interactive scene.");
+		}
 	} catch (const std::exception &e) {
 		logger->Error("Failed to initialize Gelly simulation: %s", e.what());
 		throw;

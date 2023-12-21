@@ -8,7 +8,7 @@ static constexpr const char *simTypes[] = {
 };
 
 static constexpr const char *simTypeDescriptions[] = {
-	"Debug simulation which generates a random particle cloud at each frame.",
+	"Debug simulation which generates a random particle cloud at attach time.",
 	"Dataset simulation which loads and plays back a RTFR dataset."
 };
 

@@ -5,6 +5,7 @@
 #include "GellyObserverPtr.h"
 #include "ISimContext.h"
 #include "ISimData.h"
+#include "ISimScene.h"
 
 gelly_interface IFluidSimulation {
 public:
@@ -22,6 +23,13 @@ public:
 	virtual void Initialize() = 0;
 
 	virtual ISimData *GetSimulationData() = 0;
+	/**
+	 * \brief Returns the virtual scene where the particles are contained.
+	 * \note If the returned pointer is null, the simulation is not attached to
+	 * any scene and thus does not support collision.
+	 * \return Pointer to the scene object.
+	 */
+	virtual ISimScene *GetScene() = 0;
 	virtual SimContextAPI GetComputeAPI() = 0;
 	virtual void AttachToContext(GellyObserverPtr<ISimContext> context) = 0;
 

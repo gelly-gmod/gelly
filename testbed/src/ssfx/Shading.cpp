@@ -42,7 +42,7 @@ void ssfx::InitializeShadingSSFX(ILogger *logger) {
 
 	cbuffer.lightCount = 2.0f;
 	cbuffer.lights[0].position = float3(2.0f, 1.0f, 2.0f);
-	cbuffer.lights[0].power = 0.f;
+	cbuffer.lights[0].power = 30.f;
 	cbuffer.lights[0].radius = 1.2f;
 	cbuffer.lights[0].color = float3(1.0f, 1.0f, 1.0f);
 	cbuffer.lights[1].position = float3(20, 50.f, 0);  // Nice distant light

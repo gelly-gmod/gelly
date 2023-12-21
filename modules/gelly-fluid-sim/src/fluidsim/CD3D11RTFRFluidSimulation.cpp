@@ -143,6 +143,7 @@ void CD3D11RTFRFluidSimulation::LoadDatasetFromFolder(
 }
 
 ISimData *CD3D11RTFRFluidSimulation::GetSimulationData() { return simData; }
+ISimScene *CD3D11RTFRFluidSimulation::GetScene() { return nullptr; }
 
 SimContextAPI CD3D11RTFRFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;

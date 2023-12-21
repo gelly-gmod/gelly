@@ -31,6 +31,7 @@ public:
 	void LoadDatasetFromFolder(const std::filesystem::path &folderPath);
 
 	ISimData *GetSimulationData() override;
+	ISimScene *GetScene() override;
 	SimContextAPI GetComputeAPI() override;
 	void AttachToContext(GellyObserverPtr<ISimContext> context) override;
 

@@ -17,9 +17,22 @@
 
 using namespace testbed;
 
+/**
+ * \brief Contains the mesh of a collision object in the scene and its render
+ * object. The render object can be accessed to figure out the position and
+ * orientation of the object.
+ */
+struct SceneCollisionObject {
+	WorldRenderObject *renderObject;
+	ObjectHandle sceneHandle;
+	MeshDataVector vertices;
+	MeshDataVector indices;
+};
+
 static ILogger *logger = nullptr;
 
 static std::vector<WorldRenderObject> renderObjects;
+static std::vector<SceneCollisionObject> collisionObjects;
 static SceneMetadata currentSceneMetadata;
 
 void testbed::InitializeSceneSystem(ILogger *newLogger) { logger = newLogger; }
@@ -204,11 +217,23 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 			currentSceneMetadata.triangles += mesh.indices.size() / 3;
 
 			auto meshReference = CreateWorldMesh(mesh);
-			
+
 			WorldRenderObject renderObject = {};
 			renderObject.transform = transformMatrix;
 			renderObject.mesh = meshReference;
 			renderObjects.push_back(renderObject);
+
+			// Create collision object
+			SceneCollisionObject collisionObject = {};
+			collisionObject.renderObject = &renderObjects.back();
+			// The renderer just reads the vertices and indices from the
+			// mesh, it doesn't own them, so we can just move them.
+			// The normals will be dropped, but we don't need them for
+			// collision detection
+			collisionObject.sceneHandle = INVALID_OBJECT_HANDLE;
+			collisionObject.vertices = std::move(mesh.vertices);
+			collisionObject.indices = std::move(mesh.indices);
+			collisionObjects.push_back(collisionObject);
 		}
 
 		logger->Info("Created render object");
@@ -219,4 +244,74 @@ void testbed::RenderScene() { RenderWorldList(renderObjects, GetCamera()); }
 
 SceneMetadata testbed::GetCurrentSceneMetadata() {
 	return currentSceneMetadata;
+}
+
+void testbed::RegisterSceneToGellySim(IFluidSimulation *sim) {
+	auto *scene = sim->GetScene();
+	for (auto &collisionObject : collisionObjects) {
+		ObjectCreationParams params = {};
+		params.shape = ObjectShape::TRIANGLE_MESH;
+		auto shapeData = ObjectCreationParams::TriangleMesh{};
+
+		shapeData.vertices =
+			reinterpret_cast<float *>(collisionObject.vertices.data());
+		shapeData.indices =
+			reinterpret_cast<uint *>(collisionObject.indices.data());
+
+		shapeData.vertexCount =
+			collisionObject.vertices.size() / sizeof(float3);
+		shapeData.indexCount =
+			collisionObject.indices.size() / sizeof(unsigned short);
+
+		// Decompose transform matrix
+		auto &transform = collisionObject.renderObject->transform;
+		const auto loadedTransform = XMLoadFloat4x4(&transform);
+		const XMVECTOR translation = XMVectorSet(
+			transform._41, transform._42, transform._43, transform._44
+		);
+		const XMVECTOR rotation = XMQuaternionRotationMatrix(loadedTransform);
+		const XMVECTOR scale = XMVectorSet(
+			XMVectorGetX(loadedTransform.r[0]),
+			XMVectorGetY(loadedTransform.r[1]),
+			XMVectorGetZ(loadedTransform.r[2]),
+			1.0f
+		);
+
+		// In the creation stage we set the scale, but since we have static
+		// transforms, we'll also set the position and scale here
+
+		shapeData.scale[0] = XMVectorGetX(scale);
+		shapeData.scale[1] = XMVectorGetY(scale);
+		shapeData.scale[2] = XMVectorGetZ(scale);
+
+		collisionObject.sceneHandle = scene->CreateObject(params);
+
+		scene->SetObjectPosition(
+			collisionObject.sceneHandle,
+			XMVectorGetX(translation),
+			XMVectorGetY(translation),
+			XMVectorGetZ(translation)
+		);
+
+		scene->SetObjectQuaternion(
+			collisionObject.sceneHandle,
+			XMVectorGetX(rotation),
+			XMVectorGetY(rotation),
+			XMVectorGetZ(rotation),
+			XMVectorGetW(rotation)
+		);
+	}
+}
+
+void testbed::UnregisterSceneFromGellySim(IFluidSimulation *sim) {
+	auto *scene = sim->GetScene();
+	for (auto &collisionObject : collisionObjects) {
+		scene->RemoveObject(collisionObject.sceneHandle);
+		collisionObject.sceneHandle = INVALID_OBJECT_HANDLE;
+	}
+}
+
+void testbed::UpdateGellySimScene() {
+	// Nothing for now, but in the future this could be used to make
+	// cool stuff like a wave pool
 }

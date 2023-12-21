@@ -26,6 +26,7 @@ public:
 	void SetMaxParticles(int maxParticles) override;
 	void Initialize() override;
 	ISimData *GetSimulationData() override;
+	ISimScene *GetScene() override;
 	SimContextAPI GetComputeAPI() override;
 	void AttachToContext(GellyObserverPtr<ISimContext> context) override;
 	void Update(float deltaTime) override;

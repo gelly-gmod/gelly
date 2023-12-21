@@ -3,6 +3,7 @@
 
 #include "ILogger.h"
 #include "Memory.h"
+#include "fluidsim/IFluidSimulation.h"
 
 /**
  * Since testbed is not a game engine, most of our stuff is static, and the
@@ -29,6 +30,15 @@ void LoadScene(const SceneMetadata &metadata);
  */
 void RenderScene();
 SceneMetadata GetCurrentSceneMetadata();
+
+/**
+ * \brief Allows for the fluid simulation to "see" and collide particles with
+ * the currently loaded scene.
+ * \param sim The simulation to register the scene to.
+ */
+void RegisterSceneToGellySim(IFluidSimulation *sim);
+void UnregisterSceneFromGellySim(IFluidSimulation *sim);
+void UpdateGellySimScene();
 
 }  // namespace testbed
 
