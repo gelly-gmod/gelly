@@ -149,6 +149,47 @@ SimContextAPI CD3D11RTFRFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;
 }
 
+ISimCommandList *CD3D11RTFRFluidSimulation::CreateCommandList() {
+	auto *commandList = new CSimpleSimCommandList(supportedCommands);
+	commandLists.push_back(commandList);
+	return commandList;
+}
+
+void CD3D11RTFRFluidSimulation::DestroyCommandList(ISimCommandList *commandList
+) {
+	delete commandList;
+}
+
+void CD3D11RTFRFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
+) {
+	if (!commandList) {
+		throw std::invalid_argument(
+			"CD3D11RTFRFluidSimulation::ExecuteCommandList: commandList must "
+			"not be null."
+		);
+	}
+
+	const auto iterators = commandList->GetCommands();
+
+	for (auto it = iterators.first; it != iterators.second; ++it) {
+		auto &command = *it;
+		std::visit(
+			[&](auto &&arg) {
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, Reset>) {
+					currentFrameIndex = 0;
+				} else {
+					throw std::runtime_error(
+						"CD3D11RTFRSimulation::ExecuteCommandList: "
+						"Unsupported command type."
+					);
+				}
+			},
+			command.data
+		);
+	}
+}
+
 void CD3D11RTFRFluidSimulation::AttachToContext(
 	const GellyObserverPtr<ISimContext> context
 ) {

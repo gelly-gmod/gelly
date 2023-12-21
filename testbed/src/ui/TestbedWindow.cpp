@@ -63,6 +63,13 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 			GetGellyFluidSim()->GetSimulationData()->GetActiveParticles()
 		);
 
+		if (ImGui::Button("Send reset command")) {
+			auto *commandList = GetGellyFluidSim()->CreateCommandList();
+			commandList->AddCommand({RESET, Reset{}});
+			GetGellyFluidSim()->ExecuteCommandList(commandList);
+			GetGellyFluidSim()->DestroyCommandList(commandList);
+		}
+
 		if (ImGui::CollapsingHeader("Textures")) {
 			ImGui::Image(
 				GetTextureSRV(GELLY_ALBEDO_TEXNAME),

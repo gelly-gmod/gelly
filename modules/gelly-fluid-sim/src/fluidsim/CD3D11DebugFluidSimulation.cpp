@@ -151,7 +151,10 @@ void CD3D11DebugFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 		);
 	}
 
-	for (const auto &command : commandList->GetCommands()) {
+	const auto iterators = commandList->GetCommands();
+
+	for (auto it = iterators.first; it != iterators.second; ++it) {
+		auto &command = *it;
 		std::visit(
 			[&](auto &&arg) {
 				using T = std::decay_t<decltype(arg)>;
@@ -164,7 +167,7 @@ void CD3D11DebugFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					);
 				}
 			},
-			command
+			command.data
 		);
 	}
 }

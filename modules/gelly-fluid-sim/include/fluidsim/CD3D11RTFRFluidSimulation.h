@@ -2,11 +2,14 @@
 #define CD3D11RTFRFLUIDSIMULATION_H
 
 #include "CD3D11CPUSimData.h"
+#include "CSimpleSimCommandList.h"
 #include "IFluidSimulation.h"
 #include "rtfr/Dataset.h"
 
 class CD3D11RTFRFluidSimulation : public IFluidSimulation {
 private:
+	constexpr static SimCommandType supportedCommands = SimCommandType::RESET;
+
 	GellyObserverPtr<ISimContext> context{};
 	CD3D11CPUSimData *simData;
 	ID3D11Buffer *positionBuffer;
@@ -17,6 +20,8 @@ private:
 
 	rtfr::DatasetInfo datasetInfo;
 	rtfr::Dataset dataset;
+
+	std::vector<CSimpleSimCommandList *> commandLists;
 
 	void CreateBuffers();
 	void LoadFrameIntoBuffers();
