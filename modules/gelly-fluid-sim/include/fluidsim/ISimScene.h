@@ -42,7 +42,7 @@ struct ObjectCreationParams {
 	};
 
 	ObjectShape shape;
-	std::variant<std::monostate, TriangleMesh, Capsule> shapeData;
+	std::variant<TriangleMesh, Capsule> shapeData;
 };
 
 using ObjectHandle = uint;
@@ -67,9 +67,20 @@ public:
 	virtual void SetObjectPosition(
 		ObjectHandle handle, float x, float y, float z
 	) = 0;
+
 	virtual void SetObjectQuaternion(
 		ObjectHandle handle, float x, float y, float z, float w
 	) = 0;
+
+	/**
+	 * \brief Updates the internal representation of the scene.
+	 * \note Different implementations may have different requirements for
+	 * getting scene data somewhere, so depending on the implementation this may
+	 * incur a pipeline stall or something similar.
+	 * \note It's highly recommended to call this function after many objects
+	 * have been updated, rather than calling it after each object update.
+	 */
+	virtual void Update() = 0;
 };
 
 #endif	// ISIMSCENE_H

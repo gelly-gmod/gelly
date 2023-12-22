@@ -1,0 +1,74 @@
+#ifndef CFLEXSIMSCENE_H
+#define CFLEXSIMSCENE_H
+
+#include <NvFlex.h>
+
+#include <unordered_map>
+
+#include "ISimScene.h"
+
+/**
+ * \brief Internal representation of scene objects for FleX.
+ */
+struct ObjectData {
+	struct TriangleMesh {
+		NvFlexTriangleMeshId id;
+		float scale[3];
+	};
+
+	struct Capsule {
+		float radius;
+		float halfHeight;
+	};
+
+	ObjectShape shape;
+	float position[3];
+	float rotation[4];
+
+	std::variant<TriangleMesh, Capsule> shapeData;
+};
+
+class CFlexSimScene : public ISimScene {
+private:
+	static constexpr uint maxColliders = 8192;
+
+	uint monotonicObjectId = 0;
+
+	NvFlexLibrary *library = nullptr;
+	struct {
+		NvFlexBuffer *positions;
+		NvFlexBuffer *rotations;
+		NvFlexBuffer *info;
+		NvFlexBuffer *flags;
+	} geometry = {};
+
+	std::unordered_map<ObjectHandle, ObjectData> objects;
+
+	// FYI: In FleX, the triangle mesh is the only special case.
+	// Anything else is POD, but since these have meshes,
+	// they need to be managed on the GPU hence the triangle mesh ID.
+	// We still have CreateXXXX functions for the other shapes for consistency.
+	ObjectData CreateTriangleMesh(
+		const ObjectCreationParams::TriangleMesh &params
+	);
+
+	ObjectData CreateCapsule(const ObjectCreationParams::Capsule &params);
+
+public:
+	CFlexSimScene(NvFlexLibrary *library);
+	~CFlexSimScene() override;
+
+	ObjectHandle CreateObject(const ObjectCreationParams &params) override;
+	void DestroyObject(ObjectHandle handle) override;
+
+	void SetObjectPosition(ObjectHandle handle, float x, float y, float z)
+		override;
+
+	void SetObjectQuaternion(
+		ObjectHandle handle, float x, float y, float z, float w
+	) override;
+
+	void Update() override;
+};
+
+#endif	// CFLEXSIMSCENE_H
