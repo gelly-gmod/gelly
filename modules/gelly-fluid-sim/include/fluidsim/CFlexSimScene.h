@@ -33,6 +33,7 @@ private:
 	static constexpr uint maxColliders = 8192;
 
 	uint monotonicObjectId = 0;
+	bool dirty = false;
 
 	NvFlexLibrary *library = nullptr;
 	NvFlexSolver *solver = nullptr;
@@ -50,11 +51,13 @@ private:
 	// Anything else is POD, but since these have meshes,
 	// they need to be managed on the GPU hence the triangle mesh ID.
 	// We still have CreateXXXX functions for the other shapes for consistency.
-	ObjectData CreateTriangleMesh(
+	[[nodiscard]] ObjectData CreateTriangleMesh(
 		const ObjectCreationParams::TriangleMesh &params
 	) const;
 
-	ObjectData CreateCapsule(const ObjectCreationParams::Capsule &params) const;
+	[[nodiscard]] ObjectData CreateCapsule(
+		const ObjectCreationParams::Capsule &params
+	) const;
 
 public:
 	CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver);

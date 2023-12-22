@@ -4,12 +4,13 @@
 #include "imgui.h"
 
 static constexpr const char *simTypes[] = {
-	"Debug simulation", "RTFR simulation"
+	"Debug simulation", "RTFR simulation", "FleX simulation"
 };
 
 static constexpr const char *simTypeDescriptions[] = {
 	"Debug simulation which generates a random particle cloud at attach time.",
-	"Dataset simulation which loads and plays back a RTFR dataset."
+	"Dataset simulation which loads and plays back a RTFR dataset.",
+	"Real-time simulation which simulates fluids using NVIDIA FleX."
 };
 
 static int selectedSimType = 0;
@@ -24,6 +25,8 @@ static testbed::GellySimMode GetSimMode() {
 			return testbed::GellySimMode::DEBUG;
 		case 1:
 			return testbed::GellySimMode::RTFR;
+		case 2:
+			return testbed::GellySimMode::FLEX;
 		default:
 			return testbed::GellySimMode::DEBUG;
 	}
@@ -31,6 +34,7 @@ static testbed::GellySimMode GetSimMode() {
 
 DEFINE_UI_DATA(ChangeSim, simMode, testbed::GellySimMode::DEBUG);
 DEFINE_UI_DATA(ChangeSim, debugMaxParticles, 1000);
+DEFINE_UI_DATA(ChangeSim, flexMaxParticles, 100000);
 DEFINE_UI_DATA(ChangeSim, rtfrFolderPath, std::string(256, '\0'));
 DEFINE_UI_DATA(ChangeSim, popupVisible, byte(0));
 DEFINE_UI_DATA(ChangeSim, lastPopupVisible, byte(0));
@@ -48,6 +52,11 @@ static void RenderSpecificSimTypeUI() {
 				"RTFR folder path",
 				UI_DATA(ChangeSim, rtfrFolderPath).data(),
 				256
+			);
+			break;
+		case testbed::GellySimMode::FLEX:
+			ImGui::InputInt(
+				"Max particles", &UI_DATA(ChangeSim, flexMaxParticles)
 			);
 			break;
 		default:
@@ -101,6 +110,11 @@ testbed::GellySimInit UIData::ChangeSim::GetGellySimInit() {
 			);
 
 			init.modeInfo = GellySimInit::RTFRInfo{folderPathString};
+			break;
+		}
+		case GellySimMode::FLEX: {
+			init.modeInfo =
+				GellySimInit::FlexInfo{UI_DATA(ChangeSim, flexMaxParticles)};
 			break;
 		}
 		default:

@@ -70,6 +70,26 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 			GetGellyFluidSim()->DestroyCommandList(commandList);
 		}
 
+		if (GetCurrentGellySimMode() == GellySimMode::FLEX) {
+			if (ImGui::Button("Spawn a fluid cube (3k particles)")) {
+				// TODO: major hack, we need to add actual emitter utilities
+				auto *commandList = GetGellyFluidSim()->CreateCommandList();
+				for (int i = 0; i < 3000; i++) {
+					commandList->AddCommand(
+						{ADD_PARTICLE,
+						 AddParticle{
+							 0.5f + (rand() % 100) / 100.0f,
+							 0.5f + (rand() % 100) / 100.0f,
+							 0.5f + (rand() % 100) / 100.0f
+						 }}
+					);
+				}
+
+				GetGellyFluidSim()->ExecuteCommandList(commandList);
+				GetGellyFluidSim()->DestroyCommandList(commandList);
+			}
+		}
+
 		if (ImGui::CollapsingHeader("Textures")) {
 			ImGui::Image(
 				GetTextureSRV(GELLY_ALBEDO_TEXNAME),

@@ -44,8 +44,8 @@ struct PS_OUTPUT {
     float Depth : SV_Depth;
 };
 
-static const float MINIMUM_THICKNESS = 0.03f;
-static const float3 ABSORPTION = float3(6.f, 6.f, 3.f); // dont absorb too much blue light to give the gelly a blueish tint
+static const float MINIMUM_THICKNESS = 0.0f;
+static const float3 ABSORPTION = float3(16.f, 16.f, 3.f); // dont absorb too much blue light to give the gelly a blueish tint
 
 PS_OUTPUT main(VS_INPUT input)
 {

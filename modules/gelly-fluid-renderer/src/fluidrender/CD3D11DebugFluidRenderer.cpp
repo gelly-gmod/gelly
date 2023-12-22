@@ -6,6 +6,7 @@
 
 #include "EstimateNormalPS.h"
 #include "FilterDepthPS.h"
+#include "FilterThicknessPS.h"
 #include "ScreenQuadVS.h"
 #include "SplattingGS.h"
 #include "SplattingPS.h"
@@ -75,6 +76,12 @@ void CD3D11DebugFluidRenderer::CreateShaders() {
 	shaders.estimateNormalPS = context->CreateShader(
 		gsc::EstimateNormalPS::GetBytecode(),
 		gsc::EstimateNormalPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
+
+	shaders.filterThicknessPS = context->CreateShader(
+		gsc::FilterThicknessPS::GetBytecode(),
+		gsc::FilterThicknessPS::GetBytecodeSize(),
 		ShaderType::Pixel
 	);
 }
@@ -229,16 +236,19 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 }
 
 void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
+	auto *depthTextureA = internalTextures.unfilteredDepth;
+	auto *depthTextureB =
+		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 	for (int i = 0; i < settings.filterIterations; i++) {
-		auto *depthTexture =
-			outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+		// We flip between the two textures to avoid having to copy the
+		// filtered depth back to the unfiltered depth texture.
 
-		depthTexture->Clear(clearColor);
-		depthTexture->BindToPipeline(
+		depthTextureB->Clear(clearColor);
+		depthTextureB->BindToPipeline(
 			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 		);
 
-		internalTextures.unfilteredDepth->BindToPipeline(
+		depthTextureA->BindToPipeline(
 			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
 		);
 
@@ -252,10 +262,8 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 		context->SubmitWork();
 		context->ResetPipeline();
 
-		// Copy the filtered depth back to the unfiltered depth.
-		// for the next iteration.
-		depthTexture->CopyToTexture(internalTextures.unfilteredDepth);
-		context->SubmitWork();
+		// Swap the textures.
+		std::swap(depthTextureA, depthTextureB);
 	}
 
 	if (settings.filterIterations == 0) {
@@ -302,8 +310,7 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 }
 
 void CD3D11DebugFluidRenderer::RenderThickness() {
-	auto *thicknessTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
+	auto *thicknessTexture = internalTextures.unfilteredThickness;
 
 	thicknessTexture->Clear(clearColor);
 	// No depth buffer needed for this pass.
@@ -327,6 +334,30 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	context->ResetPipeline();
 }
 
+void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
+	auto *thicknessTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
+	auto *unfilteredThicknessTexture = internalTextures.unfilteredThickness;
+
+	thicknessTexture->Clear(clearColor);
+	thicknessTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+	);
+
+	unfilteredThicknessTexture->BindToPipeline(
+		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+	);
+
+	shaders.screenQuadVS->Bind();
+	shaders.filterThicknessPS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.screenQuadLayout->BindAsVertexBuffer();
+
+	context->Draw(4, 0);
+	context->SubmitWork();
+	context->ResetPipeline();
+}
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {
 		throw std::logic_error(
@@ -363,7 +394,7 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderFilteredDepth();
 	RenderNormals();
 	RenderThickness();
-
+	RenderFilteredThickness();
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {
 		renderDocApi->EndFrameCapture(device, nullptr);

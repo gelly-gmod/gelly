@@ -6,6 +6,7 @@
 #include "GellyFluidRender.h"
 #include "ILogger.h"
 #include "Rendering.h"
+#include "Scene.h"
 #include "Textures.h"
 #include "Window.h"
 #include "fluidrender/IFluidRenderer.h"
@@ -19,6 +20,7 @@ static IFluidSimulation *fluidSim = nullptr;
 static IRenderContext *renderContext = nullptr;
 static IFluidRenderer *fluidRenderer = nullptr;
 static FluidRenderSettings fluidRenderSettings{};
+static GellySimMode currentSimMode = GellySimMode::DEBUG;
 
 static GellyObserverPtr<IManagedTexture> fluidAlbedoTexture;
 static GellyObserverPtr<IManagedTexture> fluidDepthTexture;
@@ -190,7 +192,18 @@ void testbed::InitializeNewGellySim(const GellySimInit &init) {
 				);
 				break;
 			}
+
+			case GellySimMode::FLEX: {
+				const auto &flexInfo =
+					std::get<GellySimInit::FlexInfo>(init.modeInfo);
+
+				fluidSim = CreateD3D11FlexFluidSimulation(simContext);
+				fluidSim->SetMaxParticles(flexInfo.maxParticles);
+				break;
+			}
 		}
+
+		currentSimMode = init.mode;
 
 		logger->Info("Linking the Gelly fluid simulation and renderer...");
 		fluidRenderer->SetSimData(fluidSim->GetSimulationData());
@@ -199,6 +212,9 @@ void testbed::InitializeNewGellySim(const GellySimInit &init) {
 
 		if (!fluidSim->GetScene()) {
 			logger->Warning("Simulation has no interactive scene.");
+		} else {
+			// tell scene system to register
+			RegisterSceneToGellySim(fluidSim);
 		}
 	} catch (const std::exception &e) {
 		logger->Error("Failed to initialize Gelly simulation: %s", e.what());
@@ -207,6 +223,8 @@ void testbed::InitializeNewGellySim(const GellySimInit &init) {
 }
 
 IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }
+
+GellySimMode testbed::GetCurrentGellySimMode() { return currentSimMode; }
 
 IFluidRenderer *testbed::GetGellyFluidRenderer() { return fluidRenderer; }
 

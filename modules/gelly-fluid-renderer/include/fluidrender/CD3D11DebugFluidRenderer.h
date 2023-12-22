@@ -36,6 +36,7 @@ private:
 
 	struct {
 		GellyInterfaceVal<IManagedTexture> unfilteredDepth;
+		GellyInterfaceVal<IManagedTexture> unfilteredThickness;
 	} internalTextures{};
 
 	struct {
@@ -48,8 +49,10 @@ private:
 		GellyInterfaceVal<IManagedShader> thicknessGS;
 
 		GellyInterfaceVal<IManagedShader> screenQuadVS;
+
 		GellyInterfaceVal<IManagedShader> filterDepthPS;
 		GellyInterfaceVal<IManagedShader> estimateNormalPS;
+		GellyInterfaceVal<IManagedShader> filterThicknessPS;
 	} shaders{};
 
 #ifdef _DEBUG
@@ -71,6 +74,7 @@ public:
 	void RenderFilteredDepth();
 	void RenderNormals();
 	void RenderThickness();
+	void RenderFilteredThickness();
 	void Render() override;
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;

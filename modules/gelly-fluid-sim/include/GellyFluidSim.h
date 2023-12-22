@@ -22,6 +22,10 @@ IFluidSimulation *CreateD3D11RTFRFluidSimulation(
 	const std::filesystem::path &folderPath
 );
 
+IFluidSimulation *CreateD3D11FlexFluidSimulation(
+	GellyObserverPtr<ISimContext> context
+);
+
 void DestroyGellyFluidSim(IFluidSimulation *sim);
 
 }  // namespace Gelly

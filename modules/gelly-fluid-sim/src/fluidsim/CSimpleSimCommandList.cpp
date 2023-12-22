@@ -1,6 +1,6 @@
-#include "CSimpleSimCommandList.h"
+#include "../../include/fluidsim/CSimpleSimCommandList.h"
 
-#include "ISimCommandList.h"
+#include "../../include/fluidsim/ISimCommandList.h"
 
 CSimpleSimCommandList::CSimpleSimCommandList(SimCommandType supportedCommands)
 	: supportedCommands(supportedCommands) {}

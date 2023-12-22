@@ -85,6 +85,16 @@ if (WIN32)
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL2::SDL2>" "$<TARGET_FILE_DIR:testbed>"
             VERBATIM
     )
+
+    # We also need to copy all the flex dlls
+    message(STATUS "Flex DLLs: ${FLEX_DLLS}")
+    foreach (DLL_PATH ${FLEX_DLLS})
+        add_custom_command(
+                TARGET testbed POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${DLL_PATH}" "$<TARGET_FILE_DIR:testbed>"
+                VERBATIM
+        )
+    endforeach ()
 endif ()
 
 # Compile shaders by invoking the script in cmake/CompileShaders.cmake

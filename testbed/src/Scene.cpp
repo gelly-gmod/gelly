@@ -256,7 +256,7 @@ void testbed::RegisterSceneToGellySim(IFluidSimulation *sim) {
 		shapeData.vertices =
 			reinterpret_cast<float *>(collisionObject.vertices.data());
 		shapeData.indices =
-			reinterpret_cast<uint *>(collisionObject.indices.data());
+			reinterpret_cast<ushort *>(collisionObject.indices.data());
 
 		shapeData.vertexCount =
 			collisionObject.vertices.size() / sizeof(float3);
@@ -284,6 +284,7 @@ void testbed::RegisterSceneToGellySim(IFluidSimulation *sim) {
 		shapeData.scale[1] = XMVectorGetY(scale);
 		shapeData.scale[2] = XMVectorGetZ(scale);
 
+		params.shapeData = shapeData;
 		collisionObject.sceneHandle = scene->CreateObject(params);
 
 		scene->SetObjectPosition(

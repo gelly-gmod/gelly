@@ -28,7 +28,7 @@ struct ObjectCreationParams {
 		 * the caller to ensure that this array is valid for the lifetime of the
 		 * create object function call.
 		 */
-		uint *indices;
+		ushort *indices;
 
 		uint vertexCount;
 		uint indexCount;

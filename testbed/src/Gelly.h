@@ -23,6 +23,7 @@ namespace testbed {
 enum class GellySimMode {
 	DEBUG,
 	RTFR,
+	FLEX,
 };
 
 /**
@@ -38,8 +39,12 @@ struct GellySimInit {
 		int maxParticles = 10;
 	};
 
+	struct FlexInfo {
+		int maxParticles = 100000;
+	};
+
 	GellySimMode mode = GellySimMode::DEBUG;
-	std::variant<std::monostate, RTFRInfo, DebugInfo> modeInfo;
+	std::variant<std::monostate, RTFRInfo, DebugInfo, FlexInfo> modeInfo;
 };
 
 void InitializeGelly(ID3D11Device *rendererDevice, ILogger *newLogger);

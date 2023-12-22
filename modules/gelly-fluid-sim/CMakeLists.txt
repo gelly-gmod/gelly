@@ -16,11 +16,12 @@ add_library(
         include/fluidsim/CD3D11RTFRFluidSimulation.h
         include/fluidsim/ISimScene.h
         include/fluidsim/ISimCommandList.h
-        include/fluidsim/CSimpleSimCommandList.cpp
+        src/fluidsim/CSimpleSimCommandList.cpp
         include/fluidsim/CSimpleSimCommandList.h
         include/fluidsim/CD3D11FlexFluidSImulation.h
         include/fluidsim/CFlexSimScene.h
         src/fluidsim/CFlexSImScene.cpp
+        src/fluidsim/CD3D11FlexFluidSimulation.cpp
 )
 
 GetFleXArchitecture()
@@ -39,6 +40,8 @@ set(FLEX_DLLS
         "${FLEX_PATH}/bin/${ARCH}/NvFlexReleaseD3D_${ARCH_SUFFIX}.dll"
         "${FLEX_PATH}/bin/${ARCH}/NvFlexDeviceRelease_${ARCH_SUFFIX}.dll"
         "${FLEX_PATH}/bin/${ARCH}/nvToolsExt64_1.dll"
+        "${FLEX_PATH}/bin/${ARCH}/amd_ags_x64.dll"
+        "${FLEX_PATH}/bin/${ARCH}/GFSDK_Aftermath_Lib.x64.dll"
         PARENT_SCOPE
 )
 

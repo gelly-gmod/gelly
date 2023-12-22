@@ -14,6 +14,8 @@ struct FlexQuat {
 	float x, y, z, w;
 };
 
+using FlexFloat4 = FlexQuat;
+
 static NvFlexCollisionShapeType GetFlexShapeType(ObjectShape shape) {
 	switch (shape) {
 		case ObjectShape::TRIANGLE_MESH:
@@ -26,7 +28,26 @@ static NvFlexCollisionShapeType GetFlexShapeType(ObjectShape shape) {
 }
 
 CFlexSimScene::CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver)
-	: library(library), solver(solver), objects({}) {}
+	: library(library), solver(solver), objects({}) {
+	geometry.positions = NvFlexAllocBuffer(
+		library, maxColliders, sizeof(FlexFloat4), eNvFlexBufferHost
+	);
+
+	geometry.rotations = NvFlexAllocBuffer(
+		library, maxColliders, sizeof(FlexQuat), eNvFlexBufferHost
+	);
+
+	geometry.info = NvFlexAllocBuffer(
+		library,
+		maxColliders,
+		sizeof(NvFlexCollisionGeometry),
+		eNvFlexBufferHost
+	);
+
+	geometry.flags = NvFlexAllocBuffer(
+		library, maxColliders, sizeof(uint), eNvFlexBufferHost
+	);
+}
 
 CFlexSimScene::~CFlexSimScene() {
 	for (const auto &object : objects) {
@@ -64,6 +85,7 @@ ObjectHandle CFlexSimScene::CreateObject(const ObjectCreationParams &params) {
 	}
 
 	objects[monotonicObjectId] = data;
+	dirty = true;
 
 	return monotonicObjectId++;
 }
@@ -112,68 +134,76 @@ void CFlexSimScene::SetObjectQuaternion(
 }
 
 void CFlexSimScene::Update() {
-	auto *info = static_cast<NvFlexCollisionGeometry *>(
-		NvFlexMap(geometry.info, eNvFlexMapWait)
-	);
-
-	auto *positions =
-		static_cast<FlexFloat3 *>(NvFlexMap(geometry.positions, eNvFlexMapWait)
+	if (dirty) {
+		auto *info = static_cast<NvFlexCollisionGeometry *>(
+			NvFlexMap(geometry.info, eNvFlexMapWait)
 		);
 
-	auto *rotations =
-		static_cast<FlexQuat *>(NvFlexMap(geometry.rotations, eNvFlexMapWait));
+		auto *positions = static_cast<FlexFloat4 *>(
+			NvFlexMap(geometry.positions, eNvFlexMapWait)
+		);
 
-	auto *flags =
-		static_cast<uint *>(NvFlexMap(geometry.flags, eNvFlexMapWait));
+		auto *rotations = static_cast<FlexQuat *>(
+			NvFlexMap(geometry.rotations, eNvFlexMapWait)
+		);
 
-	uint valueIndex = 0;
-	for (const auto &object : objects) {
-		switch (object.second.shape) {
-			case ObjectShape::TRIANGLE_MESH: {
-				const auto &mesh =
-					std::get<ObjectData::TriangleMesh>(object.second.shapeData);
-				info[valueIndex].triMesh.mesh = mesh.id;
-				info[valueIndex].triMesh.scale[0] = mesh.scale[0];
-				info[valueIndex].triMesh.scale[1] = mesh.scale[1];
-				info[valueIndex].triMesh.scale[2] = mesh.scale[2];
-				break;
+		auto *flags =
+			static_cast<uint *>(NvFlexMap(geometry.flags, eNvFlexMapWait));
+
+		uint valueIndex = 0;
+		for (const auto &object : objects) {
+			switch (object.second.shape) {
+				case ObjectShape::TRIANGLE_MESH: {
+					const auto &mesh = std::get<ObjectData::TriangleMesh>(
+						object.second.shapeData
+					);
+					info[valueIndex].triMesh.mesh = mesh.id;
+					info[valueIndex].triMesh.scale[0] = mesh.scale[0];
+					info[valueIndex].triMesh.scale[1] = mesh.scale[1];
+					info[valueIndex].triMesh.scale[2] = mesh.scale[2];
+					break;
+				}
+
+				case ObjectShape::CAPSULE: {
+					const auto &capsule =
+						std::get<ObjectData::Capsule>(object.second.shapeData);
+					info[valueIndex].capsule.radius = capsule.radius;
+					info[valueIndex].capsule.halfHeight = capsule.halfHeight;
+					break;
+				}
 			}
 
-			case ObjectShape::CAPSULE: {
-				const auto &capsule =
-					std::get<ObjectData::Capsule>(object.second.shapeData);
-				info[valueIndex].capsule.radius = capsule.radius;
-				info[valueIndex].capsule.halfHeight = capsule.halfHeight;
-				break;
-			}
+			positions[valueIndex].x = object.second.position[0];
+			positions[valueIndex].y = object.second.position[1];
+			positions[valueIndex].z = object.second.position[2];
+			positions[valueIndex].w = 1.0f;
+
+			rotations[valueIndex].x = object.second.rotation[0];
+			rotations[valueIndex].y = object.second.rotation[1];
+			rotations[valueIndex].z = object.second.rotation[2];
+			rotations[valueIndex].w = object.second.rotation[3];
+
+			flags[valueIndex] = NvFlexMakeShapeFlags(
+				GetFlexShapeType(object.second.shape), false
+			);
+			valueIndex++;
 		}
 
-		positions[valueIndex].x = object.second.position[0];
-		positions[valueIndex].y = object.second.position[1];
-		positions[valueIndex].z = object.second.position[2];
+		NvFlexUnmap(geometry.info);
+		NvFlexUnmap(geometry.positions);
+		NvFlexUnmap(geometry.rotations);
+		NvFlexUnmap(geometry.flags);
 
-		rotations[valueIndex].x = object.second.rotation[0];
-		rotations[valueIndex].y = object.second.rotation[1];
-		rotations[valueIndex].z = object.second.rotation[2];
-		rotations[valueIndex].w = object.second.rotation[3];
-
-		flags[valueIndex] =
-			NvFlexMakeShapeFlags(GetFlexShapeType(object.second.shape), false);
-		valueIndex++;
+		dirty = false;
 	}
-
-	NvFlexUnmap(geometry.info);
-	NvFlexUnmap(geometry.positions);
-	NvFlexUnmap(geometry.rotations);
-	NvFlexUnmap(geometry.flags);
 
 	NvFlexSetShapes(
 		solver,
 		geometry.info,
 		geometry.positions,
 		geometry.rotations,
-		nullptr,
-		nullptr,
+		geometry.positions,
+		geometry.rotations,
 		geometry.flags,
 		objects.size()
 	);
@@ -186,7 +216,7 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 	FlexFloat3 minVertex = {FLT_MAX, FLT_MAX, FLT_MAX};
 	FlexFloat3 maxVertex = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
-	const uint *indices = params.indices;
+	const ushort *indices = params.indices;
 	const auto *vertices = reinterpret_cast<FlexFloat3 *>(params.vertices);
 	for (uint i = 0; i < params.vertexCount; i++) {
 		minVertex.x = std::min(minVertex.x, vertices[i].x);
@@ -203,23 +233,28 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 	);
 
 	NvFlexBuffer *verticesBuffer = NvFlexAllocBuffer(
-		library, params.vertexCount, sizeof(FlexFloat3), eNvFlexBufferHost
+		library, params.vertexCount, sizeof(FlexFloat4), eNvFlexBufferHost
 	);
 
 	{
 		void *indicesDst = NvFlexMap(indicesBuffer, eNvFlexMapWait);
 		void *verticesDst = NvFlexMap(verticesBuffer, eNvFlexMapWait);
 
-		std::memcpy(indicesDst, indices, sizeof(uint) * params.indexCount);
-		std::memcpy(
-			verticesDst, vertices, sizeof(FlexFloat3) * params.vertexCount
-		);
+		// We have to convert our indices since they're ushorts
+		for (uint i = 0; i < params.indexCount; i++) {
+			static_cast<int *>(indicesDst)[i] = static_cast<int>(indices[i]);
+		}
+
+		for (uint i = 0; i < params.vertexCount; i++) {
+			static_cast<FlexFloat4 *>(verticesDst)[i] =
+				FlexFloat4{vertices[i].x, vertices[i].y, vertices[i].z, 0.0f};
+		}
 
 		NvFlexUnmap(indicesBuffer);
 		NvFlexUnmap(verticesBuffer);
 	}
 
-	auto meshId = NvFlexCreateTriangleMesh(library);
+	const auto meshId = NvFlexCreateTriangleMesh(library);
 	NvFlexUpdateTriangleMesh(
 		library,
 		meshId,
@@ -230,9 +265,6 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 		&minVertex.x,
 		&maxVertex.x
 	);
-
-	NvFlexFreeBuffer(indicesBuffer);
-	NvFlexFreeBuffer(verticesBuffer);
 
 	ObjectData data = {};
 	data.shape = ObjectShape::TRIANGLE_MESH;
