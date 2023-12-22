@@ -2,6 +2,7 @@
 #define CD3D11FLEXFLUIDSIMULATION_H
 
 #include "CD3D11CPUSimData.h"
+#include "CFlexSimScene.h"
 #include "CSimpleSimCommandList.h"
 #include "IFluidSimulation.h"
 
@@ -12,6 +13,7 @@ private:
 	int maxParticles;
 
 	std::vector<CSimpleSimCommandList *> commandLists;
+	CFlexSimScene scene;
 
 public:
 	CD3D11FlexFluidSimulation();

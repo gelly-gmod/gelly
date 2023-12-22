@@ -301,6 +301,9 @@ void testbed::RegisterSceneToGellySim(IFluidSimulation *sim) {
 			XMVectorGetW(rotation)
 		);
 	}
+
+	// commit changes
+	scene->Update();
 }
 
 void testbed::UnregisterSceneFromGellySim(IFluidSimulation *sim) {
