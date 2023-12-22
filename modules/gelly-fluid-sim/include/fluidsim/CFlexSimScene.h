@@ -35,6 +35,8 @@ private:
 	uint monotonicObjectId = 0;
 
 	NvFlexLibrary *library = nullptr;
+	NvFlexSolver *solver = nullptr;
+
 	struct {
 		NvFlexBuffer *positions;
 		NvFlexBuffer *rotations;
@@ -50,16 +52,16 @@ private:
 	// We still have CreateXXXX functions for the other shapes for consistency.
 	ObjectData CreateTriangleMesh(
 		const ObjectCreationParams::TriangleMesh &params
-	);
+	) const;
 
-	ObjectData CreateCapsule(const ObjectCreationParams::Capsule &params);
+	ObjectData CreateCapsule(const ObjectCreationParams::Capsule &params) const;
 
 public:
-	CFlexSimScene(NvFlexLibrary *library);
+	CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver);
 	~CFlexSimScene() override;
 
 	ObjectHandle CreateObject(const ObjectCreationParams &params) override;
-	void DestroyObject(ObjectHandle handle) override;
+	void RemoveObject(ObjectHandle handle) override;
 
 	void SetObjectPosition(ObjectHandle handle, float x, float y, float z)
 		override;

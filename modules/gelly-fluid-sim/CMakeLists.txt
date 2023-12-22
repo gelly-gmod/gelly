@@ -20,6 +20,7 @@ add_library(
         include/fluidsim/CSimpleSimCommandList.h
         include/fluidsim/CD3D11FlexFluidSImulation.h
         include/fluidsim/CFlexSimScene.h
+        src/fluidsim/CFlexSImScene.cpp
 )
 
 GetFleXArchitecture()

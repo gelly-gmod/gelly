@@ -1,0 +1,275 @@
+#include "fluidsim/CFlexSimScene.h"
+
+#include <NvFlex.h>
+
+#include <stdexcept>
+
+// Would use XMVECTOR but we need to be able to pass this to NvFlex without
+// having alignment issues
+struct FlexFloat3 {
+	float x, y, z;
+};
+
+struct FlexQuat {
+	float x, y, z, w;
+};
+
+static NvFlexCollisionShapeType GetFlexShapeType(ObjectShape shape) {
+	switch (shape) {
+		case ObjectShape::TRIANGLE_MESH:
+			return eNvFlexShapeTriangleMesh;
+		case ObjectShape::CAPSULE:
+			return eNvFlexShapeCapsule;
+		default:
+			throw std::runtime_error("GetFlexShapeType: Invalid object shape");
+	}
+}
+
+CFlexSimScene::CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver)
+	: library(library), solver(solver), objects({}) {}
+
+CFlexSimScene::~CFlexSimScene() {
+	for (const auto &object : objects) {
+		if (object.second.shape == ObjectShape::TRIANGLE_MESH) {
+			const auto &mesh =
+				std::get<ObjectData::TriangleMesh>(object.second.shapeData);
+			NvFlexDestroyTriangleMesh(library, mesh.id);
+		}
+	}
+
+	NvFlexFreeBuffer(geometry.positions);
+	NvFlexFreeBuffer(geometry.rotations);
+	NvFlexFreeBuffer(geometry.info);
+	NvFlexFreeBuffer(geometry.flags);
+}
+
+ObjectHandle CFlexSimScene::CreateObject(const ObjectCreationParams &params) {
+	ObjectData data;
+
+	switch (params.shape) {
+		case ObjectShape::TRIANGLE_MESH:
+			data = CreateTriangleMesh(
+				std::get<ObjectCreationParams::TriangleMesh>(params.shapeData)
+			);
+			break;
+		case ObjectShape::CAPSULE:
+			data = CreateCapsule(
+				std::get<ObjectCreationParams::Capsule>(params.shapeData)
+			);
+			break;
+		default:
+			throw std::runtime_error(
+				"CFlexSimScene::CreateObject: Invalid object shape"
+			);
+	}
+
+	objects[monotonicObjectId] = data;
+
+	return monotonicObjectId++;
+}
+
+void CFlexSimScene::RemoveObject(ObjectHandle handle) {
+	if (handle == INVALID_OBJECT_HANDLE) {
+		throw std::runtime_error(
+			"CFlexSimScene::DestroyObject: Invalid object handle (received the "
+			"invalid handle constant)"
+		);
+	}
+
+	const auto &object = objects.find(handle);
+	if (object == objects.end()) {
+		throw std::runtime_error(
+			"CFlexSimScene::DestroyObject: Invalid object handle"
+		);
+	}
+
+	if (object->second.shape == ObjectShape::TRIANGLE_MESH) {
+		const auto &mesh =
+			std::get<ObjectData::TriangleMesh>(object->second.shapeData);
+		NvFlexDestroyTriangleMesh(library, mesh.id);
+	}
+
+	objects.erase(object);
+}
+
+void CFlexSimScene::SetObjectPosition(
+	ObjectHandle handle, float x, float y, float z
+) {
+	auto &object = objects.at(handle);
+	object.position[0] = x;
+	object.position[1] = y;
+	object.position[2] = z;
+}
+
+void CFlexSimScene::SetObjectQuaternion(
+	ObjectHandle handle, float x, float y, float z, float w
+) {
+	auto &object = objects.at(handle);
+	object.rotation[0] = x;
+	object.rotation[1] = y;
+	object.rotation[2] = z;
+	object.rotation[3] = w;
+}
+
+void CFlexSimScene::Update() {
+	auto *info = static_cast<NvFlexCollisionGeometry *>(
+		NvFlexMap(geometry.info, eNvFlexMapWait)
+	);
+
+	auto *positions =
+		static_cast<FlexFloat3 *>(NvFlexMap(geometry.positions, eNvFlexMapWait)
+		);
+
+	auto *rotations =
+		static_cast<FlexQuat *>(NvFlexMap(geometry.rotations, eNvFlexMapWait));
+
+	auto *flags =
+		static_cast<uint *>(NvFlexMap(geometry.flags, eNvFlexMapWait));
+
+	uint valueIndex = 0;
+	for (const auto &object : objects) {
+		switch (object.second.shape) {
+			case ObjectShape::TRIANGLE_MESH: {
+				const auto &mesh =
+					std::get<ObjectData::TriangleMesh>(object.second.shapeData);
+				info[valueIndex].triMesh.mesh = mesh.id;
+				info[valueIndex].triMesh.scale[0] = mesh.scale[0];
+				info[valueIndex].triMesh.scale[1] = mesh.scale[1];
+				info[valueIndex].triMesh.scale[2] = mesh.scale[2];
+				break;
+			}
+
+			case ObjectShape::CAPSULE: {
+				const auto &capsule =
+					std::get<ObjectData::Capsule>(object.second.shapeData);
+				info[valueIndex].capsule.radius = capsule.radius;
+				info[valueIndex].capsule.halfHeight = capsule.halfHeight;
+				break;
+			}
+		}
+
+		positions[valueIndex].x = object.second.position[0];
+		positions[valueIndex].y = object.second.position[1];
+		positions[valueIndex].z = object.second.position[2];
+
+		rotations[valueIndex].x = object.second.rotation[0];
+		rotations[valueIndex].y = object.second.rotation[1];
+		rotations[valueIndex].z = object.second.rotation[2];
+		rotations[valueIndex].w = object.second.rotation[3];
+
+		flags[valueIndex] =
+			NvFlexMakeShapeFlags(GetFlexShapeType(object.second.shape), false);
+		valueIndex++;
+	}
+
+	NvFlexUnmap(geometry.info);
+	NvFlexUnmap(geometry.positions);
+	NvFlexUnmap(geometry.rotations);
+	NvFlexUnmap(geometry.flags);
+
+	NvFlexSetShapes(
+		solver,
+		geometry.info,
+		geometry.positions,
+		geometry.rotations,
+		nullptr,
+		nullptr,
+		geometry.flags,
+		objects.size()
+	);
+}
+
+ObjectData CFlexSimScene::CreateTriangleMesh(
+	const ObjectCreationParams::TriangleMesh &params
+) const {
+	// a bit of preprocessing is required, we need to find the min/max vertex
+	FlexFloat3 minVertex = {FLT_MAX, FLT_MAX, FLT_MAX};
+	FlexFloat3 maxVertex = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+
+	const uint *indices = params.indices;
+	const auto *vertices = reinterpret_cast<FlexFloat3 *>(params.vertices);
+	for (uint i = 0; i < params.vertexCount; i++) {
+		minVertex.x = std::min(minVertex.x, vertices[i].x);
+		minVertex.y = std::min(minVertex.y, vertices[i].y);
+		minVertex.z = std::min(minVertex.z, vertices[i].z);
+
+		maxVertex.x = std::max(maxVertex.x, vertices[i].x);
+		maxVertex.y = std::max(maxVertex.y, vertices[i].y);
+		maxVertex.z = std::max(maxVertex.z, vertices[i].z);
+	}
+
+	NvFlexBuffer *indicesBuffer = NvFlexAllocBuffer(
+		library, params.indexCount, sizeof(uint), eNvFlexBufferHost
+	);
+
+	NvFlexBuffer *verticesBuffer = NvFlexAllocBuffer(
+		library, params.vertexCount, sizeof(FlexFloat3), eNvFlexBufferHost
+	);
+
+	{
+		void *indicesDst = NvFlexMap(indicesBuffer, eNvFlexMapWait);
+		void *verticesDst = NvFlexMap(verticesBuffer, eNvFlexMapWait);
+
+		std::memcpy(indicesDst, indices, sizeof(uint) * params.indexCount);
+		std::memcpy(
+			verticesDst, vertices, sizeof(FlexFloat3) * params.vertexCount
+		);
+
+		NvFlexUnmap(indicesBuffer);
+		NvFlexUnmap(verticesBuffer);
+	}
+
+	auto meshId = NvFlexCreateTriangleMesh(library);
+	NvFlexUpdateTriangleMesh(
+		library,
+		meshId,
+		verticesBuffer,
+		indicesBuffer,
+		params.vertexCount,
+		params.indexCount / 3,
+		&minVertex.x,
+		&maxVertex.x
+	);
+
+	NvFlexFreeBuffer(indicesBuffer);
+	NvFlexFreeBuffer(verticesBuffer);
+
+	ObjectData data = {};
+	data.shape = ObjectShape::TRIANGLE_MESH;
+
+	data.position[0] = 0.0f;
+	data.position[1] = 0.0f;
+	data.position[2] = 0.0f;
+
+	data.rotation[0] = 0.0f;
+	data.rotation[1] = 0.0f;
+	data.rotation[2] = 0.0f;
+	data.rotation[3] = 1.0f;
+
+	data.shapeData = ObjectData::TriangleMesh{
+		meshId, {params.scale[0], params.scale[1], params.scale[2]}
+	};
+
+	return data;
+}
+
+ObjectData CFlexSimScene::CreateCapsule(
+	const ObjectCreationParams::Capsule &params
+) const {
+	ObjectData data = {};
+
+	data.shape = ObjectShape::CAPSULE;
+
+	data.position[0] = 0.0f;
+	data.position[1] = 0.0f;
+	data.position[2] = 0.0f;
+
+	data.rotation[0] = 0.0f;
+	data.rotation[1] = 0.0f;
+	data.rotation[2] = 0.0f;
+	data.rotation[3] = 1.0f;
+
+	data.shapeData = ObjectData::Capsule{params.radius, params.halfHeight};
+
+	return data;
+}
