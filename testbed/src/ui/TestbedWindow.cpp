@@ -143,6 +143,16 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 				UpdateGellyFluidRenderSettings(settings);
 			}
 
+			if (ImGui::SliderInt(
+					"Thickness iterations",
+					&settings.thicknessFilterIterations,
+					0,
+					30
+				)) {
+				// Update only if changed
+				UpdateGellyFluidRenderSettings(settings);
+			}
+
 			ImGui::SliderFloat(
 				"Threshold ratio",
 				&UI_DATA(TestbedWindow, thresholdRatio),

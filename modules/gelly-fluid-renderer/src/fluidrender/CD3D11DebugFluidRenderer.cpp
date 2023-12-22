@@ -143,8 +143,18 @@ void CD3D11DebugFluidRenderer::CreateTextures() {
 		"splatrenderer/unfilteredDepth", unfilteredDepthDesc
 	);
 
+	TextureDesc unfilteredThicknessDesc = {};
+	unfilteredThicknessDesc.isFullscreen = true;
+	unfilteredThicknessDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+	unfilteredThicknessDesc.format = TextureFormat::R32G32B32A32_FLOAT;
+
+	internalTextures.unfilteredThickness = context->CreateTexture(
+		"splatrenderer/unfilteredThickness", unfilteredThicknessDesc
+	);
+
 	constexpr float clearColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 	internalTextures.unfilteredDepth->Clear(clearColor);
+	internalTextures.unfilteredThickness->Clear(clearColor);
 }
 
 void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
@@ -335,28 +345,33 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 }
 
 void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
-	auto *thicknessTexture =
+	auto *thicknessTextureA = internalTextures.unfilteredThickness;
+	auto *thicknessTextureB =
 		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
-	auto *unfilteredThicknessTexture = internalTextures.unfilteredThickness;
 
-	thicknessTexture->Clear(clearColor);
-	thicknessTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
-	);
+	for (int i = 0; i < settings.thicknessFilterIterations; i++) {
+		thicknessTextureB->Clear(clearColor);
+		thicknessTextureB->BindToPipeline(
+			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+		);
 
-	unfilteredThicknessTexture->BindToPipeline(
-		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
-	);
+		thicknessTextureA->BindToPipeline(
+			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+		);
 
-	shaders.screenQuadVS->Bind();
-	shaders.filterThicknessPS->Bind();
+		shaders.screenQuadVS->Bind();
+		shaders.filterThicknessPS->Bind();
 
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-	buffers.screenQuadLayout->BindAsVertexBuffer();
+		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+		buffers.screenQuadLayout->BindAsVertexBuffer();
 
-	context->Draw(4, 0);
-	context->SubmitWork();
-	context->ResetPipeline();
+		context->Draw(4, 0);
+		context->SubmitWork();
+		context->ResetPipeline();
+
+		// Swap
+		std::swap(thicknessTextureA, thicknessTextureB);
+	}
 }
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {

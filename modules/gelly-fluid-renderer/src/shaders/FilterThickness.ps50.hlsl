@@ -38,10 +38,10 @@ float FilterThickness(float2 tex) {
     filteredThickness += SampleThickness(tex + float2(-1, 1) * texelSize, original) * g_blurWeights[0];
     filteredThickness += SampleThickness(tex + float2(1, 1) * texelSize, original) * g_blurWeights[2];
 
-    return filteredThickness
+    return filteredThickness;
 }
 
-PS_OUTPUT main(VS_INPUT input) {
+PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
     float4 original = InputThickness.Sample(InputThicknessSampler, input.Tex);
     if (original.a == 0.f) {
