@@ -1,6 +1,7 @@
 #include "fluidrender/CD3D11RenderContext.h"
 
 #include <GellyD3D.h>
+#include <d3d11_4.h>
 
 #include <stdexcept>
 
@@ -23,12 +24,12 @@ CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 }
 
 void CD3D11RenderContext::CreateDeviceAndContext() {
-	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 	UINT deviceFlags = 0;
 #ifdef _DEBUG
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-	DX("Failed to create D3D11 device",
+	DX("Failed to create D3D11.1 device",
 	   D3D11CreateDevice(
 		   nullptr,
 		   D3D_DRIVER_TYPE_HARDWARE,
@@ -77,13 +78,27 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 
+	DX("Failed to query for D3D11.4 (not supported?)",
+	   device->QueryInterface(
+		   __uuidof(ID3D11Device5), reinterpret_cast<void **>(&device5)
+	   ));
+
+	DX("Failed to query for D3D11.4 (DC)",
+	   deviceContext->QueryInterface(
+		   __uuidof(ID3D11DeviceContext4),
+		   reinterpret_cast<void **>(&deviceContext4)
+	   ));
+
+	DX("Failed to create fence",
+	   device5->CreateFence(
+		   0,
+		   D3D11_FENCE_FLAG_NONE,
+		   __uuidof(ID3D11Fence),
+		   reinterpret_cast<void **>(&frameCompletionFence)
+	   ));
+
 	DX("Failed to create D3D11 blend state",
-	   device->CreateBlendState(&blendDesc, &blendState));
-
-	D3D11_QUERY_DESC queryDesc = {};
-	queryDesc.Query = D3D11_QUERY_EVENT;
-
-	DX("Failed to create D3D11 query", device->CreateQuery(&queryDesc, &query));
+	   device5->CreateBlendState(&blendDesc, &blendState));
 }
 
 void CD3D11RenderContext::CreateAllTextures() {
@@ -117,9 +132,9 @@ void CD3D11RenderContext::DestroyAllShaders() {
 void *CD3D11RenderContext::GetRenderAPIResource(RenderAPIResource resource) {
 	switch (resource) {
 		case RenderAPIResource::D3D11Device:
-			return device;
+			return device5;
 		case RenderAPIResource::D3D11DeviceContext:
-			return deviceContext;
+			return deviceContext4;
 		default:
 			return nullptr;
 	}
@@ -254,7 +269,7 @@ void CD3D11RenderContext::BindMultipleTexturesAsOutput(
 		depthStencilView = static_cast<ID3D11DepthStencilView *>(dsv);
 	}
 
-	deviceContext->OMSetRenderTargets(
+	deviceContext4->OMSetRenderTargets(
 		count, renderTargetViews, depthStencilView
 	);
 }
@@ -270,11 +285,8 @@ void CD3D11RenderContext::GetDimensions(uint16_t &width, uint16_t &height) {
 }
 
 void CD3D11RenderContext::SubmitWork() {
-	// well-known query method to synchronize the GPU after
-	// the commands finish executing
-
-	deviceContext->End(query);
-	deviceContext->Flush();
+	deviceContext4->Signal(frameCompletionFence, 1);
+	deviceContext4->Wait(frameCompletionFence, 1);
 
 	if (const auto removeResult = device->GetDeviceRemovedReason();
 		removeResult != S_OK) {
@@ -297,17 +309,17 @@ void CD3D11RenderContext::Draw(
 	viewport.Height = static_cast<float>(height);
 	viewport.MaxDepth = 1.0f;
 	viewport.MinDepth = 0.0f;
-	deviceContext->RSSetViewports(1, &viewport);
-	deviceContext->RSSetState(rasterizerState);
+	deviceContext4->RSSetViewports(1, &viewport);
+	deviceContext4->RSSetState(rasterizerState);
 	if (accumulate) {
-		deviceContext->OMSetBlendState(blendState, nullptr, 0xffffffff);
+		deviceContext4->OMSetBlendState(blendState, nullptr, 0xffffffff);
 	}
-	deviceContext->Draw(vertexCount, startVertex);
+	deviceContext4->Draw(vertexCount, startVertex);
 }
 
 void CD3D11RenderContext::ResetPipeline() {
-	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
-	deviceContext->ClearState();
+	deviceContext4->OMSetRenderTargets(0, nullptr, nullptr);
+	deviceContext4->ClearState();
 }
 
 void CD3D11RenderContext::SetRasterizerFlags(RasterizerFlags flags) {
@@ -337,19 +349,14 @@ void CD3D11RenderContext::SetRasterizerFlags(RasterizerFlags flags) {
 	rasterizerState->Release();
 
 	DX("Failed to create D3D11 rasterizer state",
-	   device->CreateRasterizerState(&rasterizerDesc, &rasterizerState));
-	deviceContext->RSSetState(rasterizerState);
+	   device5->CreateRasterizerState(&rasterizerDesc, &rasterizerState));
+	deviceContext4->RSSetState(rasterizerState);
 }
 
 CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllTextures();
 	DestroyAllShaders();
 	ReleaseDevice();
-
-	if (query) {
-		query->Release();
-		query = nullptr;
-	}
 
 	if (blendState) {
 		blendState->Release();

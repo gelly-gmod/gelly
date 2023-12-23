@@ -16,6 +16,14 @@ constexpr unsigned int MAX_FRAME_TIME_HISTORY = 512;
 static float frameTimeHistory[MAX_FRAME_TIME_HISTORY] = {};
 static unsigned int frameTimeHistoryIndex = 0;
 
+static const char *simBackendDescriptions[] = {
+	"Debug using D3D11", "RTFR using D3D11", "FleX using D3D11"
+};
+
+static const char *GetBackendDescFromMode(testbed::GellySimMode mode) {
+	return simBackendDescriptions[static_cast<int>(mode)];
+}
+
 using namespace testbed;
 
 IMPLEMENT_WINDOW(TestbedWindow) {
@@ -47,7 +55,10 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 
 	if (ImGui::CollapsingHeader("Gelly Integration")) {
 		ImGui::Text("Gelly renderer backend: D3D11");
-		ImGui::Text("Gelly simulation backend: FleX using D3D11");
+		ImGui::Text(
+			"Gelly simulation backend: %s",
+			GetBackendDescFromMode(GetCurrentGellySimMode())
+		);
 
 		if (ImGui::Button("Change simulation type")) {
 			UI_DATA(ChangeSim, popupVisible) = true;

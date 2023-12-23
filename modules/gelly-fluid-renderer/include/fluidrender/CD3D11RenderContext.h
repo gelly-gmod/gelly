@@ -2,6 +2,7 @@
 #define GELLY_D3D11RENDERCONTEXT_H
 
 #include <d3d11.h>
+#include <d3d11_4.h>
 
 #include <string>
 #include <unordered_map>
@@ -13,7 +14,10 @@
 class CD3D11RenderContext : public IRenderContext {
 private:
 	ID3D11Device *device;
+	ID3D11Device5 *device5;
+
 	ID3D11DeviceContext *deviceContext;
+	ID3D11DeviceContext4 *deviceContext4;
 
 #ifdef _DEBUG
 	ID3D11Debug *debug = nullptr;
@@ -27,10 +31,8 @@ private:
 	std::vector<IManagedShader *> shaders{};
 
 	ID3D11BlendState *blendState;
-	/**
-	 * \brief Synchronization object for the GPU.
-	 */
-	ID3D11Query *query;
+
+	ID3D11Fence *frameCompletionFence;
 
 	uint16_t width;
 	uint16_t height;
