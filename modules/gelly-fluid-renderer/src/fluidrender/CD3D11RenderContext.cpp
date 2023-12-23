@@ -274,9 +274,7 @@ void CD3D11RenderContext::SubmitWork() {
 	// the commands finish executing
 
 	deviceContext->End(query);
-	while (deviceContext->GetData(query, nullptr, 0, 0) == S_FALSE) {
-		// spin
-	}
+	deviceContext->Flush();
 
 	if (const auto removeResult = device->GetDeviceRemovedReason();
 		removeResult != S_OK) {

@@ -193,7 +193,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
         discard;
     }
 
-    float dt = 0.0003f;
+    float dt = 0.0004f;
     float dzt = 1000.0f;
     float3 dxyz = GetMeanCurvature(input.Tex);
 

@@ -181,6 +181,9 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 		uint currentActiveParticles = simData->GetActiveParticles();
 		uint newActiveParticles = currentActiveParticles + newParticles.size();
 
+		// Update the positions and velocities of the particles
+		NvFlexGetParticles(solver, buffers.positions, nullptr);
+		NvFlexGetVelocities(solver, buffers.velocities, nullptr);
 		auto *positions = reinterpret_cast<FlexFloat4 *>(
 			NvFlexMap(buffers.positions, eNvFlexMapWait)
 		);
@@ -216,24 +219,19 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 		NvFlexUnmap(buffers.actives);
 
 		simData->SetActiveParticles(newActiveParticles);
+
+		NvFlexSetParticles(solver, buffers.positions, nullptr);
+		NvFlexSetVelocities(solver, buffers.velocities, nullptr);
+		NvFlexSetPhases(solver, buffers.phases, nullptr);
+		NvFlexSetActive(solver, buffers.actives, nullptr);
 	}
 }
 
 void CD3D11FlexFluidSimulation::Update(float deltaTime) {
-	NvFlexSetParticles(solver, buffers.positions, nullptr);
-	NvFlexSetVelocities(solver, buffers.velocities, nullptr);
-	NvFlexSetPhases(solver, buffers.phases, nullptr);
-	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
-	NvFlexSetActive(solver, buffers.actives, nullptr);
 	NvFlexSetParams(solver, &solverParams);
-	scene->Update();
+	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
 
 	NvFlexUpdateSolver(solver, deltaTime, substeps, false);
-
-	NvFlexGetParticles(solver, buffers.positions, nullptr);
-	NvFlexGetVelocities(solver, buffers.velocities, nullptr);
-	NvFlexGetPhases(solver, buffers.phases, nullptr);
-
 	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, nullptr);
 }
 
@@ -243,7 +241,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.gravity[1] = -9.8f;
 	solverParams.gravity[2] = 0.f;
 
-	solverParams.viscosity = 100.0f;
+	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
 	solverParams.staticFriction = 0.1f;
 	solverParams.particleFriction = 0.1f;

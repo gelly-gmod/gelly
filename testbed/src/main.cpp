@@ -66,12 +66,15 @@ int main() {
 		std::chrono::high_resolution_clock::time_point thisFrameTime =
 			std::chrono::high_resolution_clock::now();
 
-		const float deltaTime =
-			std::chrono::duration<float>(thisFrameTime - lastFrameTime).count();
-		GetGellyFluidSim()->Update(deltaTime);
+		{
+			ZoneScopedN("Fluid update");
+			const float deltaTime =
+				std::chrono::duration<float>(thisFrameTime - lastFrameTime)
+					.count();
+			GetGellyFluidSim()->Update(deltaTime);
 
-		lastFrameTime = thisFrameTime;
-
+			lastFrameTime = thisFrameTime;
+		}
 		FrameMark;
 
 #ifdef _DEBUG

@@ -3,6 +3,7 @@
 
 static const float THICKNESS_ADJUSTMENT = 0.005f;
 
+[earlydepthstencil]
 PS_OUTPUT main(GS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
     
