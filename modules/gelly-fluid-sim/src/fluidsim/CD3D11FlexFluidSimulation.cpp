@@ -51,6 +51,9 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 	if (buffers.actives != nullptr) {
 		NvFlexFreeBuffer(buffers.actives);
 	}
+
+	NvFlexDestroySolver(solver);
+	NvFlexShutdown(library);
 }
 
 void CD3D11FlexFluidSimulation::SetMaxParticles(const int maxParticles) {
@@ -238,7 +241,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
-	solverParams.gravity[1] = -9.8f;
+	solverParams.gravity[1] = -.8f;
 	solverParams.gravity[2] = 0.f;
 
 	solverParams.viscosity = 0.0f;

@@ -41,6 +41,7 @@ enum class TextureAccess : uint8_t {
 
 enum class TextureFilter : uint8_t {
 	POINT,
+	LINEAR,
 };
 
 enum class TextureAddressMode : uint8_t {
@@ -85,6 +86,8 @@ inline D3D11_FILTER TextureFilterToD3D11(const TextureFilter &filter) {
 	switch (filter) {
 		case TextureFilter::POINT:
 			return D3D11_FILTER_MIN_MAG_MIP_POINT;
+		case TextureFilter::LINEAR:
+			return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		default:
 			return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	}

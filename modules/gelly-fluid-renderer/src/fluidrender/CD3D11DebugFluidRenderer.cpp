@@ -151,6 +151,7 @@ void CD3D11DebugFluidRenderer::CreateTextures() {
 	);
 
 	TextureDesc unfilteredThicknessDesc = {};
+	unfilteredThicknessDesc.filter = TextureFilter::LINEAR;	 // hides pixels
 	unfilteredThicknessDesc.width = quarterWidth;
 	unfilteredThicknessDesc.height = quarterHeight;
 	unfilteredThicknessDesc.access = TextureAccess::READ | TextureAccess::WRITE;

@@ -385,6 +385,11 @@ CD3D11RenderContext::~CD3D11RenderContext() {
 		rasterizerState->Release();
 		rasterizerState = nullptr;
 	}
+
+	if (frameCompletionFence) {
+		frameCompletionFence->Release();
+		frameCompletionFence = nullptr;
+	}
 }
 
 void CD3D11RenderContext::ReleaseDevice() {
