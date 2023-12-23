@@ -24,6 +24,7 @@ enum class TextureFormat : uint8_t {
 	R8G8B8A8_UNORM,
 	R32G32B32A32_FLOAT,
 	R16G16B16A16_FLOAT,	 // mainly for shared textures
+	R32G32_FLOAT,
 };
 
 /**
@@ -97,6 +98,8 @@ inline DXGI_FORMAT GetDXGIFormat(const TextureFormat format) {
 			return DXGI_FORMAT_R32G32B32A32_FLOAT;
 		case TextureFormat::R16G16B16A16_FLOAT:
 			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case TextureFormat::R32G32_FLOAT:
+			return DXGI_FORMAT_R32G32_FLOAT;
 		default:
 			throw std::logic_error("Invalid texture format");
 	}

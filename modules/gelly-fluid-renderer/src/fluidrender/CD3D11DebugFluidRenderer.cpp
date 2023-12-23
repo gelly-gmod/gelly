@@ -134,25 +134,33 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 }
 
 void CD3D11DebugFluidRenderer::CreateTextures() {
+	uint16_t width = 0, height = 0;
+	context->GetDimensions(width, height);
+
+	const auto quarterWidth = static_cast<uint16_t>(width / 4);
+	const auto quarterHeight = static_cast<uint16_t>(height / 4);
+
 	TextureDesc unfilteredDepthDesc = {};
-	unfilteredDepthDesc.isFullscreen = true;
+	unfilteredDepthDesc.width = width;
+	unfilteredDepthDesc.height = height;
 	unfilteredDepthDesc.access = TextureAccess::READ | TextureAccess::WRITE;
-	unfilteredDepthDesc.format = TextureFormat::R32G32B32A32_FLOAT;
+	unfilteredDepthDesc.format = TextureFormat::R32G32_FLOAT;
 
 	internalTextures.unfilteredDepth = context->CreateTexture(
 		"splatrenderer/unfilteredDepth", unfilteredDepthDesc
 	);
 
 	TextureDesc unfilteredThicknessDesc = {};
-	unfilteredThicknessDesc.isFullscreen = true;
+	unfilteredThicknessDesc.width = quarterWidth;
+	unfilteredThicknessDesc.height = quarterHeight;
 	unfilteredThicknessDesc.access = TextureAccess::READ | TextureAccess::WRITE;
-	unfilteredThicknessDesc.format = TextureFormat::R32G32B32A32_FLOAT;
+	unfilteredThicknessDesc.format = TextureFormat::R16G16B16A16_FLOAT;
 
 	internalTextures.unfilteredThickness = context->CreateTexture(
 		"splatrenderer/unfilteredThickness", unfilteredThicknessDesc
 	);
 
-	constexpr float clearColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+	constexpr float clearColor[4] = {1.0f, 1.0f, 0.0f, 1.0f};
 	internalTextures.unfilteredDepth->Clear(clearColor);
 	internalTextures.unfilteredThickness->Clear(clearColor);
 }
@@ -213,7 +221,8 @@ GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
 	return &outputTextures;
 }
 
-constexpr float clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+constexpr float depthClearColor[4] = {1.0f, 1.0f, 0.0f, 0.0f};
+constexpr float genericClearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	buffers.depthBuffer->Clear(1.0f);
@@ -221,8 +230,8 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	auto *albedoTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::ALBEDO);
 
-	depthTexture->Clear(clearColor);
-	albedoTexture->Clear(clearColor);
+	depthTexture->Clear(depthClearColor);
+	albedoTexture->Clear(genericClearColor);
 
 	IManagedTexture *renderTargets[] = {depthTexture, albedoTexture};
 	context->BindMultipleTexturesAsOutput(
@@ -250,7 +259,7 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 	auto *depthTextureB =
 		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
-	depthTextureB->Clear(clearColor);
+	depthTextureB->Clear(depthClearColor);
 	shaders.screenQuadVS->Bind();
 	shaders.filterDepthPS->Bind();
 
@@ -298,8 +307,8 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 	auto *depthTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
 
-	normalsTexture->Clear(clearColor);
-	positionsTexture->Clear(clearColor);
+	normalsTexture->Clear(genericClearColor);
+	positionsTexture->Clear(genericClearColor);
 
 	IManagedTexture *renderTargets[] = {normalsTexture, positionsTexture};
 	context->BindMultipleTexturesAsOutput(
@@ -324,7 +333,7 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 void CD3D11DebugFluidRenderer::RenderThickness() {
 	auto *thicknessTexture = internalTextures.unfilteredThickness;
 
-	thicknessTexture->Clear(clearColor);
+	thicknessTexture->Clear(genericClearColor);
 	// No depth buffer needed for this pass.
 	thicknessTexture->BindToPipeline(
 		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
@@ -340,6 +349,7 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
 
+	context->UseTextureResForNextDraw(thicknessTexture);
 	context->Draw(simData->GetActiveParticles(), 0, true);
 	// we're not using a swapchain, so we need to queue up work manually
 	context->SubmitWork();
@@ -352,7 +362,7 @@ void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
 		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
 
 	for (int i = 0; i < settings.thicknessFilterIterations; i++) {
-		thicknessTextureB->Clear(clearColor);
+		thicknessTextureB->Clear(genericClearColor);
 		thicknessTextureB->BindToPipeline(
 			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 		);
@@ -367,6 +377,10 @@ void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
 		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
 		buffers.screenQuadLayout->BindAsVertexBuffer();
 
+		// sometimes the thickness is rendered at quarter res, so we need to
+		// account for that
+
+		context->UseTextureResForNextDraw(thicknessTextureB);
 		context->Draw(4, 0);
 		context->SubmitWork();
 		context->ResetPipeline();

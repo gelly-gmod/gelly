@@ -134,7 +134,18 @@ public:
 	 */
 	virtual void SubmitWork() = 0;
 
-	virtual void Draw(uint32_t vertexCount, uint32_t startVertex, bool accumulate = false) = 0;
+	/**
+	 * \brief Overrides the resolution of the next draw call with the passed
+	 * texture. Highly useful for post-processing effects and low-resolution
+	 * rendering.
+	 */
+	virtual void UseTextureResForNextDraw(
+		GellyInterfaceRef<IManagedTexture> texture
+	) = 0;
+
+	virtual void Draw(
+		uint32_t vertexCount, uint32_t startVertex, bool accumulate = false
+	) = 0;
 
 	/**
 	 * \brief Causes everything to be reset to their original state. This should

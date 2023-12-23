@@ -120,6 +120,7 @@ void testbed::InitializeGelly(
 		renderContext =
 			CreateD3D11FluidRenderContext(WINDOW_WIDTH, WINDOW_HEIGHT);
 
+		renderContext->SetDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
 		logger->Info("Creating the Gelly fluid renderer...");
 		fluidRenderer = CreateD3D11DebugFluidRenderer(renderContext);
 

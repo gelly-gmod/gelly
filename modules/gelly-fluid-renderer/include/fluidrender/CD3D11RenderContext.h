@@ -37,6 +37,10 @@ private:
 	uint16_t width;
 	uint16_t height;
 
+	bool overrideDimensions = false;
+	uint16_t overrideWidth = 0;
+	uint16_t overrideHeight = 0;
+
 	void CreateDeviceAndContext();
 	void CreateAllShaders();
 	void DestroyAllShaders();
@@ -86,6 +90,9 @@ public:
 	void GetDimensions(uint16_t &width, uint16_t &height) override;
 
 	void SubmitWork() override;
+
+	void UseTextureResForNextDraw(GellyInterfaceRef<IManagedTexture> texture
+	) override;
 
 	void Draw(uint32_t vertexCount, uint32_t startVertex, bool accumulate)
 		override;

@@ -299,11 +299,29 @@ void CD3D11RenderContext::SubmitWork() {
 	}
 }
 
+void CD3D11RenderContext::UseTextureResForNextDraw(
+	GellyInterfaceRef<IManagedTexture> texture
+) {
+	const auto &desc = texture->GetDesc();
+	overrideDimensions = true;
+	overrideWidth = desc.width;
+	overrideHeight = desc.height;
+}
+
 void CD3D11RenderContext::Draw(
 	const uint32_t vertexCount,
 	const uint32_t startVertex,
 	const bool accumulate
 ) {
+	uint16_t width = this->width;
+	uint16_t height = this->height;
+
+	if (overrideDimensions) {
+		width = overrideWidth;
+		height = overrideHeight;
+		overrideDimensions = false;
+	}
+
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(width);
 	viewport.Height = static_cast<float>(height);

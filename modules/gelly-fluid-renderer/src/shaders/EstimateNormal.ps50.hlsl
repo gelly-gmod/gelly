@@ -38,7 +38,7 @@ struct PS_OUTPUT {
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
     float4 original = InputDepth.Sample(InputDepthSampler, input.Tex);
-    if (original.a == 0.f) {
+    if (original.g >= 1.f) {
         discard;
     }
 

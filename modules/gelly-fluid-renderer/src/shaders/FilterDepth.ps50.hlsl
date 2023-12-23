@@ -128,8 +128,12 @@ void main()
 
 float SampleNoDiscontinuity(float2 tex, float zc) {
     float4 frag = InputDepth.SampleLevel(InputDepthSampler, tex, 0);
-    float depth = lerp(zc, frag.r, frag.a); // If sampling nothing, a = 0, so we just return the original depth
-    
+    bool isVoid = frag.r == 1.f;
+
+    if (isVoid) {
+        depth = zc;
+    }
+
     if (abs(depth - zc) > g_ParticleRadius * g_ThresholdRatio) {
         depth = zc;
     }
@@ -189,7 +193,7 @@ float3 GetMeanCurvature(float2 pos) {
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
     float4 original = InputDepth.SampleLevel(InputDepthSampler, input.Tex, 0);
-    if (original.a == 0.f) {
+    if (original.g >= 1.f) {
         discard;
     }
 
@@ -205,6 +209,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
     //z_ndc = ( -z_eye * (f+n)/(f-n) - 2*f*n/(f-n) ) / -z_eye
     float projDepth = EyeToProjDepth(depth);
     
-    output.Color = float4(depth, projDepth, depth, 1.0f);
+    output.Color = float4(depth, projDepth, 0.f, 1.0f);
     return output;
 }
