@@ -249,11 +249,18 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 	auto *depthTextureA = internalTextures.unfilteredDepth;
 	auto *depthTextureB =
 		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+
+	depthTextureB->Clear(clearColor);
+	shaders.screenQuadVS->Bind();
+	shaders.filterDepthPS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.screenQuadLayout->BindAsVertexBuffer();
+
 	for (int i = 0; i < settings.filterIterations; i++) {
 		// We flip between the two textures to avoid having to copy the
 		// filtered depth back to the unfiltered depth texture.
 
-		depthTextureB->Clear(clearColor);
 		depthTextureB->BindToPipeline(
 			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 		);
@@ -262,15 +269,8 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
 		);
 
-		shaders.screenQuadVS->Bind();
-		shaders.filterDepthPS->Bind();
-
-		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-		buffers.screenQuadLayout->BindAsVertexBuffer();
-
 		context->Draw(4, 0);
 		context->SubmitWork();
-		context->ResetPipeline();
 
 		// Swap the textures.
 		std::swap(depthTextureA, depthTextureB);
@@ -285,6 +285,8 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 		internalTextures.unfilteredDepth->CopyToTexture(depthTexture);
 		context->SubmitWork();
 	}
+
+	context->ResetPipeline();
 }
 void CD3D11DebugFluidRenderer::RenderNormals() {
 	auto *normalsTexture =
@@ -408,8 +410,7 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderUnfilteredDepth();
 	RenderFilteredDepth();
 	RenderNormals();
-	RenderThickness();
-	RenderFilteredThickness();
+
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {
 		renderDocApi->EndFrameCapture(device, nullptr);

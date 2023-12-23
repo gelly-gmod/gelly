@@ -38,7 +38,7 @@ void MakeTestbedWindow() {
 		SDL_WINDOWPOS_CENTERED,
 		WINDOW_WIDTH,
 		WINDOW_HEIGHT,
-		SDL_WINDOW_SHOWN
+		0
 	);
 }
 

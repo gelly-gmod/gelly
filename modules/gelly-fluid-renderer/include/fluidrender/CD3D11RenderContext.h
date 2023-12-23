@@ -27,6 +27,10 @@ private:
 	std::vector<IManagedShader *> shaders{};
 
 	ID3D11BlendState *blendState;
+	/**
+	 * \brief Synchronization object for the GPU.
+	 */
+	ID3D11Query *query;
 
 	uint16_t width;
 	uint16_t height;
@@ -81,7 +85,8 @@ public:
 
 	void SubmitWork() override;
 
-	void Draw(uint32_t vertexCount, uint32_t startVertex, bool accumulate) override;
+	void Draw(uint32_t vertexCount, uint32_t startVertex, bool accumulate)
+		override;
 
 	void ResetPipeline() override;
 

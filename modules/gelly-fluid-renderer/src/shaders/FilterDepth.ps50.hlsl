@@ -127,7 +127,7 @@ void main()
 */
 
 float SampleNoDiscontinuity(float2 tex, float zc) {
-    float4 frag = InputDepth.Sample(InputDepthSampler, tex);
+    float4 frag = InputDepth.SampleLevel(InputDepthSampler, tex, 0);
     float depth = lerp(zc, frag.r, frag.a); // If sampling nothing, a = 0, so we just return the original depth
     
     if (abs(depth - zc) > g_ParticleRadius * g_ThresholdRatio) {
@@ -151,7 +151,7 @@ float3 GetMeanCurvature(float2 pos) {
     // float zdyp = InputDepth.Sample(InputDepthSampler, pos + dy).r - 1.0f;
     // float zdyn = InputDepth.Sample(InputDepthSampler, pos - dy).r - 1.0f;
 
-    float zc = InputDepth.Sample(InputDepthSampler, pos).r;
+    float zc = InputDepth.SampleLevel(InputDepthSampler, pos, 0).r;
     float zdxpyp = SampleNoDiscontinuity(pos + dx + dy, zc);
     float zdxnyn = SampleNoDiscontinuity(pos - dx - dy, zc);
     float zdxpyn = SampleNoDiscontinuity(pos + dx - dy, zc);
@@ -160,7 +160,6 @@ float3 GetMeanCurvature(float2 pos) {
     float zdxn = SampleNoDiscontinuity(pos - dx, zc);
     float zdyp = SampleNoDiscontinuity(pos + dy, zc);
     float zdyn = SampleNoDiscontinuity(pos - dy, zc);
-
 
     float zdx = 0.5f * (zdxp - zdxn);
     float zdy = 0.5f * (zdyp - zdyn);
@@ -189,7 +188,7 @@ float3 GetMeanCurvature(float2 pos) {
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    float4 original = InputDepth.Sample(InputDepthSampler, input.Tex);
+    float4 original = InputDepth.SampleLevel(InputDepthSampler, input.Tex, 0);
     if (original.a == 0.f) {
         discard;
     }

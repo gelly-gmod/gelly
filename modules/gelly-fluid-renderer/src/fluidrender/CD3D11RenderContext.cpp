@@ -79,6 +79,11 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 
 	DX("Failed to create D3D11 blend state",
 	   device->CreateBlendState(&blendDesc, &blendState));
+
+	D3D11_QUERY_DESC queryDesc = {};
+	queryDesc.Query = D3D11_QUERY_EVENT;
+
+	DX("Failed to create D3D11 query", device->CreateQuery(&queryDesc, &query));
 }
 
 void CD3D11RenderContext::CreateAllTextures() {
@@ -265,23 +270,13 @@ void CD3D11RenderContext::GetDimensions(uint16_t &width, uint16_t &height) {
 }
 
 void CD3D11RenderContext::SubmitWork() {
-	deviceContext->Flush();
-
 	// well-known query method to synchronize the GPU after
 	// the commands finish executing
-
-	D3D11_QUERY_DESC queryDesc = {};
-	queryDesc.Query = D3D11_QUERY_EVENT;
-
-	ID3D11Query *query;
-	DX("Failed to create D3D11 query", device->CreateQuery(&queryDesc, &query));
 
 	deviceContext->End(query);
 	while (deviceContext->GetData(query, nullptr, 0, 0) == S_FALSE) {
 		// spin
 	}
-
-	query->Release();
 
 	if (const auto removeResult = device->GetDeviceRemovedReason();
 		removeResult != S_OK) {
@@ -352,6 +347,21 @@ CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllTextures();
 	DestroyAllShaders();
 	ReleaseDevice();
+
+	if (query) {
+		query->Release();
+		query = nullptr;
+	}
+
+	if (blendState) {
+		blendState->Release();
+		blendState = nullptr;
+	}
+
+	if (rasterizerState) {
+		rasterizerState->Release();
+		rasterizerState = nullptr;
+	}
 }
 
 void CD3D11RenderContext::ReleaseDevice() {

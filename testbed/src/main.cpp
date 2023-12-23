@@ -71,6 +71,7 @@ int main() {
 		GetGellyFluidSim()->Update(deltaTime);
 
 		lastFrameTime = thisFrameTime;
+
 		FrameMark;
 
 #ifdef _DEBUG

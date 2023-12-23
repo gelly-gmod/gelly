@@ -89,7 +89,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	solverDesc.maxParticles = maxParticles;
 	// soon...
 	solverDesc.maxDiffuseParticles = 0;
-	solverDesc.maxNeighborsPerParticle = 64;
+	solverDesc.maxNeighborsPerParticle = 96;
 	solverDesc.maxContactsPerParticle = 6;
 
 	solver = NvFlexCreateSolver(library, &solverDesc);
@@ -243,7 +243,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.gravity[1] = -9.8f;
 	solverParams.gravity[2] = 0.f;
 
-	solverParams.viscosity = 0.0f;
+	solverParams.viscosity = 100.0f;
 	solverParams.dynamicFriction = 0.1f;
 	solverParams.staticFriction = 0.1f;
 	solverParams.particleFriction = 0.1f;
