@@ -276,7 +276,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.solidPressure = 1.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
-	solverParams.surfaceTension = 0.0f;
+	solverParams.surfaceTension = 1.0f;
 	solverParams.vorticityConfinement = 15.0f;
 	solverParams.buoyancy = 1.0f;
 }

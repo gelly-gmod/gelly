@@ -40,7 +40,7 @@ int main() {
 	ssfx::InitializeShadingWaterSSFX(logger);
 	ssfx::InitializeCompositeSSFX(logger);
 
-	LoadScene({"assets/01_gelly_springs.gltf"});
+	LoadScene({"assets/04_gelly_bowl.gltf"});
 	std::chrono::high_resolution_clock::time_point lastFrameTime =
 		std::chrono::high_resolution_clock::now();
 

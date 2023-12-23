@@ -11,5 +11,5 @@ float3 CalculateLightContribution(float3 color, float power, float radius, float
 };
 
 float3 CalculateCosineLaw(float3 normal, float3 lightPosition, float3 position) {
-    return max(0.f, dot(normal, normalize(lightPosition - position)));
+    return max(0.5f, dot(normal, normalize(lightPosition - position)));
 }

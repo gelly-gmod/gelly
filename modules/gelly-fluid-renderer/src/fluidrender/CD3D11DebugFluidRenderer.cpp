@@ -410,7 +410,8 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderUnfilteredDepth();
 	RenderFilteredDepth();
 	RenderNormals();
-
+	RenderThickness();
+	RenderFilteredThickness();
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {
 		renderDocApi->EndFrameCapture(device, nullptr);

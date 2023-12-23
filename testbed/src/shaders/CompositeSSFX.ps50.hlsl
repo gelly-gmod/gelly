@@ -45,7 +45,7 @@ struct PS_OUTPUT {
 };
 
 static const float MINIMUM_THICKNESS = 0.0f;
-static const float3 ABSORPTION = float3(15.f, 1.f, 15.f);
+static const float3 ABSORPTION = float3(0.5f, 0.0f, 0.5f);
 
 PS_OUTPUT main(VS_INPUT input)
 {

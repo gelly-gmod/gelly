@@ -56,24 +56,11 @@ PS_OUTPUT main(VS_OUTPUT input)
         // trace light rays. That would make Li naturally be a function of visibility and we could apply cosine law
         // to the result of the integration instead of the light contribution
         Li += CalculateLightContribution(light.color, light.power, light.radius, light.position, pos) * CalculateCosineLaw(normal, light.position, pos);
-
-        // specular
-        float3 lightDir = normalize(light.position - pos);
-        float3 reflectionDir = reflect(-lightDir, normal);
-        float specularStrength = pow(max(dot(reflectionDir, eyeDir), 0.0f), 32.0f);
-
-        specular += light.color * light.power * specularStrength;
     }
 
     float3 diffuse = brdf * Li;
-    float fresnel = min(1.f, SchlicksDielectric(dot(normal, eyeDir), 1.33f));
 
-    if (fresnel >= 1.f)
-    {
-        fresnel = 0.f;
-    }
-
-    output.Color = float4((1.f - fresnel) * diffuse + fresnel * specular, 1.f);
+    output.Color = float4(diffuse, 1.0f);
     output.Color = tonemap(output.Color);
     return output;
 }

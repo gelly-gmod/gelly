@@ -91,6 +91,5 @@ PS_OUTPUT main(VS_OUTPUT input)
 
     // later on specular will also consider environment (and MAYBE screen-space reflections)
     output.Color = float4((1.f - fresnel) * transmittedRadiance + fresnel * specular, 1.0f);
-    output.Color = tonemap(output.Color);
     return output;
 }
