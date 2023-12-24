@@ -111,7 +111,7 @@ inline DXGI_FORMAT GetDXGIFormat(const TextureFormat format) {
 	}
 }
 
-inline TextureFormat GetTextureFormat(const DXGI_FORMAT format) {
+inline TextureFormat GetTextureFormatFromDXGI(const DXGI_FORMAT format) {
 	switch (format) {
 		case DXGI_FORMAT_R8G8B8A8_UNORM:
 			return TextureFormat::R8G8B8A8_UNORM;
@@ -126,6 +126,8 @@ inline TextureFormat GetTextureFormat(const DXGI_FORMAT format) {
 		default:
 			throw std::logic_error("Invalid texture format");
 	}
+}
+
 }  // namespace Gelly
 
 using namespace Gelly;
