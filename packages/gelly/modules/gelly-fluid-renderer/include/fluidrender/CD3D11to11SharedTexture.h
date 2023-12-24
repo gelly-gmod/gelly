@@ -3,6 +3,7 @@
 
 #include <d3d11.h>
 
+#include "CD3D11ManagedTexture.h"
 #include "GellyObserverPtr.h"
 #include "IManagedTexture.h"
 

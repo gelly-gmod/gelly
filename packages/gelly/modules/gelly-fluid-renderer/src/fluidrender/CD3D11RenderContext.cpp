@@ -170,10 +170,10 @@ GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
 	IManagedTexture* texture = nullptr;
 	switch (guestAPI) {
 		case ContextRenderAPI::D3D11:
-			texture = new CD3D11to11SharedTexture(this);
+			texture = new CD3D11to11SharedTexture(sharedHandle);
 			break;
 		case ContextRenderAPI::D3D9Ex:
-			texture = new CD3D9to11SharedTexture(this);
+			texture = new CD3D9to11SharedTexture(sharedHandle);
 			break;
 		default:
 			throw std::logic_error("Unsupported guest API");

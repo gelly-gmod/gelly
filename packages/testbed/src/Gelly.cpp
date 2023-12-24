@@ -39,7 +39,7 @@ void CreateGellyTextures() {
 
 	CreateFeatureTexture(GELLY_ALBEDO_TEXNAME, fluidAlbedoTextureInfo);
 	fluidAlbedoTexture = renderContext->CreateSharedTexture(
-		"testbed/gelly/albedo", GetTextureSharedHandle(GELLY_ALBEDO_TEXNAME)
+		"testbed/gelly/albedo", GetTextureSharedHandle(GELLY_ALBEDO_TEXNAME), ContextRenderAPI::D3D11
 	);
 
 	FeatureTextureInfo fluidDepthTextureInfo{};
@@ -50,7 +50,7 @@ void CreateGellyTextures() {
 
 	CreateFeatureTexture(GELLY_DEPTH_TEXNAME, fluidDepthTextureInfo);
 	fluidDepthTexture = renderContext->CreateSharedTexture(
-		"testbed/gelly/depth", GetTextureSharedHandle(GELLY_DEPTH_TEXNAME)
+		"testbed/gelly/depth", GetTextureSharedHandle(GELLY_DEPTH_TEXNAME), ContextRenderAPI::D3D11
 	);
 
 	FeatureTextureInfo fluidNormalsTextureInfo{};
@@ -61,7 +61,7 @@ void CreateGellyTextures() {
 
 	CreateFeatureTexture(GELLY_NORMAL_TEXNAME, fluidNormalsTextureInfo);
 	auto fluidNormalsTexture = renderContext->CreateSharedTexture(
-		"testbed/gelly/normals", GetTextureSharedHandle(GELLY_NORMAL_TEXNAME)
+		"testbed/gelly/normals", GetTextureSharedHandle(GELLY_NORMAL_TEXNAME), ContextRenderAPI::D3D11
 	);
 
 	FeatureTextureInfo fluidPositionsTextureInfo{};
@@ -73,7 +73,7 @@ void CreateGellyTextures() {
 	CreateFeatureTexture(GELLY_POSITIONS_TEXNAME, fluidPositionsTextureInfo);
 	auto fluidPositionsTexture = renderContext->CreateSharedTexture(
 		"testbed/gelly/positions",
-		GetTextureSharedHandle(GELLY_POSITIONS_TEXNAME)
+		GetTextureSharedHandle(GELLY_POSITIONS_TEXNAME), ContextRenderAPI::D3D11
 	);
 
 	FeatureTextureInfo fluidThicknessTextureInfo{};
@@ -85,7 +85,7 @@ void CreateGellyTextures() {
 	CreateFeatureTexture(GELLY_THICKNESS_TEXNAME, fluidThicknessTextureInfo);
 	auto fluidThicknessTexture = renderContext->CreateSharedTexture(
 		"testbed/gelly/thickness",
-		GetTextureSharedHandle(GELLY_THICKNESS_TEXNAME)
+		GetTextureSharedHandle(GELLY_THICKNESS_TEXNAME), ContextRenderAPI::D3D11
 	);
 
 	// Link the textures to the fluid renderer

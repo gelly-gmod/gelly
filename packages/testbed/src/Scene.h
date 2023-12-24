@@ -1,6 +1,7 @@
 #ifndef GELLY_SCENE_H
 #define GELLY_SCENE_H
 
+#define NOMINMAX
 #include "ILogger.h"
 #include "Memory.h"
 #include "fluidsim/IFluidSimulation.h"
