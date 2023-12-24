@@ -7,7 +7,7 @@
 #include "Textures.h"
 #include "imgui.h"
 
-DEFINE_UI_DATA(TestbedWindow, thresholdRatio, 16.5f);
+DEFINE_UI_DATA(TestbedWindow, thresholdRatio, 10.5f);
 DEFINE_UI_DATA(TestbedWindow, particleRadius, 0.03f);
 DEFINE_UI_DATA(TestbedWindow, rasterizerFlags, 0u);
 DEFINE_UI_DATA(TestbedWindow, lastRasterizerFlags, 0u);
@@ -90,7 +90,7 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 						{ADD_PARTICLE,
 						 AddParticle{
 							 0.5f + (rand() % 100) / 100.0f,
-							 0.5f + (rand() % 100) / 100.0f,
+							 20.5f + (rand() % 100) / 100.0f,
 							 0.5f + (rand() % 100) / 100.0f
 						 }}
 					);
