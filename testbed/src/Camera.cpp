@@ -102,13 +102,12 @@ void testbed::InitializeCamera(ILogger *newLogger) {
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
-	camera.fov = 55.f;
+	camera.fov = 90.f;
 	camera.aspectRatio = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 	camera.nearPlane = 0.1f;
 	camera.farPlane = 1000.f;
 
 	camera.dir = {0.0, 0.0, 1.0};
-
 	logger->Info("Hooking up camera control interceptor");
 
 	AddEventInterceptor(CameraEventInterceptor);
