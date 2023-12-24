@@ -2,8 +2,9 @@
 # the part where we would add the gelly subdirectory.
 
 option(GELLY_OVERRIDE_RENDERDOC "" ON)
-
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+add_subdirectory(../gelly ${CMAKE_BINARY_DIR}/gelly)
 
 set(IMGUI_SOURCES
         vendor/imgui/imgui.cpp
@@ -49,8 +50,6 @@ add_subdirectory(vendor/fastgltf)
 option(TRACY_ENABLE "" ON)
 option(TRACY_ON_DEMAND "" ON)
 add_subdirectory(vendor/tracy)
-
-generate_gelly_config()
 
 target_link_libraries(
         testbed
@@ -109,7 +108,7 @@ add_custom_target(
 add_custom_target(
         TestbedAssetCopy
         DEPENDS TestbedShaders
-        COMMAND ${CMAKE_COMMAND} -DROOT_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DOUTPUT_DIR=${CMAKE_BINARY_DIR}/testbed -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyAssets.cmake
+        COMMAND ${CMAKE_COMMAND} -DROOT_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyAssets.cmake
         COMMENT "Copying all Testbed assets"
 )
 

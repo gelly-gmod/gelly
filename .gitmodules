@@ -44,24 +44,24 @@
 	path = modules/gelly-fluid-sim/test/vendor/DirectXMath
 	url = https://github.com/microsoft/DirectXMath.git
 [submodule "testbed/vendor/DirectXMath"]
-	path = testbed/vendor/DirectXMath
+	path = packages/testbed/vendor/DirectXMath
 	url = https://github.com/microsoft/DirectXMath.git
 [submodule "testbed/vendor/SDL"]
-	path = testbed/vendor/SDL
+	path = packages/testbed/vendor/SDL
 	url = https://github.com/libsdl-org/SDL.git
 	branch = SDL2
 [submodule "testbed/vendor/fastgltf"]
-	path = testbed/vendor/fastgltf
+	path = packages/testbed/vendor/fastgltf
 	url = https://github.com/spnda/fastgltf.git
 [submodule "testbed/vendor/imgui"]
-	path = testbed/vendor/imgui
+	path = packages/testbed/vendor/imgui
 	url = https://github.com/ocornut/imgui.git
 [submodule "testbed/vendor/tracy"]
-	path = testbed/vendor/tracy
+	path = packages/testbed/vendor/tracy
 	url = https://github.com/wolfpld/tracy.git
 [submodule "modules/gelly-fluid-renderer/vendor/renderdoc"]
-	path = modules/gelly-fluid-renderer/vendor/renderdoc
+	path = packages/gelly/modules/gelly-fluid-renderer/vendor/renderdoc
 	url = https://github.com/baldurk/renderdoc.git
 [submodule "modules/gelly-fluid-sim/vendor/FleX"]
-	path = modules/gelly-fluid-sim/vendor/FleX
+	path = packages/gelly/modules/gelly-fluid-sim/vendor/FleX
 	url = https://github.com/NVIDIAGameWorks/FleX.git
