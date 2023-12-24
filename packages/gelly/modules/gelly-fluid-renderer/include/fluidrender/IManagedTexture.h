@@ -23,7 +23,8 @@ enum class TextureBindStage : uint8_t {
 enum class TextureFormat : uint8_t {
 	R8G8B8A8_UNORM,
 	R32G32B32A32_FLOAT,
-	R16G16B16A16_FLOAT,	 // mainly for shared textures
+	R16G16B16A16_FLOAT,
+	R10G10B10A2_UNORM,
 	R32G32_FLOAT,
 };
 
@@ -101,12 +102,30 @@ inline DXGI_FORMAT GetDXGIFormat(const TextureFormat format) {
 			return DXGI_FORMAT_R32G32B32A32_FLOAT;
 		case TextureFormat::R16G16B16A16_FLOAT:
 			return DXGI_FORMAT_R16G16B16A16_FLOAT;
+		case TextureFormat::R10G10B10A2_UNORM:
+			return DXGI_FORMAT_R10G10B10A2_UNORM;
 		case TextureFormat::R32G32_FLOAT:
 			return DXGI_FORMAT_R32G32_FLOAT;
 		default:
 			throw std::logic_error("Invalid texture format");
 	}
 }
+
+inline TextureFormat GetTextureFormat(const DXGI_FORMAT format) {
+	switch (format) {
+		case DXGI_FORMAT_R8G8B8A8_UNORM:
+			return TextureFormat::R8G8B8A8_UNORM;
+		case DXGI_FORMAT_R32G32B32A32_FLOAT:
+			return TextureFormat::R32G32B32A32_FLOAT;
+		case DXGI_FORMAT_R16G16B16A16_FLOAT:
+			return TextureFormat::R16G16B16A16_FLOAT;
+		case DXGI_FORMAT_R32G32_FLOAT:
+			return TextureFormat::R32G32_FLOAT;
+		case DXGI_FORMAT_R10G10B10A2_UNORM:
+			return TextureFormat::R10G10B10A2_UNORM;
+		default:
+			throw std::logic_error("Invalid texture format");
+	}
 }  // namespace Gelly
 
 using namespace Gelly;
