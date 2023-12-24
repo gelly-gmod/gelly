@@ -123,6 +123,7 @@ void testbed::InitializeGelly(
 		renderContext->SetDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
 		logger->Info("Creating the Gelly fluid renderer...");
 		fluidRenderer = CreateD3D11DebugFluidRenderer(renderContext);
+		fluidRenderer->EnableLowBitMode();
 
 		logger->Info("Creating the Gelly sim context...");
 		simContext = CreateD3D11SimContext(

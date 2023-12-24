@@ -415,11 +415,11 @@ void CD3D11DebugFluidRenderer::EncodeDepth() {
 	untransformedDepthTexture->Clear(depthClearColor);
 
 	depthTexture->BindToPipeline(
-		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 	);
 
 	untransformedDepthTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
 	);
 
 	buffers.screenQuadLayout->BindAsVertexBuffer();
