@@ -430,7 +430,7 @@ void CD3D11RenderContext::PrintDebugInfo() {
 		auto *message = static_cast<D3D11_MESSAGE *>(malloc(messageLength));
 		infoQueue->GetMessage(i, message, &messageLength);
 
-		printf("%s\n", message->pDescription);
+		printf("[CD3D11RenderContext::PrintDebugInfo]: %s\n", message->pDescription);
 
 		free(message);
 	}

@@ -239,7 +239,7 @@ GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
 	return &outputTextures;
 }
 
-constexpr float depthClearColor[4] = {1.0f, 1.0f, 1.0f, 0.0f};
+constexpr float depthClearColor[4] = {1.0f, 1.0f, 0.0f, 0.0f};
 constexpr float genericClearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
@@ -278,15 +278,15 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 		lowBitMode ? internalTextures.untransformedDepth : outputTextures.GetFeatureTexture(DEPTH);
 
 	depthTextureB->Clear(depthClearColor);
-	shaders.screenQuadVS->Bind();
-	shaders.filterDepthPS->Bind();
-
-	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
-	buffers.screenQuadLayout->BindAsVertexBuffer();
 
 	for (int i = 0; i < settings.filterIterations; i++) {
 		// We flip between the two textures to avoid having to copy the
 		// filtered depth back to the unfiltered depth texture.
+		shaders.screenQuadVS->Bind();
+		shaders.filterDepthPS->Bind();
+
+		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+		buffers.screenQuadLayout->BindAsVertexBuffer();
 
 		depthTextureB->BindToPipeline(
 			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
@@ -298,6 +298,7 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 
 		context->Draw(4, 0);
 		context->SubmitWork();
+		context->ResetPipeline();
 
 		// Swap the textures.
 		std::swap(depthTextureA, depthTextureB);
@@ -311,10 +312,10 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 
 		internalTextures.unfilteredDepth->CopyToTexture(depthTexture);
 		context->SubmitWork();
+		context->ResetPipeline();
 	}
-
-	context->ResetPipeline();
 }
+
 void CD3D11DebugFluidRenderer::RenderNormals() {
 	auto *normalsTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS);
@@ -412,7 +413,7 @@ void CD3D11DebugFluidRenderer::EncodeDepth() {
 	auto* depthTexture = outputTextures.GetFeatureTexture(DEPTH);
 	auto* untransformedDepthTexture = internalTextures.untransformedDepth;
 
-	untransformedDepthTexture->Clear(depthClearColor);
+	depthTexture->Clear(depthClearColor);
 
 	depthTexture->BindToPipeline(
 		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
