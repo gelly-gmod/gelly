@@ -15,10 +15,10 @@ target_include_directories(gelly-gmod
 
 # add gmcl_ and architecture suffixes
 
-if (WIN32)
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win32.dll")
 else()
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
-    set_target_properties(gelly-gmod PROPERTIES SUFFIX "win64.dll")
+    set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll")
 endif()
