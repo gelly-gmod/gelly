@@ -2,8 +2,9 @@
 # the part where we would add the gelly subdirectory.
 
 option(GELLY_OVERRIDE_RENDERDOC "" ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 add_subdirectory(../gelly ${CMAKE_BINARY_DIR}/gelly)
 
 set(IMGUI_SOURCES

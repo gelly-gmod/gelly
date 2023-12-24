@@ -10,6 +10,7 @@
 #include "fluidrender/CD3D11ManagedDepthBuffer.h"
 #include "fluidrender/CD3D11ManagedShader.h"
 #include "fluidrender/CD3D11to11SharedTexture.h"
+#include "fluidrender/CD3D9to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
 
 CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
@@ -160,13 +161,24 @@ IManagedTexture *CD3D11RenderContext::CreateTexture(
 }
 
 GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
-	const char *name, HANDLE sharedHandle
+	const char *name, HANDLE sharedHandle, ContextRenderAPI guestAPI
 ) {
 	if (textures.find(name) != textures.end()) {
 		throw std::logic_error("Texture already exists");
 	}
 
-	const auto texture = new CD3D11to11SharedTexture(sharedHandle);
+	IManagedTexture* texture = nullptr;
+	switch (guestAPI) {
+		case ContextRenderAPI::D3D11:
+			texture = new CD3D11to11SharedTexture(this);
+			break;
+		case ContextRenderAPI::D3D9Ex:
+			texture = new CD3D9to11SharedTexture(this);
+			break;
+		default:
+			throw std::logic_error("Unsupported guest API");
+	}
+
 	texture->AttachToContext(this);
 	texture->Create();
 	textures[name] = texture;

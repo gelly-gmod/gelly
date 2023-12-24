@@ -54,6 +54,17 @@ public:
 	virtual GellyObserverPtr<IFluidTextures> GetFluidTextures() = 0;
 	virtual void Render() = 0;
 
+	/**
+	 * \brief Requests for the renderer to encode the last Render() call's depth
+	 * into the low-bit support format.
+	 * This format transforms the depth into the following format:
+	 * where S is the cutoff threshold, which is 0.9 for now but may change.
+	 * R: Eye depth, untouched and likely imprecise
+	 * G: 0-S of the projected depth.
+	 * B: S-1 of the projected depth.
+	 */
+	virtual void EnableLowBitMode() = 0;
+
 	virtual void SetSettings(const FluidRenderSettings &settings) = 0;
 	virtual void SetPerFrameParams(const FluidRenderParams &params) = 0;
 

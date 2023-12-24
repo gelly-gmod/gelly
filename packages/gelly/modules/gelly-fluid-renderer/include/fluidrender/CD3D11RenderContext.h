@@ -60,7 +60,7 @@ public:
 	) override;
 
 	GellyObserverPtr<IManagedTexture> CreateSharedTexture(
-		const char *name, HANDLE sharedHandle
+		const char *name, HANDLE sharedHandle, ContextRenderAPI guestAPI
 	) override;
 
 	GellyObserverPtr<IManagedShader> CreateShader(

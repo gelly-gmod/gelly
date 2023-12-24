@@ -1,7 +1,6 @@
-#include "fluidrender/CD3D11to11SharedTexture.h"
-
 #include <stdexcept>
 
+#include "fluidrender/CD3D11to11SharedTexture.h"
 #include "detail/d3d11/ErrorHandling.h"
 #include "fluidrender/IRenderContext.h"
 

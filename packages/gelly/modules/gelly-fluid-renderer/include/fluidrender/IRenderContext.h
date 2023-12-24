@@ -26,6 +26,7 @@ enum class RenderAPIResource {
 // connected to an incompatible context.
 enum class ContextRenderAPI {
 	D3D11,
+	D3D9Ex
 };
 
 enum class RasterizerFlags { NONE = 0, DISABLE_CULL = 0b1 };
@@ -87,7 +88,7 @@ public:
 	 * @return
 	 */
 	virtual GellyObserverPtr<IManagedTexture> CreateSharedTexture(
-		const char *name, HANDLE sharedHandle
+		const char *name, HANDLE sharedHandle, ContextRenderAPI guestAPI
 	) = 0;
 
 	virtual GellyObserverPtr<IManagedShader> CreateShader(

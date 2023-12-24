@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 
+#include "EncodeDepthPS.h"
 #include "EstimateNormalPS.h"
 #include "FilterDepthPS.h"
 #include "FilterThicknessPS.h"
@@ -84,6 +85,12 @@ void CD3D11DebugFluidRenderer::CreateShaders() {
 		gsc::FilterThicknessPS::GetBytecodeSize(),
 		ShaderType::Pixel
 	);
+
+	shaders.encodeDepthPS = context->CreateShader(
+		gsc::EncodeDepthPS::GetBytecode(),
+		gsc::EncodeDepthPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
 }
 
 void CD3D11DebugFluidRenderer::CreateBuffers() {
@@ -148,6 +155,16 @@ void CD3D11DebugFluidRenderer::CreateTextures() {
 
 	internalTextures.unfilteredDepth = context->CreateTexture(
 		"splatrenderer/unfilteredDepth", unfilteredDepthDesc
+	);
+
+	TextureDesc untransformedDepthDesc = {};
+	untransformedDepthDesc.width = width;
+	untransformedDepthDesc.height = height;
+	untransformedDepthDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+	untransformedDepthDesc.format = TextureFormat::R32G32_FLOAT;
+
+	internalTextures.untransformedDepth = context->CreateTexture(
+		"splatrenderer/untransformedDepth", untransformedDepthDesc
 	);
 
 	TextureDesc unfilteredThicknessDesc = {};
@@ -222,7 +239,7 @@ GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
 	return &outputTextures;
 }
 
-constexpr float depthClearColor[4] = {1.0f, 1.0f, 0.0f, 0.0f};
+constexpr float depthClearColor[4] = {1.0f, 1.0f, 1.0f, 0.0f};
 constexpr float genericClearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
@@ -258,7 +275,7 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 	auto *depthTextureA = internalTextures.unfilteredDepth;
 	auto *depthTextureB =
-		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+		lowBitMode ? internalTextures.untransformedDepth : outputTextures.GetFeatureTexture(DEPTH);
 
 	depthTextureB->Clear(depthClearColor);
 	shaders.screenQuadVS->Bind();
@@ -390,6 +407,35 @@ void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
 		std::swap(thicknessTextureA, thicknessTextureB);
 	}
 }
+
+void CD3D11DebugFluidRenderer::EncodeDepth() {
+	auto* depthTexture = outputTextures.GetFeatureTexture(DEPTH);
+	auto* untransformedDepthTexture = internalTextures.untransformedDepth;
+
+	untransformedDepthTexture->Clear(depthClearColor);
+
+	depthTexture->BindToPipeline(
+		TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
+	);
+
+	untransformedDepthTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+	);
+
+	buffers.screenQuadLayout->BindAsVertexBuffer();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+
+	shaders.screenQuadVS->Bind();
+	shaders.encodeDepthPS->Bind();
+
+	context->Draw(4, 0);
+	context->SubmitWork();
+	context->ResetPipeline();
+}
+
+
 void CD3D11DebugFluidRenderer::Render() {
 	if (context == nullptr) {
 		throw std::logic_error(
@@ -427,11 +473,20 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderNormals();
 	RenderThickness();
 	RenderFilteredThickness();
+
+	if (lowBitMode) {
+		EncodeDepth();
+	}
+
 #ifdef _DEBUG
 	if (renderDocApi != nullptr) {
 		renderDocApi->EndFrameCapture(device, nullptr);
 	}
 #endif
+}
+
+void CD3D11DebugFluidRenderer::EnableLowBitMode() {
+	lowBitMode = true;
 }
 
 void CD3D11DebugFluidRenderer::SetSettings(

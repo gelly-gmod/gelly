@@ -12,8 +12,8 @@
 #include "Textures.h"
 #include "Window.h"
 #include "ssfx/ShadingWater.h"
-#include "ssfx\Composite.h"
-#include "ssfx\Shading.h"
+#include "ssfx/Composite.h"
+#include "ssfx/Shading.h"
 
 #ifdef _DEBUG
 #include "D3D11DebugLayer.h"

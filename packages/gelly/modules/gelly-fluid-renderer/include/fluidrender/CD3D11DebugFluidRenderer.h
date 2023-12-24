@@ -24,6 +24,8 @@ private:
 
 	FluidRenderParams cbufferData{};
 
+	bool lowBitMode = false;
+
 	struct {
 		GellyInterfaceVal<IManagedBuffer> positions;
 		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
@@ -37,6 +39,14 @@ private:
 	struct {
 		GellyInterfaceVal<IManagedTexture> unfilteredDepth;
 		GellyInterfaceVal<IManagedTexture> unfilteredThickness;
+
+		/**
+		 * \brief When in low-bit mode, this texture is the one in the filter
+		 * flipping instead of the output texture. This is so that all of our
+		 * internal processes can continue to enjoy high precision, but we can
+		 * output an encoded depth at the final stage.
+		 */
+		GellyInterfaceVal<IManagedTexture> untransformedDepth;
 	} internalTextures{};
 
 	struct {
@@ -53,6 +63,7 @@ private:
 		GellyInterfaceVal<IManagedShader> filterDepthPS;
 		GellyInterfaceVal<IManagedShader> estimateNormalPS;
 		GellyInterfaceVal<IManagedShader> filterThicknessPS;
+		GellyInterfaceVal<IManagedShader> encodeDepthPS;
 	} shaders{};
 
 #ifdef _DEBUG
@@ -63,6 +74,13 @@ private:
 	void CreateTextures();
 	void CreateShaders();
 
+	void RenderUnfilteredDepth();
+	void RenderFilteredDepth();
+	void RenderNormals();
+	void RenderThickness();
+	void RenderFilteredThickness();
+	void EncodeDepth();
+
 public:
 	CD3D11DebugFluidRenderer();
 	~CD3D11DebugFluidRenderer() override = default;
@@ -70,12 +88,9 @@ public:
 	void SetSimData(GellyObserverPtr<ISimData> simData) override;
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
 	GellyObserverPtr<IFluidTextures> GetFluidTextures() override;
-	void RenderUnfilteredDepth();
-	void RenderFilteredDepth();
-	void RenderNormals();
-	void RenderThickness();
-	void RenderFilteredThickness();
+
 	void Render() override;
+	void EnableLowBitMode() override;
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;
 	void SetPerFrameParams(const Gelly::FluidRenderParams &params) override;

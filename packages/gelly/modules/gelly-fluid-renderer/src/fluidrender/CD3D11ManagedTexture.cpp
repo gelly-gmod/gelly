@@ -1,8 +1,6 @@
-#include "fluidrender/CD3D11ManagedTexture.h"
-
-#include <GellyD3D.h>
-
 #include <stdexcept>
+#include "fluidrender/CD3D11ManagedTexture.h"
+#include <GellyD3D.h>
 
 CD3D11ManagedTexture::CD3D11ManagedTexture()
 	: context(nullptr),
