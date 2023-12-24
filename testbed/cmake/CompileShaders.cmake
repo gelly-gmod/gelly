@@ -1,7 +1,6 @@
 set(CMAKE_MODULE_PATH ${GELLY_MODULES_PATH})
 
 include(GetAllShaders)
-include(PreprocessShader)
 
 find_hlsl_files("${SHADERS_DIR}" SHADER_FILES)
 
