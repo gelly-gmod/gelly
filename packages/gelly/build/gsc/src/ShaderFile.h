@@ -12,6 +12,11 @@ enum class ShaderProfile {
 	GS,
 };
 
+enum ShaderModel {
+	SM_5,
+	SM_3
+};
+
 class ShaderFile {
 	using ShaderSource = std::string;
 	using ShaderSourcePtr = std::shared_ptr<ShaderSource>;
@@ -26,6 +31,7 @@ private:
 
 	ShaderSourcePtr source;
 	ShaderProfile profile;
+	ShaderModel model;
 
 	void LoadSource();
 	void ComputeFriendlyNameAndProfile();
@@ -41,6 +47,7 @@ public:
 	[[nodiscard]] const fs::path &GetPath() const;
 	[[nodiscard]] const std::string &GetFriendlyName() const;
 	[[nodiscard]] ShaderProfile GetProfile() const;
+	[[nodiscard]] ShaderModel GetModel() const;
 };
 
 #endif	// SHADERFILE_H

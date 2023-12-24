@@ -10,16 +10,28 @@ void ShaderFileCompiler::CompileToBytecode() {
 
 	switch (shaderFile.GetProfile()) {
 		case ShaderProfile::VS:
-			fxcProfile = "vs_5_0";
+			fxcProfile = "vs";
 			break;
 		case ShaderProfile::PS:
-			fxcProfile = "ps_5_0";
+			fxcProfile = "ps";
 			break;
 		case ShaderProfile::GS:
-			fxcProfile = "gs_5_0";
+			fxcProfile = "gs";
 			break;
 		default:
 			throw std::runtime_error("Unknown shader profile");
+			break;
+	}
+
+	switch (shaderFile.GetModel()) {
+		case SM_5:
+			fxcProfile += "_5_0";
+			break;
+		case SM_3:
+			fxcProfile += "_3_0";
+			break;
+		default:
+			throw std::runtime_error("Unknown shader model");
 			break;
 	}
 

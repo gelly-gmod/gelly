@@ -62,6 +62,16 @@ void ShaderFile::ComputeFriendlyNameAndProfile() {
 			break;
 	}
 
+	if (std::find(shaderType.begin(), shaderType.end(), '5') !=
+		shaderType.end()) {
+		model = SM_5;
+	} else if (std::find(shaderType.begin(), shaderType.end(), '3') !=
+			   shaderType.end()) {
+		model = SM_3;
+	} else {
+		throw std::runtime_error("Unknown shader model");
+	}
+
 	friendlyName = name + shaderTypeString;
 }
 
@@ -75,3 +85,4 @@ ShaderFile::ShaderSourcePtr ShaderFile::GetSource() const { return source; }
 const fs::path &ShaderFile::GetPath() const { return path; }
 const std::string &ShaderFile::GetFriendlyName() const { return friendlyName; }
 ShaderProfile ShaderFile::GetProfile() const { return profile; }
+ShaderModel ShaderFile::GetModel() const { return model; }
