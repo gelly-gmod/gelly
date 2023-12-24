@@ -4,7 +4,7 @@ project(gelly CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
-add_subdirectory(build/gsc)
+add_subdirectory(../gsc "${CMAKE_CURRENT_BINARY_DIR}/gsc")
 
 add_subdirectory(modules/gelly-d3d)
 add_subdirectory(modules/gelly-fluid-sim)
