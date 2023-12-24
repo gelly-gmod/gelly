@@ -40,6 +40,36 @@
         "cacheVariables": {
           "GELLY_BUILD_TESTBED": "ON"
         }
+      },
+      {
+        "name": "gelly-gmod-debug",
+        "displayName": "Gelly GMod",
+        "description": "Debug Gelly GMod configuration, also should not be used directly",
+        "environment": {
+          "CMAKE_BUILD_TYPE": "Debug"
+        },
+        "cacheVariables": {
+          "GELLY_BUILD_GMOD": "ON",
+          "GELLY_BUILD_TESTBED": "OFF"
+        },
+        "binaryDir": "${sourceDir}/bin/gelly-gmod-debug",
+        "inherits": ["base"],
+        "hidden": false
+      },
+      {
+        "name": "gelly-gmod-relwithdebinfo",
+        "displayName": "Gelly GMod",
+        "description": "RelWithDebInfo Gelly GMod configuration, also should not be used directly",
+        "environment": {
+          "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        },
+        "cacheVariables": {
+          "GELLY_BUILD_GMOD": "ON",
+          "GELLY_BUILD_TESTBED": "OFF"
+        },
+        "binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo",
+        "inherits": ["base"],
+        "hidden": false
       }
     ],
     "buildPresets": [
@@ -54,6 +84,18 @@
         "jobs": 8,
         "configurePreset": "testbed-relwithdebinfo",
         "targets": ["testbed"]
+      },
+      {
+        "name": "Gelly-GMod-Debug",
+        "jobs": 8,
+        "configurePreset": "gelly-gmod-debug",
+        "targets": ["gelly-gmod"]
+      },
+      {
+        "name": "Gelly-GMod-RelWithDebInfo",
+        "jobs": 8,
+        "configurePreset": "gelly-gmod-relwithdebinfo",
+        "targets": ["gelly-gmod"]
       }
     ]
 }

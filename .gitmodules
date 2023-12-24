@@ -65,3 +65,7 @@
 [submodule "modules/gelly-fluid-sim/vendor/FleX"]
 	path = packages/gelly/modules/gelly-fluid-sim/vendor/FleX
 	url = https://github.com/NVIDIAGameWorks/FleX.git
+[submodule "packages/gelly-gmod/vendor/gmod-module-base"]
+	path = packages/gelly-gmod/vendor/gmod-module-base
+	url = https://github.com/Facepunch/gmod-module-base
+	branch = development
