@@ -129,6 +129,7 @@ void main()
 float SampleNoDiscontinuity(float2 tex, float zc) {
     float4 frag = InputDepth.SampleLevel(InputDepthSampler, tex, 0);
     bool isVoid = frag.r == 1.f;
+    float depth = frag.r;
 
     if (isVoid) {
         depth = zc;

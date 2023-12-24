@@ -1,5 +1,6 @@
-# CLion-specific files
-cmake-build-*
+# Build output
+bin
+.cmake
 
 # For any resources that are embedded
 generated
