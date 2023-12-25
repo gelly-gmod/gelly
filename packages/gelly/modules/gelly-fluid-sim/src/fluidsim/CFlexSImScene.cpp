@@ -246,8 +246,11 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 				static_cast<int *>(indicesDst)[i] = static_cast<int>(indices[i]);
 			}
 		} else {
-			// We can just memcpy
-			std::memcpy(indicesDst, params.indices32, params.indexCount * sizeof(uint));
+			// We still need to convert our indices since they're uints
+			const uint* indices = (params.indices32);
+			for (uint i = 0; i < params.indexCount; i++) {
+				static_cast<int *>(indicesDst)[i] = static_cast<int>(indices[i]);
+			}
 		}
 
 		for (uint i = 0; i < params.vertexCount; i++) {

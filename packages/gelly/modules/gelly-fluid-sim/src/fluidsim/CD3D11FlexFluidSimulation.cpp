@@ -246,7 +246,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.0f;
-	solverParams.gravity[2] = 0.2f;
+	solverParams.gravity[2] = -20.2f;
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
@@ -269,8 +269,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
 	solverParams.particleCollisionMargin = 0.0f;
-	solverParams.shapeCollisionMargin = 0.01f;
-	solverParams.collisionDistance = solverParams.radius * 0.75f;
+	solverParams.shapeCollisionMargin = 1.01f;
+	solverParams.collisionDistance = solverParams.radius * 0.75f + 7.f;
 	solverParams.sleepThreshold = 0.0f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;

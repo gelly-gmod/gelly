@@ -3,6 +3,7 @@
 #include <cstdio>
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
+#include <GMFS.h>
 #include <MinHook.h>
 #include <Windows.h>
 
@@ -32,6 +33,12 @@ LUA_FUNCTION(gelly_Simulate) {
 	auto dt = static_cast<float>(LUA->GetNumber(1));
 
 	gelly->Simulate(dt);
+	return 0;
+}
+
+LUA_FUNCTION(gelly_LoadMap) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::String); // Map name
+	gelly->LoadMap(LUA->GetString(1));
 	return 0;
 }
 
@@ -74,6 +81,11 @@ LUA_FUNCTION(gelly_GetActiveParticles) {
 
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
+	if (const auto status = FileSystem::LoadFileSystem(); status != FILESYSTEM_STATUS::OK) {
+		LOG_ERROR("Failed to load file system: %d", status);
+		return 0;
+	}
+
 	if (const auto status = MH_Initialize(); status != MH_OK) {
 		LOG_ERROR("Failed to initialize MinHook: %s", MH_StatusToString(status));
 		return 0;
@@ -110,6 +122,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, Simulate);
 	DEFINE_LUA_FUNC(gelly, GetActiveParticles);
 	DEFINE_LUA_FUNC(gelly, EmitCube);
+	DEFINE_LUA_FUNC(gelly, LoadMap);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

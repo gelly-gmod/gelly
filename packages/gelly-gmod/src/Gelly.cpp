@@ -1,6 +1,6 @@
+#include <BSPParser.h>
 #include "Gelly.h"
 
-#include <BSPParser.h>
 #include <DirectXMath.h>
 #include <GMFS.h>
 
@@ -247,6 +247,8 @@ void GellyIntegration::Render() {
 
 void GellyIntegration::Simulate(float dt) {
 	simulation->Update(dt);
+	// update
+	simulation->GetScene()->Update();
 }
 
 void GellyIntegration::LoadMap(const char *mapName) {
@@ -272,12 +274,15 @@ void GellyIntegration::LoadMap(const char *mapName) {
 	}
 
 	const auto* vertices = mapParser.GetVertices();
-	const auto vertexCount = mapParser.GetNumVertices();
+	const auto vertexCount = mapParser.GetNumTris() * 3;
 
 	// maps dont have indices, but they do have to be long since maps can be huge
 	auto* indices = new uint32_t[vertexCount];
-	for (uint32_t i = 0; i < vertexCount; i++) {
-		indices[i] = i;
+	for (int i = 0; i < vertexCount; i+=3) {
+		// flip winding order
+		indices[i] = i + 2;
+		indices[i + 1] = i + 1;
+		indices[i + 2] = i;
 	}
 
 	ObjectCreationParams params = {};
@@ -289,10 +294,17 @@ void GellyIntegration::LoadMap(const char *mapName) {
 	mesh.indices32 = indices;
 	mesh.vertexCount = vertexCount;
 	mesh.indexCount = vertexCount;
+	mesh.scale[0] = 1.f;
+	mesh.scale[1] = 1.f;
+	mesh.scale[2] = 1.f;
 
 	params.shapeData = mesh;
 
 	mapHandle = simulation->GetScene()->CreateObject(params);
+	LOG_INFO("Loaded map %s with scene handle %d", mapName, mapHandle);
+
+	delete[] buffer;
+	delete[] indices;
 }
 
 IFluidSimulation *GellyIntegration::GetSimulation() const {

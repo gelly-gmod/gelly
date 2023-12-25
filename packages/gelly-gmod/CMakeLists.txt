@@ -38,6 +38,8 @@ target_link_libraries(gelly-gmod
         ${GELLY_LIBS}
         gmod-module-base
         minhook
+        GMFS
+        BSPParser
 )
 
 target_include_directories(gelly-gmod
