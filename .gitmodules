@@ -69,3 +69,6 @@
 	path = packages/gelly-gmod/vendor/gmod-module-base
 	url = https://github.com/Facepunch/gmod-module-base
 	branch = development
+[submodule "packages/gelly-gmod/vendor/minhook"]
+	path = packages/gelly-gmod/vendor/minhook
+	url = https://github.com/TsudaKageyu/minhook.git
