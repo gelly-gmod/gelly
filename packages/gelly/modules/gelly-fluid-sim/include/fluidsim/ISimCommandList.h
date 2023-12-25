@@ -12,16 +12,21 @@ struct AddParticle {
 	float x, y, z;
 };
 
+struct ChangeRadius {
+	float radius;
+};
+
 struct Reset {};
 
 enum SimCommandType {
-	ADD_PARTICLE = 0b01,
-	RESET = 0b10,
+	ADD_PARTICLE = 0b001,
+	CHANGE_RADIUS = 0b010,
+	RESET = 0b100,
 };
 
 struct SimCommand {
 	SimCommandType type;
-	std::variant<AddParticle, Reset> data;
+	std::variant<AddParticle, Reset, ChangeRadius> data;
 };
 }  // namespace SimCommands
 }  // namespace Gelly

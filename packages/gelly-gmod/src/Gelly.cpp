@@ -44,6 +44,10 @@ void GellyIntegration::CreateBuffers() {
 
 	LOG_DX_CALL("Failed to unlock NDC quad vertex buffer",
 		buffers.ndcQuadVB->Unlock());
+
+	LOG_DX_CALL("Failed to create state block",
+		device->CreateStateBlock(D3DSBT_ALL, &stateBlock));
+
 }
 
 
@@ -155,8 +159,12 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 			static_cast<ID3D11DeviceContext *>(renderContext->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext))
 		);
 		LOG_INFO("Created simulation context");
+#ifdef _DEBUG
 		simulation = CreateD3D11DebugFluidSimulation(simContext);
-		LOG_INFO("Created FleX simulation");
+#else
+		simulation = CreateD3D11FlexFluidSimulation(simContext);
+#endif
+ 		LOG_INFO("Created FleX simulation");
 
 		simulation->SetMaxParticles(defaultMaxParticles);
 		renderer->SetSimData(simulation->GetSimulationData());
@@ -179,6 +187,12 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		CreateBuffers();
 		LOG_INFO("Created buffers");
 
+		ISimCommandList *commandList = simulation->CreateCommandList();
+		commandList->AddCommand({CHANGE_RADIUS, ChangeRadius{ particleRadius }});
+		simulation->ExecuteCommandList(commandList);
+		simulation->DestroyCommandList(commandList);
+		LOG_INFO("Sent initialization commands to simulation");
+
 #ifdef _DEBUG
 		LOG_INFO("Debugging detected, enabling RenderDoc integration...");
 		if (const auto success = renderer->EnableRenderDocCaptures(); !success) {
@@ -197,20 +211,27 @@ void GellyIntegration::Render() {
 	renderer->SetPerFrameParams(renderParams);
 	renderer->Render();
 
+	// get current state
+	stateBlock->Capture();
+
 	device->SetVertexShader(shaders.ndcQuadVS);
 	device->SetPixelShader(shaders.compositePS);
 	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 	device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	device->SetTexture(0, textures.albedoTexture);
+	device->SetTexture(0, textures.depthTexture);
 
 	device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
+	device->SetRenderState(D3DRS_ZENABLE, TRUE);
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	// Restore state
+	stateBlock->Apply();
 }
 
 void GellyIntegration::Simulate(float dt) {

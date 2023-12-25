@@ -174,6 +174,9 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				} else if constexpr (std::is_same_v<T, AddParticle>) {
 					mappingRequired = true;
 					newParticles.push_back(FlexFloat3{arg.x, arg.y, arg.z});
+				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
+					particleRadius = arg.radius;
+					SetupParams();
 				}
 			},
 			command.data

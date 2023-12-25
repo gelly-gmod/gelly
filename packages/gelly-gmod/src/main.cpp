@@ -35,19 +35,41 @@ LUA_FUNCTION(gelly_Simulate) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_AddParticle) {
+LUA_FUNCTION(gelly_EmitCube) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Vector); // Position
+	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Size
+	LUA->CheckType(3, GarrysMod::Lua::Type::Number); // Density
+
+	Vector position = LUA->GetVector(1);
+	Vector size = LUA->GetVector(2);
 
 	ISimCommandList *commandList = gelly->GetSimulation()->CreateCommandList();
-	commandList->AddCommand({ADD_PARTICLE, AddParticle{
-		LUA->GetVector(1).x,
-		LUA->GetVector(1).y,
-		LUA->GetVector(1).z
-	}});
+	for (int i = 0; i < static_cast<int>(LUA->GetNumber(3)); i++) {
+		float x = rand() / static_cast<float>(RAND_MAX);
+		float y = rand() / static_cast<float>(RAND_MAX);
+		float z = rand() / static_cast<float>(RAND_MAX);
+
+		// Center at position
+		x -= 0.5f;
+		y -= 0.5f;
+		z -= 0.5f;
+
+		x *= size.x;
+		y *= size.y;
+		z *= size.z;
+
+		AddParticle particle = {x + position.x, y + position.y, z + position.z};
+		commandList->AddCommand({ADD_PARTICLE, particle});
+	}
 	gelly->GetSimulation()->ExecuteCommandList(commandList);
 	gelly->GetSimulation()->DestroyCommandList(commandList);
 
 	return 0;
+}
+
+LUA_FUNCTION(gelly_GetActiveParticles) {
+	LUA->PushNumber(gelly->GetSimulation()->GetSimulationData()->GetActiveParticles());
+	return 1;
 }
 
 GMOD_MODULE_OPEN() {
@@ -86,7 +108,8 @@ GMOD_MODULE_OPEN() {
 	LUA->CreateTable();
 	DEFINE_LUA_FUNC(gelly, Render);
 	DEFINE_LUA_FUNC(gelly, Simulate);
-	DEFINE_LUA_FUNC(gelly, AddParticle);
+	DEFINE_LUA_FUNC(gelly, GetActiveParticles);
+	DEFINE_LUA_FUNC(gelly, EmitCube);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

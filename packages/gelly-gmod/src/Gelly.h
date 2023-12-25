@@ -19,7 +19,7 @@ private:
 
 	IDirect3DDevice9Ex *device;
 
-	float particleRadius = 0.1f;
+	float particleRadius = 5.75f;
 	float thresholdRatio = 10.f;
 
 	struct {
@@ -60,6 +60,8 @@ private:
 	struct {
 		IDirect3DVertexBuffer9* ndcQuadVB;
 	} buffers;
+
+	IDirect3DStateBlock9* stateBlock = nullptr;
 
 	FluidRenderParams renderParams = {};
 
