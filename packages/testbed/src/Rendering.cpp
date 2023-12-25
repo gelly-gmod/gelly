@@ -659,6 +659,8 @@ void testbed::RenderWorldList(
 		FluidRenderParams params{};
 		BIND_MEMBER_TO_UI_DATA(params, TestbedWindow, thresholdRatio);
 		BIND_MEMBER_TO_UI_DATA(params, TestbedWindow, particleRadius);
+		params.nearPlane = camera.nearPlane;
+		params.farPlane = camera.farPlane;
 
 		{
 			ZoneScopedN("Matrix gen");

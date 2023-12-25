@@ -2,9 +2,10 @@
 #include "LoggingMacros.h"
 
 static const int defaultMaxParticles = 100000;
-GellyIntegration::GellyIntegration() {
+
+GellyIntegration::GellyIntegration(uint16_t width, uint16_t height) {
 	try {
-		renderContext = CreateD3D11FluidRenderContext(800, 600);
+		renderContext = CreateD3D11FluidRenderContext(width, height);
 		LOG_INFO("Created render context");
 		renderer = CreateD3D11DebugFluidRenderer(renderContext);
 		LOG_INFO("Created renderer");

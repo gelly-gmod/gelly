@@ -6,6 +6,7 @@
 #include <Windows.h>
 
 #include "Gelly.h"
+#include "source/IBaseClientDLL.h"
 
 static GellyIntegration *gelly = nullptr;
 
@@ -18,7 +19,17 @@ void InjectConsoleWindow() {
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	LOG_INFO("Hello, world!");
-	gelly = new GellyIntegration();
+	LOG_INFO("Grabbing initial information...");
+
+	CViewSetup currentView = {};
+	GetClientViewSetup(currentView);
+
+	LOG_INFO("Screen resolution: %dx%d", currentView.width, currentView.height);
+	LOG_INFO("Field of view: %f", currentView.fov);
+	LOG_INFO("Near clip: %f", currentView.zNear);
+	LOG_INFO("Far clip: %f", currentView.zFar);
+
+	gelly = new GellyIntegration(currentView.width, currentView.height);
 	return 0;
 }
 

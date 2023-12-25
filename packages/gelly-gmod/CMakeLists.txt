@@ -10,6 +10,11 @@ add_library(
         src/Gelly.cpp
         src/Gelly.h
         src/LoggingMacros.h
+        src/source/Interface.h
+        src/source/IBaseClientDLL.h
+        src/source/MathTypes.h
+        src/source/CViewSetup.h
+        src/source/IBaseClientDLL.cpp
 )
 
 target_link_libraries(gelly-gmod

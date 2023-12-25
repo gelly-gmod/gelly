@@ -8,4 +8,9 @@ cbuffer fluidRender : register(b0) {
     float g_ViewportHeight;
     float g_ThresholdRatio;
     float g_ParticleRadius;
+
+    float g_NearPlane;
+    float g_FarPlane;
+    float padding0;
+    float padding1;
 };

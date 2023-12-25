@@ -22,7 +22,6 @@ set(IMGUI_SOURCES
         src/ui/UIData.h
         src/ssfx/ShadingWater.cpp
         src/ssfx/ShadingWater.h
-        ../gelly-gmod/src/main.cpp
 )
 
 add_executable(testbed

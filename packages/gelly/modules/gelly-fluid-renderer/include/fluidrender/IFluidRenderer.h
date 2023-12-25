@@ -37,6 +37,10 @@ struct FluidRenderParams {
 	float height;
 	float thresholdRatio;
 	float particleRadius;
+
+	float nearPlane;
+	float farPlane;
+	float pad[2] = {};
 };
 }  // namespace Gelly
 

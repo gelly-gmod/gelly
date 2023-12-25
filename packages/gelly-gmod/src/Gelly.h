@@ -17,16 +17,8 @@ private:
 	IFluidSimulation *simulation;
 	IRenderContext *renderContext;
 	ISimContext *simContext;
-
-	std::thread managerThread;
-
-	/**
-	 * \brief Manages the simulation and rendering, also initializes them. It
-	 * also handles communication between the main thread and itself.
-	 */
-	void ManagerThread();
 public:
-	GellyIntegration();
+	GellyIntegration(uint16_t width, uint16_t height);
 	~GellyIntegration();
 
 	void Render();
