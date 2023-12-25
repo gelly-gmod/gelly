@@ -246,7 +246,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.0f;
-	solverParams.gravity[2] = 0.f;
+	solverParams.gravity[2] = 0.2f;
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
@@ -283,7 +283,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.solidPressure = 1.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
-	solverParams.surfaceTension = .5f;
+	solverParams.surfaceTension = 1.0f;
 	solverParams.vorticityConfinement = 15.0f;
 	solverParams.buoyancy = 1.0f;
 }

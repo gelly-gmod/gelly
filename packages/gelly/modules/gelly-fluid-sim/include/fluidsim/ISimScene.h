@@ -17,18 +17,23 @@ enum class ObjectShape {
 
 struct ObjectCreationParams {
 	struct TriangleMesh {
+		enum class IndexType {
+			UINT16,
+			UINT32,
+		};
+
+		IndexType indexType;
 		/**
 		 * \brief This array is not copied, and is never modified. It is up to
 		 * the caller to ensure that this array is valid for the lifetime of the
 		 * create object function call.
 		 */
-		float *vertices;
-		/**
-		 * \brief This array is not copied, and is never modified. It is up to
-		 * the caller to ensure that this array is valid for the lifetime of the
-		 * create object function call.
-		 */
-		ushort *indices;
+		const float *vertices;
+
+		union {
+			const uint16_t *indices16;
+			const uint32_t *indices32;
+		};
 
 		uint vertexCount;
 		uint indexCount;

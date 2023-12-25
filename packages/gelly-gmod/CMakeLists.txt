@@ -3,6 +3,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(vendor/gmod-module-base)
 add_subdirectory(vendor/minhook)
+add_subdirectory(vendor/GMFS)
+add_subdirectory(vendor/BSPParser)
 
 add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly")
 
@@ -44,6 +46,8 @@ target_include_directories(gelly-gmod
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/minhook/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GMFS
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/BSPParser
         ${GELLY_INCLUDE_DIRS}
 )
 

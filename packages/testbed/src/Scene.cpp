@@ -253,9 +253,10 @@ void testbed::RegisterSceneToGellySim(IFluidSimulation *sim) {
 		params.shape = ObjectShape::TRIANGLE_MESH;
 		auto shapeData = ObjectCreationParams::TriangleMesh{};
 
+		shapeData.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT16;
 		shapeData.vertices =
 			reinterpret_cast<float *>(collisionObject.vertices.data());
-		shapeData.indices =
+		shapeData.indices16 =
 			reinterpret_cast<ushort *>(collisionObject.indices.data());
 
 		shapeData.vertexCount =

@@ -216,8 +216,7 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 	FlexFloat3 minVertex = {FLT_MAX, FLT_MAX, FLT_MAX};
 	FlexFloat3 maxVertex = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
-	const ushort *indices = params.indices;
-	const auto *vertices = reinterpret_cast<FlexFloat3 *>(params.vertices);
+	const auto *vertices = reinterpret_cast<const FlexFloat3 *>(params.vertices);
 	for (uint i = 0; i < params.vertexCount; i++) {
 		minVertex.x = std::min(minVertex.x, vertices[i].x);
 		minVertex.y = std::min(minVertex.y, vertices[i].y);
@@ -241,8 +240,14 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 		void *verticesDst = NvFlexMap(verticesBuffer, eNvFlexMapWait);
 
 		// We have to convert our indices since they're ushorts
-		for (uint i = 0; i < params.indexCount; i++) {
-			static_cast<int *>(indicesDst)[i] = static_cast<int>(indices[i]);
+		if (params.indexType == ObjectCreationParams::TriangleMesh::IndexType::UINT16) {
+			const ushort* indices = (params.indices16);
+			for (uint i = 0; i < params.indexCount; i++) {
+				static_cast<int *>(indicesDst)[i] = static_cast<int>(indices[i]);
+			}
+		} else {
+			// We can just memcpy
+			std::memcpy(indicesDst, params.indices32, params.indexCount * sizeof(uint));
 		}
 
 		for (uint i = 0; i < params.vertexCount; i++) {

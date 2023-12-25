@@ -16,11 +16,13 @@ private:
 	IFluidSimulation *simulation;
 	IRenderContext *renderContext;
 	ISimContext *simContext;
+	ObjectHandle mapHandle = INVALID_OBJECT_HANDLE;
 
 	IDirect3DDevice9Ex *device;
 
-	float particleRadius = 5.75f;
+	float particleRadius = 1.75f;
 	float thresholdRatio = 10.f;
+	bool isSimulationInteractive = false;
 
 	struct {
 		IDirect3DTexture9* depthTexture;
@@ -62,7 +64,6 @@ private:
 	} buffers;
 
 	IDirect3DStateBlock9* stateBlock = nullptr;
-
 	FluidRenderParams renderParams = {};
 
 	void CreateShaders();
@@ -77,6 +78,7 @@ public:
 
 	void Render();
 	void Simulate(float dt);
+	void LoadMap(const char *mapName);
 
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;
 };

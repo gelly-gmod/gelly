@@ -1,13 +1,14 @@
 #include "Gelly.h"
 
+#include <BSPParser.h>
 #include <DirectXMath.h>
-
-#include "LoggingMacros.h"
-#include "source/IBaseClientDLL.h"
-#include "source/IVRenderView.h"
+#include <GMFS.h>
 
 #include "CompositePS.h"
+#include "LoggingMacros.h"
 #include "NDCQuadVS.h"
+#include "source/IBaseClientDLL.h"
+#include "source/IVRenderView.h"
 
 static const int defaultMaxParticles = 100000;
 
@@ -175,6 +176,9 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		LOG_INFO("Querying for interactivity support...");
 		if (simulation->GetScene()) {
 			LOG_INFO("Interactivity is supported");
+			isSimulationInteractive = true;
+		} else {
+			LOG_INFO("Interactivity is not supported");
 		}
 
 		CreateTextures();
@@ -222,7 +226,14 @@ void GellyIntegration::Render() {
 	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
+	device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
 	device->SetTexture(0, textures.depthTexture);
+	device->SetTexture(1, textures.normalTexture);
 
 	device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
@@ -236,6 +247,52 @@ void GellyIntegration::Render() {
 
 void GellyIntegration::Simulate(float dt) {
 	simulation->Update(dt);
+}
+
+void GellyIntegration::LoadMap(const char *mapName) {
+	if (!isSimulationInteractive) {
+		LOG_WARNING("Simulation is not interactive, cannot load map");
+		return;
+	}
+
+	if (!FileSystem::Exists(mapName)) {
+		LOG_WARNING("Map %s does not exist", mapName);
+		return;
+	}
+
+	const auto handle = FileSystem::Open(mapName, "rb");
+	const auto size = FileSystem::Size(handle);
+	const auto buffer = new byte[size];
+	FileSystem::Read(buffer, size, handle);
+
+	const BSPMap mapParser(buffer, size);
+	if (!mapParser.IsValid()) {
+		LOG_ERROR("Failed to parse map %s", mapName);
+		throw std::runtime_error("Failed to parse map");
+	}
+
+	const auto* vertices = mapParser.GetVertices();
+	const auto vertexCount = mapParser.GetNumVertices();
+
+	// maps dont have indices, but they do have to be long since maps can be huge
+	auto* indices = new uint32_t[vertexCount];
+	for (uint32_t i = 0; i < vertexCount; i++) {
+		indices[i] = i;
+	}
+
+	ObjectCreationParams params = {};
+	params.shape = ObjectShape::TRIANGLE_MESH;
+
+	ObjectCreationParams::TriangleMesh mesh = {};
+	mesh.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT32;
+	mesh.vertices = reinterpret_cast<const float*>(vertices);
+	mesh.indices32 = indices;
+	mesh.vertexCount = vertexCount;
+	mesh.indexCount = vertexCount;
+
+	params.shapeData = mesh;
+
+	mapHandle = simulation->GetScene()->CreateObject(params);
 }
 
 IFluidSimulation *GellyIntegration::GetSimulation() const {
