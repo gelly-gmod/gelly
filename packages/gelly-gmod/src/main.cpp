@@ -29,7 +29,7 @@ LUA_FUNCTION(gelly_Render) {
 
 LUA_FUNCTION(gelly_Simulate) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Delta time
-	float dt = LUA->GetNumber(0);
+	auto dt = static_cast<float>(LUA->GetNumber(1));
 
 	gelly->Simulate(dt);
 	return 0;
