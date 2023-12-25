@@ -6,7 +6,46 @@
 #include "source/IBaseClientDLL.h"
 #include "source/IVRenderView.h"
 
+#include "CompositePS.h"
+#include "NDCQuadVS.h"
+
 static const int defaultMaxParticles = 100000;
+
+void GellyIntegration::CreateShaders() {
+	LOG_DX_CALL("Failed to create composite pixel shader",
+		device->CreatePixelShader(
+			reinterpret_cast<const DWORD*>(gsc::CompositePS::GetBytecode()), &shaders.compositePS
+		));
+
+	LOG_DX_CALL("Failed to create NDC quad vertex shader",
+		device->CreateVertexShader(
+			reinterpret_cast<const DWORD*>(gsc::NDCQuadVS::GetBytecode()), &shaders.ndcQuadVS
+		));
+}
+
+void GellyIntegration::CreateBuffers() {
+	NDCVertex quadVertices[] = {
+		{ -1.f, -1.f, 0.f, 1.f, 0.f, 1.f },
+		{ -1.f, 1.f, 0.f, 1.f, 0.f, 0.f },
+		{ 1.f, -1.f, 0.f, 1.f, 1.f, 1.f },
+		{ 1.f, 1.f, 0.f, 1.f, 1.f, 0.f }
+	};
+
+	LOG_DX_CALL("Failed to create NDC quad vertex buffer",
+		device->CreateVertexBuffer(
+			sizeof(quadVertices), D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &buffers.ndcQuadVB, nullptr
+		));
+
+	void* bufferData = nullptr;
+	LOG_DX_CALL("Failed to lock NDC quad vertex buffer",
+		buffers.ndcQuadVB->Lock(0, sizeof(quadVertices), &bufferData, 0));
+
+	std::memcpy(bufferData, quadVertices, sizeof(quadVertices));
+
+	LOG_DX_CALL("Failed to unlock NDC quad vertex buffer",
+		buffers.ndcQuadVB->Unlock());
+}
+
 
 void GellyIntegration::CreateTextures() {
 	uint16_t width, height;
@@ -83,6 +122,12 @@ void GellyIntegration::UpdateRenderParams() {
 		XMMatrixInverse(nullptr, XMLoadFloat4x4(&projectionMatrix))
 	);
 
+	// And finally we can transpose all of these matrices
+	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(XMLoadFloat4x4(&viewMatrix)));
+	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&projectionMatrix)));
+	XMStoreFloat4x4(&inverseViewMatrix, XMMatrixTranspose(XMLoadFloat4x4(&inverseViewMatrix)));
+	XMStoreFloat4x4(&inverseProjectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&inverseProjectionMatrix)));
+
 	renderParams.view = viewMatrix;
 	renderParams.proj = projectionMatrix;
 	renderParams.invView = inverseViewMatrix;
@@ -110,7 +155,7 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 			static_cast<ID3D11DeviceContext *>(renderContext->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext))
 		);
 		LOG_INFO("Created simulation context");
-		simulation = CreateD3D11FlexFluidSimulation(simContext);
+		simulation = CreateD3D11DebugFluidSimulation(simContext);
 		LOG_INFO("Created FleX simulation");
 
 		simulation->SetMaxParticles(defaultMaxParticles);
@@ -128,14 +173,52 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		LOG_INFO("Created D3D9-side textures");
 		LinkTextures();
 		LOG_INFO("Linked D3D9 textures with Gelly");
+
+		CreateShaders();
+		LOG_INFO("Created shaders");
+		CreateBuffers();
+		LOG_INFO("Created buffers");
+
+#ifdef _DEBUG
+		LOG_INFO("Debugging detected, enabling RenderDoc integration...");
+		if (const auto success = renderer->EnableRenderDocCaptures(); !success) {
+			LOG_WARNING("Failed to enable captures, maybe RenderDoc is not running or the API has changed?");
+		} else {
+			LOG_INFO("RenderDoc captures enabled");
+		}
+#endif
 	} catch (const std::exception &e) {
 		LOG_ERROR("Failed to create render context: %s", e.what());
 	}
 }
 
 void GellyIntegration::Render() {
+	UpdateRenderParams();
 	renderer->SetPerFrameParams(renderParams);
 	renderer->Render();
+
+	device->SetVertexShader(shaders.ndcQuadVS);
+	device->SetPixelShader(shaders.compositePS);
+	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
+	device->SetTexture(0, textures.albedoTexture);
+
+	device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
+	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+}
+
+void GellyIntegration::Simulate(float dt) {
+	simulation->Update(dt);
+}
+
+IFluidSimulation *GellyIntegration::GetSimulation() const {
+	return simulation;
 }
 
 GellyIntegration::~GellyIntegration() {

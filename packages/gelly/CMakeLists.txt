@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 add_subdirectory(../gsc "${CMAKE_CURRENT_BINARY_DIR}/gsc")
+set(GSC_PATH "${GSC_PATH}" PARENT_SCOPE)
 
 add_subdirectory(modules/gelly-d3d)
 add_subdirectory(modules/gelly-fluid-sim)

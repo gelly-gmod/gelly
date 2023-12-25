@@ -27,6 +27,29 @@ LUA_FUNCTION(gelly_Render) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_Simulate) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Delta time
+	float dt = LUA->GetNumber(0);
+
+	gelly->Simulate(dt);
+	return 0;
+}
+
+LUA_FUNCTION(gelly_AddParticle) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Vector); // Position
+
+	ISimCommandList *commandList = gelly->GetSimulation()->CreateCommandList();
+	commandList->AddCommand({ADD_PARTICLE, AddParticle{
+		LUA->GetVector(1).x,
+		LUA->GetVector(1).y,
+		LUA->GetVector(1).z
+	}});
+	gelly->GetSimulation()->ExecuteCommandList(commandList);
+	gelly->GetSimulation()->DestroyCommandList(commandList);
+
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = MH_Initialize(); status != MH_OK) {
@@ -62,6 +85,8 @@ GMOD_MODULE_OPEN() {
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	LUA->CreateTable();
 	DEFINE_LUA_FUNC(gelly, Render);
+	DEFINE_LUA_FUNC(gelly, Simulate);
+	DEFINE_LUA_FUNC(gelly, AddParticle);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

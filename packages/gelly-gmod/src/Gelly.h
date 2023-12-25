@@ -19,7 +19,7 @@ private:
 
 	IDirect3DDevice9Ex *device;
 
-	float particleRadius = 5.f;
+	float particleRadius = 0.1f;
 	float thresholdRatio = 10.f;
 
 	struct {
@@ -47,8 +47,24 @@ private:
 		HANDLE thicknessTexture = nullptr;
 	} sharedHandles;
 
+	struct {
+		IDirect3DPixelShader9* compositePS;
+		IDirect3DVertexShader9* ndcQuadVS;
+	} shaders;
+
+	struct NDCVertex {
+		float x, y, z, w;
+		float texX, texY;
+	};
+
+	struct {
+		IDirect3DVertexBuffer9* ndcQuadVB;
+	} buffers;
+
 	FluidRenderParams renderParams = {};
 
+	void CreateShaders();
+	void CreateBuffers();
 	void CreateTextures();
 	void LinkTextures() const;
 
@@ -59,6 +75,8 @@ public:
 
 	void Render();
 	void Simulate(float dt);
+
+	[[nodiscard]] IFluidSimulation *GetSimulation() const;
 };
 
 #endif //GELLY_H

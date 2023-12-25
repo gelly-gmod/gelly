@@ -242,7 +242,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
-	solverParams.gravity[1] = -4.8f;
+	solverParams.gravity[1] = 0.0f;
 	solverParams.gravity[2] = 0.f;
 
 	solverParams.viscosity = 0.0f;

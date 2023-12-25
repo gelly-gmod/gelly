@@ -6,6 +6,11 @@ add_subdirectory(vendor/minhook)
 
 add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly")
 
+file(GLOB_RECURSE SHADER_GLUE_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.h
+        )
+
 add_library(
     gelly-gmod SHARED
     src/main.cpp
@@ -23,6 +28,7 @@ add_library(
         src/source/D3DDeviceWrapper.cpp
         src/hooking/Library.h
         src/hooking/Library.cpp
+        ${SHADER_GLUE_FILES}
 )
 
 target_link_libraries(gelly-gmod
@@ -37,6 +43,7 @@ target_include_directories(gelly-gmod
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/gmod-module-base/include
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/minhook/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out
         ${GELLY_INCLUDE_DIRS}
 )
 
@@ -47,3 +54,12 @@ else()
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll")
 endif()
+
+add_custom_target(
+        GellyGModShaders
+        COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DGSC_PATH=${GSC_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Compiling gelly-gmod shaders"
+)
+
+add_dependencies(gelly-gmod GellyGModShaders)
