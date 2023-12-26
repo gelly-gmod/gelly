@@ -6,6 +6,10 @@ add_subdirectory(vendor/minhook)
 add_subdirectory(vendor/GMFS)
 add_subdirectory(vendor/BSPParser)
 
+option(TRACY_ENABLE "Enable tracy profiler" ON)
+option(TRACY_ON_DEMAND "Enable tracy profiler on demand" ON)
+add_subdirectory(vendor/tracy)
+
 add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly")
 
 file(GLOB_RECURSE SHADER_GLUE_FILES
@@ -40,6 +44,7 @@ target_link_libraries(gelly-gmod
         minhook
         GMFS
         BSPParser
+        Tracy::TracyClient
 )
 
 target_include_directories(gelly-gmod
@@ -50,6 +55,7 @@ target_include_directories(gelly-gmod
         ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GMFS
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/BSPParser
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy
         ${GELLY_INCLUDE_DIRS}
 )
 

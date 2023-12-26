@@ -10,6 +10,8 @@
 #include "source/IBaseClientDLL.h"
 #include "source/IVRenderView.h"
 
+#include <tracy/Tracy.hpp>
+
 static const int defaultMaxParticles = 1000000;
 
 void GellyIntegration::CreateShaders() {
@@ -115,6 +117,8 @@ void GellyIntegration::SetCompositeConstants() {
 
 
 void GellyIntegration::UpdateRenderParams() {
+	ZoneScoped;
+
 	CViewSetup currentView = {};
 	GetClientViewSetup(currentView);
 
@@ -232,67 +236,80 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 }
 
 void GellyIntegration::Render() {
-	// copy backbuffer to texture
-	IDirect3DSurface9* backbufferSurface = nullptr;
-	IDirect3DSurface9* backbufferTextureSurface = nullptr;
-	LOG_DX_CALL("Failed to get backbuffer surface",
-		device->GetRenderTarget(0, &backbufferSurface));
-	LOG_DX_CALL("Failed to get backbuffer texture surface",
-		textures.backbufferTexture->GetSurfaceLevel(0, &backbufferTextureSurface));
+	ZoneScoped;
+	{
+		ZoneScopedN("Back buffer copy");
+		// copy backbuffer to texture
+		IDirect3DSurface9* backbufferSurface = nullptr;
+		IDirect3DSurface9* backbufferTextureSurface = nullptr;
+		LOG_DX_CALL("Failed to get backbuffer surface",
+			device->GetRenderTarget(0, &backbufferSurface));
+		LOG_DX_CALL("Failed to get backbuffer texture surface",
+			textures.backbufferTexture->GetSurfaceLevel(0, &backbufferTextureSurface));
 
-	LOG_DX_CALL("Failed to copy backbuffer to texture",
-		device->StretchRect(backbufferSurface, nullptr, backbufferTextureSurface, nullptr, D3DTEXF_NONE));
+		LOG_DX_CALL("Failed to copy backbuffer to texture",
+			device->StretchRect(backbufferSurface, nullptr, backbufferTextureSurface, nullptr, D3DTEXF_NONE));
+	}
 
 	UpdateRenderParams();
-	renderer->SetPerFrameParams(renderParams);
-	renderer->Render();
+	{
+		ZoneScopedN("Gelly render");
+		{
+			ZoneScopedN("Per frame params");
+			renderer->SetPerFrameParams(renderParams);
+		}
+		renderer->Render();
+	}
 
 	// get current state
 	stateBlock->Capture();
 
-	SetCompositeConstants();
-	device->SetVertexShader(shaders.ndcQuadVS);
-	device->SetPixelShader(shaders.compositePS);
-	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+	{
+		ZoneScopedN("Composite");
+		SetCompositeConstants();
+		device->SetVertexShader(shaders.ndcQuadVS);
+		device->SetPixelShader(shaders.compositePS);
+		device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+		device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	device->SetSamplerState(2, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(2, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(2, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(2, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(2, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+		device->SetSamplerState(2, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(2, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(2, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(2, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(2, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	device->SetSamplerState(3, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(3, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(3, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(3, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-	device->SetSamplerState(3, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+		device->SetSamplerState(3, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(3, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(3, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(3, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(3, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	device->SetSamplerState(4, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(4, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(4, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	device->SetSamplerState(4, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	device->SetSamplerState(4, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+		device->SetSamplerState(4, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(4, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(4, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		device->SetSamplerState(4, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+		device->SetSamplerState(4, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
-	device->SetTexture(0, textures.depthTexture);
-	device->SetTexture(1, textures.normalTexture);
-	device->SetTexture(2, textures.positionTexture);
-	device->SetTexture(3, textures.backbufferTexture);
-	device->SetTexture(4, textures.thicknessTexture);
-	device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
-	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+		device->SetTexture(0, textures.depthTexture);
+		device->SetTexture(1, textures.normalTexture);
+		device->SetTexture(2, textures.positionTexture);
+		device->SetTexture(3, textures.backbufferTexture);
+		device->SetTexture(4, textures.thicknessTexture);
+		device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
+		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
-	device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	}
 
 	// Restore state
 	stateBlock->Apply();
