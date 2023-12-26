@@ -86,7 +86,6 @@ LUA_FUNCTION(gelly_AddObject) {
 		LUA->GetTable(-2);
 		const auto vertex = LUA->GetVector(-1);
 		vertices[i] = vertex;
-		LOG_INFO("Vertex %d: %f %f %f", i, vertex.x, vertex.y, vertex.z);
 		LUA->Pop();
 	}
 

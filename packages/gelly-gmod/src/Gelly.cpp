@@ -12,7 +12,7 @@
 
 #include <tracy/Tracy.hpp>
 
-static const int defaultMaxParticles = 1000000;
+static const int defaultMaxParticles = 500000;
 
 void GellyIntegration::CreateShaders() {
 	LOG_DX_CALL("Failed to create composite pixel shader",
@@ -158,7 +158,7 @@ void GellyIntegration::UpdateRenderParams() {
 	renderParams.proj = projectionMatrix;
 	renderParams.invView = inverseViewMatrix;
 	renderParams.invProj = inverseProjectionMatrix;
-	renderParams.particleRadius = particleRadius;
+	renderParams.particleRadius = particleRadius * 1.1f;
 	renderParams.thresholdRatio = thresholdRatio;
 
 	renderParams.width = static_cast<float>(currentView.width);

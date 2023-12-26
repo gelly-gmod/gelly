@@ -27,7 +27,7 @@ float Schlicks(float cosTheta, float refractionIndex) {
 
 float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
-    float3 absorptionCoefficients = float3(0.1, 0.1, 0);
+    float3 absorptionCoefficients = float3(0, 0, 0.03);
     float thickness = tex2D(thicknessTex, input.Tex).x;
     if (thickness < 0.02f) {
         discard;

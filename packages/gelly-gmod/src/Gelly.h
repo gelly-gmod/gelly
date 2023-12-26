@@ -27,7 +27,7 @@ private:
 
 	IDirect3DDevice9Ex *device;
 
-	float particleRadius = 2.f;
+	float particleRadius = 0.3f;
 	float thresholdRatio = 3.f;
 	bool isSimulationInteractive = false;
 
