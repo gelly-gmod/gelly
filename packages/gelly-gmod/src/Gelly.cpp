@@ -10,7 +10,7 @@
 #include "source/IBaseClientDLL.h"
 #include "source/IVRenderView.h"
 
-static const int defaultMaxParticles = 100000;
+static const int defaultMaxParticles = 1000000;
 
 void GellyIntegration::CreateShaders() {
 	LOG_DX_CALL("Failed to create composite pixel shader",
@@ -196,6 +196,9 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		simulation->ExecuteCommandList(commandList);
 		simulation->DestroyCommandList(commandList);
 		LOG_INFO("Sent initialization commands to simulation");
+
+		renderer->EnableLowBitMode();
+		LOG_INFO("Enabled low bit mode");
 
 #ifdef _DEBUG
 		LOG_INFO("Debugging detected, enabling RenderDoc integration...");

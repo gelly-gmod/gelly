@@ -13,8 +13,8 @@ private:
 	ID3D11Buffer *positionBuffer;
 	ID3D11Buffer *velocityBuffer;
 
-	int maxParticles;
-	int activeParticles;
+	int maxParticles = 0;
+	int activeParticles = 0;
 
 public:
 	explicit CD3D11CPUSimData();
