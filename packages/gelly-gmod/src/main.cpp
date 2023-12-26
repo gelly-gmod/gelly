@@ -106,8 +106,10 @@ LUA_FUNCTION(gelly_AddObject) {
 	// now we just make some useless indices
 	uint32_t* indices = new uint32_t[vertexCount];
 
-	for (uint32_t i = 0; i < vertexCount; i++) {
-		indices[i] = i;
+	for (uint32_t i = 0; i < vertexCount; i+=3) {
+		indices[i + 2] = i;
+		indices[i + 1] = i + 1;
+		indices[i] = i + 2;
 	}
 
 	ObjectCreationParams params = {};
@@ -127,8 +129,14 @@ LUA_FUNCTION(gelly_AddObject) {
 
 	params.shapeData = meshParams;
 
+	LOG_INFO("Creating object with %d vertices", vertexCount);
 	auto handle = gelly->GetSimulation()->GetScene()->CreateObject(params);
+	gelly->GetSimulation()->GetScene()->Update();
+	LOG_INFO("Created object with handle %d", handle);
 	LUA->PushNumber(static_cast<double>(handle));
+
+	delete[] vertices;
+	delete[] indices;
 
 	return 1;
 }
