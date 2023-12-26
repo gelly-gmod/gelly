@@ -121,6 +121,8 @@ void CFlexSimScene::SetObjectPosition(
 	object.position[0] = x;
 	object.position[1] = y;
 	object.position[2] = z;
+
+	dirty = true;
 }
 
 void CFlexSimScene::SetObjectQuaternion(
@@ -131,6 +133,8 @@ void CFlexSimScene::SetObjectQuaternion(
 	object.rotation[1] = y;
 	object.rotation[2] = z;
 	object.rotation[3] = w;
+
+	dirty = true;
 }
 
 void CFlexSimScene::Update() {
@@ -176,7 +180,7 @@ void CFlexSimScene::Update() {
 			positions[valueIndex].x = object.second.position[0];
 			positions[valueIndex].y = object.second.position[1];
 			positions[valueIndex].z = object.second.position[2];
-			positions[valueIndex].w = 0.5f;
+			positions[valueIndex].w = 0.05f;
 
 			rotations[valueIndex].x = object.second.rotation[0];
 			rotations[valueIndex].y = object.second.rotation[1];
@@ -184,7 +188,7 @@ void CFlexSimScene::Update() {
 			rotations[valueIndex].w = object.second.rotation[3];
 
 			flags[valueIndex] = NvFlexMakeShapeFlags(
-				GetFlexShapeType(object.second.shape), false
+				GetFlexShapeType(object.second.shape), true
 			);
 			valueIndex++;
 		}

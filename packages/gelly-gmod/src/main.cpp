@@ -79,27 +79,14 @@ LUA_FUNCTION(gelly_AddObject) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Mesh
 
 	uint32_t vertexCount = LUA->ObjLen(1);
-	Vector *vertices = new Vector[vertexCount];
+	auto *vertices = new Vector[vertexCount];
 
 	for (uint32_t i = 0; i < vertexCount; i++) {
 		LUA->PushNumber(i + 1);
 		LUA->GetTable(-2);
-
-		LUA->PushNumber(1);
-		LUA->GetTable(-2);
-		vertices[i].x = static_cast<float>(LUA->GetNumber(-1));
-		LUA->Pop();
-
-		LUA->PushNumber(2);
-		LUA->GetTable(-2);
-		vertices[i].y = static_cast<float>(LUA->GetNumber(-1));
-		LUA->Pop();
-
-		LUA->PushNumber(3);
-		LUA->GetTable(-2);
-		vertices[i].z = static_cast<float>(LUA->GetNumber(-1));
-		LUA->Pop();
-
+		const auto vertex = LUA->GetVector(-1);
+		vertices[i] = vertex;
+		LOG_INFO("Vertex %d: %f %f %f", i, vertex.x, vertex.y, vertex.z);
 		LUA->Pop();
 	}
 
@@ -116,7 +103,6 @@ LUA_FUNCTION(gelly_AddObject) {
 	params.shape = ObjectShape::TRIANGLE_MESH;
 
 	ObjectCreationParams::TriangleMesh meshParams = {};
-
 	meshParams.vertices = reinterpret_cast<const float*>(vertices);
 	meshParams.vertexCount = vertexCount;
 	meshParams.indices32 = indices;
@@ -150,6 +136,7 @@ LUA_FUNCTION(gelly_RemoveObject) {
 LUA_FUNCTION(gelly_SetObjectPosition) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
 	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Position
+
 	gelly->GetSimulation()->GetScene()->SetObjectPosition(
 		static_cast<ObjectHandle>(LUA->GetNumber(1)),
 		LUA->GetVector(2).x,
@@ -166,17 +153,18 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 	QAngle angle = LUA->GetAngle(2);
 
 	XMVECTOR quat = XMQuaternionRotationRollPitchYaw(
-		XMConvertToRadians(angle.x),
-		XMConvertToRadians(angle.y),
-		XMConvertToRadians(angle.z)
+		// We need to convert to radians, but also re-order since Source uses a right handed Z-offset euler angle system
+		XMConvertToRadians(-angle.x),
+		XMConvertToRadians(angle.z),
+		XMConvertToRadians(angle.y)
 	);
 
 	gelly->GetSimulation()->GetScene()->SetObjectQuaternion(
 		static_cast<ObjectHandle>(LUA->GetNumber(1)),
-		quat.m128_f32[0],
-		quat.m128_f32[1],
-		quat.m128_f32[2],
-		quat.m128_f32[3]
+		XMVectorGetX(quat),
+		XMVectorGetY(quat),
+		XMVectorGetZ(quat),
+		XMVectorGetW(quat)
 	);
 
 	return 0;

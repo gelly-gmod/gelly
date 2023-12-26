@@ -40,17 +40,22 @@ float4 Shade(VS_INPUT input) {
 
     float3 eyeDir = normalize(eyePos - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
-    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), 100.0) * 0.5f;
+    // roughness is the inverse of the specular power
+
+    float roughness = 0.1f;
+
+    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), 1024) * 55.f;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     float2 transmissionUV = input.Tex + normal.xy * 0.03f;
     float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
     // apply inverse gamma correction
     transmission = pow(transmission, 2.2);
+    transmission *= absorption;
 
     float3 weight = (1.f - fresnel) * transmission + fresnel * specular;
 
-    return float4(weight * absorption, 1.0);
+    return float4(weight, 1.0);
 }
 
 PS_OUTPUT main(VS_INPUT input) {

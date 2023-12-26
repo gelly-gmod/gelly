@@ -280,7 +280,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.01f;
 	solverParams.particleCollisionMargin = 1.f;
-	solverParams.shapeCollisionMargin = 0.01f;
+	solverParams.shapeCollisionMargin = 1.f;
 	solverParams.collisionDistance = solverParams.radius * 0.75f + 1.f;
 	solverParams.sleepThreshold = 0.0f;
 	solverParams.shockPropagation = 0.0f;
