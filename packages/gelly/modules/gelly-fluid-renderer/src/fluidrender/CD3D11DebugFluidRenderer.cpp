@@ -275,7 +275,6 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 
 	context->Draw(simData->GetActiveParticles(), 0);
 	// we're not using a swapchain, so we need to queue up work manually
-	context->SubmitWork();
 	context->ResetPipeline();
 }
 
@@ -310,7 +309,6 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 		);
 
 		context->Draw(4, 0);
-		context->SubmitWork();
 		context->ResetPipeline();
 
 		// Swap the textures.
@@ -361,7 +359,6 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 	buffers.screenQuadLayout->BindAsVertexBuffer();
 
 	context->Draw(4, 0);
-	context->SubmitWork();
 	context->ResetPipeline();
 }
 
@@ -390,7 +387,6 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	context->UseTextureResForNextDraw(thicknessTexture);
 	context->Draw(simData->GetActiveParticles(), 0, true);
 	// we're not using a swapchain, so we need to queue up work manually
-	context->SubmitWork();
 	context->ResetPipeline();
 }
 
@@ -426,7 +422,6 @@ void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
 
 		context->UseTextureResForNextDraw(thicknessTextureB);
 		context->Draw(4, 0);
-		context->SubmitWork();
 		context->ResetPipeline();
 
 		// Swap
@@ -460,7 +455,6 @@ void CD3D11DebugFluidRenderer::EncodeDepth() {
 	shaders.encodeDepthPS->Bind();
 
 	context->Draw(4, 0);
-	context->SubmitWork();
 	context->ResetPipeline();
 }
 
@@ -505,6 +499,7 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderNormals();
 	RenderThickness();
 	RenderFilteredThickness();
+	context->SubmitWork();
 
 	if (lowBitMode) {
 		EncodeDepth();

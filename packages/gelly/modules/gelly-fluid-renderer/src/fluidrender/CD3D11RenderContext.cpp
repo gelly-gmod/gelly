@@ -13,6 +13,10 @@
 #include "fluidrender/CD3D9to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
 
+#ifdef TRACY_ENABLE
+#include <tracy/Tracy.hpp>
+#endif
+
 CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 	: device(nullptr),
 	  deviceContext(nullptr),
@@ -244,6 +248,9 @@ void CD3D11RenderContext::BindMultipleTexturesAsOutput(
 	const uint8_t count,
 	const IManagedTexture::OptionalDepthBuffer depthBuffer
 ) {
+#ifdef TRACY_ENABLE
+	ZoneScoped;
+#endif
 	ID3D11RenderTargetView *renderTargetViews[8] = {};
 	ID3D11DepthStencilView *depthStencilView = nullptr;
 
@@ -298,6 +305,9 @@ void CD3D11RenderContext::GetDimensions(uint16_t &width, uint16_t &height) {
 }
 
 void CD3D11RenderContext::SubmitWork() {
+#ifdef TRACY_ENABLE
+	ZoneScoped;
+#endif
 	deviceContext4->Signal(frameCompletionFence, ++fenceValue);
 	if (frameCompletionFence->GetCompletedValue() < fenceValue) {
 		frameCompletionFence->SetEventOnCompletion(fenceValue, fenceEvent);
@@ -329,6 +339,9 @@ void CD3D11RenderContext::Draw(
 	const uint32_t startVertex,
 	const bool accumulate
 ) {
+#ifdef TRACY_ENABLE
+	ZoneScoped;
+#endif
 	uint16_t width = this->width;
 	uint16_t height = this->height;
 
@@ -352,6 +365,9 @@ void CD3D11RenderContext::Draw(
 }
 
 void CD3D11RenderContext::ResetPipeline() {
+#ifdef TRACY_ENABLE
+	ZoneScoped;
+#endif
 	deviceContext4->OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext4->ClearState();
 }
