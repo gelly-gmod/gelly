@@ -74,6 +74,106 @@ LUA_FUNCTION(gelly_EmitCube) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_AddObject) {
+	// The lua side will pass through the triangle mesh
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Mesh
+
+	uint32_t vertexCount = LUA->ObjLen(1);
+	Vector *vertices = new Vector[vertexCount];
+
+	for (uint32_t i = 0; i < vertexCount; i++) {
+		LUA->PushNumber(i + 1);
+		LUA->GetTable(-2);
+
+		LUA->PushNumber(1);
+		LUA->GetTable(-2);
+		vertices[i].x = static_cast<float>(LUA->GetNumber(-1));
+		LUA->Pop();
+
+		LUA->PushNumber(2);
+		LUA->GetTable(-2);
+		vertices[i].y = static_cast<float>(LUA->GetNumber(-1));
+		LUA->Pop();
+
+		LUA->PushNumber(3);
+		LUA->GetTable(-2);
+		vertices[i].z = static_cast<float>(LUA->GetNumber(-1));
+		LUA->Pop();
+
+		LUA->Pop();
+	}
+
+	// now we just make some useless indices
+	uint32_t* indices = new uint32_t[vertexCount];
+
+	for (uint32_t i = 0; i < vertexCount; i++) {
+		indices[i] = i;
+	}
+
+	ObjectCreationParams params = {};
+	params.shape = ObjectShape::TRIANGLE_MESH;
+
+	ObjectCreationParams::TriangleMesh meshParams = {};
+
+	meshParams.vertices = reinterpret_cast<const float*>(vertices);
+	meshParams.vertexCount = vertexCount;
+	meshParams.indices32 = indices;
+	meshParams.indexCount = vertexCount;
+	meshParams.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT32;
+
+	meshParams.scale[0] = 1.f;
+	meshParams.scale[1] = 1.f;
+	meshParams.scale[2] = 1.f;
+
+	params.shapeData = meshParams;
+
+	auto handle = gelly->GetSimulation()->GetScene()->CreateObject(params);
+	LUA->PushNumber(static_cast<double>(handle));
+
+	return 1;
+}
+
+LUA_FUNCTION(gelly_RemoveObject) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
+	gelly->GetSimulation()->GetScene()->RemoveObject(static_cast<ObjectHandle>(LUA->GetNumber(1)));
+	return 0;
+}
+
+LUA_FUNCTION(gelly_SetObjectPosition) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
+	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Position
+	gelly->GetSimulation()->GetScene()->SetObjectPosition(
+		static_cast<ObjectHandle>(LUA->GetNumber(1)),
+		LUA->GetVector(2).x,
+		LUA->GetVector(2).y,
+		LUA->GetVector(2).z
+	);
+	return 0;
+}
+
+LUA_FUNCTION(gelly_SetObjectRotation) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
+	LUA->CheckType(2, GarrysMod::Lua::Type::Angle); // Rotation
+	// we need to convert it from an angle to a quaternion
+	QAngle angle = LUA->GetAngle(2);
+
+	XMVECTOR quat = XMQuaternionRotationRollPitchYaw(
+		XMConvertToRadians(angle.x),
+		XMConvertToRadians(angle.y),
+		XMConvertToRadians(angle.z)
+	);
+
+	gelly->GetSimulation()->GetScene()->SetObjectQuaternion(
+		static_cast<ObjectHandle>(LUA->GetNumber(1)),
+		quat.m128_f32[0],
+		quat.m128_f32[1],
+		quat.m128_f32[2],
+		quat.m128_f32[3]
+	);
+
+	return 0;
+}
+
 LUA_FUNCTION(gelly_GetComputeDeviceName) {
 	LUA->PushString(gelly->GetComputeDeviceName());
 	return 1;
@@ -129,6 +229,10 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, GetActiveParticles);
 	DEFINE_LUA_FUNC(gelly, EmitCube);
 	DEFINE_LUA_FUNC(gelly, LoadMap);
+	DEFINE_LUA_FUNC(gelly, AddObject);
+	DEFINE_LUA_FUNC(gelly, RemoveObject);
+	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
+	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

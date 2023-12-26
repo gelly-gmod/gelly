@@ -361,6 +361,7 @@ void GellyIntegration::LoadMap(const char *mapName) {
 }
 
 const char *GellyIntegration::GetComputeDeviceName() const {
+	return simulation->GetComputeDeviceName();
 }
 
 IFluidSimulation *GellyIntegration::GetSimulation() const {
