@@ -41,6 +41,9 @@ private:
 	uint16_t overrideWidth = 0;
 	uint16_t overrideHeight = 0;
 
+	uint32_t fenceValue = 0;
+	HANDLE fenceEvent = nullptr;
+
 	void CreateDeviceAndContext();
 	void CreateAllShaders();
 	void DestroyAllShaders();

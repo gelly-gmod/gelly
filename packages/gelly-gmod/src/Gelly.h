@@ -91,6 +91,7 @@ public:
 	void Simulate(float dt);
 	void LoadMap(const char *mapName);
 
+	[[nodiscard]] const char* GetComputeDeviceName() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;
 };
 

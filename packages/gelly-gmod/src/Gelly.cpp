@@ -360,6 +360,9 @@ void GellyIntegration::LoadMap(const char *mapName) {
 	delete[] indices;
 }
 
+const char *GellyIntegration::GetComputeDeviceName() const {
+}
+
 IFluidSimulation *GellyIntegration::GetSimulation() const {
 	return simulation;
 }

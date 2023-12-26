@@ -228,19 +228,29 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 
 		simData->SetActiveParticles(newActiveParticles);
 
-		NvFlexSetParticles(solver, buffers.positions, nullptr);
-		NvFlexSetVelocities(solver, buffers.velocities, nullptr);
-		NvFlexSetPhases(solver, buffers.phases, nullptr);
-		NvFlexSetActive(solver, buffers.actives, nullptr);
+		NvFlexCopyDesc copyDesc = {};
+		copyDesc.dstOffset = 0;
+		copyDesc.srcOffset = 0;
+		copyDesc.elementCount = simData->GetActiveParticles();
+
+		NvFlexSetParticles(solver, buffers.positions, &copyDesc);
+		NvFlexSetVelocities(solver, buffers.velocities, &copyDesc);
+		NvFlexSetPhases(solver, buffers.phases, &copyDesc);
+		NvFlexSetActive(solver, buffers.actives, &copyDesc);
 	}
 }
 
 void CD3D11FlexFluidSimulation::Update(float deltaTime) {
+	NvFlexCopyDesc copyDesc = {};
+	copyDesc.dstOffset = 0;
+	copyDesc.srcOffset = 0;
+	copyDesc.elementCount = simData->GetActiveParticles();
+
 	NvFlexSetParams(solver, &solverParams);
 	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
 
 	NvFlexUpdateSolver(solver, deltaTime, 2, false);
-	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, nullptr);
+	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, &copyDesc);
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
@@ -287,4 +297,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.surfaceTension = 0.0f;
 	solverParams.vorticityConfinement = 0.0f;
 	solverParams.buoyancy = 1.0f;
+}
+
+const char *CD3D11FlexFluidSimulation::GetComputeDeviceName() {
+	return NvFlexGetDeviceName(library);
 }

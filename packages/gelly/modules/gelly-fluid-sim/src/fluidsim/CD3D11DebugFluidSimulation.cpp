@@ -181,3 +181,7 @@ void CD3D11DebugFluidSimulation::AttachToContext(
 void CD3D11DebugFluidSimulation::Update(const float deltaTime) {
 	// Do nothing.
 }
+
+const char *CD3D11DebugFluidSimulation::GetComputeDeviceName() {
+	return "CPU";
+}

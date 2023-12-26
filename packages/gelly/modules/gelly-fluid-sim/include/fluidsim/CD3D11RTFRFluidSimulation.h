@@ -46,6 +46,8 @@ public:
 	void AttachToContext(GellyObserverPtr<ISimContext> context) override;
 
 	void Update(float deltaTime) override;
+
+	const char* GetComputeDeviceName() override;
 };
 
 #endif	// CD3D11RTFRFLUIDSIMULATION_H

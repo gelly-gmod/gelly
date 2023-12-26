@@ -64,6 +64,8 @@ public:
 	void ExecuteCommandList(ISimCommandList *commandList) override;
 
 	void Update(float deltaTime) override;
+
+	const char* GetComputeDeviceName() override;
 };
 
 #endif	// CD3D11FLEXFLUIDSIMULATION_H

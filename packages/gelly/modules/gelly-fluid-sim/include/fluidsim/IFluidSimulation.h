@@ -54,6 +54,8 @@ public:
 	 * \param deltaTime Time since last update in seconds.
 	 */
 	virtual void Update(float deltaTime) = 0;
+
+	virtual const char* GetComputeDeviceName() = 0;
 };
 
 #endif	// GELLY_IFLUIDSIMULATION_H

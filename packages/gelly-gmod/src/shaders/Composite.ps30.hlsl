@@ -27,16 +27,21 @@ float Schlicks(float cosTheta, float refractionIndex) {
 
 float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
-    float3 absorptionCoefficients = float3(0.3, 0.05, 0.3);
-    float3 absorption = ComputeAbsorption(absorptionCoefficients, tex2D(thicknessTex, input.Tex).x);
+    float3 absorptionCoefficients = float3(0.1, 0.1, 0);
+    float thickness = tex2D(thicknessTex, input.Tex).x;
+    if (thickness < 0.02f) {
+        discard;
+    }
+
+    float3 absorption = ComputeAbsorption(absorptionCoefficients, thickness);
 
     float3 position = tex2D(positionTex, input.Tex).xyz;
     float3 normal = tex2D(normalTex, input.Tex).xyz * 2.0f - 1.0f;
 
     float3 eyeDir = normalize(eyePos - position);
-    float3 reflection = reflect(-eyeDir, normal);
-    float3 specular = pow(max(dot(reflection, sunDir), 0.0), 32.0f);
-
+    float3 reflectionDir = reflect(-eyeDir, normal);
+    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), 100.0) * 0.5f;
+    
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     float2 transmissionUV = input.Tex + normal.xy * 0.03f;
     float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;

@@ -22,6 +22,7 @@ CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 	  shaders({}),
 	  rasterizerState(nullptr) {
 	CreateDeviceAndContext();
+	fenceEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
 }
 
 void CD3D11RenderContext::CreateDeviceAndContext() {
@@ -297,8 +298,11 @@ void CD3D11RenderContext::GetDimensions(uint16_t &width, uint16_t &height) {
 }
 
 void CD3D11RenderContext::SubmitWork() {
-	deviceContext4->Signal(frameCompletionFence, 1);
-	deviceContext4->Wait(frameCompletionFence, 1);
+	deviceContext4->Signal(frameCompletionFence, ++fenceValue);
+	if (frameCompletionFence->GetCompletedValue() < fenceValue) {
+		frameCompletionFence->SetEventOnCompletion(fenceValue, fenceEvent);
+		WaitForSingleObject(fenceEvent, INFINITE);
+	}
 
 	if (const auto removeResult = device->GetDeviceRemovedReason();
 		removeResult != S_OK) {
@@ -387,6 +391,8 @@ CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllTextures();
 	DestroyAllShaders();
 	ReleaseDevice();
+
+	CloseHandle(fenceEvent);
 
 	if (blendState) {
 		blendState->Release();

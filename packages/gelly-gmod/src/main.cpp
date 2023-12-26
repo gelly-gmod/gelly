@@ -74,6 +74,11 @@ LUA_FUNCTION(gelly_EmitCube) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_GetComputeDeviceName) {
+	LUA->PushString(gelly->GetComputeDeviceName());
+	return 1;
+}
+
 LUA_FUNCTION(gelly_GetActiveParticles) {
 	LUA->PushNumber(gelly->GetSimulation()->GetSimulationData()->GetActiveParticles());
 	return 1;
@@ -120,6 +125,7 @@ GMOD_MODULE_OPEN() {
 	LUA->CreateTable();
 	DEFINE_LUA_FUNC(gelly, Render);
 	DEFINE_LUA_FUNC(gelly, Simulate);
+	DEFINE_LUA_FUNC(gelly, GetComputeDeviceName);
 	DEFINE_LUA_FUNC(gelly, GetActiveParticles);
 	DEFINE_LUA_FUNC(gelly, EmitCube);
 	DEFINE_LUA_FUNC(gelly, LoadMap);

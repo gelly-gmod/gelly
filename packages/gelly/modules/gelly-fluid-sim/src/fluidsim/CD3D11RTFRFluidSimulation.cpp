@@ -212,3 +212,7 @@ void CD3D11RTFRFluidSimulation::Update(const float deltaTime) {
 
 	LoadFrameIntoBuffers();
 }
+
+const char *CD3D11RTFRFluidSimulation::GetComputeDeviceName() {
+	return "CPU";
+}
