@@ -78,3 +78,6 @@
 [submodule "packages/gelly-gmod/vendor/GMFS"]
 	path = packages/gelly-gmod/vendor/GMFS
 	url = https://github.com/Derpius/GMFS.git
+[submodule "packages/gelly-gmod/vendor/tracy"]
+	path = packages/gelly-gmod/vendor/tracy
+	url = https://github.com/wolfpld/tracy.git
