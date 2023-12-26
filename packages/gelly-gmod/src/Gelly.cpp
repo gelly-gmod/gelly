@@ -58,22 +58,22 @@ void GellyIntegration::CreateTextures() {
 
 	LOG_DX_CALL("Failed to create D3D9-side depth texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT, &textures.depthTexture, &sharedHandles.depthTexture
+			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.depthTexture, &sharedHandles.depthTexture
 		));
 
 	LOG_DX_CALL("Failed to create D3D9-side albedo texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT, &textures.albedoTexture, &sharedHandles.albedoTexture
+			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.albedoTexture, &sharedHandles.albedoTexture
 		));
 
 	LOG_DX_CALL("Failed to create D3D9-side normal texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT, &textures.normalTexture, &sharedHandles.normalTexture
+			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.normalTexture, &sharedHandles.normalTexture
 		));
 
 	LOG_DX_CALL("Failed to create D3D9-side position texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT, &textures.positionTexture, &sharedHandles.positionTexture
+			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.positionTexture, &sharedHandles.positionTexture
 		));
 
 	LOG_DX_CALL("Failed to create D3D9-side thickness texture",

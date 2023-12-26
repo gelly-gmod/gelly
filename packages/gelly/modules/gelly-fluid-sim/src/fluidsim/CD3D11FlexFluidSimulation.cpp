@@ -245,6 +245,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
+	memset(&solverParams, 0, sizeof(NvFlexParams));
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.0f;
@@ -270,7 +271,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
-	solverParams.particleCollisionMargin = 0.1f;
+	solverParams.particleCollisionMargin = 1.1f;
 	solverParams.shapeCollisionMargin = 0.01f;
 	solverParams.collisionDistance = solverParams.radius * 0.75f + 4.f;
 	solverParams.sleepThreshold = 0.0f;
