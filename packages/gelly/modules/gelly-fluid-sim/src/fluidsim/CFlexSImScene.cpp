@@ -176,7 +176,7 @@ void CFlexSimScene::Update() {
 			positions[valueIndex].x = object.second.position[0];
 			positions[valueIndex].y = object.second.position[1];
 			positions[valueIndex].z = object.second.position[2];
-			positions[valueIndex].w = 1.0f;
+			positions[valueIndex].w = 0.5f;
 
 			rotations[valueIndex].x = object.second.rotation[0];
 			rotations[valueIndex].y = object.second.rotation[1];

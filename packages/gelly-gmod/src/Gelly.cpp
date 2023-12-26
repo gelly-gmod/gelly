@@ -81,6 +81,12 @@ void GellyIntegration::CreateTextures() {
 			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT, &textures.thicknessTexture, &sharedHandles.thicknessTexture
 		));
 
+	// unrelated to gelly, this is a texture just to store the backbuffer
+	LOG_DX_CALL("Failed to create D3D9-side backbuffer texture",
+		device->CreateTexture(
+			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &textures.backbufferTexture, nullptr
+		));
+
 	gellyTextures.depthTexture = renderContext->CreateSharedTexture("gelly-gmod/depth", sharedHandles.depthTexture, ContextRenderAPI::D3D9Ex);
 	gellyTextures.albedoTexture = renderContext->CreateSharedTexture("gelly-gmod/albedo", sharedHandles.albedoTexture, ContextRenderAPI::D3D9Ex);
 	gellyTextures.normalTexture = renderContext->CreateSharedTexture("gelly-gmod/normal", sharedHandles.normalTexture, ContextRenderAPI::D3D9Ex);
@@ -96,6 +102,17 @@ void GellyIntegration::LinkTextures() const {
 	fluidTextures->SetFeatureTexture(POSITIONS, gellyTextures.positionTexture);
 	fluidTextures->SetFeatureTexture(THICKNESS, gellyTextures.thicknessTexture);
 }
+
+void GellyIntegration::SetCompositeConstants() {
+	// At the core, constants are nothing more than contiguous sequences of float4s, so we can use that to our advantage
+	// here in D3D9
+	const auto constants = reinterpret_cast<const float*>(&compositeConstants);
+
+	for (int i = 0; i < sizeof(CompositeConstants) / sizeof(float); i += 4) {
+		device->SetPixelShaderConstantF(i / 4, constants + i, 1);
+	}
+}
+
 
 void GellyIntegration::UpdateRenderParams() {
 	CViewSetup currentView = {};
@@ -144,6 +161,10 @@ void GellyIntegration::UpdateRenderParams() {
 	renderParams.height = static_cast<float>(currentView.height);
 	renderParams.farPlane = currentView.zFar;
 	renderParams.nearPlane = currentView.zNear;
+
+	compositeConstants.eyePos[0] = currentView.origin.x;
+	compositeConstants.eyePos[1] = currentView.origin.y;
+	compositeConstants.eyePos[2] = currentView.origin.z;
 }
 
 GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDevice9Ex *device) :
@@ -197,9 +218,6 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		simulation->DestroyCommandList(commandList);
 		LOG_INFO("Sent initialization commands to simulation");
 
-		renderer->EnableLowBitMode();
-		LOG_INFO("Enabled low bit mode");
-
 #ifdef _DEBUG
 		LOG_INFO("Debugging detected, enabling RenderDoc integration...");
 		if (const auto success = renderer->EnableRenderDocCaptures(); !success) {
@@ -214,6 +232,17 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 }
 
 void GellyIntegration::Render() {
+	// copy backbuffer to texture
+	IDirect3DSurface9* backbufferSurface = nullptr;
+	IDirect3DSurface9* backbufferTextureSurface = nullptr;
+	LOG_DX_CALL("Failed to get backbuffer surface",
+		device->GetRenderTarget(0, &backbufferSurface));
+	LOG_DX_CALL("Failed to get backbuffer texture surface",
+		textures.backbufferTexture->GetSurfaceLevel(0, &backbufferTextureSurface));
+
+	LOG_DX_CALL("Failed to copy backbuffer to texture",
+		device->StretchRect(backbufferSurface, nullptr, backbufferTextureSurface, nullptr, D3DTEXF_NONE));
+
 	UpdateRenderParams();
 	renderer->SetPerFrameParams(renderParams);
 	renderer->Render();
@@ -221,6 +250,7 @@ void GellyIntegration::Render() {
 	// get current state
 	stateBlock->Capture();
 
+	SetCompositeConstants();
 	device->SetVertexShader(shaders.ndcQuadVS);
 	device->SetPixelShader(shaders.compositePS);
 	device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
@@ -235,9 +265,29 @@ void GellyIntegration::Render() {
 	device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 	device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
+	device->SetSamplerState(2, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(2, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(2, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(2, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(2, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
+	device->SetSamplerState(3, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(3, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(3, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(3, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	device->SetSamplerState(3, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
+	device->SetSamplerState(4, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(4, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(4, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(4, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(4, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
 	device->SetTexture(0, textures.depthTexture);
 	device->SetTexture(1, textures.normalTexture);
-
+	device->SetTexture(2, textures.positionTexture);
+	device->SetTexture(3, textures.backbufferTexture);
+	device->SetTexture(4, textures.thicknessTexture);
 	device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 

@@ -7,6 +7,13 @@
 #include <memory>
 #include <thread>
 
+struct CompositeConstants {
+	float eyePos[3];
+	float pad0;
+};
+
+static_assert(sizeof(CompositeConstants) % 16 == 0);
+
 /**
  * \brief Holds together the fluid simulation and rendering.
  */
@@ -20,8 +27,8 @@ private:
 
 	IDirect3DDevice9Ex *device;
 
-	float particleRadius = 2.5f;
-	float thresholdRatio = 10.f;
+	float particleRadius = 2.f;
+	float thresholdRatio = 3.f;
 	bool isSimulationInteractive = false;
 
 	struct {
@@ -30,6 +37,8 @@ private:
 		IDirect3DTexture9* normalTexture;
 		IDirect3DTexture9* positionTexture;
 		IDirect3DTexture9* thicknessTexture;
+
+		IDirect3DTexture9* backbufferTexture;
 	} textures;
 
 	struct {
@@ -63,6 +72,7 @@ private:
 		IDirect3DVertexBuffer9* ndcQuadVB;
 	} buffers;
 
+	CompositeConstants compositeConstants = {};
 	IDirect3DStateBlock9* stateBlock = nullptr;
 	FluidRenderParams renderParams = {};
 
@@ -72,6 +82,7 @@ private:
 	void LinkTextures() const;
 
 	void UpdateRenderParams();
+	void SetCompositeConstants();
 public:
 	GellyIntegration(uint16_t width, uint16_t height, IDirect3DDevice9Ex *device);
 	~GellyIntegration();

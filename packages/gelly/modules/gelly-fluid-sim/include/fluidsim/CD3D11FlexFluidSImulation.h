@@ -9,7 +9,7 @@
 class CD3D11FlexFluidSimulation : public IFluidSimulation {
 private:
 	static constexpr SimCommandType supportedCommands =
-		static_cast<SimCommandType>(RESET | ADD_PARTICLE);
+		static_cast<SimCommandType>(RESET | ADD_PARTICLE | CHANGE_RADIUS);
 
 	CD3D11CPUSimData *simData;
 	GellyObserverPtr<ISimContext> context{};
@@ -41,7 +41,7 @@ private:
 
 	// can be changed later via commands
 	float particleRadius = 0.1f;
-	float particleInverseMass = 1.0f;
+	float particleInverseMass = 1.f;
 	uint substeps = 2;
 
 	void SetupParams();
