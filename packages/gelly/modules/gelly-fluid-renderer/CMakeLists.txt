@@ -44,6 +44,22 @@ target_link_libraries(
         gelly_fluid_sim
 )
 
+# If tracy is being used we need to link to it
+if (TRACY_ENABLE)
+    message(STATUS "Tracy is enabled, using in gelly-fluid-renderer")
+    target_link_libraries(
+            gelly_fluid_renderer
+            PUBLIC
+            TracyClient
+    )
+    # also include the tracy headers
+    target_include_directories(
+            gelly_fluid_renderer
+            PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy
+    )
+endif ()
+
 add_custom_target(
         GellyShaderCompile
         COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} -DGSC_PATH=${GSC_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake

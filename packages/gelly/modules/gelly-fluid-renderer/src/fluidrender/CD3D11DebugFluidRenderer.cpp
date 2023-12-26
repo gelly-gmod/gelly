@@ -18,6 +18,10 @@
 #include "fluidrender/util/CBuffers.h"
 #include "fluidrender/util/ScreenQuadVB.h"
 
+#ifdef TRACY_ENABLE
+#include <tracy/Tracy.hpp>
+#endif
+
 #ifdef _DEBUG
 #include <windows.h>
 #endif
@@ -243,6 +247,9 @@ constexpr float depthClearColor[4] = {1.0f, 1.0f, 0.0f, 0.0f};
 constexpr float genericClearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Unfiltered depth render");
+#endif
 	buffers.depthBuffer->Clear(1.0f);
 	auto *depthTexture = internalTextures.unfilteredDepth;
 	auto *albedoTexture =
@@ -273,6 +280,9 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 }
 
 void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Filtered depth render");
+#endif
 	auto *depthTextureA = internalTextures.unfilteredDepth;
 	auto *depthTextureB =
 		lowBitMode ? internalTextures.untransformedDepth : outputTextures.GetFeatureTexture(DEPTH);
@@ -280,6 +290,9 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 	depthTextureB->Clear(depthClearColor);
 
 	for (int i = 0; i < settings.filterIterations; i++) {
+#ifdef TRACY_ENABLE
+		ZoneScopedN("Depth filter iteration");
+#endif
 		// We flip between the two textures to avoid having to copy the
 		// filtered depth back to the unfiltered depth texture.
 		shaders.screenQuadVS->Bind();
@@ -317,6 +330,9 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 }
 
 void CD3D11DebugFluidRenderer::RenderNormals() {
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Normal estimation render");
+#endif
 	auto *normalsTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS);
 
@@ -350,6 +366,9 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 }
 
 void CD3D11DebugFluidRenderer::RenderThickness() {
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Thickness render");
+#endif
 	auto *thicknessTexture = internalTextures.unfilteredThickness;
 
 	thicknessTexture->Clear(genericClearColor);
@@ -376,11 +395,17 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 }
 
 void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Filtered thickness render");
+#endif
 	auto *thicknessTextureA = internalTextures.unfilteredThickness;
 	auto *thicknessTextureB =
 		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
 
 	for (int i = 0; i < settings.thicknessFilterIterations; i++) {
+#ifdef TRACY_ENABLE
+		ZoneScopedN("Thickness filter iteration");
+#endif
 		thicknessTextureB->Clear(genericClearColor);
 		thicknessTextureB->BindToPipeline(
 			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
@@ -410,6 +435,9 @@ void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
 }
 
 void CD3D11DebugFluidRenderer::EncodeDepth() {
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Depth encoding render");
+#endif
 	auto* depthTexture = outputTextures.GetFeatureTexture(DEPTH);
 	auto* untransformedDepthTexture = internalTextures.untransformedDepth;
 
@@ -438,6 +466,9 @@ void CD3D11DebugFluidRenderer::EncodeDepth() {
 
 
 void CD3D11DebugFluidRenderer::Render() {
+#ifdef TRACY_ENABLE
+	ZoneScopedN("Fluid render");
+#endif
 	if (context == nullptr) {
 		throw std::logic_error(
 			"CD3D11DebugFluidRenderer::Render: context is null."
