@@ -42,38 +42,6 @@ LUA_FUNCTION(gelly_LoadMap) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_EmitCube) {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Vector); // Position
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Size
-	LUA->CheckType(3, GarrysMod::Lua::Type::Number); // Density
-
-	Vector position = LUA->GetVector(1);
-	Vector size = LUA->GetVector(2);
-
-	ISimCommandList *commandList = gelly->GetSimulation()->CreateCommandList();
-	for (int i = 0; i < static_cast<int>(LUA->GetNumber(3)); i++) {
-		float x = rand() / static_cast<float>(RAND_MAX);
-		float y = rand() / static_cast<float>(RAND_MAX);
-		float z = rand() / static_cast<float>(RAND_MAX);
-
-		// Center at position
-		x -= 0.5f;
-		y -= 0.5f;
-		z -= 0.5f;
-
-		x *= size.x;
-		y *= size.y;
-		z *= size.z;
-
-		AddParticle particle = {x + position.x, y + position.y, z + position.z};
-		commandList->AddCommand({ADD_PARTICLE, particle});
-	}
-	gelly->GetSimulation()->ExecuteCommandList(commandList);
-	gelly->GetSimulation()->DestroyCommandList(commandList);
-
-	return 0;
-}
-
 LUA_FUNCTION(gelly_AddObject) {
 	// The lua side will pass through the triangle mesh
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Mesh
@@ -169,6 +137,25 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_AddParticles) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Particles
+
+	const uint32_t particleCount = LUA->ObjLen(1);
+	auto* cmdList = gelly->GetSimulation()->CreateCommandList();
+
+	for (uint32_t i = 0; i < particleCount; i++) {
+		LUA->PushNumber(i + 1);
+		LUA->GetTable(-2);
+		const auto particle = LUA->GetVector(-1);
+		cmdList->AddCommand({ADD_PARTICLE, AddParticle{particle.x, particle.y, particle.z}});
+		LUA->Pop();
+	}
+
+	gelly->GetSimulation()->ExecuteCommandList(cmdList);
+	gelly->GetSimulation()->DestroyCommandList(cmdList);
+	return 0;
+}
+
 LUA_FUNCTION(gelly_GetComputeDeviceName) {
 	LUA->PushString(gelly->GetComputeDeviceName());
 	return 1;
@@ -222,7 +209,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, Simulate);
 	DEFINE_LUA_FUNC(gelly, GetComputeDeviceName);
 	DEFINE_LUA_FUNC(gelly, GetActiveParticles);
-	DEFINE_LUA_FUNC(gelly, EmitCube);
+	DEFINE_LUA_FUNC(gelly, AddParticles);
 	DEFINE_LUA_FUNC(gelly, LoadMap);
 	DEFINE_LUA_FUNC(gelly, AddObject);
 	DEFINE_LUA_FUNC(gelly, RemoveObject);
