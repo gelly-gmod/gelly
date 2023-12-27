@@ -338,7 +338,7 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 		outputTextures.GetFeatureTexture(FluidFeatureType::POSITIONS);
 
 	auto *depthTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::DEPTH);
+		internalTextures.unfilteredDepth;
 
 	normalsTexture->Clear(genericClearColor);
 	positionsTexture->Clear(genericClearColor);
@@ -495,7 +495,7 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 
 	RenderUnfilteredDepth();
-	RenderFilteredDepth();
+	// RenderFilteredDepth();
 	RenderNormals();
 	RenderThickness();
 	RenderFilteredThickness();

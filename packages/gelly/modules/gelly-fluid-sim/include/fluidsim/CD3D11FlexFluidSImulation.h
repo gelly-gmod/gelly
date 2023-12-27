@@ -45,7 +45,7 @@ private:
 	uint substeps = 2;
 
 	void SetupParams();
-
+	void DebugDumpParams();
 public:
 	CD3D11FlexFluidSimulation();
 	~CD3D11FlexFluidSimulation() override;

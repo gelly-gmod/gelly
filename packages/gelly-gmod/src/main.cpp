@@ -37,12 +37,21 @@ LUA_FUNCTION(gelly_Simulate) {
 }
 
 LUA_FUNCTION(gelly_LoadMap) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
 	LUA->CheckType(1, GarrysMod::Lua::Type::String); // Map name
 	gelly->LoadMap(LUA->GetString(1));
 	return 0;
 }
 
 LUA_FUNCTION(gelly_AddObject) {
+	if (!gelly->IsInteractive()) {
+		LUA->PushNumber(INVALID_OBJECT_HANDLE);
+		return 1;
+	}
+
 	// The lua side will pass through the triangle mesh
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Mesh
 
@@ -99,12 +108,20 @@ LUA_FUNCTION(gelly_AddObject) {
 }
 
 LUA_FUNCTION(gelly_RemoveObject) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
 	gelly->GetSimulation()->GetScene()->RemoveObject(static_cast<ObjectHandle>(LUA->GetNumber(1)));
 	return 0;
 }
 
 LUA_FUNCTION(gelly_SetObjectPosition) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
 	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Position
 
@@ -118,6 +135,10 @@ LUA_FUNCTION(gelly_SetObjectPosition) {
 }
 
 LUA_FUNCTION(gelly_SetObjectRotation) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
 	LUA->CheckType(2, GarrysMod::Lua::Type::Angle); // Rotation
 	// we need to convert it from an angle to a quaternion
@@ -142,6 +163,10 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 }
 
 LUA_FUNCTION(gelly_AddParticles) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Particles
 
 	const uint32_t particleCount = LUA->ObjLen(1);
@@ -202,6 +227,10 @@ LUA_FUNCTION(gelly_GetStatus) {
 	}
 
 LUA_FUNCTION(gelly_SetFluidProperties) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
 
 	GET_LUA_TABLE_MEMBER(float, Viscosity);
@@ -245,10 +274,27 @@ LUA_FUNCTION(gelly_SetFluidVisualParams) {
 }
 
 LUA_FUNCTION(gelly_ChangeParticleRadius) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
 
 	const auto newRadius = static_cast<float>(LUA->GetNumber(1));
 	gelly->ChangeParticleRadius(newRadius);
+
+	return 0;
+}
+
+LUA_FUNCTION(gelly_Reset) {
+	if (!gelly->IsInteractive()) {
+		return 0;
+	}
+
+	auto* cmdList = gelly->GetSimulation()->CreateCommandList();
+	cmdList->AddCommand({RESET, Reset{}});
+	gelly->GetSimulation()->ExecuteCommandList(cmdList);
+	gelly->GetSimulation()->DestroyCommandList(cmdList);
 
 	return 0;
 }
@@ -304,6 +350,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	DEFINE_LUA_FUNC(gelly, SetFluidVisualParams);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
+	DEFINE_LUA_FUNC(gelly, Reset);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

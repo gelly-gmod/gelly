@@ -108,11 +108,7 @@ void GellyIntegration::LinkTextures() const {
 void GellyIntegration::SetCompositeConstants() {
 	// At the core, constants are nothing more than contiguous sequences of float4s, so we can use that to our advantage
 	// here in D3D9
-	const auto constants = reinterpret_cast<const float*>(&compositeConstants);
-
-	for (int i = 0; i < sizeof(CompositeConstants) / sizeof(float); i += 4) {
-		device->SetPixelShaderConstantF(i / 4, constants + i, 1);
-	}
+	device->SetPixelShaderConstantF(0, reinterpret_cast<const float*>(&compositeConstants), sizeof(compositeConstants) / sizeof(float) / 4);
 }
 
 
@@ -389,6 +385,10 @@ void GellyIntegration::ChangeParticleRadius(float radius) {
 	simulation->ExecuteCommandList(commandList);
 	simulation->DestroyCommandList(commandList);
 	LOG_INFO("Sent particle radius commands to simulation");
+}
+
+bool GellyIntegration::IsInteractive() const {
+	return isSimulationInteractive;
 }
 
 IFluidSimulation *GellyIntegration::GetSimulation() const {

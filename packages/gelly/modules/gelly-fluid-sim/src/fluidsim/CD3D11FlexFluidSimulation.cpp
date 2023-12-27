@@ -182,6 +182,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					solverParams.surfaceTension = arg.surfaceTension;
 					solverParams.vorticityConfinement = arg.vorticityConfinement;
 					solverParams.viscosity = arg.viscosity;
+					DebugDumpParams();
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();
@@ -261,6 +262,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
+	DebugDumpParams();
 	// Rule of thumb is to use proportional values to the particle radius, as
 	// the radius is really what determines the properties of the fluid.
 	solverParams.radius = particleRadius;
@@ -269,8 +271,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.gravity[2] = -4.f;
 
 	solverParams.viscosity = 0.0f;
-	solverParams.dynamicFriction = 0.0f;
-	solverParams.staticFriction = 0.0f;
+	solverParams.dynamicFriction = 0.1f;
+	solverParams.staticFriction = 0.1f;
 	solverParams.particleFriction = 0.1f;
 	solverParams.freeSurfaceDrag = 0.0f;
 	solverParams.drag = 0.0f;
@@ -278,8 +280,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.numIterations = 3;
 	// According to the manual, the ratio of radius and rest distance should be
 	// 2:1
-	solverParams.fluidRestDistance = solverParams.radius * 0.65f;
-	solverParams.solidRestDistance = solverParams.radius * 2.f;
+	solverParams.fluidRestDistance = solverParams.radius * 0.73f;
+	solverParams.solidRestDistance = solverParams.radius * 2.13f;
 
 	solverParams.anisotropyScale = 1.0f;
 	solverParams.anisotropyMin = 0.1f;
@@ -288,9 +290,9 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
-	solverParams.particleCollisionMargin = 0.0f;
-	solverParams.shapeCollisionMargin = solverParams.radius;
-	solverParams.collisionDistance = solverParams.radius * 4.f;
+	solverParams.particleCollisionMargin = 1.f;
+	solverParams.shapeCollisionMargin = 1.f;
+	solverParams.collisionDistance = solverParams.fluidRestDistance * 0.5f;
 	solverParams.sleepThreshold = 0.0f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;
@@ -299,14 +301,58 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.maxAcceleration = 100.0f;	// approximately 10x gravity
 
 	solverParams.relaxationMode = eNvFlexRelaxationLocal;
-	solverParams.relaxationFactor = 0.0f;
+	solverParams.relaxationFactor = 1.0f;
 	solverParams.solidPressure = 1.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
 	solverParams.surfaceTension = 1.5f;
 	solverParams.vorticityConfinement = 1.0f;
 	solverParams.buoyancy = 1.0f;
+	printf("== NEW PARAMS ==\n");
+	DebugDumpParams();
 }
+
+void CD3D11FlexFluidSimulation::DebugDumpParams() {
+	printf("== DEBUG PARAM DUMP ==\n");
+	printf("\tradius: %f\n", solverParams.radius);
+	printf("\tgravity: %f, %f, %f\n", solverParams.gravity[0],
+		   solverParams.gravity[1], solverParams.gravity[2]);
+	printf("\tviscosity: %f\n", solverParams.viscosity);
+	printf("\tdynamicFriction: %f\n", solverParams.dynamicFriction);
+	printf("\tstaticFriction: %f\n", solverParams.staticFriction);
+	printf("\tparticleFriction: %f\n", solverParams.particleFriction);
+	printf("\tfreeSurfaceDrag: %f\n", solverParams.freeSurfaceDrag);
+	printf("\tdrag: %f\n", solverParams.drag);
+	printf("\tlift: %f\n", solverParams.lift);
+	printf("\tnumIterations: %d\n", solverParams.numIterations);
+	printf("\tfluidRestDistance: %f\n", solverParams.fluidRestDistance);
+	printf("\tsolidRestDistance: %f\n", solverParams.solidRestDistance);
+	printf("\tanisotropyScale: %f\n", solverParams.anisotropyScale);
+	printf("\tanisotropyMin: %f\n", solverParams.anisotropyMin);
+	printf("\tanisotropyMax: %f\n", solverParams.anisotropyMax);
+	printf("\tsmoothing: %f\n", solverParams.smoothing);
+	printf("\tdissipation: %f\n", solverParams.dissipation);
+	printf("\tdamping: %f\n", solverParams.damping);
+	printf("\tparticleCollisionMargin: %f\n",
+		   solverParams.particleCollisionMargin);
+	printf("\tshapeCollisionMargin: %f\n", solverParams.shapeCollisionMargin);
+	printf("\tcollisionDistance: %f\n", solverParams.collisionDistance);
+	printf("\tsleepThreshold: %f\n", solverParams.sleepThreshold);
+	printf("\tshockPropagation: %f\n", solverParams.shockPropagation);
+	printf("\trestitution: %f\n", solverParams.restitution);
+	printf("\tmaxSpeed: %f\n", solverParams.maxSpeed);
+	printf("\tmaxAcceleration: %f\n", solverParams.maxAcceleration);
+	printf("\trelaxationMode: %d\n", solverParams.relaxationMode);
+	printf("\trelaxationFactor: %f\n", solverParams.relaxationFactor);
+	printf("\tsolidPressure: %f\n", solverParams.solidPressure);
+	printf("\tadhesion: %f\n", solverParams.adhesion);
+	printf("\tcohesion: %f\n", solverParams.cohesion);
+	printf("\tsurfaceTension: %f\n", solverParams.surfaceTension);
+	printf("\tvorticityConfinement: %f\n", solverParams.vorticityConfinement);
+	printf("\tbuoyancy: %f\n", solverParams.buoyancy);
+	printf("== END DEBUG PARAM DUMP ==\n");
+}
+
 
 const char *CD3D11FlexFluidSimulation::GetComputeDeviceName() {
 	return NvFlexGetDeviceName(library);

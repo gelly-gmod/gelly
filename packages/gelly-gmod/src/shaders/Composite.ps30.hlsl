@@ -9,7 +9,7 @@ sampler2D thicknessTex : register(s4);
 
 float3 eyePos : register(c0);
 float pad0 : register(c1);
-float4 absorption : register(c2);
+float4 absorptionCoeffs : register(c2);
 float refractionStrength : register(c3);
 float4 pad1 : register(c4);
 
@@ -30,13 +30,12 @@ float Schlicks(float cosTheta, float refractionIndex) {
 
 float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
-    float3 absorptionCoefficients = absorption.xyz;
     float thickness = tex2D(thicknessTex, input.Tex).x;
     if (thickness < 0.02f) {
         discard;
     }
 
-    float3 absorption = ComputeAbsorption(absorptionCoefficients, thickness);
+    float3 absorption = ComputeAbsorption(absorptionCoeffs.xyz, thickness);
 
     float3 position = tex2D(positionTex, input.Tex).xyz;
     float3 normal = tex2D(normalTex, input.Tex).xyz * 2.0f - 1.0f;
@@ -47,7 +46,7 @@ float4 Shade(VS_INPUT input) {
 
     float roughness = 0.1f;
 
-    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), absorption.w) * 55.f;
+    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), absorptionCoeffs.w) * 55.f;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     float2 transmissionUV = input.Tex + normal.xy * refractionStrength;
@@ -63,7 +62,7 @@ float4 Shade(VS_INPUT input) {
 
 PS_OUTPUT main(VS_INPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Color = Shade(input);
+    output.Color = tex2D(normalTex, input.Tex);
     float4 depthFragment = tex2D(depthTex, input.Tex);
     output.Depth = depthFragment.g;
     return output;

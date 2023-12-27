@@ -101,6 +101,7 @@ public:
 	void SetFluidParams(const FluidVisualParams &params);
 	void ChangeParticleRadius(float radius);
 
+	[[nodiscard]] bool IsInteractive() const;
 	[[nodiscard]] const char* GetComputeDeviceName() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;
 };
