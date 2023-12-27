@@ -12,7 +12,11 @@
 
 #include <tracy/Tracy.hpp>
 
+#ifdef _DEBUG
+static const int defaultMaxParticles = 10000;
+#else
 static const int defaultMaxParticles = 500000;
+#endif
 
 void GellyIntegration::CreateShaders() {
 	LOG_DX_CALL("Failed to create composite pixel shader",
@@ -181,11 +185,7 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 			static_cast<ID3D11DeviceContext *>(renderContext->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext))
 		);
 		LOG_INFO("Created simulation context");
-#ifdef _DEBUG
-		simulation = CreateD3D11DebugFluidSimulation(simContext);
-#else
 		simulation = CreateD3D11FlexFluidSimulation(simContext);
-#endif
  		LOG_INFO("Created FleX simulation");
 
 		simulation->SetMaxParticles(defaultMaxParticles);

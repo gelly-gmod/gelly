@@ -83,8 +83,14 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	initDesc.computeType = eNvFlexD3D11;
 	initDesc.renderDevice =
 		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE);
+#ifdef _DEBUG
+	// FleX will try to use GPU extensions and compute queues which destroy most rendering debuggers
+	initDesc.enableExtensions = false;
+	initDesc.runOnRenderContext = true;
+#else
 	initDesc.enableExtensions = true;
 	initDesc.runOnRenderContext = false;
+#endif
 
 	library = NvFlexInit(NV_FLEX_VERSION, FlexErrorCallback, &initDesc);
 

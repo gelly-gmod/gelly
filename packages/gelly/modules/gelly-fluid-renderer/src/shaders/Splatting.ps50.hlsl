@@ -25,11 +25,12 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     float4 nudgedPosition = viewPosition;
     nudgedPosition.z += normal.z * (g_ParticleRadius);
+    float4 viewNudgedPosition = nudgedPosition;
     nudgedPosition = mul(g_Projection, nudgedPosition);
 
     float depth = nudgedPosition.z / nudgedPosition.w;
 
-    output.ShaderDepth = float4(viewPosition.z, depth, 0.f, 1.f);
+    output.ShaderDepth = float4(viewNudgedPosition.z, depth, 0.f, 1.f);
     // Soon for absorption
     output.Albedo = float4(0.3, 0.3, 1.0, 1.0);
     output.Depth = depth;
