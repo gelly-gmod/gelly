@@ -37,6 +37,14 @@ CFlexSimScene::CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver)
 		library, maxColliders, sizeof(FlexQuat), eNvFlexBufferHost
 	);
 
+	geometry.prevPositions = NvFlexAllocBuffer(
+		library, maxColliders, sizeof(FlexFloat4), eNvFlexBufferHost
+	);
+
+	geometry.prevRotations = NvFlexAllocBuffer(
+		library, maxColliders, sizeof(FlexQuat), eNvFlexBufferHost
+	);
+
 	geometry.info = NvFlexAllocBuffer(
 		library,
 		maxColliders,
@@ -60,6 +68,8 @@ CFlexSimScene::~CFlexSimScene() {
 
 	NvFlexFreeBuffer(geometry.positions);
 	NvFlexFreeBuffer(geometry.rotations);
+	NvFlexFreeBuffer(geometry.prevPositions);
+	NvFlexFreeBuffer(geometry.prevRotations);
 	NvFlexFreeBuffer(geometry.info);
 	NvFlexFreeBuffer(geometry.flags);
 }
@@ -151,6 +161,14 @@ void CFlexSimScene::Update() {
 			NvFlexMap(geometry.rotations, eNvFlexMapWait)
 		);
 
+		auto* prevPositions = static_cast<FlexFloat4 *>(
+			NvFlexMap(geometry.prevPositions, eNvFlexMapWait)
+		);
+
+		auto* prevRotations = static_cast<FlexQuat *>(
+			NvFlexMap(geometry.prevRotations, eNvFlexMapWait)
+		);
+
 		auto *flags =
 			static_cast<uint *>(NvFlexMap(geometry.flags, eNvFlexMapWait));
 
@@ -177,6 +195,9 @@ void CFlexSimScene::Update() {
 				}
 			}
 
+			prevPositions[valueIndex] = positions[valueIndex];
+			prevRotations[valueIndex] = rotations[valueIndex];
+
 			positions[valueIndex].x = object.second.position[0];
 			positions[valueIndex].y = object.second.position[1];
 			positions[valueIndex].z = object.second.position[2];
@@ -196,6 +217,8 @@ void CFlexSimScene::Update() {
 		NvFlexUnmap(geometry.info);
 		NvFlexUnmap(geometry.positions);
 		NvFlexUnmap(geometry.rotations);
+		NvFlexUnmap(geometry.prevPositions);
+		NvFlexUnmap(geometry.prevRotations);
 		NvFlexUnmap(geometry.flags);
 
 		dirty = false;
@@ -206,8 +229,8 @@ void CFlexSimScene::Update() {
 		geometry.info,
 		geometry.positions,
 		geometry.rotations,
-		geometry.positions,
-		geometry.rotations,
+		geometry.prevPositions,
+		geometry.prevRotations,
 		geometry.flags,
 		objects.size()
 	);

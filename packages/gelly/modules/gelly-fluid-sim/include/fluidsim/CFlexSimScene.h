@@ -41,6 +41,8 @@ private:
 	struct {
 		NvFlexBuffer *positions;
 		NvFlexBuffer *rotations;
+		NvFlexBuffer *prevPositions;
+		NvFlexBuffer *prevRotations;
 		NvFlexBuffer *info;
 		NvFlexBuffer *flags;
 	} geometry = {};
