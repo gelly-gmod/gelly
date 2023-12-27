@@ -8,10 +8,8 @@ sampler2D backbufferTex : register(s3);
 sampler2D thicknessTex : register(s4);
 
 float3 eyePos : register(c0);
-float pad0 : register(c1);
-float4 absorptionCoeffs : register(c2);
-float refractionStrength : register(c3);
-float4 pad1 : register(c4);
+float4 absorptionCoeffs : register(c1);
+float refractionStrength : register(c2);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
@@ -62,7 +60,7 @@ float4 Shade(VS_INPUT input) {
 
 PS_OUTPUT main(VS_INPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Color = tex2D(normalTex, input.Tex);
+    output.Color = Shade(input);
     float4 depthFragment = tex2D(depthTex, input.Tex);
     output.Depth = depthFragment.g;
     return output;

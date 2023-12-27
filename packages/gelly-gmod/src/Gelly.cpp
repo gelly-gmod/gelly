@@ -374,7 +374,8 @@ const char *GellyIntegration::GetComputeDeviceName() const {
 }
 
 void GellyIntegration::SetFluidParams(const FluidVisualParams &params) {
-	compositeConstants.fluidParams = params;
+	std::memcpy(compositeConstants.absorption, params.absorption, sizeof(params.absorption));
+	compositeConstants.refractionStrength = params.refractionStrength;
 }
 
 void GellyIntegration::ChangeParticleRadius(float radius) {

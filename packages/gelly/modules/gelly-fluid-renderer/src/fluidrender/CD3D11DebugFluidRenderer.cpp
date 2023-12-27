@@ -495,7 +495,7 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 
 	RenderUnfilteredDepth();
-	// RenderFilteredDepth();
+	RenderFilteredDepth();
 	RenderNormals();
 	RenderThickness();
 	RenderFilteredThickness();

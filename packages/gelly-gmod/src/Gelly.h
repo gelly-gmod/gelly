@@ -17,7 +17,9 @@ struct FluidVisualParams {
 struct CompositeConstants {
 	float eyePos[3];
 	float pad0;
-	FluidVisualParams fluidParams;
+	float absorption[4] = { 0.3f, 0.3f, 0.f, 1024.f };
+	float refractionStrength = 0.03f;
+	float pad1[3];
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
