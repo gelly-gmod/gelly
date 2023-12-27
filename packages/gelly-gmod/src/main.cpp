@@ -165,13 +165,20 @@ LUA_FUNCTION(gelly_AddParticles) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_GetComputeDeviceName) {
-	LUA->PushString(gelly->GetComputeDeviceName());
-	return 1;
-}
+LUA_FUNCTION(gelly_GetStatus) {
+	// Current status table:
+	//	- ComputeDeviceName: string
+	//	- ActiveParticles: number
+	//	- MaxParticles: number
 
-LUA_FUNCTION(gelly_GetActiveParticles) {
+	LUA->CreateTable();
+	LUA->PushString(gelly->GetComputeDeviceName());
+	LUA->SetField(-2, "ComputeDeviceName");
 	LUA->PushNumber(gelly->GetSimulation()->GetSimulationData()->GetActiveParticles());
+	LUA->SetField(-2, "ActiveParticles");
+	LUA->PushNumber(gelly->GetSimulation()->GetSimulationData()->GetMaxParticles());
+	LUA->SetField(-2, "MaxParticles");
+
 	return 1;
 }
 
@@ -216,8 +223,7 @@ GMOD_MODULE_OPEN() {
 	LUA->CreateTable();
 	DEFINE_LUA_FUNC(gelly, Render);
 	DEFINE_LUA_FUNC(gelly, Simulate);
-	DEFINE_LUA_FUNC(gelly, GetComputeDeviceName);
-	DEFINE_LUA_FUNC(gelly, GetActiveParticles);
+	DEFINE_LUA_FUNC(gelly, GetStatus);
 	DEFINE_LUA_FUNC(gelly, AddParticles);
 	DEFINE_LUA_FUNC(gelly, LoadMap);
 	DEFINE_LUA_FUNC(gelly, AddObject);
