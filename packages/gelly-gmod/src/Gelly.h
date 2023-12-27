@@ -7,9 +7,18 @@
 #include <memory>
 #include <thread>
 
+struct FluidVisualParams {
+	// 4th member is shininess
+	float absorption[4] = { 0.3f, 0.3f, 0.f, 1024.f };
+	float refractionStrength = 0.03f;
+	float pad0[3];
+};
+
+
 struct CompositeConstants {
 	float eyePos[3];
 	float pad0;
+	FluidVisualParams fluidParams;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -90,6 +99,7 @@ public:
 	void Render();
 	void Simulate(float dt);
 	void LoadMap(const char *mapName);
+	void SetFluidParams(const FluidVisualParams &params);
 
 	[[nodiscard]] const char* GetComputeDeviceName() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;

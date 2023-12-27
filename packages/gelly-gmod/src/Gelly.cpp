@@ -381,6 +381,11 @@ const char *GellyIntegration::GetComputeDeviceName() const {
 	return simulation->GetComputeDeviceName();
 }
 
+void GellyIntegration::SetFluidParams(const FluidVisualParams &params) {
+	compositeConstants.fluidParams = params;
+}
+
+
 IFluidSimulation *GellyIntegration::GetSimulation() const {
 	return simulation;
 }

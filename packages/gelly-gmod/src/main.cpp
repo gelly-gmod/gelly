@@ -182,10 +182,24 @@ LUA_FUNCTION(gelly_GetStatus) {
 	return 1;
 }
 
-#define GET_LUA_TABLE_MEMBER(type, name) \
+#define GET_LUA_TABLE_NUMBER(name) \
 	LUA->GetField(-1, #name); \
-	type name = static_cast<type>(LUA->GetNumber(-1)); \
+	name = static_cast<float>(LUA->GetNumber(-1)); \
 	LUA->Pop();
+
+#define GET_LUA_TABLE_VECTOR(name) \
+	LUA->GetField(-1, #name); \
+	name##_v = LUA->GetVector(-1); \
+	LUA->Pop();
+
+#define GET_LUA_TABLE_MEMBER(type, name) \
+	float name; \
+	Vector name##_v; \
+	if constexpr (std::is_same_v<type, Vector>) { \
+		GET_LUA_TABLE_VECTOR(name); \
+	} else { \
+		GET_LUA_TABLE_NUMBER(name); \
+	}
 
 LUA_FUNCTION(gelly_SetFluidProperties) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
@@ -211,7 +225,24 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetFluidVisualParams) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
 
+	GET_LUA_TABLE_MEMBER(float, Shininess);
+	GET_LUA_TABLE_MEMBER(Vector, Absorption);
+	GET_LUA_TABLE_MEMBER(float, RefractionStrength);
+
+	FluidVisualParams params = {};
+	params.absorption[0] = Absorption_v.x;
+	params.absorption[1] = Absorption_v.y;
+	params.absorption[2] = Absorption_v.z;
+	params.absorption[3] = Shininess;
+	params.refractionStrength = RefractionStrength;
+
+	gelly->SetFluidParams(params);
+
+	return 0;
+}
 
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
@@ -262,6 +293,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
+	DEFINE_LUA_FUNC(gelly, SetFluidVisualParams);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

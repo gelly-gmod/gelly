@@ -9,6 +9,9 @@ sampler2D thicknessTex : register(s4);
 
 float3 eyePos : register(c0);
 float pad0 : register(c1);
+float4 absorption : register(c2);
+float refractionStrength : register(c3);
+float4 pad1 : register(c4);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
@@ -27,7 +30,7 @@ float Schlicks(float cosTheta, float refractionIndex) {
 
 float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
-    float3 absorptionCoefficients = float3(0, 0, 0.03);
+    float3 absorptionCoefficients = absorption.xyz;
     float thickness = tex2D(thicknessTex, input.Tex).x;
     if (thickness < 0.02f) {
         discard;
@@ -44,10 +47,10 @@ float4 Shade(VS_INPUT input) {
 
     float roughness = 0.1f;
 
-    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), 1024) * 55.f;
+    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), absorption.w) * 55.f;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
-    float2 transmissionUV = input.Tex + normal.xy * 0.03f;
+    float2 transmissionUV = input.Tex + normal.xy * refractionStrength;
     float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
     // apply inverse gamma correction
     transmission = pow(transmission, 2.2);
