@@ -14,7 +14,6 @@ struct FluidVisualParams {
 	float pad0[3];
 };
 
-
 struct CompositeConstants {
 	float eyePos[3];
 	float pad0;
@@ -36,7 +35,7 @@ private:
 
 	IDirect3DDevice9Ex *device;
 
-	float particleRadius = 0.3f;
+	float particleRadius = 20.f;
 	float thresholdRatio = 3.f;
 	bool isSimulationInteractive = false;
 
@@ -100,6 +99,7 @@ public:
 	void Simulate(float dt);
 	void LoadMap(const char *mapName);
 	void SetFluidParams(const FluidVisualParams &params);
+	void ChangeParticleRadius(float radius);
 
 	[[nodiscard]] const char* GetComputeDeviceName() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;

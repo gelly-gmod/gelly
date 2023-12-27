@@ -216,11 +216,7 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		CreateBuffers();
 		LOG_INFO("Created buffers");
 
-		ISimCommandList *commandList = simulation->CreateCommandList();
-		commandList->AddCommand({CHANGE_RADIUS, ChangeRadius{ particleRadius }});
-		simulation->ExecuteCommandList(commandList);
-		simulation->DestroyCommandList(commandList);
-		LOG_INFO("Sent initialization commands to simulation");
+		ChangeParticleRadius(particleRadius);
 
 #ifdef _DEBUG
 		LOG_INFO("Debugging detected, enabling RenderDoc integration...");
@@ -385,6 +381,15 @@ void GellyIntegration::SetFluidParams(const FluidVisualParams &params) {
 	compositeConstants.fluidParams = params;
 }
 
+void GellyIntegration::ChangeParticleRadius(float radius) {
+	particleRadius = radius;
+
+	ISimCommandList *commandList = simulation->CreateCommandList();
+	commandList->AddCommand({CHANGE_RADIUS, ChangeRadius{ particleRadius }});
+	simulation->ExecuteCommandList(commandList);
+	simulation->DestroyCommandList(commandList);
+	LOG_INFO("Sent particle radius commands to simulation");
+}
 
 IFluidSimulation *GellyIntegration::GetSimulation() const {
 	return simulation;

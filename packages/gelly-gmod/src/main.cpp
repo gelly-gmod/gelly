@@ -157,7 +157,7 @@ LUA_FUNCTION(gelly_AddParticles) {
 
 		cmdList->AddCommand({ADD_PARTICLE, AddParticle{position.x, position.y, position.z, velocity.x, velocity.y, velocity.z}});
 
-		LUA->Pop(3);
+		LUA->Pop(2);
 	}
 
 	gelly->GetSimulation()->ExecuteCommandList(cmdList);
@@ -244,6 +244,15 @@ LUA_FUNCTION(gelly_SetFluidVisualParams) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_ChangeParticleRadius) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
+
+	const auto newRadius = static_cast<float>(LUA->GetNumber(1));
+	gelly->ChangeParticleRadius(newRadius);
+
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem(); status != FILESYSTEM_STATUS::OK) {
@@ -294,6 +303,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	DEFINE_LUA_FUNC(gelly, SetFluidVisualParams);
+	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 
