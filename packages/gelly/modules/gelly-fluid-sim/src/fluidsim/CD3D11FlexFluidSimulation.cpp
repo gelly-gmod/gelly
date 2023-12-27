@@ -176,6 +176,12 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				} else if constexpr (std::is_same_v<T, AddParticle>) {
 					mappingRequired = true;
 					newParticles.push_back(arg);
+				} else if constexpr (std::is_same_v<T, SetFluidProperties>) {
+					solverParams.adhesion = arg.adhesion;
+					solverParams.cohesion = arg.cohesion;
+					solverParams.surfaceTension = arg.surfaceTension;
+					solverParams.vorticityConfinement = arg.vorticityConfinement;
+					solverParams.viscosity = arg.viscosity;
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();

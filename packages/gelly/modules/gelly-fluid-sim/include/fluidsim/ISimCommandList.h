@@ -17,17 +17,26 @@ struct ChangeRadius {
 	float radius;
 };
 
+struct SetFluidProperties {
+	float viscosity;
+	float cohesion;
+	float surfaceTension;
+	float vorticityConfinement;
+	float adhesion;
+};
+
 struct Reset {};
 
 enum SimCommandType {
-	ADD_PARTICLE = 0b001,
-	CHANGE_RADIUS = 0b010,
-	RESET = 0b100,
+	ADD_PARTICLE = 0b0001,
+	CHANGE_RADIUS = 0b0010,
+	RESET = 0b0100,
+	SET_FLUID_PROPERTIES = 0b1000
 };
 
 struct SimCommand {
 	SimCommandType type;
-	std::variant<AddParticle, Reset, ChangeRadius> data;
+	std::variant<AddParticle, Reset, ChangeRadius, SetFluidProperties> data;
 };
 }  // namespace SimCommands
 }  // namespace Gelly

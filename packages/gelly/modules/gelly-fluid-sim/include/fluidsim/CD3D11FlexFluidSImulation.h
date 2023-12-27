@@ -9,7 +9,7 @@
 class CD3D11FlexFluidSimulation : public IFluidSimulation {
 private:
 	static constexpr SimCommandType supportedCommands =
-		static_cast<SimCommandType>(RESET | ADD_PARTICLE | CHANGE_RADIUS);
+		static_cast<SimCommandType>(RESET | ADD_PARTICLE | CHANGE_RADIUS | SET_FLUID_PROPERTIES);
 
 	CD3D11CPUSimData *simData;
 	GellyObserverPtr<ISimContext> context{};

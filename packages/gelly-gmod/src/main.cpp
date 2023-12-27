@@ -182,6 +182,37 @@ LUA_FUNCTION(gelly_GetStatus) {
 	return 1;
 }
 
+#define GET_LUA_TABLE_MEMBER(type, name) \
+	LUA->GetField(-1, #name); \
+	type name = static_cast<type>(LUA->GetNumber(-1)); \
+	LUA->Pop();
+
+LUA_FUNCTION(gelly_SetFluidProperties) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
+
+	GET_LUA_TABLE_MEMBER(float, Viscosity);
+	GET_LUA_TABLE_MEMBER(float, Cohesion);
+	GET_LUA_TABLE_MEMBER(float, SurfaceTension);
+	GET_LUA_TABLE_MEMBER(float, VorticityConfinement);
+	GET_LUA_TABLE_MEMBER(float, Adhesion);
+
+	SetFluidProperties props = {};
+	props.viscosity = Viscosity;
+	props.cohesion = Cohesion;
+	props.surfaceTension = SurfaceTension;
+	props.vorticityConfinement = VorticityConfinement;
+	props.adhesion = Adhesion;
+
+	auto* cmdList = gelly->GetSimulation()->CreateCommandList();
+	cmdList->AddCommand({SET_FLUID_PROPERTIES, props});
+	gelly->GetSimulation()->ExecuteCommandList(cmdList);
+	gelly->GetSimulation()->DestroyCommandList(cmdList);
+
+	return 0;
+}
+
+
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem(); status != FILESYSTEM_STATUS::OK) {
@@ -230,6 +261,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, RemoveObject);
 	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
+	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 
