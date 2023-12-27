@@ -47,6 +47,10 @@ LUA_FUNCTION(gelly_AddObject) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Mesh
 
 	uint32_t vertexCount = LUA->ObjLen(1);
+	if (vertexCount <= 0) {
+		LUA->ThrowError("Cannot create object with no vertices!");
+	}
+
 	auto *vertices = new Vector[vertexCount];
 
 	for (uint32_t i = 0; i < vertexCount; i++) {
@@ -143,12 +147,17 @@ LUA_FUNCTION(gelly_AddParticles) {
 	const uint32_t particleCount = LUA->ObjLen(1);
 	auto* cmdList = gelly->GetSimulation()->CreateCommandList();
 
-	for (uint32_t i = 0; i < particleCount; i++) {
+	for (uint32_t i = 0; i < particleCount; i+=2) {
 		LUA->PushNumber(i + 1);
 		LUA->GetTable(-2);
-		const auto particle = LUA->GetVector(-1);
-		cmdList->AddCommand({ADD_PARTICLE, AddParticle{particle.x, particle.y, particle.z}});
-		LUA->Pop();
+		const auto position = LUA->GetVector(-1);
+		LUA->PushNumber(i + 2);
+		LUA->GetTable(-3);
+		const auto velocity = LUA->GetVector(-1);
+
+		cmdList->AddCommand({ADD_PARTICLE, AddParticle{position.x, position.y, position.z, velocity.x, velocity.y, velocity.z}});
+
+		LUA->Pop(3);
 	}
 
 	gelly->GetSimulation()->ExecuteCommandList(cmdList);

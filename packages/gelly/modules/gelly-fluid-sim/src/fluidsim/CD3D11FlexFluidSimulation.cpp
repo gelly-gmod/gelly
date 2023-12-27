@@ -164,7 +164,8 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 	const auto iterators = commandList->GetCommands();
 
 	bool mappingRequired = false;
-	std::vector<FlexFloat3> newParticles;
+	std::vector<AddParticle> newParticles;
+
 	for (auto it = iterators.first; it != iterators.second; ++it) {
 		auto &command = *it;
 		std::visit(
@@ -174,7 +175,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					simData->SetActiveParticles(0);
 				} else if constexpr (std::is_same_v<T, AddParticle>) {
 					mappingRequired = true;
-					newParticles.push_back(FlexFloat3{arg.x, arg.y, arg.z});
+					newParticles.push_back(arg);
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();
@@ -213,7 +214,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				position.x, position.y, position.z, particleInverseMass
 			};
 
-			velocities[i] = FlexFloat3{0.f, 0.f, 0.1f};
+			velocities[i] = FlexFloat3{position.vx, position.vy, position.vz};
 			phases[i] =
 				NvFlexMakePhase(0, eNvFlexPhaseSelfCollide | eNvFlexPhaseFluid);
 

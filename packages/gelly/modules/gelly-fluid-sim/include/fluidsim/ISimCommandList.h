@@ -10,6 +10,7 @@ namespace Gelly {
 namespace SimCommands {
 struct AddParticle {
 	float x, y, z;
+	float vx, vy, vz;
 };
 
 struct ChangeRadius {
