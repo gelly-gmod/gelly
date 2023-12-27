@@ -254,6 +254,8 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
+	// Rule of thumb is to use proportional values to the particle radius, as
+	// the radius is really what determines the properties of the fluid.
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.f;
@@ -269,7 +271,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.numIterations = 3;
 	// According to the manual, the ratio of radius and rest distance should be
 	// 2:1
-	solverParams.fluidRestDistance = solverParams.radius * 0.6f;
+	solverParams.fluidRestDistance = solverParams.radius * 0.65f;
 	solverParams.solidRestDistance = solverParams.radius * 2.f;
 
 	solverParams.anisotropyScale = 1.0f;
@@ -280,8 +282,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
 	solverParams.particleCollisionMargin = 0.0f;
-	solverParams.shapeCollisionMargin = 0.01f;
-	solverParams.collisionDistance = solverParams.radius * 0.75f;
+	solverParams.shapeCollisionMargin = solverParams.radius;
+	solverParams.collisionDistance = solverParams.radius * 4.f;
 	solverParams.sleepThreshold = 0.0f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;
@@ -290,12 +292,12 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.maxAcceleration = 100.0f;	// approximately 10x gravity
 
 	solverParams.relaxationMode = eNvFlexRelaxationLocal;
-	solverParams.relaxationFactor = 1.0f;
+	solverParams.relaxationFactor = 0.0f;
 	solverParams.solidPressure = 1.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
 	solverParams.surfaceTension = 1.5f;
-	solverParams.vorticityConfinement = 15.0f;
+	solverParams.vorticityConfinement = 1.0f;
 	solverParams.buoyancy = 1.0f;
 }
 
