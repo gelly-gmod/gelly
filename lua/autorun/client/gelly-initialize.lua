@@ -13,7 +13,7 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 
 	local isGellyLoaded = pcall(require, "gelly-gmod")
 
-	if isGellyLoaded then
+	if not isGellyLoaded then
 		showPopup(GELLY_MISSING_TITLE, GELLY_MISSING_CONTENT)
 	end
 end)
