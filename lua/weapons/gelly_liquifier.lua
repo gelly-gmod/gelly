@@ -18,7 +18,7 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic = true
 SWEP.Secondary.Ammo = ""
 
-SWEP.TriangleDensity = 50
+SWEP.TriangleDensity = 25
 SWEP.FireRate = 1 -- projectiles per second
 
 ---@module "gelly.emitters.mesh-emitter"
@@ -50,12 +50,6 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:PreDrawViewModel(vm, weapon, ply)
-	-- lazy initialize the charge prepare particle effect
-	self.ChargeViewModel = self.ChargeViewModel or vm
-	if self.ChargeViewModel ~= vm then
-		self.ChargeEffect = nil
-	end
-
 	self.ChargeEffect = self.ChargeEffect
 		or CreateParticleSystem(vm, "Liquifier_ChargePrepare", PATTACH_POINT_FOLLOW, 1)
 end
