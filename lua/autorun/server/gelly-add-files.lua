@@ -19,3 +19,8 @@ traverseFileTree("lua/gelly", function(path)
 	logging.info("Adding file %s to download list", path)
 	AddCSLuaFile(path)
 end)
+
+resource.AddSingleFile("particles/gelly.pcf")
+game.AddParticles("particles/gelly.pcf")
+PrecacheParticleSystem("Liquifier_ChargePrepare")
+PrecacheParticleSystem("Liquifier_ChargeBlast")

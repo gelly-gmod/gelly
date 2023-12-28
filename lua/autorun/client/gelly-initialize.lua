@@ -22,4 +22,6 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 	gelly.LoadMap(mapPath)
 
 	hook.Run("GellyLoaded")
+	-- also, add the particle system
+	game.AddParticles("particles/gelly.pcf")
 end)
