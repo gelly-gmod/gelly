@@ -88,4 +88,30 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		presets.loadPresets()
 		presets.selectPreset(name)
 	end
+
+	local selectPresetButton = vgui.Create("DButton")
+	selectPresetButton:SetPos(ScrW() - 200, 250)
+	selectPresetButton:SetSize(200, 50)
+	selectPresetButton:SetText("Select Preset")
+	selectPresetButton.DoClick = function()
+		local frame = vgui.Create("DFrame")
+		frame:SetSize(200, 200)
+		frame:Center()
+		frame:SetTitle("Select Preset")
+		frame:MakePopup()
+
+		local presetList = vgui.Create("DListView", frame)
+		presetList:Dock(FILL)
+		presetList:AddColumn("Name")
+
+		for _, preset in pairs(GELLY_PRESETS) do
+			presetList:AddLine(preset.Name)
+		end
+
+		presetList.OnRowSelected = function(_, _, row)
+			local name = row:GetValue(1)
+			presets.selectPreset(name)
+			frame:Close()
+		end
+	end
 end)

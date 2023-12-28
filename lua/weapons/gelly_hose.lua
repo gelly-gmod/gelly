@@ -20,6 +20,7 @@ SWEP.Secondary.Ammo = ""
 
 SWEP.ParticleDensity = 300
 SWEP.FireRate = 40 -- bursts per second
+SWEP.RapidFireBoost = 2 -- how much proportional quantity of particles to emit when rapid firing
 
 ---@module "gelly.emitters.cube-emitter"
 local emitCube = include("gelly/emitters/cube-emitter.lua")
@@ -40,9 +41,28 @@ function SWEP:PrimaryAttack()
 	local velocity = owner:GetAimVector() * 50
 	position = position + owner:GetAimVector() * 50
 	local size = Vector(1, 1, 1) * 50
-	local density = 100
+	local density = self.ParticleDensity
 
 	emitCube(position, velocity, size, density)
 
 	self:SetNextPrimaryFire(CurTime() + 1 / self.FireRate)
+end
+
+function SWEP:SecondaryAttack()
+	print("Secondary attack")
+	if SERVER then
+		self:CallOnClient("SecondaryAttack")
+		return
+	end
+
+	local owner = self:GetOwner()
+	local position = owner:GetShootPos()
+	local velocity = owner:GetAimVector() * 50
+	position = position + owner:GetAimVector() * 50
+	local size = Vector(1, 1, 1) * 50
+	local density = self.ParticleDensity * self.RapidFireBoost
+
+	emitCube(position, velocity, size, density)
+
+	self:SetNextSecondaryFire(CurTime() + 1 / self.FireRate * self.RapidFireBoost)
 end
