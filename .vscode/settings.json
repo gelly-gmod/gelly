@@ -11,5 +11,8 @@
 	},
 	"Lua.runtime.special": {
 		"include": "require"
-	}
+	},
+	"Lua.diagnostics.disable": [
+		"undefined-global"
+	]
 }

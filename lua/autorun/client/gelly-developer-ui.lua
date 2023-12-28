@@ -51,4 +51,41 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 			TEXT_ALIGN_RIGHT
 		)
 	end)
+
+	local radiusSlider = vgui.Create("DNumSlider")
+	radiusSlider:SetPos(ScrW() - 200, 100)
+	radiusSlider:SetSize(200, 50)
+	radiusSlider:SetText("Radius")
+	radiusSlider:SetMin(0)
+	radiusSlider:SetMax(50)
+	radiusSlider:SetDecimals(2)
+
+	radiusSlider.OnValueChanged = function(_, value)
+		gelly.Reset()
+		gelly.ChangeParticleRadius(value)
+		-- Re apply the preset as that causes an invalidation of the simulation
+		presets.selectPreset(presets.getActivePreset().Name)
+	end
+
+	local timeScaleSlider = vgui.Create("DNumSlider")
+	timeScaleSlider:SetPos(ScrW() - 200, 200)
+	timeScaleSlider:SetSize(200, 50)
+	timeScaleSlider:SetText("Time Scale")
+	timeScaleSlider:SetMin(1)
+	timeScaleSlider:SetMax(10)
+	timeScaleSlider:SetDecimals(2)
+	timeScaleSlider:SetValue(GELLY_SIM_TIMESCALE)
+	timeScaleSlider.OnValueChanged = function(_, value)
+		GELLY_SIM_TIMESCALE = value
+	end
+
+	local reloadPresetsButton = vgui.Create("DButton")
+	reloadPresetsButton:SetPos(ScrW() - 200, 150)
+	reloadPresetsButton:SetSize(200, 50)
+	reloadPresetsButton:SetText("Reload Presets")
+	reloadPresetsButton.DoClick = function()
+		local name = presets.getActivePreset().Name
+		presets.loadPresets()
+		presets.selectPreset(name)
+	end
 end)

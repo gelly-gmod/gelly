@@ -15,6 +15,7 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 
 	if not isGellyLoaded then
 		showPopup(GELLY_MISSING_TITLE, GELLY_MISSING_CONTENT)
+		return
 	end
 
 	local mapPath = ("maps/%s.bsp"):format(game.GetMap())

@@ -10,8 +10,8 @@ end
 local function loadPresets()
 	local files, _ = file.Find("gelly/presets/immutable/*.lua", "LUA")
 
-	for _, file in ipairs(files) do
-		local path = "gelly/presets/immutable/" .. file
+	for _, fileName in ipairs(files) do
+		local path = "gelly/presets/immutable/" .. fileName
 		local preset = loadPreset(path)
 
 		logging.info("Loading immutable preset %s", path)
