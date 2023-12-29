@@ -334,6 +334,35 @@ LUA_FUNCTION(gelly_TestToss) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_ApplyCouplingForces) {
+	if (!gelly->IsInteractive() || !gelly->IsTwoWayCouplingSupported()) {
+		return 0;
+	}
+
+	constexpr auto contactVisitor = [&](const XMFLOAT3& velocity, ObjectHandle handle) {
+		uint entIndex = entIndexToHandleMap[handle];
+		edict_t* ent = GetEngineServer()->PEntityOfEntIndex(entIndex);
+		if (ent == nullptr) {
+			LOG_WARNING("Could not find edict of entity index %d", entIndex);
+			return;
+		}
+
+		CBaseEntity* entity = GetServerGameEnts()->EdictToBaseEntity(ent);
+		if (entity == nullptr) {
+			LOG_WARNING("Could not find entity of edict %p", ent);
+			return;
+		}
+
+		Vector forceVector = {};
+		forceVector.x = velocity.x;
+		forceVector.y = velocity.y;
+		forceVector.z = velocity.z;
+		ApplyImpulseToServerEntity(entity, forceVector);
+	};
+
+	gelly->GetSimulation()->VisitLatestContactPlanes(contactVisitor);
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem(); status != FILESYSTEM_STATUS::OK) {
@@ -387,6 +416,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, TestToss);
+	DEFINE_LUA_FUNC(gelly, ApplyCouplingForces);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

@@ -202,6 +202,14 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 			LOG_INFO("Interactivity is not supported");
 		}
 
+		LOG_INFO("Querying for two-way physics coupling support...");
+		if (simulation->CheckFeatureSupport(GELLY_FEATURE::FLUIDSIM_CONTACTPLANES)) {
+			LOG_INFO("Two-way physics coupling is supported");
+			twoWayCouplingSupported = true;
+		} else {
+			LOG_INFO("Two-way physics coupling is not supported");
+		}
+
 		CreateTextures();
 		LOG_INFO("Created D3D9-side textures");
 		LinkTextures();

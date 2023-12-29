@@ -86,6 +86,8 @@ private:
 	IDirect3DStateBlock9* stateBlock = nullptr;
 	FluidRenderParams renderParams = {};
 
+	bool twoWayCouplingSupported = false;
+
 	void CreateShaders();
 	void CreateBuffers();
 	void CreateTextures();
@@ -104,6 +106,7 @@ public:
 	void ChangeParticleRadius(float radius);
 
 	[[nodiscard]] bool IsInteractive() const;
+	[[nodiscard]] bool IsTwoWayCouplingSupported() const;
 	[[nodiscard]] const char* GetComputeDeviceName() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;
 };
