@@ -125,6 +125,14 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		library, maxParticles, sizeof(uint), eNvFlexBufferHost
 	);
 
+	buffers.contactVelocities = NvFlexAllocBuffer(
+		library, maxParticles * 6, sizeof(FlexFloat4), eNvFlexBufferHost
+	);
+
+	buffers.contactCounts = NvFlexAllocBuffer(
+		library, maxParticles, sizeof(uint), eNvFlexBufferHost
+	);
+
 	sharedBuffers.positions = NvFlexRegisterD3DBuffer(
 		library,
 		simData->GetLinkedBuffer(SimBufferType::POSITION),
@@ -380,4 +388,34 @@ bool CD3D11FlexFluidSimulation::CheckFeatureSupport(GELLY_FEATURE feature) {
 void CD3D11FlexFluidSimulation::VisitLatestContactPlanes(
 	ContactPlaneVisitor visitor
 ) {
+	NvFlexGetContacts(solver, nullptr, buffers.contactVelocities, nullptr, buffers.contactCounts);
+
+	const auto* velocities = static_cast<FlexFloat4*>(
+		NvFlexMap(buffers.contactVelocities, eNvFlexMapWait)
+	);
+
+	const auto* counts = static_cast<uint*>(
+		NvFlexMap(buffers.contactCounts, eNvFlexMapWait)
+	);
+
+	for (uint i = 0; i < simData->GetActiveParticles(); i++) {
+		const uint contactCount = counts[i];
+
+		for (constexpr uint contactIndex = 0; i < contactCount; i++) {
+			const FlexFloat4 velocity = velocities[i * 6 + contactIndex];
+			uint shapeIndex = static_cast<uint>(velocity.w);
+
+			ObjectHandle handle = scene->GetHandleFromShapeIndex(shapeIndex);
+			XMFLOAT3 velocityVector = {
+				velocity.x,
+				velocity.y,
+				velocity.z
+			};
+
+			visitor(velocityVector, handle);
+		}
+	}
+
+	NvFlexUnmap(buffers.contactVelocities);
+	NvFlexUnmap(buffers.contactCounts);
 }

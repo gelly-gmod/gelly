@@ -28,6 +28,8 @@ private:
 		NvFlexBuffer *velocities;
 		NvFlexBuffer *phases;
 		NvFlexBuffer *actives;
+		NvFlexBuffer *contactVelocities;
+		NvFlexBuffer *contactCounts;
 	} buffers{};
 
 	/**
