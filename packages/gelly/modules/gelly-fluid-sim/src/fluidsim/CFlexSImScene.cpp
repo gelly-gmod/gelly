@@ -173,7 +173,7 @@ void CFlexSimScene::Update() {
 			static_cast<uint *>(NvFlexMap(geometry.flags, eNvFlexMapWait));
 
 		uint valueIndex = 0;
-		for (const auto &object : objects) {
+		for (auto &object : objects) {
 			switch (object.second.shape) {
 				case ObjectShape::TRIANGLE_MESH: {
 					const auto &mesh = std::get<ObjectData::TriangleMesh>(
@@ -211,6 +211,9 @@ void CFlexSimScene::Update() {
 			flags[valueIndex] = NvFlexMakeShapeFlags(
 				GetFlexShapeType(object.second.shape), true
 			);
+
+			object.second.currentShapeIndex = valueIndex;
+
 			valueIndex++;
 		}
 
@@ -339,4 +342,22 @@ ObjectData CFlexSimScene::CreateCapsule(
 	data.shapeData = ObjectData::Capsule{params.radius, params.halfHeight};
 
 	return data;
+}
+
+ObjectHandle CFlexSimScene::GetHandleFromShapeIndex(const uint &shapeIndex) {
+	const auto it = std::find_if(
+		objects.begin(),
+		objects.end(),
+		[&](const std::pair<ObjectHandle, ObjectData> &object) {
+			return object.second.currentShapeIndex == shapeIndex;
+		}
+	);
+
+	if (it == objects.end()) {
+		throw std::runtime_error(
+			"CFlexSimScene::GetHandleFromShapeIndex: Invalid shape index"
+		);
+	}
+
+	return it->first;
 }

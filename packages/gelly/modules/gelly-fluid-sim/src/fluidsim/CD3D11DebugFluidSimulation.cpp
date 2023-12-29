@@ -185,3 +185,8 @@ void CD3D11DebugFluidSimulation::Update(const float deltaTime) {
 const char *CD3D11DebugFluidSimulation::GetComputeDeviceName() {
 	return "CPU";
 }
+
+// Aside from the inherent base featureset, this simulation has nothing.
+bool CD3D11DebugFluidSimulation::CheckFeatureSupport(const GELLY_FEATURE feature) {
+	return false;
+}

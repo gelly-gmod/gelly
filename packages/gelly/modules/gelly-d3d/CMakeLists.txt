@@ -1,7 +1,8 @@
 add_library(gelly_d3d9 STATIC
         include/GellyD3D.h
         include/detail/d3d11/Shaders.h include/detail/d3d11/Texture.h include/detail/d3d9/Texture.h include/detail/d3d9/Shaders.h src/d3d9/Shaders.cpp src/d3d9/Texture.cpp include/detail/d3d11/ErrorHandling.h src/d3d11/Shaders.cpp src/d3d11/Texture.cpp include/detail/d3d11/Buffer.h include/detail/d3d11/Cleanup.h src/d3d11/Cleanup.cpp include/detail/d3d11/ConstantBuffer.h include/detail/d3d11/VertexBuffer.h include/detail/d3d9/ShaderConstants.h src/d3d9/ShaderConstants.cpp include/detail/d3d9/DXMathInterop.h src/d3d9/DXMathInterop.cpp include/detail/d3d11/ComputeProgram.h src/d3d11/ComputeProgram.cpp include/detail/d3d11/SRVBuffer.h include/detail/d3d11/SyncFlush.h src/d3d11/SyncFlush.cpp include/detail/d3d11/UAVBuffer.h
-        ../gelly-interfaces/include/GellyDataTypes.h)
+        ../gelly-interfaces/include/GellyDataTypes.h
+        ../gelly-interfaces/include/IFeatureQuery.h)
 
 target_link_libraries(gelly_d3d9 PRIVATE d3d9.lib d3d11.lib d3dcompiler.lib)
 target_include_directories(gelly_d3d9 PRIVATE include)

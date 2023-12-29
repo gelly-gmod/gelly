@@ -1,15 +1,21 @@
 #ifndef GELLY_IFLUIDSIMULATION_H
 #define GELLY_IFLUIDSIMULATION_H
 
+#include <functional>
+
 #include "GellyInterface.h"
 #include "GellyObserverPtr.h"
+#include "IFeatureQuery.h"
 #include "ISimCommandList.h"
 #include "ISimContext.h"
 #include "ISimData.h"
 #include "ISimScene.h"
 
-gelly_interface IFluidSimulation {
+gelly_interface IFluidSimulation : public IFeatureQuery {
 public:
+	using ContactPlaneVisitor = std::function<
+		void(const XMFLOAT3 &velocity, const uint32_t &shapeIndex)>;
+
 	virtual ~IFluidSimulation() = default;
 
 	virtual void SetMaxParticles(int maxParticles) = 0;
@@ -56,6 +62,9 @@ public:
 	virtual void Update(float deltaTime) = 0;
 
 	virtual const char* GetComputeDeviceName() = 0;
+
+	// Past this point is mainly feature-specific stuff.
+	virtual void VisitLatestContactPlanes(ContactPlaneVisitor visitor) = 0;
 };
 
 #endif	// GELLY_IFLUIDSIMULATION_H

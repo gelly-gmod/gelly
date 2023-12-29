@@ -1,6 +1,8 @@
 #ifndef CD3D11FLEXFLUIDSIMULATION_H
 #define CD3D11FLEXFLUIDSIMULATION_H
 
+#include <functional>
+
 #include "CD3D11CPUSimData.h"
 #include "CFlexSimScene.h"
 #include "CSimpleSimCommandList.h"
@@ -66,6 +68,9 @@ public:
 	void Update(float deltaTime) override;
 
 	const char* GetComputeDeviceName() override;
+	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
+
+	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override = 0;
 };
 
 #endif	// CD3D11FLEXFLUIDSIMULATION_H

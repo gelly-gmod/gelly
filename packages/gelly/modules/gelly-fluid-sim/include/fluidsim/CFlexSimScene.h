@@ -26,6 +26,7 @@ struct ObjectData {
 	float rotation[4];
 
 	std::variant<TriangleMesh, Capsule> shapeData;
+	uint currentShapeIndex;
 };
 
 class CFlexSimScene : public ISimScene {
@@ -74,6 +75,8 @@ public:
 	void SetObjectQuaternion(
 		ObjectHandle handle, float x, float y, float z, float w
 	) override;
+
+	ObjectHandle GetHandleFromShapeIndex(const uint& shapeIndex);
 
 	void Update() override;
 };

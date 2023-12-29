@@ -48,6 +48,9 @@ public:
 	void Update(float deltaTime) override;
 
 	const char* GetComputeDeviceName() override;
+	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
+
+	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override {};
 };
 
 #endif	// CD3D11RTFRFLUIDSIMULATION_H

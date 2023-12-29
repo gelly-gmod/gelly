@@ -222,6 +222,11 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 			);
 
 		for (uint i = currentActiveParticles; i < newActiveParticles; i++) {
+			_mm_prefetch(
+				reinterpret_cast<const char *>(&newParticles[i - currentActiveParticles] + 1),
+				_MM_HINT_T0
+			);
+
 			const auto &position = newParticles[i - currentActiveParticles];
 			positions[i] = FlexFloat4{
 				position.x, position.y, position.z, particleInverseMass
@@ -359,7 +364,20 @@ void CD3D11FlexFluidSimulation::DebugDumpParams() {
 	printf("== END DEBUG PARAM DUMP ==\n");
 }
 
-
 const char *CD3D11FlexFluidSimulation::GetComputeDeviceName() {
 	return NvFlexGetDeviceName(library);
+}
+
+bool CD3D11FlexFluidSimulation::CheckFeatureSupport(GELLY_FEATURE feature) {
+	switch (feature) {
+		case GELLY_FEATURE::FLUIDSIM_CONTACTPLANES:
+			return true;
+		default:
+			return false;
+	}
+}
+
+void CD3D11FlexFluidSimulation::VisitLatestContactPlanes(
+	ContactPlaneVisitor visitor
+) {
 }
