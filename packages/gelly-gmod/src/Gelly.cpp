@@ -400,6 +400,10 @@ bool GellyIntegration::IsInteractive() const {
 	return isSimulationInteractive;
 }
 
+bool GellyIntegration::IsTwoWayCouplingSupported() const {
+	return twoWayCouplingSupported;
+}
+
 IFluidSimulation *GellyIntegration::GetSimulation() const {
 	return simulation;
 }

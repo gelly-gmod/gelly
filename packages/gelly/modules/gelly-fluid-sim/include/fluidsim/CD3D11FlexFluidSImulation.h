@@ -72,7 +72,7 @@ public:
 	const char* GetComputeDeviceName() override;
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
 
-	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override = 0;
+	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override;
 };
 
 #endif	// CD3D11FLEXFLUIDSIMULATION_H
