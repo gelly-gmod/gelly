@@ -10,6 +10,8 @@
 #include "Gelly.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/IBaseClientDLL.h"
+#include "source/IServerGameEnts.h"
+#include "source/IVEngineServer.h"
 
 #define DEFINE_LUA_FUNC(namespace, name) \
 	LUA->PushCFunction(namespace##_##name); \
@@ -299,6 +301,32 @@ LUA_FUNCTION(gelly_Reset) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_TestToss) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Handle
+	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Impulse
+
+	Vector impulse = LUA->GetVector(2);
+	int entIndex = static_cast<int>(LUA->GetNumber(1));
+
+	try {
+		edict_t* ent = GetEngineServer()->PEntityOfEntIndex(entIndex);
+		if (ent == nullptr) {
+			LUA->ThrowError("Invalid entity index");
+		}
+
+		CBaseEntity* entity = GetServerGameEnts()->EdictToBaseEntity(ent);
+		if (entity == nullptr) {
+			LUA->ThrowError("Invalid entity");
+		}
+
+		ApplyImpulseToServerEntity(entity, impulse);
+	} catch (const std::exception& e) {
+		LUA->ThrowError(e.what());
+	}
+
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem(); status != FILESYSTEM_STATUS::OK) {
@@ -351,8 +379,11 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetFluidVisualParams);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
+	DEFINE_LUA_FUNC(gelly, TestToss);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
+
+	GetEngineServer()->ServerCommand("say Hello from gelly-gmod serverside\n");
 
 	return 0;
 }

@@ -35,6 +35,12 @@ add_library(
         src/hooking/Library.h
         src/hooking/Library.cpp
         ${SHADER_GLUE_FILES}
+        src/source/CBaseEntity.h
+        src/source/CBaseEntity.cpp
+        src/source/IServerGameEnts.h
+        src/source/IVEngineServer.h
+        src/source/IVEngineServer.cpp
+        src/source/IServerGameEnts.cpp
 )
 
 target_link_libraries(gelly-gmod

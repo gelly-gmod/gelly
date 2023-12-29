@@ -41,9 +41,6 @@ float4 Shade(VS_INPUT input) {
     float3 eyeDir = normalize(eyePos - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
     // roughness is the inverse of the specular power
-
-    float roughness = 0.1f;
-
     float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), absorptionCoeffs.w) * 55.f;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
