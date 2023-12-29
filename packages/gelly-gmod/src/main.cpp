@@ -7,6 +7,8 @@
 #include <MinHook.h>
 #include <Windows.h>
 
+#include <map>
+
 #include "Gelly.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/IBaseClientDLL.h"
@@ -18,6 +20,7 @@
 	LUA->SetField(-2, #name);
 
 static GellyIntegration *gelly = nullptr;
+static std::map<uint32_t, ObjectHandle> entIndexToHandleMap;
 
 void InjectConsoleWindow() {
 	AllocConsole();
@@ -56,8 +59,9 @@ LUA_FUNCTION(gelly_AddObject) {
 
 	// The lua side will pass through the triangle mesh
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Mesh
+	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Ent index
 
-	uint32_t vertexCount = LUA->ObjLen(1);
+	const uint32_t vertexCount = LUA->ObjLen(1);
 	if (vertexCount <= 0) {
 		LUA->ThrowError("Cannot create object with no vertices!");
 	}
@@ -98,13 +102,16 @@ LUA_FUNCTION(gelly_AddObject) {
 	params.shapeData = meshParams;
 
 	LOG_INFO("Creating object with %d vertices", vertexCount);
-	auto handle = gelly->GetSimulation()->GetScene()->CreateObject(params);
-	gelly->GetSimulation()->GetScene()->Update();
+		auto handle = gelly->GetSimulation()->GetScene()->CreateObject(params);
+		gelly->GetSimulation()->GetScene()->Update();
 	LOG_INFO("Created object with handle %d", handle);
+
 	LUA->PushNumber(static_cast<double>(handle));
 
 	delete[] vertices;
 	delete[] indices;
+
+	entIndexToHandleMap[static_cast<uint32_t>(LUA->GetNumber(2))] = handle;
 
 	return 1;
 }
