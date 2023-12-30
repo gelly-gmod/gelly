@@ -36,8 +36,8 @@ float4 Shade(VS_INPUT input) {
     float3 absorption = ComputeAbsorption(absorptionCoeffs.xyz, thickness);
 
     float3 position = tex2D(positionTex, input.Tex).xyz;
-    float3 normal = tex2D(normalTex, input.Tex).xyz * 2.0f - 1.0f;
-
+    float3 normal = tex2D(normalTex, input.Tex).xyz;
+    
     float3 eyeDir = normalize(eyePos - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
     // roughness is the inverse of the specular power

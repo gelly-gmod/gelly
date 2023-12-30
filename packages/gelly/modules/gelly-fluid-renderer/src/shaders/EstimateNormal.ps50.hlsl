@@ -95,7 +95,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
     
     float3 normal = -normalize(cross(dpdx, dpdy));
 
-    output.PositiveNormal = float4(normal * 0.5f + 0.5f, 1.f);
+    output.PositiveNormal = float4(normal, 1.f);
     output.WorldPosition = float4(WorldPosFromDepth(input.Tex, zc), 1.f);
     return output;
 }
