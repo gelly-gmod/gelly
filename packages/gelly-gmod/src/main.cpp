@@ -341,7 +341,7 @@ LUA_FUNCTION(gelly_GetEntitiesCollidingWithParticles) {
 		return 0;
 	}
 
-	std::vector<CBaseEntity*> entities;
+	std::vector<CBaseEntity*> entities{};
 
 	constexpr auto contactVisitor = [&](const XMFLOAT3& velocity, ObjectHandle handle) {
 		const auto entIndex = handleToEntIndexMap[handle];
@@ -367,7 +367,7 @@ LUA_FUNCTION(gelly_GetEntitiesCollidingWithParticles) {
 
 	for (int i = 0; i < entities.size(); i++) {
 		LUA->PushNumber(i + 1);
-		LUA->PushUserType_Value(entities[i], GarrysMod::Lua::Type::Entity);
+		LUA->PushUserType(entities[i], GarrysMod::Lua::Type::Entity);
 		LUA->SetTable(-3);
 	}
 
