@@ -22,6 +22,8 @@ add_library(
         include/fluidsim/CFlexSimScene.h
         src/fluidsim/CFlexSImScene.cpp
         src/fluidsim/CD3D11FlexFluidSimulation.cpp
+        include/fluidsim/ISimRigids.h
+        include/fluidsim/CFlexSimRigids.h
 )
 
 GetFleXArchitecture()
@@ -33,12 +35,14 @@ set(FLEX_LIBS
         # The debug versions provide virtually no additional information, and are not worth the extra 20 milliseconds of sim time
         "${FLEX_PATH}/lib/${ARCH}/NvFlexReleaseD3D_${ARCH_SUFFIX}.lib"
         "${FLEX_PATH}/lib/${ARCH}/NvFlexDeviceRelease_${ARCH_SUFFIX}.lib"
+        "${FLEX_PATH}/lib/${ARCH}/NvFlexExtReleaseD3D_${ARCH_SUFFIX}.lib"
 )
 
 # The user needs to copy these dlls into the executable directory
 set(FLEX_DLLS
         "${FLEX_PATH}/bin/${ARCH}/NvFlexReleaseD3D_${ARCH_SUFFIX}.dll"
         "${FLEX_PATH}/bin/${ARCH}/NvFlexDeviceRelease_${ARCH_SUFFIX}.dll"
+        "${FLEX_PATH}/bin/${ARCH}/NvFlexExtReleaseD3D_${ARCH_SUFFIX}.dll"
         "${FLEX_PATH}/bin/${ARCH}/nvToolsExt64_1.dll"
         "${FLEX_PATH}/bin/${ARCH}/amd_ags_x64.dll"
         "${FLEX_PATH}/bin/${ARCH}/GFSDK_Aftermath_Lib.x64.dll"

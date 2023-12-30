@@ -11,6 +11,8 @@ using ushort = unsigned short;
 using ulong = unsigned long;
 using ulonglong = unsigned long long;
 using longlong = long long;
+template <typename T>
+using cref = const T&;
 }  // namespace DataTypes
 }  // namespace Gelly
 
