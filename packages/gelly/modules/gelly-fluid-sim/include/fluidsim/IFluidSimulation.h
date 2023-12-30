@@ -14,7 +14,7 @@
 gelly_interface IFluidSimulation : public IFeatureQuery {
 public:
 	using ContactPlaneVisitor = std::function<
-		void(const XMFLOAT3 &velocity, const uint32_t &shapeIndex)>;
+		bool(const XMFLOAT3 &velocity, const uint32_t &shapeIndex)>;
 
 	virtual ~IFluidSimulation() = default;
 

@@ -208,8 +208,13 @@ void CFlexSimScene::Update() {
 			rotations[valueIndex].z = object.second.rotation[2];
 			rotations[valueIndex].w = object.second.rotation[3];
 
+			// HACK: Static props have higher priority than dynamic props, so we can use that
+			// to our advantage here. This lets player collision response become robust, and it's a simple compromise
+			// since all we need to do is mark the world as dynamic and the player as static.
+			const bool isDynamic = valueIndex == 0;
+
 			flags[valueIndex] = NvFlexMakeShapeFlags(
-				GetFlexShapeType(object.second.shape), true
+				GetFlexShapeType(object.second.shape), isDynamic
 			);
 
 			object.second.currentShapeIndex = valueIndex;

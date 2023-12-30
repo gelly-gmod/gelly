@@ -369,33 +369,28 @@ LUA_FUNCTION(gelly_TestToss) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_GetEntitiesCollidingWithParticles) {
+LUA_FUNCTION(gelly_IsEntityCollidingWithParticles) {
 	if (!gelly->IsInteractive() || !gelly->IsEntityCollisionSupported()) {
 		return 0;
 	}
 
-	std::vector<int> entities{};
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Ent index
+	int targetEntIndex = static_cast<int>(LUA->GetNumber(1));
+	bool isColliding = false;
 
 	constexpr auto contactVisitor = [&](const XMFLOAT3& _, ObjectHandle handle) {
 		const auto entIndex = handleToEntIndexMap[handle];
-		entities.push_back(entIndex);
+		if (entIndex == targetEntIndex) {
+			isColliding = true;
+			return true;
+		}
+
+		return false;
 	};
 
 	gelly->GetSimulation()->VisitLatestContactPlanes(contactVisitor);
 
-	// Convert to lua table
-	LUA->CreateTable();
-
-	for (int i = 0; i < entities.size(); i++) {
-		LUA->PushNumber(i + 1);
-		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-		LUA->GetField(-1, "Entity");
-		LUA->PushNumber(entities[i]);
-		LUA->Call(1, 1);
-		LUA->Remove(-2); // removes the special table
-		LUA->SetTable(-3);
-	}
-
+	LUA->PushBool(isColliding);
 	return 1;
 }
 
@@ -453,7 +448,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, TestToss);
-	DEFINE_LUA_FUNC(gelly, GetEntitiesCollidingWithParticles);
+	DEFINE_LUA_FUNC(gelly, IsEntityCollidingWithParticles);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 
