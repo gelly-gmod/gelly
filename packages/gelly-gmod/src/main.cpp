@@ -341,23 +341,11 @@ LUA_FUNCTION(gelly_GetEntitiesCollidingWithParticles) {
 		return 0;
 	}
 
-	std::vector<CBaseEntity*> entities{};
+	std::vector<int> entities{};
 
 	constexpr auto contactVisitor = [&](const XMFLOAT3& velocity, ObjectHandle handle) {
 		const auto entIndex = handleToEntIndexMap[handle];
-		edict_t* ent = GetEngineServer()->PEntityOfEntIndex(entIndex);
-		if (ent == nullptr) {
-			LOG_WARNING("Could not find edict of entity index %d", entIndex);
-			return;
-		}
-
-		CBaseEntity* entity = GetServerGameEnts()->EdictToBaseEntity(ent);
-		if (entity == nullptr) {
-			LOG_WARNING("Could not find entity of edict %p", ent);
-			return;
-		}
-
-		entities.push_back(entity);
+		entities.push_back(entIndex);
 	};
 
 	gelly->GetSimulation()->VisitLatestContactPlanes(contactVisitor);
@@ -367,7 +355,11 @@ LUA_FUNCTION(gelly_GetEntitiesCollidingWithParticles) {
 
 	for (int i = 0; i < entities.size(); i++) {
 		LUA->PushNumber(i + 1);
-		LUA->PushUserType(entities[i], GarrysMod::Lua::Type::Entity);
+		LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		LUA->GetField(-1, "Entity");
+		LUA->PushNumber(entities[i]);
+		LUA->Call(1, 1);
+		LUA->Remove(-2); // removes the special table
 		LUA->SetTable(-3);
 	}
 
