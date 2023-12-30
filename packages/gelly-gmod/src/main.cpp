@@ -118,6 +118,37 @@ LUA_FUNCTION(gelly_AddObject) {
 	return 1;
 }
 
+LUA_FUNCTION(gelly_AddPlayerObject) {
+	if (!gelly->IsInteractive()) {
+		LUA->PushNumber(INVALID_OBJECT_HANDLE);
+		return 1;
+	}
+
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Radius
+	LUA->CheckType(2, GarrysMod::Lua::Type::Number); // Half height
+	LUA->CheckType(3, GarrysMod::Lua::Type::Number); // Ent index
+
+	const auto radius = static_cast<float>(LUA->GetNumber(1));
+	const auto halfHeight = static_cast<float>(LUA->GetNumber(2));
+	const auto entIndex = static_cast<int>(LUA->GetNumber(3));
+
+	ObjectCreationParams params = {};
+	params.shape = ObjectShape::CAPSULE;
+	ObjectCreationParams::Capsule capsuleParams = {};
+	capsuleParams.radius = radius;
+	capsuleParams.halfHeight = halfHeight;
+
+	params.shapeData = capsuleParams;
+
+	LOG_INFO("Creating player object with radius %f and half height %f", radius, halfHeight);
+	auto handle = gelly->GetSimulation()->GetScene()->CreateObject(params);
+	gelly->GetSimulation()->GetScene()->Update();
+	LOG_INFO("Created player object with handle %d", handle);
+
+	LUA->PushNumber(static_cast<double>(handle));
+	return 1;
+}
+
 LUA_FUNCTION(gelly_RemoveObject) {
 	if (!gelly->IsInteractive()) {
 		return 0;
@@ -343,7 +374,7 @@ LUA_FUNCTION(gelly_GetEntitiesCollidingWithParticles) {
 
 	std::vector<int> entities{};
 
-	constexpr auto contactVisitor = [&](const XMFLOAT3& velocity, ObjectHandle handle) {
+	constexpr auto contactVisitor = [&](const XMFLOAT3& _, ObjectHandle handle) {
 		const auto entIndex = handleToEntIndexMap[handle];
 		entities.push_back(entIndex);
 	};
@@ -411,6 +442,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, AddParticles);
 	DEFINE_LUA_FUNC(gelly, LoadMap);
 	DEFINE_LUA_FUNC(gelly, AddObject);
+	DEFINE_LUA_FUNC(gelly, AddPlayerObject);
 	DEFINE_LUA_FUNC(gelly, RemoveObject);
 	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
