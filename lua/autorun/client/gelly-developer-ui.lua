@@ -114,4 +114,29 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 			frame:Close()
 		end
 	end
+
+	local testTossButton = vgui.Create("DButton")
+	testTossButton:SetPos(ScrW() - 200, 300)
+	testTossButton:SetSize(200, 50)
+	testTossButton:SetText("Test Toss")
+	testTossButton.DoClick = function()
+		local entity = LocalPlayer():GetEyeTrace().Entity
+		if not entity then
+			return
+		end
+
+		gelly.TestToss(entity:EntIndex(), Vector(10000, 0, 0))
+	end
+
+	local toggleKillPlayerOnContactButton = vgui.Create("DButton")
+	toggleKillPlayerOnContactButton:SetPos(ScrW() - 200, 350)
+	toggleKillPlayerOnContactButton:SetSize(200, 50)
+	toggleKillPlayerOnContactButton:SetText("Toggle Kill Player On Contact (N)")
+	toggleKillPlayerOnContactButton.DoClick = function()
+		GELLY_KILL_PLAYER_ON_CONTACT = not GELLY_KILL_PLAYER_ON_CONTACT
+		local suffix = GELLY_KILL_PLAYER_ON_CONTACT and "(Y)" or "(N)"
+		toggleKillPlayerOnContactButton:SetText(
+			("Toggle Kill Player On Contact %s"):format(suffix)
+		)
+	end
 end)

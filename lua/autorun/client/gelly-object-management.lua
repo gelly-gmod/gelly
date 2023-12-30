@@ -28,7 +28,7 @@ local function addObject(entity)
 
 	local objectHandles = {}
 	for _, mesh in ipairs(meshes) do
-		table.insert(objectHandles, gelly.AddObject(mesh))
+		table.insert(objectHandles, gelly.AddObject(mesh, entity:EntIndex()))
 	end
 
 	objects[entity] = objectHandles
@@ -49,13 +49,26 @@ local function updateObject(entity)
 	local objectHandles = objects[entity]
 
 	for _, objectHandle in ipairs(objectHandles) do
+		if entity == LocalPlayer() then
+			gelly.SetObjectPosition(objectHandle, entity:GetPos())
+			gelly.SetObjectRotation(objectHandle, Angle(0, 0, 90))
+			return
+		end
+
 		local transform = entity:GetWorldTransformMatrix()
 		gelly.SetObjectPosition(objectHandle, transform:GetTranslation())
 		gelly.SetObjectRotation(objectHandle, transform:GetAngles())
 	end
 end
 
+local PLAYER_RADIUS = 15
+local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
+	-- Add local player
+	objects[LocalPlayer()] = {
+		gelly.AddPlayerObject(PLAYER_RADIUS, PLAYER_HALFHEIGHT, LocalPlayer():EntIndex()),
+	}
+
 	hook.Add("OnEntityCreated", "gelly.object-add", function(entity)
 		if not IsValid(entity) or entity:GetClass() ~= "prop_physics" then
 			return
