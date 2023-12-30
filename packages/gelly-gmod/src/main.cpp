@@ -143,6 +143,8 @@ LUA_FUNCTION(gelly_AddPlayerObject) {
 	LOG_INFO("Creating player object with radius %f and half height %f", radius, halfHeight);
 	auto handle = gelly->GetSimulation()->GetScene()->CreateObject(params);
 	gelly->GetSimulation()->GetScene()->Update();
+
+	handleToEntIndexMap[handle] = entIndex;
 	LOG_INFO("Created player object with handle %d", handle);
 
 	LUA->PushNumber(static_cast<double>(handle));
