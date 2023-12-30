@@ -76,6 +76,7 @@ public:
 		ObjectHandle handle, float x, float y, float z, float w
 	) override;
 
+	NvFlexBuffer* GetShapePositions();
 	ObjectHandle GetHandleFromShapeIndex(const uint& shapeIndex);
 
 	void Update() override;

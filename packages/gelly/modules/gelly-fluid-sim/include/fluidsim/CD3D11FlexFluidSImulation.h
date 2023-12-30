@@ -45,7 +45,8 @@ private:
 
 	// can be changed later via commands
 	float particleRadius = 0.1f;
-	float particleInverseMass = 1.f;
+	float particleInverseMass = 1 / 10.f;
+	uint maxContactsPerParticle = 12;
 	uint substeps = 2;
 
 	void SetupParams();

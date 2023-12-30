@@ -86,7 +86,7 @@ private:
 	IDirect3DStateBlock9* stateBlock = nullptr;
 	FluidRenderParams renderParams = {};
 
-	bool twoWayCouplingSupported = false;
+	bool entityCollisionSupported = false;
 
 	void CreateShaders();
 	void CreateBuffers();
@@ -106,7 +106,7 @@ public:
 	void ChangeParticleRadius(float radius);
 
 	[[nodiscard]] bool IsInteractive() const;
-	[[nodiscard]] bool IsTwoWayCouplingSupported() const;
+	[[nodiscard]] bool IsEntityCollisionSupported() const;
 	[[nodiscard]] const char* GetComputeDeviceName() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;
 };

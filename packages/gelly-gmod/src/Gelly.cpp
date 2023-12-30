@@ -205,7 +205,7 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		LOG_INFO("Querying for two-way physics coupling support...");
 		if (simulation->CheckFeatureSupport(GELLY_FEATURE::FLUIDSIM_CONTACTPLANES)) {
 			LOG_INFO("Two-way physics coupling is supported");
-			twoWayCouplingSupported = true;
+			entityCollisionSupported = true;
 		} else {
 			LOG_INFO("Two-way physics coupling is not supported");
 		}
@@ -400,8 +400,8 @@ bool GellyIntegration::IsInteractive() const {
 	return isSimulationInteractive;
 }
 
-bool GellyIntegration::IsTwoWayCouplingSupported() const {
-	return twoWayCouplingSupported;
+bool GellyIntegration::IsEntityCollisionSupported() const {
+	return entityCollisionSupported;
 }
 
 IFluidSimulation *GellyIntegration::GetSimulation() const {

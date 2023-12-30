@@ -101,7 +101,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	// soon...
 	solverDesc.maxDiffuseParticles = 0;
 	solverDesc.maxNeighborsPerParticle = 64;
-	solverDesc.maxContactsPerParticle = 6;
+	solverDesc.maxContactsPerParticle = maxContactsPerParticle;
 
 	solver = NvFlexCreateSolver(library, &solverDesc);
 
@@ -126,7 +126,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	);
 
 	buffers.contactVelocities = NvFlexAllocBuffer(
-		library, maxParticles * 6, sizeof(FlexFloat4), eNvFlexBufferHost
+		library, maxParticles * maxContactsPerParticle, sizeof(FlexFloat4), eNvFlexBufferHost
 	);
 
 	buffers.contactCounts = NvFlexAllocBuffer(
@@ -310,7 +310,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
 	solverParams.particleCollisionMargin = 1.f;
-	solverParams.shapeCollisionMargin = 1.f;
+	solverParams.shapeCollisionMargin = solverParams.radius;
 	solverParams.collisionDistance = solverParams.fluidRestDistance * 0.5f;
 	solverParams.sleepThreshold = 0.0f;
 	solverParams.shockPropagation = 0.0f;
@@ -389,28 +389,39 @@ void CD3D11FlexFluidSimulation::VisitLatestContactPlanes(
 	ContactPlaneVisitor visitor
 ) {
 	NvFlexGetContacts(solver, nullptr, buffers.contactVelocities, nullptr, buffers.contactCounts);
+	NvFlexGetParticles(solver, buffers.positions, nullptr);
 
 	const auto* velocities = static_cast<FlexFloat4*>(
 		NvFlexMap(buffers.contactVelocities, eNvFlexMapWait)
 	);
 
-	const auto* counts = static_cast<uint*>(
+	const auto* counts = static_cast<int*>(
 		NvFlexMap(buffers.contactCounts, eNvFlexMapWait)
 	);
 
-	for (uint i = 0; i < simData->GetActiveParticles(); i++) {
-		const uint contactCount = counts[i];
+	const auto* positions = static_cast<FlexFloat4*>(
+		NvFlexMap(buffers.positions, eNvFlexMapWait)
+	);
 
-		for (constexpr uint contactIndex = 0; i < contactCount; i++) {
-			const FlexFloat4 velocity = velocities[i * 6 + contactIndex];
+	const auto* shapePositions = static_cast<FlexFloat4*>(
+		NvFlexMap(scene->GetShapePositions(), eNvFlexMapWait)
+	);
+
+	for (uint i = 0; i < simData->GetActiveParticles(); i++) {
+		const int contactCount = counts[i];
+
+		for (constexpr int contactIndex = 0; i < contactCount; i++) {
+			const FlexFloat4 velocity = velocities[i * maxContactsPerParticle + contactIndex];
 			uint shapeIndex = static_cast<uint>(velocity.w);
 
 			ObjectHandle handle = scene->GetHandleFromShapeIndex(shapeIndex);
-			XMFLOAT3 velocityVector = {
-				velocity.x,
-				velocity.y,
-				velocity.z
-			};
+			XMFLOAT3 velocityVector = XMFLOAT3(
+				velocity.x, velocity.y, velocity.z
+			);
+
+			XMStoreFloat3(&velocityVector, XMVectorScale(
+				XMLoadFloat3(&velocityVector), 25.f
+			));
 
 			visitor(velocityVector, handle);
 		}
@@ -418,4 +429,6 @@ void CD3D11FlexFluidSimulation::VisitLatestContactPlanes(
 
 	NvFlexUnmap(buffers.contactVelocities);
 	NvFlexUnmap(buffers.contactCounts);
+	NvFlexUnmap(buffers.positions);
+	NvFlexUnmap(scene->GetShapePositions());
 }

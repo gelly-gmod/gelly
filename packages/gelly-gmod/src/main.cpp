@@ -20,7 +20,7 @@
 	LUA->SetField(-2, #name);
 
 static GellyIntegration *gelly = nullptr;
-static std::map<uint32_t, ObjectHandle> entIndexToHandleMap;
+static std::map<ObjectHandle, int> handleToEntIndexMap;
 
 void InjectConsoleWindow() {
 	AllocConsole();
@@ -59,7 +59,9 @@ LUA_FUNCTION(gelly_AddObject) {
 
 	// The lua side will pass through the triangle mesh
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table); // Mesh
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector); // Ent index
+	LUA->CheckType(2, GarrysMod::Lua::Type::Number); // Ent index
+	int entIndex = static_cast<int>(LUA->GetNumber(2));
+	LUA->Pop(); // to not interfere with the loop
 
 	const uint32_t vertexCount = LUA->ObjLen(1);
 	if (vertexCount <= 0) {
@@ -111,7 +113,7 @@ LUA_FUNCTION(gelly_AddObject) {
 	delete[] vertices;
 	delete[] indices;
 
-	entIndexToHandleMap[static_cast<uint32_t>(LUA->GetNumber(2))] = handle;
+	handleToEntIndexMap[handle] = entIndex;
 
 	return 1;
 }
@@ -334,13 +336,15 @@ LUA_FUNCTION(gelly_TestToss) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_ApplyCouplingForces) {
-	if (!gelly->IsInteractive() || !gelly->IsTwoWayCouplingSupported()) {
+LUA_FUNCTION(gelly_GetEntitiesCollidingWithParticles) {
+	if (!gelly->IsInteractive() || !gelly->IsEntityCollisionSupported()) {
 		return 0;
 	}
 
+	std::vector<CBaseEntity*> entities;
+
 	constexpr auto contactVisitor = [&](const XMFLOAT3& velocity, ObjectHandle handle) {
-		uint entIndex = entIndexToHandleMap[handle];
+		const auto entIndex = handleToEntIndexMap[handle];
 		edict_t* ent = GetEngineServer()->PEntityOfEntIndex(entIndex);
 		if (ent == nullptr) {
 			LOG_WARNING("Could not find edict of entity index %d", entIndex);
@@ -353,14 +357,21 @@ LUA_FUNCTION(gelly_ApplyCouplingForces) {
 			return;
 		}
 
-		Vector forceVector = {};
-		forceVector.x = velocity.x;
-		forceVector.y = velocity.y;
-		forceVector.z = velocity.z;
-		ApplyImpulseToServerEntity(entity, forceVector);
+		entities.push_back(entity);
 	};
 
 	gelly->GetSimulation()->VisitLatestContactPlanes(contactVisitor);
+
+	// Convert to lua table
+	LUA->CreateTable();
+
+	for (int i = 0; i < entities.size(); i++) {
+		LUA->PushNumber(i + 1);
+		LUA->PushUserType_Value(entities[i], GarrysMod::Lua::Type::Entity);
+		LUA->SetTable(-3);
+	}
+
+	return 1;
 }
 
 GMOD_MODULE_OPEN() {
@@ -416,7 +427,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, TestToss);
-	DEFINE_LUA_FUNC(gelly, ApplyCouplingForces);
+	DEFINE_LUA_FUNC(gelly, GetEntitiesCollidingWithParticles);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

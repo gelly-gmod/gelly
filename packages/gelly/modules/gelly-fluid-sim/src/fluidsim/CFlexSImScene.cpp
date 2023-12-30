@@ -201,7 +201,7 @@ void CFlexSimScene::Update() {
 			positions[valueIndex].x = object.second.position[0];
 			positions[valueIndex].y = object.second.position[1];
 			positions[valueIndex].z = object.second.position[2];
-			positions[valueIndex].w = 0.05f;
+			positions[valueIndex].w = 2.f;
 
 			rotations[valueIndex].x = object.second.rotation[0];
 			rotations[valueIndex].y = object.second.rotation[1];
@@ -285,7 +285,7 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 
 		for (uint i = 0; i < params.vertexCount; i++) {
 			static_cast<FlexFloat4 *>(verticesDst)[i] =
-				FlexFloat4{vertices[i].x, vertices[i].y, vertices[i].z, 0.0f};
+				FlexFloat4{vertices[i].x, vertices[i].y, vertices[i].z, 1.0f};
 		}
 
 		NvFlexUnmap(indicesBuffer);
@@ -360,4 +360,8 @@ ObjectHandle CFlexSimScene::GetHandleFromShapeIndex(const uint &shapeIndex) {
 	}
 
 	return it->first;
+}
+
+NvFlexBuffer *CFlexSimScene::GetShapePositions() {
+	return geometry.positions;
 }
