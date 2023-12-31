@@ -24,6 +24,7 @@ add_library(
         src/fluidsim/CD3D11FlexFluidSimulation.cpp
         include/fluidsim/ISimRigids.h
         include/fluidsim/CFlexSimRigids.h
+        src/fluidsim/CFlexSimRigids.cpp
 )
 
 GetFleXArchitecture()

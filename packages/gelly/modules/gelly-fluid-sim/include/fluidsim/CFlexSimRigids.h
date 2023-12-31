@@ -21,13 +21,16 @@ private:
 
 	void RecomputeRigidTransforms();
 public:
-	CFlexSimRigids(NvFlexLibrary* library, NvFlexSolver* solver);
+	CFlexSimRigids(int maxParticles, NvFlexLibrary* library, NvFlexSolver* solver);
 	~CFlexSimRigids() override;
 
-	RigidHandle CreateRigid(cref<RigidCreationParams> params) override;
+	void AddRigidModel(RigidModelName name, cref<RigidModelCreationParams> params) override;
+	RigidHandle CreateRigid(RigidModelName name) override;
 	void DestroyRigid(RigidHandle handle) override;
 
 	void Update() override;
+	void ComputeNewPositions() override;
+
 	RigidInfo GetRigidInfo(RigidHandle handle) override;
 };
 

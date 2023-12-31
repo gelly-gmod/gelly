@@ -12,7 +12,7 @@ using std::shared_ptr;
 using namespace DirectX;
 
 namespace Gelly {
-	struct RigidCreationParams {
+	struct RigidModelCreationParams {
 		shared_ptr<XMFLOAT3> vertices;
 		int numVertices;
 		shared_ptr<int> indices;
@@ -44,10 +44,17 @@ public:
 	using RigidHandle = uint32_t;
 
 	virtual ~ISimRigids() = default;
-	virtual RigidHandle CreateRigid(cref<RigidCreationParams> params) = 0;
+	virtual void AddRigidModel(RigidModelName name, cref<RigidModelCreationParams> params) = 0;
+	virtual RigidHandle CreateRigid(RigidModelName name) = 0;
 	virtual void DestroyRigid(RigidHandle handle) = 0;
 
 	virtual void Update() = 0;
+	/**
+	 * \brief Should be called after a solver tick to update the rigid body
+	 * positions.
+	 */
+	virtual void ComputeNewPositions() = 0;
+
 	virtual RigidInfo GetRigidInfo(RigidHandle handle) = 0;
 };
 
