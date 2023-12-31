@@ -4,13 +4,14 @@
 #include <DirectXMath.h>
 #include <GMFS.h>
 
+#include <tracy/Tracy.hpp>
+
 #include "CompositePS.h"
 #include "LoggingMacros.h"
 #include "NDCQuadVS.h"
+#include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
 #include "source/IVRenderView.h"
-
-#include <tracy/Tracy.hpp>
 
 #ifdef _DEBUG
 static const int defaultMaxParticles = 10000;
@@ -299,11 +300,18 @@ void GellyIntegration::Render() {
 		device->SetSamplerState(4, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 		device->SetSamplerState(4, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
+		device->SetSamplerState(5, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(5, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(5, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		device->SetSamplerState(5, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+		device->SetSamplerState(5, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
 		device->SetTexture(0, textures.depthTexture);
 		device->SetTexture(1, textures.normalTexture);
 		device->SetTexture(2, textures.positionTexture);
 		device->SetTexture(3, textures.backbufferTexture);
 		device->SetTexture(4, textures.thicknessTexture);
+		device->SetTexture(5, GetCubemap());
 		device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
 		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 

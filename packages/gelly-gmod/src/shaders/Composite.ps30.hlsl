@@ -6,6 +6,7 @@ sampler2D normalTex : register(s1);
 sampler2D positionTex : register(s2);
 sampler2D backbufferTex : register(s3);
 sampler2D thicknessTex : register(s4);
+samplerCUBE cubemapTex : register(s5);
 
 float3 eyePos : register(c0);
 float4 absorptionCoeffs : register(c1);
@@ -40,8 +41,8 @@ float4 Shade(VS_INPUT input) {
     
     float3 eyeDir = normalize(eyePos - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
-    // roughness is the inverse of the specular power
     float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), absorptionCoeffs.w) * 55.f;
+    specular += texCUBE(cubemapTex, reflectionDir).xyz;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     float2 transmissionUV = input.Tex + normal.xy * refractionStrength;
