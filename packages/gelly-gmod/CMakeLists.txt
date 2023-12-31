@@ -41,6 +41,9 @@ add_library(
         src/source/IVEngineServer.h
         src/source/IVEngineServer.cpp
         src/source/IServerGameEnts.cpp
+        src/source/Signatures.h
+        src/source/GetCubemap.h
+        src/source/GetCubemap.cpp
 )
 
 target_link_libraries(gelly-gmod

@@ -11,6 +11,7 @@
 
 #include "Gelly.h"
 #include "source/D3DDeviceWrapper.h"
+#include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
 #include "source/IServerGameEnts.h"
 #include "source/IVEngineServer.h"
@@ -394,6 +395,18 @@ LUA_FUNCTION(gelly_IsEntityCollidingWithParticles) {
 	return 1;
 }
 
+LUA_FUNCTION(gelly_TestGetCubemap) {
+	auto* tex = GetCubemap();
+	if (!tex) {
+		LUA->ThrowError("Failed to get cubemap!");
+	}
+
+	const auto textureType = tex->GetType();
+	LOG_INFO("D3D texture type: %d", textureType);
+
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem(); status != FILESYSTEM_STATUS::OK) {
@@ -449,6 +462,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, TestToss);
 	DEFINE_LUA_FUNC(gelly, IsEntityCollidingWithParticles);
+	DEFINE_LUA_FUNC(gelly, TestGetCubemap);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 
