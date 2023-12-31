@@ -43,7 +43,7 @@ void EnsureAllHandlesInitialized() {
 
 	g_getLocalCubemap = g_materialSystem.FindFunction<GetLocalCubemap_t>(sigs::CMaterialSystem_GetLocalCubemap);
 	g_getD3DTexture = g_shaderAPI.FindFunction<GetD3DTexture_t>(sigs::CShaderAPIDX8_GetD3DTexture);
-	g_getTextureHandle = g_shaderAPI.FindFunction<GetTextureHandle_t>(sigs::CTexture_GetTextureHandle);
+	g_getTextureHandle = g_materialSystem.FindFunction<GetTextureHandle_t>(sigs::CTexture_GetTextureHandle);
 
 	if (!g_getLocalCubemap || !g_getD3DTexture || !g_getTextureHandle) {
 		throw std::runtime_error("Failed to resolve all GetCubemap functions!");
