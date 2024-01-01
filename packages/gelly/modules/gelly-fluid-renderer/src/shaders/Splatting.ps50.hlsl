@@ -31,8 +31,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float depth = nudgedPosition.z / nudgedPosition.w;
 
     output.ShaderDepth = float4(viewNudgedPosition.z, depth, 0.f, 1.f);
-    // Soon for absorption
-    output.Albedo = float4(0.3, 0.3, 1.0, 1.0);
+    output.Albedo = input.Absorption;
     output.Depth = depth;
     return output;
 }

@@ -285,6 +285,9 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
 
+	// this is an SRV buffer so it wont clash with the slot 0 assignment above
+	buffers.particleAbsorption->BindToPipeline(ShaderType::Vertex, 0);
+
 	context->Draw(simData->GetActiveParticles(), 0);
 	// we're not using a swapchain, so we need to queue up work manually
 	context->ResetPipeline();
@@ -551,7 +554,7 @@ void CD3D11DebugFluidRenderer::PullPerParticleData() {
 }
 
 void CD3D11DebugFluidRenderer::SetPerParticleAbsorption(
-	uint particleIndex, const float absorption[3]
+	const uint particleIndex, const float absorption[3]
 ) {
 	views.absorptionView->Write(
 		particleIndex,
