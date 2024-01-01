@@ -446,12 +446,20 @@ void GellyIntegration::Render() {
 		device->SetSamplerState(5, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 		device->SetSamplerState(5, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
+		device->SetSamplerState(6, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(6, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(6, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		device->SetSamplerState(6, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+		device->SetSamplerState(6, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
 		device->SetTexture(0, textures.depthTexture);
 		device->SetTexture(1, textures.normalTexture);
 		device->SetTexture(2, textures.positionTexture);
 		device->SetTexture(3, textures.backbufferTexture);
 		device->SetTexture(4, textures.thicknessTexture);
 		device->SetTexture(5, GetCubemap());
+		device->SetTexture(6, textures.albedoTexture);
+
 		device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
 		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 

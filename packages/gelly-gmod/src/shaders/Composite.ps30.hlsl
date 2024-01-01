@@ -7,6 +7,7 @@ sampler2D positionTex : register(s2);
 sampler2D backbufferTex : register(s3);
 sampler2D thicknessTex : register(s4);
 samplerCUBE cubemapTex : register(s5);
+sampler2D absorptionTex : register(s6);
 
 float3 eyePos : register(c0);
 float4 absorptionCoeffs : register(c1);
@@ -34,7 +35,7 @@ float4 Shade(VS_INPUT input) {
         discard;
     }
 
-    float3 absorption = ComputeAbsorption(absorptionCoeffs.xyz, thickness);
+    float3 absorption = ComputeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness);
 
     float3 position = tex2D(positionTex, input.Tex).xyz;
     float3 normal = tex2D(normalTex, input.Tex).xyz;
