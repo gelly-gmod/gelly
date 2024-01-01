@@ -118,6 +118,11 @@ public:
 
 	[[nodiscard]] IFluidRenderer *GetRenderer() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;
+	/**
+	 * \brief Returns the currently used absorption vector for new particles.
+	 * Usually managed by Lua. \return The currently used absorption vector.
+	 */
+	[[nodiscard]] XMFLOAT3 GetCurrentAbsorption() const;
 };
 
 #endif	// GELLY_H

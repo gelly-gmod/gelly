@@ -1,6 +1,9 @@
+// clang-format off
+#include <BSPParser.h>
+// clang-format on
+
 #include "Gelly.h"
 
-#include <BSPParser.h>
 #include <DirectXMath.h>
 #include <GMFS.h>
 
@@ -562,6 +565,16 @@ bool GellyIntegration::IsPerParticleAbsorptionSupported() const {
 
 IFluidRenderer *GellyIntegration::GetRenderer() const { return renderer; }
 IFluidSimulation *GellyIntegration::GetSimulation() const { return simulation; }
+
+XMFLOAT3 GellyIntegration::GetCurrentAbsorption() const {
+	const XMFLOAT3 absorption = {
+		compositeConstants.absorption[0],
+		compositeConstants.absorption[1],
+		compositeConstants.absorption[2]
+	};
+
+	return absorption;
+}
 
 GellyIntegration::~GellyIntegration() {
 	if (renderContext) {
