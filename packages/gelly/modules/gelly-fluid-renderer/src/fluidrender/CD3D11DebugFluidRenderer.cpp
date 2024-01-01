@@ -27,7 +27,7 @@
 #endif
 
 CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
-	: context(nullptr), simData(nullptr), buffers({}) {}
+	: context(nullptr), simData(nullptr), buffers({}), views({}) {}
 
 void CD3D11DebugFluidRenderer::CreateShaders() {
 	shaders.splattingGS = context->CreateShader(
@@ -133,6 +133,18 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 
 	buffers.positionsLayout = context->CreateBufferLayout(positionLayoutDesc);
 	buffers.positionsLayout->AttachBufferAtSlot(buffers.positions, 0);
+
+	BufferDesc particleAbsorptionBufferDesc = {};
+	particleAbsorptionBufferDesc.type = BufferType::SHADER_RESOURCE;
+	particleAbsorptionBufferDesc.usage = BufferUsage::DYNAMIC;
+	// Any higher and it's overkill, any lower and we get artifacts.
+	particleAbsorptionBufferDesc.format = BufferFormat::R16G16B16A16_FLOAT;
+	particleAbsorptionBufferDesc.byteWidth =
+		sizeof(SimFloat4) * simData->GetMaxParticles();
+	particleAbsorptionBufferDesc.stride = sizeof(SimFloat4);
+
+	buffers.particleAbsorption =
+		context->CreateBuffer(particleAbsorptionBufferDesc);
 
 	DepthBufferDesc depthBufferDesc = {};
 	depthBufferDesc.format = DepthFormat::D24S8;
@@ -283,8 +295,8 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 	ZoneScopedN("Filtered depth render");
 #endif
 	auto *depthTextureA = internalTextures.unfilteredDepth;
-	auto *depthTextureB =
-		lowBitMode ? internalTextures.untransformedDepth : outputTextures.GetFeatureTexture(DEPTH);
+	auto *depthTextureB = lowBitMode ? internalTextures.untransformedDepth
+									 : outputTextures.GetFeatureTexture(DEPTH);
 
 	depthTextureB->Clear(depthClearColor);
 
@@ -337,8 +349,7 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 	auto *positionsTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::POSITIONS);
 
-	auto *depthTexture =
-		internalTextures.unfilteredDepth;
+	auto *depthTexture = internalTextures.unfilteredDepth;
 
 	normalsTexture->Clear(genericClearColor);
 	positionsTexture->Clear(genericClearColor);
@@ -433,8 +444,8 @@ void CD3D11DebugFluidRenderer::EncodeDepth() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Depth encoding render");
 #endif
-	auto* depthTexture = outputTextures.GetFeatureTexture(DEPTH);
-	auto* untransformedDepthTexture = internalTextures.untransformedDepth;
+	auto *depthTexture = outputTextures.GetFeatureTexture(DEPTH);
+	auto *untransformedDepthTexture = internalTextures.untransformedDepth;
 
 	depthTexture->Clear(depthClearColor);
 
@@ -457,7 +468,6 @@ void CD3D11DebugFluidRenderer::EncodeDepth() {
 	context->Draw(4, 0);
 	context->ResetPipeline();
 }
-
 
 void CD3D11DebugFluidRenderer::Render() {
 #ifdef TRACY_ENABLE
@@ -512,9 +522,7 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 }
 
-void CD3D11DebugFluidRenderer::EnableLowBitMode() {
-	lowBitMode = true;
-}
+void CD3D11DebugFluidRenderer::EnableLowBitMode() { lowBitMode = true; }
 
 void CD3D11DebugFluidRenderer::SetSettings(
 	const Gelly::FluidRenderSettings &settings
@@ -535,6 +543,24 @@ void CD3D11DebugFluidRenderer::SetPerFrameParams(
 	cbufferData.height = static_cast<float>(height);
 
 	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
+}
+
+void CD3D11DebugFluidRenderer::PullPerParticleData() {
+	views.absorptionView =
+		context->CreateMappedBufferView(buffers.particleAbsorption);
+}
+
+void CD3D11DebugFluidRenderer::SetPerParticleAbsorption(
+	uint particleIndex, const float absorption[3]
+) {
+	views.absorptionView->Write(
+		particleIndex,
+		SimFloat4{absorption[0], absorption[1], absorption[2], 0.0}
+	);
+}
+
+void CD3D11DebugFluidRenderer::PushPerParticleData() {
+	views.absorptionView.reset();
 }
 
 #ifdef _DEBUG

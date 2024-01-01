@@ -34,7 +34,13 @@ private:
 
 		GellyInterfaceVal<IManagedBuffer> screenQuad;
 		GellyInterfaceVal<IManagedBufferLayout> screenQuadLayout;
+
+		GellyInterfaceVal<IManagedBuffer> particleAbsorption;
 	} buffers;
+
+	struct {
+		GellyOwnedInterface<IMappedBufferView> absorptionView;
+	} views;
 
 	struct {
 		GellyInterfaceVal<IManagedTexture> unfilteredDepth;
@@ -94,6 +100,10 @@ public:
 
 	void SetSettings(const Gelly::FluidRenderSettings &settings) override;
 	void SetPerFrameParams(const Gelly::FluidRenderParams &params) override;
+
+	void PullPerParticleData() override;
+	void SetPerParticleAbsorption(uint particleIndex, const float absorption[3]) override;
+	void PushPerParticleData() override;
 
 #ifdef _DEBUG
 	bool EnableRenderDocCaptures() override;
