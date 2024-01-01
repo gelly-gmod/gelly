@@ -5,6 +5,7 @@
 
 enum class GELLY_FEATURE {
 	FLUIDSIM_CONTACTPLANES,
+	FLUIDRENDER_PER_PARTICLE_ABSORPTION,
 };
 
 gelly_interface IFeatureQuery {
@@ -14,4 +15,4 @@ public:
 	virtual bool CheckFeatureSupport(GELLY_FEATURE feature) = 0;
 };
 
-#endif //IFEATUREQUERY_H
+#endif	// IFEATUREQUERY_H

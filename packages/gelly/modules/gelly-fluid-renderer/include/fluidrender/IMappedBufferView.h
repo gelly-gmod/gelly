@@ -25,7 +25,7 @@ public:
 	virtual void AttachToContext(GellyInterfaceVal<IRenderContext> context) = 0;
 	virtual void View(GellyInterfaceRef<IManagedBuffer> buffer) = 0;
 
-	virtual void* GetBufferStart() = 0;
+	virtual void *GetBufferStart() = 0;
 	virtual size_t GetBufferSize() = 0;
 	/**
 	 * \brief Really a convenience function since you can get this info from the
@@ -34,22 +34,29 @@ public:
 	 */
 	virtual size_t GetElementSize() = 0;
 
-	template<typename T>
-	T* GetBufferStart() {
-		return static_cast<T*>(GetBufferStart());
+	template <typename T>
+	T *GetBufferStart() {
+		return static_cast<T *>(GetBufferStart());
 	}
 
-	template<typename T>
-	void Write(constexpr uint index, const T& data) {
-		static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable");
-		static_assert(std::is_standard_layout_v<T>, "T must be standard layout");
+	template <typename T>
+	void Write(uint index, const T &data) {
+		static_assert(
+			std::is_trivially_copyable_v<T>, "T must be trivially copyable"
+		);
+		static_assert(
+			std::is_standard_layout_v<T>, "T must be standard layout"
+		);
 
-		if (constexpr uint byteIndex = index * sizeof(T); byteIndex >= GetBufferSize()) {
-			throw std::out_of_range("IMappedBufferView::Write: index out of range");
+		if (const uint byteIndex = index * sizeof(T);
+			byteIndex >= GetBufferSize()) {
+			throw std::out_of_range(
+				"IMappedBufferView::Write: index out of range"
+			);
 		}
 
 		GetBufferStart<T>()[index] = data;
 	}
 };
 
-#endif //IMAPPEDBUFFERVIEW_H
+#endif	// IMAPPEDBUFFERVIEW_H

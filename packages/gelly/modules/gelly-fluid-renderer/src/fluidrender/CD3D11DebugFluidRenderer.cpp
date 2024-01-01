@@ -566,6 +566,15 @@ void CD3D11DebugFluidRenderer::PushPerParticleData() {
 	views.absorptionView.reset();
 }
 
+bool CD3D11DebugFluidRenderer::CheckFeatureSupport(GELLY_FEATURE feature) {
+	switch (feature) {
+		case GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION:
+			return true;
+		default:
+			return false;
+	}
+}
+
 #ifdef _DEBUG
 bool CD3D11DebugFluidRenderer::EnableRenderDocCaptures() {
 	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");

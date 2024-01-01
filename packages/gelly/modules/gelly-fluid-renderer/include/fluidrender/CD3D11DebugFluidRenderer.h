@@ -102,8 +102,11 @@ public:
 	void SetPerFrameParams(const Gelly::FluidRenderParams &params) override;
 
 	void PullPerParticleData() override;
-	void SetPerParticleAbsorption(uint particleIndex, const float absorption[3]) override;
+	void SetPerParticleAbsorption(uint particleIndex, const float absorption[3])
+		override;
 	void PushPerParticleData() override;
+
+	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
 
 #ifdef _DEBUG
 	bool EnableRenderDocCaptures() override;

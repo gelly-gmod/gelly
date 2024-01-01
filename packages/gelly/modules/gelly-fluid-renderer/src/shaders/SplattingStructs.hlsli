@@ -1,6 +1,6 @@
 struct VS_INPUT {
     float4 Pos : SV_Position;
-    float4 Absorption : ABSORPTION;
+    float3 Absorption : ABSORPTION;
 };
 
 struct GS_OUTPUT {
