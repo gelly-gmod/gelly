@@ -158,6 +158,7 @@ void CD3D11ManagedBuffer::BindToPipeline(
 					deviceContext->GSSetShaderResources(slot, 1, &srv);
 					break;
 			}
+			break;
 		case BufferType::VERTEX: {
 			// Shader type is not used here. But, the vertex shader is the only
 			// shader that can use vertex buffers.
