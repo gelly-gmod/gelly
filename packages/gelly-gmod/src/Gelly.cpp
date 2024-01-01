@@ -404,6 +404,11 @@ void GellyIntegration::ChangeParticleRadius(float radius) {
 	LOG_INFO("Sent particle radius commands to simulation");
 }
 
+void GellyIntegration::ChangeThresholdRatio(float ratio) {
+	thresholdRatio = ratio;
+}
+
+
 bool GellyIntegration::IsInteractive() const {
 	return isSimulationInteractive;
 }

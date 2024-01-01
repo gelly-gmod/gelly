@@ -38,7 +38,7 @@ private:
 	IDirect3DDevice9Ex *device;
 
 	float particleRadius = 20.f;
-	float thresholdRatio = 3.f;
+	float thresholdRatio = 10.33f;
 	bool isSimulationInteractive = false;
 
 	struct {
@@ -104,6 +104,7 @@ public:
 	void LoadMap(const char *mapName);
 	void SetFluidParams(const FluidVisualParams &params);
 	void ChangeParticleRadius(float radius);
+	void ChangeThresholdRatio(float ratio);
 
 	[[nodiscard]] bool IsInteractive() const;
 	[[nodiscard]] bool IsEntityCollisionSupported() const;

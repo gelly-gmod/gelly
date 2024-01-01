@@ -395,6 +395,13 @@ LUA_FUNCTION(gelly_IsEntityCollidingWithParticles) {
 	return 1;
 }
 
+LUA_FUNCTION(gelly_ChangeThresholdRatio) {
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number); // Ratio
+
+	gelly->ChangeThresholdRatio(static_cast<float>(LUA->GetNumber(1)));
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem(); status != FILESYSTEM_STATUS::OK) {
@@ -450,6 +457,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, TestToss);
 	DEFINE_LUA_FUNC(gelly, IsEntityCollidingWithParticles);
+	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

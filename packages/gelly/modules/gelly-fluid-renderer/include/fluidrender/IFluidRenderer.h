@@ -11,7 +11,7 @@
 namespace Gelly {
 struct FluidRenderSettings {
 	float particleRadius = 0.1f;
-	int filterIterations = 71;
+	int filterIterations = 72;
 	int thicknessFilterIterations = 13;
 };
 
@@ -44,7 +44,7 @@ struct FluidRenderParams {
 };
 }  // namespace Gelly
 
-gelly_interface IFluidRenderer {
+gelly_interface IFluidRenderer : public IFeatureQuery {
 public:
 	virtual ~IFluidRenderer() = default;
 
@@ -71,6 +71,15 @@ public:
 
 	virtual void SetSettings(const FluidRenderSettings &settings) = 0;
 	virtual void SetPerFrameParams(const FluidRenderParams &params) = 0;
+
+	virtual void PullPerParticleData() = 0;
+	/**
+	 * \brief Sets the absorption of the given particle, will throw if particle data isn't pulled.
+	 * \param particleIndex Index of the particle.
+	 * \param absorption Absorption vector, in the format of RGB.
+	 */
+	virtual void SetPerParticleAbsorption(uint particleIndex, const float absorption[3]) = 0;
+	virtual void PushPerParticleData() = 0;
 
 #ifdef _DEBUG
 	/**
