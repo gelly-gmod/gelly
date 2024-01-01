@@ -1,6 +1,6 @@
-#include <BSPParser.h>
 #include "Gelly.h"
 
+#include <BSPParser.h>
 #include <DirectXMath.h>
 #include <GMFS.h>
 
@@ -20,89 +20,177 @@ static const int defaultMaxParticles = 500000;
 #endif
 
 void GellyIntegration::CreateShaders() {
-	LOG_DX_CALL("Failed to create composite pixel shader",
+	LOG_DX_CALL(
+		"Failed to create composite pixel shader",
 		device->CreatePixelShader(
-			reinterpret_cast<const DWORD*>(gsc::CompositePS::GetBytecode()), &shaders.compositePS
-		));
+			reinterpret_cast<const DWORD *>(gsc::CompositePS::GetBytecode()),
+			&shaders.compositePS
+		)
+	);
 
-	LOG_DX_CALL("Failed to create NDC quad vertex shader",
+	LOG_DX_CALL(
+		"Failed to create NDC quad vertex shader",
 		device->CreateVertexShader(
-			reinterpret_cast<const DWORD*>(gsc::NDCQuadVS::GetBytecode()), &shaders.ndcQuadVS
-		));
+			reinterpret_cast<const DWORD *>(gsc::NDCQuadVS::GetBytecode()),
+			&shaders.ndcQuadVS
+		)
+	);
 }
 
 void GellyIntegration::CreateBuffers() {
 	NDCVertex quadVertices[] = {
-		{ -1.f, -1.f, 0.f, 1.f, 0.f, 1.f },
-		{ -1.f, 1.f, 0.f, 1.f, 0.f, 0.f },
-		{ 1.f, -1.f, 0.f, 1.f, 1.f, 1.f },
-		{ 1.f, 1.f, 0.f, 1.f, 1.f, 0.f }
+		{-1.f, -1.f, 0.f, 1.f, 0.f, 1.f},
+		{-1.f, 1.f, 0.f, 1.f, 0.f, 0.f},
+		{1.f, -1.f, 0.f, 1.f, 1.f, 1.f},
+		{1.f, 1.f, 0.f, 1.f, 1.f, 0.f}
 	};
 
-	LOG_DX_CALL("Failed to create NDC quad vertex buffer",
+	LOG_DX_CALL(
+		"Failed to create NDC quad vertex buffer",
 		device->CreateVertexBuffer(
-			sizeof(quadVertices), D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &buffers.ndcQuadVB, nullptr
-		));
+			sizeof(quadVertices),
+			D3DUSAGE_WRITEONLY,
+			0,
+			D3DPOOL_DEFAULT,
+			&buffers.ndcQuadVB,
+			nullptr
+		)
+	);
 
-	void* bufferData = nullptr;
-	LOG_DX_CALL("Failed to lock NDC quad vertex buffer",
-		buffers.ndcQuadVB->Lock(0, sizeof(quadVertices), &bufferData, 0));
+	void *bufferData = nullptr;
+	LOG_DX_CALL(
+		"Failed to lock NDC quad vertex buffer",
+		buffers.ndcQuadVB->Lock(0, sizeof(quadVertices), &bufferData, 0)
+	);
 
 	std::memcpy(bufferData, quadVertices, sizeof(quadVertices));
 
-	LOG_DX_CALL("Failed to unlock NDC quad vertex buffer",
-		buffers.ndcQuadVB->Unlock());
+	LOG_DX_CALL(
+		"Failed to unlock NDC quad vertex buffer", buffers.ndcQuadVB->Unlock()
+	);
 
-	LOG_DX_CALL("Failed to create state block",
-		device->CreateStateBlock(D3DSBT_ALL, &stateBlock));
-
+	LOG_DX_CALL(
+		"Failed to create state block",
+		device->CreateStateBlock(D3DSBT_ALL, &stateBlock)
+	);
 }
-
 
 void GellyIntegration::CreateTextures() {
 	uint16_t width, height;
 	renderContext->GetDimensions(width, height);
 
-	LOG_DX_CALL("Failed to create D3D9-side depth texture",
+	LOG_DX_CALL(
+		"Failed to create D3D9-side depth texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.depthTexture, &sharedHandles.depthTexture
-		));
+			width,
+			height,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_A32B32G32R32F,
+			D3DPOOL_DEFAULT,
+			&textures.depthTexture,
+			&sharedHandles.depthTexture
+		)
+	);
 
-	LOG_DX_CALL("Failed to create D3D9-side albedo texture",
+	LOG_DX_CALL(
+		"Failed to create D3D9-side albedo texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.albedoTexture, &sharedHandles.albedoTexture
-		));
+			width,
+			height,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_A32B32G32R32F,
+			D3DPOOL_DEFAULT,
+			&textures.albedoTexture,
+			&sharedHandles.albedoTexture
+		)
+	);
 
-	LOG_DX_CALL("Failed to create D3D9-side normal texture",
+	LOG_DX_CALL(
+		"Failed to create D3D9-side normal texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.normalTexture, &sharedHandles.normalTexture
-		));
+			width,
+			height,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_A32B32G32R32F,
+			D3DPOOL_DEFAULT,
+			&textures.normalTexture,
+			&sharedHandles.normalTexture
+		)
+	);
 
-	LOG_DX_CALL("Failed to create D3D9-side position texture",
+	LOG_DX_CALL(
+		"Failed to create D3D9-side position texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT, &textures.positionTexture, &sharedHandles.positionTexture
-		));
+			width,
+			height,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_A32B32G32R32F,
+			D3DPOOL_DEFAULT,
+			&textures.positionTexture,
+			&sharedHandles.positionTexture
+		)
+	);
 
-	LOG_DX_CALL("Failed to create D3D9-side thickness texture",
+	LOG_DX_CALL(
+		"Failed to create D3D9-side thickness texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT, &textures.thicknessTexture, &sharedHandles.thicknessTexture
-		));
+			width,
+			height,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_A16B16G16R16F,
+			D3DPOOL_DEFAULT,
+			&textures.thicknessTexture,
+			&sharedHandles.thicknessTexture
+		)
+	);
 
 	// unrelated to gelly, this is a texture just to store the backbuffer
-	LOG_DX_CALL("Failed to create D3D9-side backbuffer texture",
+	LOG_DX_CALL(
+		"Failed to create D3D9-side backbuffer texture",
 		device->CreateTexture(
-			width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &textures.backbufferTexture, nullptr
-		));
+			width,
+			height,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_A8R8G8B8,
+			D3DPOOL_DEFAULT,
+			&textures.backbufferTexture,
+			nullptr
+		)
+	);
 
-	gellyTextures.depthTexture = renderContext->CreateSharedTexture("gelly-gmod/depth", sharedHandles.depthTexture, ContextRenderAPI::D3D9Ex);
-	gellyTextures.albedoTexture = renderContext->CreateSharedTexture("gelly-gmod/albedo", sharedHandles.albedoTexture, ContextRenderAPI::D3D9Ex);
-	gellyTextures.normalTexture = renderContext->CreateSharedTexture("gelly-gmod/normal", sharedHandles.normalTexture, ContextRenderAPI::D3D9Ex);
-	gellyTextures.positionTexture = renderContext->CreateSharedTexture("gelly-gmod/position", sharedHandles.positionTexture, ContextRenderAPI::D3D9Ex);
-	gellyTextures.thicknessTexture = renderContext->CreateSharedTexture("gelly-gmod/thickness", sharedHandles.thicknessTexture, ContextRenderAPI::D3D9Ex);
+	gellyTextures.depthTexture = renderContext->CreateSharedTexture(
+		"gelly-gmod/depth", sharedHandles.depthTexture, ContextRenderAPI::D3D9Ex
+	);
+	gellyTextures.albedoTexture = renderContext->CreateSharedTexture(
+		"gelly-gmod/albedo",
+		sharedHandles.albedoTexture,
+		ContextRenderAPI::D3D9Ex
+	);
+	gellyTextures.normalTexture = renderContext->CreateSharedTexture(
+		"gelly-gmod/normal",
+		sharedHandles.normalTexture,
+		ContextRenderAPI::D3D9Ex
+	);
+	gellyTextures.positionTexture = renderContext->CreateSharedTexture(
+		"gelly-gmod/position",
+		sharedHandles.positionTexture,
+		ContextRenderAPI::D3D9Ex
+	);
+	gellyTextures.thicknessTexture = renderContext->CreateSharedTexture(
+		"gelly-gmod/thickness",
+		sharedHandles.thicknessTexture,
+		ContextRenderAPI::D3D9Ex
+	);
 }
 
 void GellyIntegration::LinkTextures() const {
-	auto* fluidTextures = renderer->GetFluidTextures();
+	auto *fluidTextures = renderer->GetFluidTextures();
 	fluidTextures->SetFeatureTexture(DEPTH, gellyTextures.depthTexture);
 	fluidTextures->SetFeatureTexture(ALBEDO, gellyTextures.albedoTexture);
 	fluidTextures->SetFeatureTexture(NORMALS, gellyTextures.normalTexture);
@@ -111,11 +199,14 @@ void GellyIntegration::LinkTextures() const {
 }
 
 void GellyIntegration::SetCompositeConstants() {
-	// At the core, constants are nothing more than contiguous sequences of float4s, so we can use that to our advantage
-	// here in D3D9
-	device->SetPixelShaderConstantF(0, reinterpret_cast<const float*>(&compositeConstants), sizeof(compositeConstants) / sizeof(float) / 4);
+	// At the core, constants are nothing more than contiguous sequences of
+	// float4s, so we can use that to our advantage here in D3D9
+	device->SetPixelShaderConstantF(
+		0,
+		reinterpret_cast<const float *>(&compositeConstants),
+		sizeof(compositeConstants) / sizeof(float) / 4
+	);
 }
-
 
 void GellyIntegration::UpdateRenderParams() {
 	ZoneScoped;
@@ -130,10 +221,10 @@ void GellyIntegration::UpdateRenderParams() {
 
 	GetMatricesFromView(
 		currentView,
-		reinterpret_cast<VMatrix*>(&viewMatrix),
-		reinterpret_cast<VMatrix*>(&projectionMatrix),
-		reinterpret_cast<VMatrix*>(&_unused1),
-		reinterpret_cast<VMatrix*>(&_unused2)
+		reinterpret_cast<VMatrix *>(&viewMatrix),
+		reinterpret_cast<VMatrix *>(&projectionMatrix),
+		reinterpret_cast<VMatrix *>(&_unused1),
+		reinterpret_cast<VMatrix *>(&_unused2)
 	);
 
 	XMFLOAT4X4 inverseViewMatrix = {};
@@ -150,10 +241,20 @@ void GellyIntegration::UpdateRenderParams() {
 	);
 
 	// And finally we can transpose all of these matrices
-	XMStoreFloat4x4(&viewMatrix, XMMatrixTranspose(XMLoadFloat4x4(&viewMatrix)));
-	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&projectionMatrix)));
-	XMStoreFloat4x4(&inverseViewMatrix, XMMatrixTranspose(XMLoadFloat4x4(&inverseViewMatrix)));
-	XMStoreFloat4x4(&inverseProjectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&inverseProjectionMatrix)));
+	XMStoreFloat4x4(
+		&viewMatrix, XMMatrixTranspose(XMLoadFloat4x4(&viewMatrix))
+	);
+	XMStoreFloat4x4(
+		&projectionMatrix, XMMatrixTranspose(XMLoadFloat4x4(&projectionMatrix))
+	);
+	XMStoreFloat4x4(
+		&inverseViewMatrix,
+		XMMatrixTranspose(XMLoadFloat4x4(&inverseViewMatrix))
+	);
+	XMStoreFloat4x4(
+		&inverseProjectionMatrix,
+		XMMatrixTranspose(XMLoadFloat4x4(&inverseProjectionMatrix))
+	);
 
 	renderParams.view = viewMatrix;
 	renderParams.proj = projectionMatrix;
@@ -172,22 +273,28 @@ void GellyIntegration::UpdateRenderParams() {
 	compositeConstants.eyePos[2] = currentView.origin.z;
 }
 
-GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDevice9Ex *device) :
-	device(device),
-	textures({})
-{
+GellyIntegration::GellyIntegration(
+	uint16_t width, uint16_t height, IDirect3DDevice9Ex *device
+)
+	: device(device), textures({}) {
 	try {
 		renderContext = CreateD3D11FluidRenderContext(width, height);
 		LOG_INFO("Created render context");
 		renderer = CreateD3D11DebugFluidRenderer(renderContext);
 		LOG_INFO("Created renderer");
 		simContext = CreateD3D11SimContext(
-			static_cast<ID3D11Device *>(renderContext->GetRenderAPIResource(RenderAPIResource::D3D11Device)),
-			static_cast<ID3D11DeviceContext *>(renderContext->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext))
+			static_cast<ID3D11Device *>(renderContext->GetRenderAPIResource(
+				RenderAPIResource::D3D11Device
+			)),
+			static_cast<ID3D11DeviceContext *>(
+				renderContext->GetRenderAPIResource(
+					RenderAPIResource::D3D11DeviceContext
+				)
+			)
 		);
 		LOG_INFO("Created simulation context");
 		simulation = CreateD3D11FlexFluidSimulation(simContext);
- 		LOG_INFO("Created FleX simulation");
+		LOG_INFO("Created FleX simulation");
 
 		simulation->SetMaxParticles(defaultMaxParticles);
 		renderer->SetSimData(simulation->GetSimulationData());
@@ -204,11 +311,23 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 		}
 
 		LOG_INFO("Querying for two-way physics coupling support...");
-		if (simulation->CheckFeatureSupport(GELLY_FEATURE::FLUIDSIM_CONTACTPLANES)) {
+		if (simulation->CheckFeatureSupport(
+				GELLY_FEATURE::FLUIDSIM_CONTACTPLANES
+			)) {
 			LOG_INFO("Two-way physics coupling is supported");
 			entityCollisionSupported = true;
 		} else {
 			LOG_INFO("Two-way physics coupling is not supported");
+		}
+
+		LOG_INFO("Querying for per-particle absorption support...");
+		if (renderer->CheckFeatureSupport(
+				GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION
+			)) {
+			LOG_INFO("Per-particle absorption is supported");
+			perParticleAbsorptionSupported = true;
+		} else {
+			LOG_INFO("Per-particle absorption is not supported");
 		}
 
 		CreateTextures();
@@ -225,8 +344,12 @@ GellyIntegration::GellyIntegration(uint16_t width, uint16_t height, IDirect3DDev
 
 #ifdef _DEBUG
 		LOG_INFO("Debugging detected, enabling RenderDoc integration...");
-		if (const auto success = renderer->EnableRenderDocCaptures(); !success) {
-			LOG_WARNING("Failed to enable captures, maybe RenderDoc is not running or the API has changed?");
+		if (const auto success = renderer->EnableRenderDocCaptures();
+			!success) {
+			LOG_WARNING(
+				"Failed to enable captures, maybe RenderDoc is not running or "
+				"the API has changed?"
+			);
 		} else {
 			LOG_INFO("RenderDoc captures enabled");
 		}
@@ -241,15 +364,29 @@ void GellyIntegration::Render() {
 	{
 		ZoneScopedN("Back buffer copy");
 		// copy backbuffer to texture
-		IDirect3DSurface9* backbufferSurface = nullptr;
-		IDirect3DSurface9* backbufferTextureSurface = nullptr;
-		LOG_DX_CALL("Failed to get backbuffer surface",
-			device->GetRenderTarget(0, &backbufferSurface));
-		LOG_DX_CALL("Failed to get backbuffer texture surface",
-			textures.backbufferTexture->GetSurfaceLevel(0, &backbufferTextureSurface));
+		IDirect3DSurface9 *backbufferSurface = nullptr;
+		IDirect3DSurface9 *backbufferTextureSurface = nullptr;
+		LOG_DX_CALL(
+			"Failed to get backbuffer surface",
+			device->GetRenderTarget(0, &backbufferSurface)
+		);
+		LOG_DX_CALL(
+			"Failed to get backbuffer texture surface",
+			textures.backbufferTexture->GetSurfaceLevel(
+				0, &backbufferTextureSurface
+			)
+		);
 
-		LOG_DX_CALL("Failed to copy backbuffer to texture",
-			device->StretchRect(backbufferSurface, nullptr, backbufferTextureSurface, nullptr, D3DTEXF_NONE));
+		LOG_DX_CALL(
+			"Failed to copy backbuffer to texture",
+			device->StretchRect(
+				backbufferSurface,
+				nullptr,
+				backbufferTextureSurface,
+				nullptr,
+				D3DTEXF_NONE
+			)
+		);
 	}
 
 	UpdateRenderParams();
@@ -351,12 +488,13 @@ void GellyIntegration::LoadMap(const char *mapName) {
 		throw std::runtime_error("Failed to parse map");
 	}
 
-	const auto* vertices = mapParser.GetVertices();
+	const auto *vertices = mapParser.GetVertices();
 	const auto vertexCount = mapParser.GetNumTris() * 3;
 
-	// maps dont have indices, but they do have to be long since maps can be huge
-	auto* indices = new uint32_t[vertexCount];
-	for (int i = 0; i < vertexCount; i+=3) {
+	// maps dont have indices, but they do have to be long since maps can be
+	// huge
+	auto *indices = new uint32_t[vertexCount];
+	for (int i = 0; i < vertexCount; i += 3) {
 		// flip winding order
 		indices[i] = i + 2;
 		indices[i + 1] = i + 1;
@@ -368,7 +506,7 @@ void GellyIntegration::LoadMap(const char *mapName) {
 
 	ObjectCreationParams::TriangleMesh mesh = {};
 	mesh.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT32;
-	mesh.vertices = reinterpret_cast<const float*>(vertices);
+	mesh.vertices = reinterpret_cast<const float *>(vertices);
 	mesh.indices32 = indices;
 	mesh.vertexCount = vertexCount;
 	mesh.indexCount = vertexCount;
@@ -390,7 +528,11 @@ const char *GellyIntegration::GetComputeDeviceName() const {
 }
 
 void GellyIntegration::SetFluidParams(const FluidVisualParams &params) {
-	std::memcpy(compositeConstants.absorption, params.absorption, sizeof(params.absorption));
+	std::memcpy(
+		compositeConstants.absorption,
+		params.absorption,
+		sizeof(params.absorption)
+	);
 	compositeConstants.refractionStrength = params.refractionStrength;
 }
 
@@ -398,7 +540,7 @@ void GellyIntegration::ChangeParticleRadius(float radius) {
 	particleRadius = radius;
 
 	ISimCommandList *commandList = simulation->CreateCommandList();
-	commandList->AddCommand({CHANGE_RADIUS, ChangeRadius{ particleRadius }});
+	commandList->AddCommand({CHANGE_RADIUS, ChangeRadius{particleRadius}});
 	simulation->ExecuteCommandList(commandList);
 	simulation->DestroyCommandList(commandList);
 	LOG_INFO("Sent particle radius commands to simulation");
@@ -408,18 +550,18 @@ void GellyIntegration::ChangeThresholdRatio(float ratio) {
 	thresholdRatio = ratio;
 }
 
-
-bool GellyIntegration::IsInteractive() const {
-	return isSimulationInteractive;
-}
+bool GellyIntegration::IsInteractive() const { return isSimulationInteractive; }
 
 bool GellyIntegration::IsEntityCollisionSupported() const {
 	return entityCollisionSupported;
 }
 
-IFluidSimulation *GellyIntegration::GetSimulation() const {
-	return simulation;
+bool GellyIntegration::IsPerParticleAbsorptionSupported() const {
+	return perParticleAbsorptionSupported;
 }
+
+IFluidRenderer *GellyIntegration::GetRenderer() const { return renderer; }
+IFluidSimulation *GellyIntegration::GetSimulation() const { return simulation; }
 
 GellyIntegration::~GellyIntegration() {
 	if (renderContext) {

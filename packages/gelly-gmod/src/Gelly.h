@@ -9,7 +9,7 @@
 
 struct FluidVisualParams {
 	// 4th member is shininess
-	float absorption[4] = { 0.3f, 0.3f, 0.f, 1024.f };
+	float absorption[4] = {0.3f, 0.3f, 0.f, 1024.f};
 	float refractionStrength = 0.03f;
 	float pad0[3];
 };
@@ -17,7 +17,7 @@ struct FluidVisualParams {
 struct CompositeConstants {
 	float eyePos[3];
 	float pad0;
-	float absorption[4] = { 0.3f, 0.3f, 0.f, 1024.f };
+	float absorption[4] = {0.3f, 0.3f, 0.f, 1024.f};
 	float refractionStrength = 0.03f;
 	float pad1[3];
 };
@@ -42,13 +42,13 @@ private:
 	bool isSimulationInteractive = false;
 
 	struct {
-		IDirect3DTexture9* depthTexture;
-		IDirect3DTexture9* albedoTexture;
-		IDirect3DTexture9* normalTexture;
-		IDirect3DTexture9* positionTexture;
-		IDirect3DTexture9* thicknessTexture;
+		IDirect3DTexture9 *depthTexture;
+		IDirect3DTexture9 *albedoTexture;
+		IDirect3DTexture9 *normalTexture;
+		IDirect3DTexture9 *positionTexture;
+		IDirect3DTexture9 *thicknessTexture;
 
-		IDirect3DTexture9* backbufferTexture;
+		IDirect3DTexture9 *backbufferTexture;
 	} textures;
 
 	struct {
@@ -69,8 +69,8 @@ private:
 	} sharedHandles;
 
 	struct {
-		IDirect3DPixelShader9* compositePS;
-		IDirect3DVertexShader9* ndcQuadVS;
+		IDirect3DPixelShader9 *compositePS;
+		IDirect3DVertexShader9 *ndcQuadVS;
 	} shaders;
 
 	struct NDCVertex {
@@ -79,14 +79,15 @@ private:
 	};
 
 	struct {
-		IDirect3DVertexBuffer9* ndcQuadVB;
+		IDirect3DVertexBuffer9 *ndcQuadVB;
 	} buffers;
 
 	CompositeConstants compositeConstants = {};
-	IDirect3DStateBlock9* stateBlock = nullptr;
+	IDirect3DStateBlock9 *stateBlock = nullptr;
 	FluidRenderParams renderParams = {};
 
 	bool entityCollisionSupported = false;
+	bool perParticleAbsorptionSupported = false;
 
 	void CreateShaders();
 	void CreateBuffers();
@@ -95,8 +96,11 @@ private:
 
 	void UpdateRenderParams();
 	void SetCompositeConstants();
+
 public:
-	GellyIntegration(uint16_t width, uint16_t height, IDirect3DDevice9Ex *device);
+	GellyIntegration(
+		uint16_t width, uint16_t height, IDirect3DDevice9Ex *device
+	);
 	~GellyIntegration();
 
 	void Render();
@@ -108,8 +112,12 @@ public:
 
 	[[nodiscard]] bool IsInteractive() const;
 	[[nodiscard]] bool IsEntityCollisionSupported() const;
-	[[nodiscard]] const char* GetComputeDeviceName() const;
+	[[nodiscard]] bool IsPerParticleAbsorptionSupported() const;
+
+	[[nodiscard]] const char *GetComputeDeviceName() const;
+
+	[[nodiscard]] IFluidRenderer *GetRenderer() const;
 	[[nodiscard]] IFluidSimulation *GetSimulation() const;
 };
 
-#endif //GELLY_H
+#endif	// GELLY_H
