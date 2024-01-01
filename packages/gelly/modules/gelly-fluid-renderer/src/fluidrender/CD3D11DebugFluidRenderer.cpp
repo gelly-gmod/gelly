@@ -275,8 +275,7 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 #endif
 	buffers.depthBuffer->Clear(1.0f);
 	auto *depthTexture = internalTextures.unfilteredDepth;
-	auto *albedoTexture =
-		outputTextures.GetFeatureTexture(FluidFeatureType::ALBEDO);
+	auto *albedoTexture = internalTextures.unfilteredAlbedo;
 
 	depthTexture->Clear(depthClearColor);
 	albedoTexture->Clear(genericClearColor);
