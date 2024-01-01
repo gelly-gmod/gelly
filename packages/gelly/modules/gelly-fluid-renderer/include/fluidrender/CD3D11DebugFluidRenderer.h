@@ -45,6 +45,7 @@ private:
 	struct {
 		GellyInterfaceVal<IManagedTexture> unfilteredDepth;
 		GellyInterfaceVal<IManagedTexture> unfilteredThickness;
+		GellyInterfaceVal<IManagedTexture> unfilteredAlbedo;
 
 		/**
 		 * \brief When in low-bit mode, this texture is the one in the filter
@@ -84,7 +85,10 @@ private:
 	void RenderFilteredDepth();
 	void RenderNormals();
 	void RenderThickness();
-	void RenderFilteredThickness();
+	void RenderGenericBlur(
+		GellyInterfaceVal<IManagedTexture> texA,
+		GellyInterfaceVal<IManagedTexture> texB
+	);
 	void EncodeDepth();
 
 public:

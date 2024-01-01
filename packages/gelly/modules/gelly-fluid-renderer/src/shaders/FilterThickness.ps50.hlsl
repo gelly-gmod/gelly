@@ -16,19 +16,19 @@ static const float g_blurWeights[9] = {
     0.0625f, 0.125f, 0.0625f
 };
 
-float SampleThickness(float2 tex, float original) {
+float4 SampleThickness(float2 tex, float4 original) {
     float4 frag = InputThickness.Sample(InputThicknessSampler, tex);
 
-    return lerp(frag.r, original, 1.f - frag.a);
+    return lerp(frag, original, 1.f - frag.a);
 }
 
-float FilterThickness(float2 tex) {
-    float filteredThickness = 0.f;
+float4 FilterThickness(float2 tex) {
+    float4 filteredThickness = float4(0.f, 0.f, 0.f, 0.f);
     float2 texelSize = 1.0f / float2(g_ViewportWidth, g_ViewportHeight);
     
-    float original = InputThickness.Sample(InputThicknessSampler, tex).r * g_blurWeights[4];
-    filteredThickness += original;
+    float4 original = InputThickness.Sample(InputThicknessSampler, tex) * g_blurWeights[4];
 
+    filteredThickness += original;
     filteredThickness += SampleThickness(tex + float2(-1, 0) * texelSize, original) * g_blurWeights[3];
     filteredThickness += SampleThickness(tex + float2(1, 0) * texelSize, original) * g_blurWeights[5];
     filteredThickness += SampleThickness(tex + float2(0, -1) * texelSize, original) * g_blurWeights[7];
@@ -48,7 +48,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
         discard;
     }
 
-    output.Color = float4(FilterThickness(input.Tex), 0.f, 0.f, 1.f);
-
+    output.Color = float4(FilterThickness(input.Tex).xyz, 1.f);
     return output;
 }

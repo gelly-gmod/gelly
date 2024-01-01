@@ -194,6 +194,17 @@ void CD3D11DebugFluidRenderer::CreateTextures() {
 		"splatrenderer/unfilteredThickness", unfilteredThicknessDesc
 	);
 
+	TextureDesc unfilteredAlbedoDesc = {};
+	unfilteredAlbedoDesc.filter = TextureFilter::LINEAR;  // hides pixels
+	unfilteredAlbedoDesc.width = width;
+	unfilteredAlbedoDesc.height = height;
+	unfilteredAlbedoDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+	unfilteredAlbedoDesc.format = TextureFormat::R32G32B32A32_FLOAT;
+
+	internalTextures.unfilteredAlbedo = context->CreateTexture(
+		"splatrenderer/unfilteredAlbedo", unfilteredAlbedoDesc
+	);
+
 	constexpr float clearColor[4] = {1.0f, 1.0f, 0.0f, 1.0f};
 	internalTextures.unfilteredDepth->Clear(clearColor);
 	internalTextures.unfilteredThickness->Clear(clearColor);
@@ -404,24 +415,26 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	context->ResetPipeline();
 }
 
-void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
+void CD3D11DebugFluidRenderer::RenderGenericBlur(
+	GellyInterfaceVal<IManagedTexture> texA,
+	GellyInterfaceVal<IManagedTexture> texB
+) {
 #ifdef TRACY_ENABLE
-	ZoneScopedN("Filtered thickness render");
+	ZoneScopedN("Generic blur render");
 #endif
-	auto *thicknessTextureA = internalTextures.unfilteredThickness;
-	auto *thicknessTextureB =
-		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS);
+	auto *textureA = texA;
+	auto *textureB = texB;
 
 	for (int i = 0; i < settings.thicknessFilterIterations; i++) {
 #ifdef TRACY_ENABLE
-		ZoneScopedN("Thickness filter iteration");
+		ZoneScopedN("Generic blur filter iteration");
 #endif
-		thicknessTextureB->Clear(genericClearColor);
-		thicknessTextureB->BindToPipeline(
+		textureB->Clear(genericClearColor);
+		textureB->BindToPipeline(
 			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 		);
 
-		thicknessTextureA->BindToPipeline(
+		textureA->BindToPipeline(
 			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
 		);
 
@@ -434,12 +447,12 @@ void CD3D11DebugFluidRenderer::RenderFilteredThickness() {
 		// sometimes the thickness is rendered at quarter res, so we need to
 		// account for that
 
-		context->UseTextureResForNextDraw(thicknessTextureB);
+		context->UseTextureResForNextDraw(textureB);
 		context->Draw(4, 0);
 		context->ResetPipeline();
 
 		// Swap
-		std::swap(thicknessTextureA, thicknessTextureB);
+		std::swap(textureA, textureB);
 	}
 }
 
@@ -511,7 +524,15 @@ void CD3D11DebugFluidRenderer::Render() {
 	RenderFilteredDepth();
 	RenderNormals();
 	RenderThickness();
-	RenderFilteredThickness();
+	RenderGenericBlur(
+		internalTextures.unfilteredThickness,
+		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS)
+	);
+	RenderGenericBlur(
+		internalTextures.unfilteredAlbedo,
+		outputTextures.GetFeatureTexture(FluidFeatureType::ALBEDO)
+	);
+
 	context->SubmitWork();
 
 	if (lowBitMode) {
