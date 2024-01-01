@@ -138,7 +138,7 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 	particleAbsorptionBufferDesc.type = BufferType::SHADER_RESOURCE;
 	particleAbsorptionBufferDesc.usage = BufferUsage::DYNAMIC;
 	// Any higher and it's overkill, any lower and we get artifacts.
-	particleAbsorptionBufferDesc.format = BufferFormat::R16G16B16A16_FLOAT;
+	particleAbsorptionBufferDesc.format = BufferFormat::R32G32B32A32_FLOAT;
 	particleAbsorptionBufferDesc.byteWidth =
 		sizeof(SimFloat4) * simData->GetMaxParticles();
 	particleAbsorptionBufferDesc.stride = sizeof(SimFloat4);
