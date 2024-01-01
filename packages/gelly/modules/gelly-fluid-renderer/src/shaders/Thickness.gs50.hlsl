@@ -24,6 +24,7 @@ void main(point VS_INPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
 
         output.Pos = position;
         output.Tex = tex;
+        output.Absorption = input[0].Absorption;
 
         stream.Append(output);
     }

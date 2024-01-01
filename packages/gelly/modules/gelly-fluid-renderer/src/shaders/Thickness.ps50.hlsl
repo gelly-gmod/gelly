@@ -19,5 +19,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     float thicknessAtFragment = THICKNESS_ADJUSTMENT;
     output.Thickness = float4(thicknessAtFragment, thicknessAtFragment, thicknessAtFragment, 1.0f);
+    output.Absorption = float4(input.Absorption.xyz, 1.0f);
+    
     return output;
 }

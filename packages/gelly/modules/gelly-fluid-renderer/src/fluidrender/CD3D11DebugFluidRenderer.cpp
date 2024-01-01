@@ -275,14 +275,10 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 #endif
 	buffers.depthBuffer->Clear(1.0f);
 	auto *depthTexture = internalTextures.unfilteredDepth;
-	auto *albedoTexture = internalTextures.unfilteredAlbedo;
-
 	depthTexture->Clear(depthClearColor);
-	albedoTexture->Clear(genericClearColor);
 
-	IManagedTexture *renderTargets[] = {depthTexture, albedoTexture};
-	context->BindMultipleTexturesAsOutput(
-		renderTargets, ARRAYSIZE(renderTargets), buffers.depthBuffer
+	depthTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 	);
 
 	buffers.positionsLayout->BindAsVertexBuffer();
@@ -294,9 +290,6 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
-
-	// this is an SRV buffer so it wont clash with the slot 0 assignment above
-	buffers.particleAbsorption->BindToPipeline(ShaderType::Vertex, 0);
 
 	context->Draw(simData->GetActiveParticles(), 0);
 	// we're not using a swapchain, so we need to queue up work manually
@@ -391,11 +384,13 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	ZoneScopedN("Thickness render");
 #endif
 	auto *thicknessTexture = internalTextures.unfilteredThickness;
+	auto *albedoTexture = internalTextures.unfilteredAlbedo;
 
 	thicknessTexture->Clear(genericClearColor);
 	// No depth buffer needed for this pass.
-	thicknessTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+	IManagedTexture *renderTargets[] = {thicknessTexture, albedoTexture};
+	context->BindMultipleTexturesAsOutput(
+		renderTargets, ARRAYSIZE(renderTargets), std::nullopt
 	);
 
 	buffers.positionsLayout->BindAsVertexBuffer();
@@ -407,6 +402,8 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+
+	buffers.particleAbsorption->BindToPipeline(ShaderType::Vertex, 0);
 
 	context->UseTextureResForNextDraw(thicknessTexture);
 	context->Draw(simData->GetActiveParticles(), 0, true);
