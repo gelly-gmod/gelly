@@ -501,6 +501,10 @@ void CD3D11DebugFluidRenderer::Render() {
 		);
 	}
 
+	if (simData->GetActiveParticles() <= 0) {
+		return;
+	}
+
 	if (!outputTextures.IsInitialized()) {
 		throw std::logic_error(
 			"CD3D11DebugFluidRenderer::Render: outputTextures is not "
