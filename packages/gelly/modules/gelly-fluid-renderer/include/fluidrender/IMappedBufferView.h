@@ -22,7 +22,7 @@ gelly_interface IMappedBufferView {
 public:
 	virtual ~IMappedBufferView() = default;
 
-	virtual void AttachToContext(GellyInterfaceRef<IRenderContext> context) = 0;
+	virtual void AttachToContext(GellyInterfaceVal<IRenderContext> context) = 0;
 	virtual void View(GellyInterfaceRef<IManagedBuffer> buffer) = 0;
 
 	virtual void* GetBufferStart() = 0;

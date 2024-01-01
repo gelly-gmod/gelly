@@ -9,6 +9,7 @@
 #include "fluidrender/CD3D11ManagedBufferLayout.h"
 #include "fluidrender/CD3D11ManagedDepthBuffer.h"
 #include "fluidrender/CD3D11ManagedShader.h"
+#include "fluidrender/CD3D11MappedBufferView.h"
 #include "fluidrender/CD3D11to11SharedTexture.h"
 #include "fluidrender/CD3D9to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
@@ -221,6 +222,18 @@ GellyInterfaceVal<IManagedBufferLayout> CD3D11RenderContext::CreateBufferLayout(
 	layout->Create();
 	return layout;
 }
+
+GellyOwnedInterface<IMappedBufferView> CD3D11RenderContext::CreateMappedBufferView(
+	GellyInterfaceRef<IManagedBuffer> buffer
+) {
+	auto view = std::make_unique<CD3D11MappedBufferView>();
+	view->AttachToContext(this);
+	view->View(buffer);
+
+	// not at all required due to copy elision, but I like to be explicit
+	return std::move(view);
+}
+
 
 GellyInterfaceVal<IManagedDepthBuffer> CD3D11RenderContext::CreateDepthBuffer(
 	const DepthBufferDesc &desc

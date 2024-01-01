@@ -77,6 +77,8 @@ public:
 		const BufferLayoutDesc &desc
 	) override;
 
+	GellyOwnedInterface<IMappedBufferView> CreateMappedBufferView(GellyInterfaceRef<IManagedBuffer> buffer) override;
+
 	GellyObserverPtr<IManagedDepthBuffer> CreateDepthBuffer(
 		const DepthBufferDesc &desc
 	) override;

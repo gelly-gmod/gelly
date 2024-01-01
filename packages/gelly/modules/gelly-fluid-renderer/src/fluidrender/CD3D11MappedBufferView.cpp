@@ -4,7 +4,7 @@ CD3D11MappedBufferView::CD3D11MappedBufferView() :
 	m_context(nullptr), m_resource({}), m_buffer(nullptr), m_elementSize(0), m_bufferSize(0), m_bufferStart(nullptr), m_isMapped(false) {}
 
 void CD3D11MappedBufferView::AttachToContext(
-	GellyInterfaceRef<IRenderContext> context
+	GellyInterfaceVal<IRenderContext> context
 ) {
 	m_context = context;
 }

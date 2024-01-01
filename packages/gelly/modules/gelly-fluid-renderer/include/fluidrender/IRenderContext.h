@@ -13,6 +13,7 @@
 #include "IManagedDepthBuffer.h"
 #include "IManagedShader.h"
 #include "IManagedTexture.h"
+#include "IMappedBufferView.h"
 
 // Distinction between handles and resources since this context will abstract
 // away rendering resources.
@@ -100,6 +101,10 @@ public:
 
 	virtual GellyInterfaceVal<IManagedBufferLayout> CreateBufferLayout(
 		const BufferLayoutDesc &desc
+	) = 0;
+
+	virtual GellyOwnedInterface<IMappedBufferView> CreateMappedBufferView(
+		GellyInterfaceRef<IManagedBuffer> buffer
 	) = 0;
 
 	virtual GellyObserverPtr<IManagedDepthBuffer> CreateDepthBuffer(

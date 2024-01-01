@@ -20,7 +20,7 @@ private:
 public:
 	CD3D11MappedBufferView();
 
-	void AttachToContext(GellyInterfaceRef<IRenderContext> context) override;
+	void AttachToContext(GellyInterfaceVal<IRenderContext> context) override;
 	void View(GellyInterfaceRef<IManagedBuffer> buffer) override;
 
 	void* GetBufferStart() override;
