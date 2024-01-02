@@ -196,8 +196,8 @@ void CD3D11DebugFluidRenderer::CreateTextures() {
 
 	TextureDesc unfilteredAlbedoDesc = {};
 	unfilteredAlbedoDesc.filter = TextureFilter::LINEAR;  // hides pixels
-	unfilteredAlbedoDesc.width = width;
-	unfilteredAlbedoDesc.height = height;
+	unfilteredAlbedoDesc.width = quarterWidth;
+	unfilteredAlbedoDesc.height = quarterHeight;
 	unfilteredAlbedoDesc.access = TextureAccess::READ | TextureAccess::WRITE;
 	unfilteredAlbedoDesc.format = TextureFormat::R32G32B32A32_FLOAT;
 
@@ -278,7 +278,7 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	depthTexture->Clear(depthClearColor);
 
 	depthTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
 	);
 
 	buffers.positionsLayout->BindAsVertexBuffer();
@@ -387,6 +387,8 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	auto *albedoTexture = internalTextures.unfilteredAlbedo;
 
 	thicknessTexture->Clear(genericClearColor);
+	albedoTexture->Clear(genericClearColor);
+
 	// No depth buffer needed for this pass.
 	IManagedTexture *renderTargets[] = {thicknessTexture, albedoTexture};
 	context->BindMultipleTexturesAsOutput(

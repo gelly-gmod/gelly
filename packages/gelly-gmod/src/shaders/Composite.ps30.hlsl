@@ -28,6 +28,13 @@ float Schlicks(float cosTheta, float refractionIndex) {
     return r0 + (1.0 - r0) * pow(1.0 - cosTheta, 5.0);
 }
 
+float3 NormalizeAbsorption(float3 absorption, float thickness) {
+    // cool technique here: since absorption will get darker as thickness increases, we can
+    // normalize it so that from the top it looks the same as from the side
+
+    return absorption / thickness;
+}
+
 float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
     float thickness = tex2D(thicknessTex, input.Tex).x;
@@ -35,7 +42,7 @@ float4 Shade(VS_INPUT input) {
         discard;
     }
 
-    float3 absorption = ComputeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness);
+    float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
 
     float3 position = tex2D(positionTex, input.Tex).xyz;
     float3 normal = tex2D(normalTex, input.Tex).xyz;

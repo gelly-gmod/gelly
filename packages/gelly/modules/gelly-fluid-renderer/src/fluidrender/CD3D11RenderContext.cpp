@@ -85,6 +85,18 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 
+	// And our absorption RT, we want to take the accumulated absorption
+	// of the absorption vectors
+	blendDesc.RenderTarget[1].BlendEnable = true;
+	blendDesc.RenderTarget[1].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[1].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[1].DestBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[1].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[1].RenderTargetWriteMask =
+		D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[1].SrcBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[1].SrcBlendAlpha = D3D11_BLEND_ONE;
+
 	DX("Failed to query for D3D11.4 (not supported?)",
 	   device->QueryInterface(
 		   __uuidof(ID3D11Device5), reinterpret_cast<void **>(&device5)
@@ -173,7 +185,7 @@ GellyObserverPtr<IManagedTexture> CD3D11RenderContext::CreateSharedTexture(
 		throw std::logic_error("Texture already exists");
 	}
 
-	IManagedTexture* texture = nullptr;
+	IManagedTexture *texture = nullptr;
 	switch (guestAPI) {
 		case ContextRenderAPI::D3D11:
 			texture = new CD3D11to11SharedTexture(sharedHandle);
@@ -223,7 +235,8 @@ GellyInterfaceVal<IManagedBufferLayout> CD3D11RenderContext::CreateBufferLayout(
 	return layout;
 }
 
-GellyOwnedInterface<IMappedBufferView> CD3D11RenderContext::CreateMappedBufferView(
+GellyOwnedInterface<IMappedBufferView>
+CD3D11RenderContext::CreateMappedBufferView(
 	GellyInterfaceRef<IManagedBuffer> buffer
 ) {
 	auto view = std::make_unique<CD3D11MappedBufferView>();
@@ -233,7 +246,6 @@ GellyOwnedInterface<IMappedBufferView> CD3D11RenderContext::CreateMappedBufferVi
 	// not at all required due to copy elision, but I like to be explicit
 	return std::move(view);
 }
-
 
 GellyInterfaceVal<IManagedDepthBuffer> CD3D11RenderContext::CreateDepthBuffer(
 	const DepthBufferDesc &desc
@@ -465,7 +477,9 @@ void CD3D11RenderContext::PrintDebugInfo() {
 		auto *message = static_cast<D3D11_MESSAGE *>(malloc(messageLength));
 		infoQueue->GetMessage(i, message, &messageLength);
 
-		printf("[CD3D11RenderContext::PrintDebugInfo]: %s\n", message->pDescription);
+		printf(
+			"[CD3D11RenderContext::PrintDebugInfo]: %s\n", message->pDescription
+		);
 
 		free(message);
 	}
