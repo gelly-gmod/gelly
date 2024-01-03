@@ -16,6 +16,7 @@
 #include "ThicknessPS.h"
 #include "ThicknessVS.h"
 #include "fluidrender/util/CBuffers.h"
+#include "fluidrender/util/ResourceDeclaration.h"
 #include "fluidrender/util/ScreenQuadVB.h"
 
 #ifdef TRACY_ENABLE
@@ -25,6 +26,55 @@
 #ifdef _DEBUG
 #include <windows.h>
 #endif
+
+static constexpr util::ResourceDeclaration rendererResources = {
+	util::Tex2D{
+		"splatrenderer/depth",
+		util::FULLSCREEN,
+		{.access = TextureAccess::READ | TextureAccess::WRITE,
+		 .format = TextureFormat::R32G32_FLOAT}
+	},
+	util::Tex2D{
+		"splatrenderer/thickness",
+		util::QUARTERSCREEN,
+		{.access = TextureAccess::READ | TextureAccess::WRITE,
+		 .format = TextureFormat::R16G16B16A16_FLOAT,
+		 .filter = TextureFilter::LINEAR}
+	},
+	util::Tex2D{
+		"splatrenderer/albedo",
+		util::QUARTERSCREEN,
+		{.access = TextureAccess::READ | TextureAccess::WRITE,
+		 .format = TextureFormat::R32G32B32A32_FLOAT,
+		 .filter = TextureFilter::LINEAR}
+	},
+	util::Tex2D{
+		"splatrenderer/unfilteredDepth",
+		util::FULLSCREEN,
+		{.access = TextureAccess::READ | TextureAccess::WRITE,
+		 .format = TextureFormat::R32G32_FLOAT}
+	},
+	util::Tex2D{
+		"splatrenderer/unfilteredThickness",
+		util::QUARTERSCREEN,
+		{.access = TextureAccess::READ | TextureAccess::WRITE,
+		 .format = TextureFormat::R16G16B16A16_FLOAT,
+		 .filter = TextureFilter::LINEAR}
+	},
+	util::Tex2D{
+		"splatrenderer/unfilteredAlbedo",
+		util::QUARTERSCREEN,
+		{.access = TextureAccess::READ | TextureAccess::WRITE,
+		 .format = TextureFormat::R32G32B32A32_FLOAT,
+		 .filter = TextureFilter::LINEAR}
+	},
+	util::Tex2D{
+		"splatrenderer/untransformedDepth",
+		util::FULLSCREEN,
+		{.access = TextureAccess::READ | TextureAccess::WRITE,
+		 .format = TextureFormat::R32G32_FLOAT}
+	},
+};
 
 CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
 	: context(nullptr), simData(nullptr), buffers({}), views({}) {}
