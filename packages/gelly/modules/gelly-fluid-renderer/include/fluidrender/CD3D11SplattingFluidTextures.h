@@ -3,7 +3,7 @@
 
 #include "IFluidTextures.h"
 
-class CD3D11DebugFluidTextures : public IFluidTextures {
+class CD3D11SplattingFluidTextures : public IFluidTextures {
 private:
 	GellyObserverPtr<IManagedTexture> albedo;
 	GellyObserverPtr<IManagedTexture> normal;
@@ -12,8 +12,8 @@ private:
 	GellyObserverPtr<IManagedTexture> thickness;
 
 public:
-	CD3D11DebugFluidTextures();
-	~CD3D11DebugFluidTextures() override = default;
+	CD3D11SplattingFluidTextures();
+	~CD3D11SplattingFluidTextures() override = default;
 
 	void SetFeatureTexture(
 		FluidFeatureType feature, GellyObserverPtr<IManagedTexture> texture

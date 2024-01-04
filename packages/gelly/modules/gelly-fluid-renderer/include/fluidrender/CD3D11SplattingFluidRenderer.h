@@ -4,20 +4,20 @@
 #include <GellyFluidSim.h>
 #include <GellyInterfaceRef.h>
 
-#include "CD3D11DebugFluidTextures.h"
 #include "CD3D11ManagedBuffer.h"
+#include "CD3D11SplattingFluidTextures.h"
 #include "IFluidRenderer.h"
 #include "IManagedBufferLayout.h"
 #include "renderdoc_app.h"
 
-class CD3D11DebugFluidRenderer : public IFluidRenderer {
+class CD3D11SplattingFluidRenderer : public IFluidRenderer {
 private:
 	GellyInterfaceVal<IRenderContext> context;
 	/**
 	 * The particle data comes from here, but the renderer does not own it.
 	 */
 	GellyInterfaceVal<ISimData> simData;
-	CD3D11DebugFluidTextures outputTextures;
+	CD3D11SplattingFluidTextures outputTextures;
 
 	Gelly::FluidRenderSettings settings;
 	int maxParticles{};
@@ -92,8 +92,8 @@ private:
 	void EncodeDepth();
 
 public:
-	CD3D11DebugFluidRenderer();
-	~CD3D11DebugFluidRenderer() override = default;
+	CD3D11SplattingFluidRenderer();
+	~CD3D11SplattingFluidRenderer() override = default;
 
 	void SetSimData(GellyObserverPtr<ISimData> simData) override;
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;

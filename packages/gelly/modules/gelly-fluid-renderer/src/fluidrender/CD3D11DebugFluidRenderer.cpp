@@ -1,9 +1,8 @@
-#include "fluidrender/CD3D11DebugFluidRenderer.h"
-
 #include <d3d11.h>
 
 #include <stdexcept>
 
+#include "..\..\include\fluidrender\CD3D11SplattingFluidRenderer.h"
 #include "EncodeDepthPS.h"
 #include "EstimateNormalPS.h"
 #include "FilterDepthPS.h"
@@ -26,10 +25,10 @@
 #include <windows.h>
 #endif
 
-CD3D11DebugFluidRenderer::CD3D11DebugFluidRenderer()
+CD3D11SplattingFluidRenderer::CD3D11SplattingFluidRenderer()
 	: context(nullptr), simData(nullptr), buffers({}), views({}) {}
 
-void CD3D11DebugFluidRenderer::CreateShaders() {
+void CD3D11SplattingFluidRenderer::CreateShaders() {
 	shaders.splattingGS = context->CreateShader(
 		gsc::SplattingGS::GetBytecode(),
 		gsc::SplattingGS::GetBytecodeSize(),
@@ -97,7 +96,7 @@ void CD3D11DebugFluidRenderer::CreateShaders() {
 	);
 }
 
-void CD3D11DebugFluidRenderer::CreateBuffers() {
+void CD3D11SplattingFluidRenderer::CreateBuffers() {
 	if (!shaders.splattingVS) {
 		throw std::logic_error(
 			"CD3D11DebugFluidRenderer::CreateBuffers: shaders.splattingVS is "
@@ -156,7 +155,7 @@ void CD3D11DebugFluidRenderer::CreateBuffers() {
 		util::GenerateScreenQuad(context, shaders.screenQuadVS);
 }
 
-void CD3D11DebugFluidRenderer::CreateTextures() {
+void CD3D11SplattingFluidRenderer::CreateTextures() {
 	uint16_t width = 0, height = 0;
 	context->GetDimensions(width, height);
 
@@ -210,7 +209,8 @@ void CD3D11DebugFluidRenderer::CreateTextures() {
 	internalTextures.unfilteredThickness->Clear(clearColor);
 }
 
-void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
+void CD3D11SplattingFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData
+) {
 	if (simData == nullptr) {
 		throw std::invalid_argument(
 			"CD3D11DebugFluidRenderer::SetSimData: simData cannot be null."
@@ -234,7 +234,7 @@ void CD3D11DebugFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData) {
 	);
 }
 
-void CD3D11DebugFluidRenderer::AttachToContext(
+void CD3D11SplattingFluidRenderer::AttachToContext(
 	GellyObserverPtr<IRenderContext> context
 ) {
 	if (context == nullptr) {
@@ -262,14 +262,15 @@ void CD3D11DebugFluidRenderer::AttachToContext(
 	cbufferData.height = static_cast<float>(height);
 }
 
-GellyObserverPtr<IFluidTextures> CD3D11DebugFluidRenderer::GetFluidTextures() {
+GellyObserverPtr<IFluidTextures> CD3D11SplattingFluidRenderer::GetFluidTextures(
+) {
 	return &outputTextures;
 }
 
 constexpr float depthClearColor[4] = {1.0f, 1.0f, 0.0f, 0.0f};
 constexpr float genericClearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
+void CD3D11SplattingFluidRenderer::RenderUnfilteredDepth() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Unfiltered depth render");
 #endif
@@ -296,7 +297,7 @@ void CD3D11DebugFluidRenderer::RenderUnfilteredDepth() {
 	context->ResetPipeline();
 }
 
-void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
+void CD3D11SplattingFluidRenderer::RenderFilteredDepth() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Filtered depth render");
 #endif
@@ -345,7 +346,7 @@ void CD3D11DebugFluidRenderer::RenderFilteredDepth() {
 	}
 }
 
-void CD3D11DebugFluidRenderer::RenderNormals() {
+void CD3D11SplattingFluidRenderer::RenderNormals() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Normal estimation render");
 #endif
@@ -379,7 +380,7 @@ void CD3D11DebugFluidRenderer::RenderNormals() {
 	context->ResetPipeline();
 }
 
-void CD3D11DebugFluidRenderer::RenderThickness() {
+void CD3D11SplattingFluidRenderer::RenderThickness() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Thickness render");
 #endif
@@ -413,7 +414,7 @@ void CD3D11DebugFluidRenderer::RenderThickness() {
 	context->ResetPipeline();
 }
 
-void CD3D11DebugFluidRenderer::RenderGenericBlur(
+void CD3D11SplattingFluidRenderer::RenderGenericBlur(
 	GellyInterfaceVal<IManagedTexture> texA,
 	GellyInterfaceVal<IManagedTexture> texB
 ) {
@@ -454,7 +455,7 @@ void CD3D11DebugFluidRenderer::RenderGenericBlur(
 	}
 }
 
-void CD3D11DebugFluidRenderer::EncodeDepth() {
+void CD3D11SplattingFluidRenderer::EncodeDepth() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Depth encoding render");
 #endif
@@ -483,7 +484,7 @@ void CD3D11DebugFluidRenderer::EncodeDepth() {
 	context->ResetPipeline();
 }
 
-void CD3D11DebugFluidRenderer::Render() {
+void CD3D11SplattingFluidRenderer::Render() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Fluid render");
 #endif
@@ -548,15 +549,15 @@ void CD3D11DebugFluidRenderer::Render() {
 #endif
 }
 
-void CD3D11DebugFluidRenderer::EnableLowBitMode() { lowBitMode = true; }
+void CD3D11SplattingFluidRenderer::EnableLowBitMode() { lowBitMode = true; }
 
-void CD3D11DebugFluidRenderer::SetSettings(
+void CD3D11SplattingFluidRenderer::SetSettings(
 	const Gelly::FluidRenderSettings &settings
 ) {
 	this->settings = settings;
 }
 
-void CD3D11DebugFluidRenderer::SetPerFrameParams(
+void CD3D11SplattingFluidRenderer::SetPerFrameParams(
 	const Gelly::FluidRenderParams &params
 ) {
 	// Copy it, but overwrite the automatically filled out members.
@@ -571,12 +572,12 @@ void CD3D11DebugFluidRenderer::SetPerFrameParams(
 	util::UpdateCBuffer(&cbufferData, buffers.fluidRenderCBuffer);
 }
 
-void CD3D11DebugFluidRenderer::PullPerParticleData() {
+void CD3D11SplattingFluidRenderer::PullPerParticleData() {
 	views.absorptionView =
 		context->CreateMappedBufferView(buffers.particleAbsorption);
 }
 
-void CD3D11DebugFluidRenderer::SetPerParticleAbsorption(
+void CD3D11SplattingFluidRenderer::SetPerParticleAbsorption(
 	const uint particleIndex, const float absorption[3]
 ) {
 	views.absorptionView->Write(
@@ -585,11 +586,11 @@ void CD3D11DebugFluidRenderer::SetPerParticleAbsorption(
 	);
 }
 
-void CD3D11DebugFluidRenderer::PushPerParticleData() {
+void CD3D11SplattingFluidRenderer::PushPerParticleData() {
 	views.absorptionView.reset();
 }
 
-bool CD3D11DebugFluidRenderer::CheckFeatureSupport(GELLY_FEATURE feature) {
+bool CD3D11SplattingFluidRenderer::CheckFeatureSupport(GELLY_FEATURE feature) {
 	switch (feature) {
 		case GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION:
 			return true;

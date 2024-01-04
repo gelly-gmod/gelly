@@ -1,13 +1,12 @@
-#include "fluidrender/CD3D11DebugFluidTextures.h"
-
 #include <stdexcept>
 
+#include "..\..\include\fluidrender\CD3D11SplattingFluidTextures.h"
 #include "fluidrender/IRenderContext.h"
 
-CD3D11DebugFluidTextures::CD3D11DebugFluidTextures()
+CD3D11SplattingFluidTextures::CD3D11SplattingFluidTextures()
 	: albedo(nullptr), normal(nullptr), depth(nullptr) {}
 
-void CD3D11DebugFluidTextures::SetFeatureTexture(
+void CD3D11SplattingFluidTextures::SetFeatureTexture(
 	FluidFeatureType feature, GellyObserverPtr<IManagedTexture> texture
 ) {
 	const auto context = texture->GetParentContext();
@@ -49,7 +48,7 @@ void CD3D11DebugFluidTextures::SetFeatureTexture(
 	}
 }
 
-GellyObserverPtr<IManagedTexture> CD3D11DebugFluidTextures::GetFeatureTexture(
+GellyObserverPtr<IManagedTexture> CD3D11SplattingFluidTextures::GetFeatureTexture(
 	FluidFeatureType feature
 ) {
 	switch (feature) {
@@ -71,7 +70,7 @@ GellyObserverPtr<IManagedTexture> CD3D11DebugFluidTextures::GetFeatureTexture(
 	}
 }
 
-bool CD3D11DebugFluidTextures::IsInitialized() {
+bool CD3D11SplattingFluidTextures::IsInitialized() {
 	return depth != nullptr && normal != nullptr && albedo != nullptr &&
 		   positions != nullptr;
 }

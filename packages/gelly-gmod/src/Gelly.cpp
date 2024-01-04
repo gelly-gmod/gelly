@@ -283,7 +283,7 @@ GellyIntegration::GellyIntegration(
 	try {
 		renderContext = CreateD3D11FluidRenderContext(width, height);
 		LOG_INFO("Created render context");
-		renderer = CreateD3D11DebugFluidRenderer(renderContext);
+		renderer = CreateD3D11SplattingFluidRenderer(renderContext);
 		LOG_INFO("Created renderer");
 		simContext = CreateD3D11SimContext(
 			static_cast<ID3D11Device *>(renderContext->GetRenderAPIResource(
