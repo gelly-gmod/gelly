@@ -144,6 +144,9 @@ void CD3D11ManagedBuffer::BindToPipeline(
 				case ShaderType::Geometry:
 					deviceContext->GSSetConstantBuffers(slot, 1, &buffer);
 					break;
+				case ShaderType::Compute:
+					deviceContext->CSSetConstantBuffers(slot, 1, &buffer);
+					break;
 			}
 			break;
 		case BufferType::SHADER_RESOURCE:
@@ -157,8 +160,25 @@ void CD3D11ManagedBuffer::BindToPipeline(
 				case ShaderType::Geometry:
 					deviceContext->GSSetShaderResources(slot, 1, &srv);
 					break;
+				case ShaderType::Compute:
+					deviceContext->CSSetShaderResources(slot, 1, &srv);
+					break;
 			}
 			break;
+		case BufferType::UNORDERED_ACCESS:
+			switch (shaderType) {
+				case ShaderType::Compute:
+					deviceContext->CSSetUnorderedAccessViews(
+						slot, 1, &uav, nullptr
+					);
+					break;
+				default:
+					throw std::runtime_error(
+						"CD3D11ManagedBuffer::BindToPipeline attempted to "
+						"setup unordered access for a non-compute shader"
+					);
+					break;
+			}
 		case BufferType::VERTEX: {
 			// Shader type is not used here. But, the vertex shader is the only
 			// shader that can use vertex buffers.

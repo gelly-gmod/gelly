@@ -1,6 +1,8 @@
-#include <stdexcept>
 #include "fluidrender/CD3D11ManagedTexture.h"
+
 #include <GellyD3D.h>
+
+#include <stdexcept>
 
 CD3D11ManagedTexture::CD3D11ManagedTexture()
 	: context(nullptr),
@@ -205,6 +207,16 @@ void CD3D11ManagedTexture::BindToPipeline(
 			deviceContext->PSSetShaderResources(slot, 1, &srv);
 			deviceContext->PSSetSamplers(slot, 1, &sampler);
 			break;
+		case TextureBindStage::COMPUTE_SHADER_READ:
+			if (srv == nullptr) {
+				throw std::logic_error(
+					"CD3D11ManagedTexture::BindToPipeline: SRV is null."
+				);
+			}
+
+			deviceContext->CSSetShaderResources(slot, 1, &srv);
+			deviceContext->CSSetSamplers(slot, 1, &sampler);
+			break;
 		case TextureBindStage::RENDER_TARGET_OUTPUT: {
 			if (rtv == nullptr) {
 				throw std::logic_error(
@@ -232,6 +244,15 @@ void CD3D11ManagedTexture::BindToPipeline(
 			deviceContext->OMSetRenderTargets(1, &rtv, dsv);
 			break;
 		}
+		case TextureBindStage::COMPUTE_SHADER_WRITE:
+			if (uav == nullptr) {
+				throw std::logic_error(
+					"CD3D11ManagedTexture::BindToPipeline: UAV is null."
+				);
+			}
+
+			deviceContext->CSSetUnorderedAccessViews(slot, 1, &uav, nullptr);
+			break;
 		default:
 			break;
 	}

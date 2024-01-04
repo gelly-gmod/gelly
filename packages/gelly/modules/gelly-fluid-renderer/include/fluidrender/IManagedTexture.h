@@ -17,6 +17,8 @@ class IRenderContext;
 namespace Gelly {
 enum class TextureBindStage : uint8_t {
 	PIXEL_SHADER_READ,
+	COMPUTE_SHADER_READ,
+	COMPUTE_SHADER_WRITE,
 	RENDER_TARGET_OUTPUT,
 };
 
@@ -35,7 +37,7 @@ enum class TextureFormat : uint8_t {
  * be created with an accompanying SRV and UAV.
  * A texture that is only read from will only have an SRV.
  */
-enum class TextureAccess : uint8_t {
+enum TextureAccess {
 	READ = 0b01,
 	WRITE = 0b10,
 };

@@ -389,6 +389,20 @@ void CD3D11RenderContext::Draw(
 	deviceContext4->Draw(vertexCount, startVertex);
 }
 
+void CD3D11RenderContext::Dispatch(
+	uint32_t threadGroupCountX,
+	uint32_t threadGroupCountY,
+	uint32_t threadGroupCountZ
+) {
+#ifdef TRACY_ENABLE
+	ZoneScoped;
+#endif
+
+	deviceContext4->Dispatch(
+		threadGroupCountX, threadGroupCountY, threadGroupCountZ
+	);
+}
+
 void CD3D11RenderContext::ResetPipeline() {
 #ifdef TRACY_ENABLE
 	ZoneScoped;

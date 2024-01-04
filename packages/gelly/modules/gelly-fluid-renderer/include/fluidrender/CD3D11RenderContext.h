@@ -77,7 +77,9 @@ public:
 		const BufferLayoutDesc &desc
 	) override;
 
-	GellyOwnedInterface<IMappedBufferView> CreateMappedBufferView(GellyInterfaceRef<IManagedBuffer> buffer) override;
+	GellyOwnedInterface<IMappedBufferView> CreateMappedBufferView(
+		GellyInterfaceRef<IManagedBuffer> buffer
+	) override;
 
 	GellyObserverPtr<IManagedDepthBuffer> CreateDepthBuffer(
 		const DepthBufferDesc &desc
@@ -101,6 +103,12 @@ public:
 
 	void Draw(uint32_t vertexCount, uint32_t startVertex, bool accumulate)
 		override;
+
+	void Dispatch(
+		uint32_t threadGroupCountX,
+		uint32_t threadGroupCountY,
+		uint32_t threadGroupCountZ
+	) override;
 
 	void ResetPipeline() override;
 

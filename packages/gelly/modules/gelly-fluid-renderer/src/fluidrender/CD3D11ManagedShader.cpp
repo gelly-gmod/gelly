@@ -85,6 +85,19 @@ void CD3D11ManagedShader::Create() {
 			shader = geometryShader;
 			break;
 		}
+		case ShaderType::Compute: {
+			ID3D11ComputeShader *computeShader;
+			if (const auto result = device->CreateComputeShader(
+					bytecode, bytecodeSize, nullptr, &computeShader
+				);
+				FAILED(result)) {
+				throw std::runtime_error(
+					"Failed to create compute shader: " + std::to_string(result)
+				);
+			}
+			shader = computeShader;
+			break;
+		}
 	}
 }
 
@@ -104,6 +117,11 @@ void CD3D11ManagedShader::Destroy() {
 				const auto geometryShader =
 					std::get<ID3D11GeometryShader *>(shader);
 				geometryShader->Release();
+			} break;
+			case ShaderType::Compute: {
+				const auto computeShader =
+					std::get<ID3D11ComputeShader *>(shader);
+				computeShader->Release();
 			} break;
 		}
 		shader = std::monostate{};
@@ -133,6 +151,11 @@ void CD3D11ManagedShader::Bind() {
 		case ShaderType::Geometry:
 			deviceContext->GSSetShader(
 				std::get<ID3D11GeometryShader *>(shader), nullptr, 0
+			);
+			break;
+		case ShaderType::Compute:
+			deviceContext->CSSetShader(
+				std::get<ID3D11ComputeShader *>(shader), nullptr, 0
 			);
 			break;
 	}

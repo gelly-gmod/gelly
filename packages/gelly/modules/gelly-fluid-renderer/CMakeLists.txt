@@ -26,7 +26,9 @@ add_library(
         src/fluidrender/CD3D9to11SharedTexture.cpp
         include/fluidrender/IMappedBufferView.h
         include/fluidrender/CD3D11MappedBufferView.h
-        src/fluidrender/CD3D11MappedBufferView.cpp)
+        src/fluidrender/CD3D11MappedBufferView.cpp
+        include/fluidrender/util/Kernel.h
+        src/fluidrender/util/Kernel.cpp)
 
 target_include_directories(
         gelly_fluid_renderer

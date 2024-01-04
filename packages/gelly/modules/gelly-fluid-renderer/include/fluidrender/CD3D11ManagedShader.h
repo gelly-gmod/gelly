@@ -14,7 +14,8 @@ private:
 		std::monostate,
 		ID3D11VertexShader *,
 		ID3D11PixelShader *,
-		ID3D11GeometryShader *>
+		ID3D11GeometryShader *,
+		ID3D11ComputeShader *>
 		shader;
 
 	GellyObserverPtr<IRenderContext> context;

@@ -25,10 +25,7 @@ enum class RenderAPIResource {
 // This should only be used to verify invariants.
 // All concrete classes are expected to raise logic errors if they are
 // connected to an incompatible context.
-enum class ContextRenderAPI {
-	D3D11,
-	D3D9Ex
-};
+enum class ContextRenderAPI { D3D11, D3D9Ex };
 
 enum class RasterizerFlags { NONE = 0, DISABLE_CULL = 0b1 };
 
@@ -153,9 +150,15 @@ public:
 		uint32_t vertexCount, uint32_t startVertex, bool accumulate = false
 	) = 0;
 
+	virtual void Dispatch(
+		uint32_t threadGroupCountX,
+		uint32_t threadGroupCountY,
+		uint32_t threadGroupCountZ
+	) = 0;
+
 	/**
-	 * \brief Causes everything to be reset to their original state. This should
-	 * be used after a Draw command.
+	 * \brief Causes everything to be reset to their original state. This
+	 * should be used after a Draw command.
 	 */
 	virtual void ResetPipeline() = 0;
 
