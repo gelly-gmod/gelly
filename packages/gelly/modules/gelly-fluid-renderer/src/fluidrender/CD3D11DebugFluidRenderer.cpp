@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 
-#include "..\..\include\fluidrender\CD3D11SplattingFluidRenderer.h"
 #include "EncodeDepthPS.h"
 #include "EstimateNormalPS.h"
 #include "FilterDepthPS.h"
@@ -14,6 +13,7 @@
 #include "ThicknessGS.h"
 #include "ThicknessPS.h"
 #include "ThicknessVS.h"
+#include "fluidrender/splatting/CD3D11SplattingFluidRenderer.h"
 #include "fluidrender/util/CBuffers.h"
 #include "fluidrender/util/ScreenQuadVB.h"
 

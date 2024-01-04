@@ -1,7 +1,7 @@
 #ifndef GELLY_CD3D11DEBUGFLUIDTEXTURES_H
 #define GELLY_CD3D11DEBUGFLUIDTEXTURES_H
 
-#include "IFluidTextures.h"
+#include "fluidrender/IFluidTextures.h"
 
 class CD3D11SplattingFluidTextures : public IFluidTextures {
 private:

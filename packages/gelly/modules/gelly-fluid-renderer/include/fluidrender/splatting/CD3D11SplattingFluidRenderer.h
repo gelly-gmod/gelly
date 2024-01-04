@@ -4,10 +4,10 @@
 #include <GellyFluidSim.h>
 #include <GellyInterfaceRef.h>
 
-#include "CD3D11ManagedBuffer.h"
 #include "CD3D11SplattingFluidTextures.h"
-#include "IFluidRenderer.h"
-#include "IManagedBufferLayout.h"
+#include "fluidrender/CD3D11ManagedBuffer.h"
+#include "fluidrender/IFluidRenderer.h"
+#include "fluidrender/IManagedBufferLayout.h"
 #include "renderdoc_app.h"
 
 class CD3D11SplattingFluidRenderer : public IFluidRenderer {

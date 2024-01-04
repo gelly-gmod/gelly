@@ -63,5 +63,5 @@ public:
 
 	[[nodiscard]] ID3D11ShaderResourceView *Get() const { return view.Get(); }
 };
-}  // namespace d3d11
+}  // namespace splatting
 #endif	// GELLY_SRVBUFFER_H

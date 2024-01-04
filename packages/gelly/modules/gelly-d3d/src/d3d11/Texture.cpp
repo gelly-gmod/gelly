@@ -113,7 +113,7 @@ Texture::Texture(
 	   device->CreateSamplerState(&samplerDesc, sampler.GetAddressOf()));
 }
 
-}  // namespace d3d11
+}  // namespace splatting
 
 void d3d11::Texture::SetAsRT(
 	ID3D11DeviceContext *context, ID3D11DepthStencilView *dsv

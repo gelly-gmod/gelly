@@ -10,6 +10,6 @@ namespace d3d11 {
  * @param context
  */
 void SyncFlush(ID3D11Device *device, ID3D11DeviceContext *context);
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLY_SYNCFLUSH_H

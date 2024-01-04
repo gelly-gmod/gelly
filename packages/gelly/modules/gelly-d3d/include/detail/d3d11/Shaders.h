@@ -43,6 +43,6 @@ ShaderCompileResult<ID3D11ComputeShader> compile_compute_shader(
 	const ShaderCompileOptions &options
 );
 
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLY_SHADERS_H

@@ -7,6 +7,6 @@ namespace d3d11 {
 void CleanupRTsAndShaders(
 	ID3D11DeviceContext *context, int usedViews, int usedSamplers
 );
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLY_D3D11CLEANUP_H

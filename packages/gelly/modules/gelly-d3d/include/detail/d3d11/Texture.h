@@ -46,6 +46,6 @@ void SetMRT(
 	ID3D11DepthStencilView *dsv
 );
 
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLY_D3D11TEXTURE_H

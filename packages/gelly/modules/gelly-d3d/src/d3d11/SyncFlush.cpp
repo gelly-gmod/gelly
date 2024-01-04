@@ -18,4 +18,4 @@ void SyncFlush(ID3D11Device *device, ID3D11DeviceContext *context) {
 	query->Release();
 }
 
-}  // namespace d3d11
+}  // namespace splatting

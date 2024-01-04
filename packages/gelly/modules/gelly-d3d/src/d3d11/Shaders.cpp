@@ -111,4 +111,4 @@ ShaderCompileResult<ID3D11ComputeShader> compile_compute_shader(
 	return {shaderBlob, shader};
 }
 
-};	// namespace d3d11
+};	// namespace splatting

@@ -1,7 +1,7 @@
 #include "GellyFluidRender.h"
 
-#include "..\include\fluidrender\CD3D11SplattingFluidRenderer.h"
 #include "fluidrender/CD3D11RenderContext.h"
+#include "fluidrender/splatting/CD3D11SplattingFluidRenderer.h"
 #include "fluidrender/IRenderContext.h"
 
 IRenderContext *Gelly::CreateD3D11FluidRenderContext(

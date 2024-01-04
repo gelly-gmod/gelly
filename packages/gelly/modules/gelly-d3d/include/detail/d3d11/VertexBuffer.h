@@ -71,6 +71,6 @@ ID3D11Buffer *VertexBuffer<Vertex>::GetVertexBuffer() const {
 	return vertices.Get();
 }
 
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLY_D3D11VERTEXBUFFER_H

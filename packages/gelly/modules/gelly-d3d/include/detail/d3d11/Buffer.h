@@ -138,6 +138,6 @@ ID3D11Buffer *Buffer<T>::Get() const {
 	return buffer.Get();
 }
 
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLYD3D_D3D11_TEXTURE_H

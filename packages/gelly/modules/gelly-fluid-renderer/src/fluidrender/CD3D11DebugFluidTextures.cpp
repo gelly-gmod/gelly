@@ -1,7 +1,8 @@
 #include <stdexcept>
 
-#include "..\..\include\fluidrender\CD3D11SplattingFluidTextures.h"
+#include "fluidrender/IFluidTextures.h"
 #include "fluidrender/IRenderContext.h"
+#include "fluidrender/splatting/CD3D11SplattingFluidTextures.h"
 
 CD3D11SplattingFluidTextures::CD3D11SplattingFluidTextures()
 	: albedo(nullptr), normal(nullptr), depth(nullptr) {}
@@ -48,9 +49,8 @@ void CD3D11SplattingFluidTextures::SetFeatureTexture(
 	}
 }
 
-GellyObserverPtr<IManagedTexture> CD3D11SplattingFluidTextures::GetFeatureTexture(
-	FluidFeatureType feature
-) {
+GellyObserverPtr<IManagedTexture>
+CD3D11SplattingFluidTextures::GetFeatureTexture(FluidFeatureType feature) {
 	switch (feature) {
 		case FluidFeatureType::ALBEDO:
 			return albedo;

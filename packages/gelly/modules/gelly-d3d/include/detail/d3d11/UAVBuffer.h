@@ -37,6 +37,6 @@ public:
 
 	[[nodiscard]] ID3D11UnorderedAccessView *Get() { return view.Get(); }
 };
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLY_UAVBUFFER_H

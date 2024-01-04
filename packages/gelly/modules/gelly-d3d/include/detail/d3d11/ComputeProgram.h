@@ -55,6 +55,6 @@ public:
 		);
 	}
 };
-}  // namespace d3d11
+}  // namespace splatting
 
 #endif	// GELLY_COMPUTEPROGRAM_H

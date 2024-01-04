@@ -73,6 +73,6 @@ void ConstantBuffer<Structure>::BindToShaders(
 	context->CSSetConstantBuffers(slot, 1, buffers);
 }
 
-};	// namespace d3d11
+};	// namespace splatting
 
 #endif	// GELLY_D3D11CONSTANTBUFFER_H

@@ -18,4 +18,4 @@ ComputeProgram::ComputeProgram(
 
 	shader.Attach(compile_compute_shader(options).shader);
 }
-}  // namespace d3d11
+}  // namespace splatting
