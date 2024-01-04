@@ -48,12 +48,11 @@ PS_OUTPUT main(VS_OUTPUT input)
 {
     PS_OUTPUT output;
     float4 albedo = Albedo.Sample(AlbedoSampler, input.Tex);
-    bool isWater = albedo.a < 0.7f;
+    bool isWater = albedo.a == 0.0f;
     if (!isWater) {
         output.Color = OpaqueBackBuffer.Sample(OpaqueBackBufferSampler, input.Tex);
         return output;
     }
-
 
     float3 normal = Normal.Sample(NormalSampler, input.Tex).xyz;
     float3 specular = float3(0.0f, 0.0f, 0.0f);
@@ -82,13 +81,7 @@ PS_OUTPUT main(VS_OUTPUT input)
     float3 transmittedRadiance = OpaqueBackBuffer.Sample(OpaqueBackBufferSampler, transmittedUV).xyz;
     transmittedRadiance *= albedo.xyz; // For water, aka fluids, the albedo is the absorption coefficients with beer's law
 
-    float fresnel = min(1.f, SchlicksDielectric(dot(normal, eyeDir), 1.33f));
-
-    if (fresnel >= 1.f)
-    {
-        fresnel = 0.f;
-    }
-
+    float fresnel = SchlicksDielectric(max(dot(normal, eyeDir), 0.0), 1.33f);
     // later on specular will also consider environment (and MAYBE screen-space reflections)
     output.Color = float4((1.f - fresnel) * transmittedRadiance + fresnel * specular, 1.0f);
     return output;

@@ -51,20 +51,16 @@ PS_OUTPUT main(VS_INPUT input)
 {
     float4 depth = GellyDepth.Sample(GellyDepthSampler, input.Tex);
     float4 normalFrag = GellyNormal.Sample(GellyNormalSampler, input.Tex);
-    if (normalFrag.x == 0.f && normalFrag.y == 0.f && normalFrag.z == 0.f) {
+    if (depth.g >= 1.f) {
         discard;
     }
 
     float3 normal = normalFrag.xyz;
-
     float thickness = GellyThickness.Sample(GellyThicknessSampler, input.Tex).x;
-    if (thickness < MINIMUM_THICKNESS) {
-        discard;
-    }
 
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Normal = float4(normal * 2.f - 1.f, 1.0f);
-    output.Albedo = float4(ComputeAbsorption(ABSORPTION, thickness), 0.5f);
+    output.Normal = float4(normal, 1.0f);
+    output.Albedo = float4(ComputeAbsorption(ABSORPTION, thickness), 0.0f);
     output.DepthOut = float4(depth.y, depth.y, depth.y, 1.0f);
     output.Positions = GellyPositions.Sample(GellyPositionsSampler, input.Tex);
     output.Depth = depth.y;

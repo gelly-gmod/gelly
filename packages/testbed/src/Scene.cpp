@@ -1,15 +1,17 @@
+// clang-format off
+#include <fastgltf/parser.hpp>
+// clang-format on
+
 #include "Scene.h"
 
 #include <DirectXMath.h>
 
-#include <fastgltf/parser.hpp>
 #include <vector>
 
 #include "Camera.h"
 #include "Logging.h"
 #include "Rendering.h"
 #include "Window.h"
-#include "fastgltf/tools.hpp"
 
 // Since everything is static, we really don't need to care
 // much about the game-side of things. We just store the render objects
@@ -253,7 +255,8 @@ void testbed::RegisterSceneToGellySim(IFluidSimulation *sim) {
 		params.shape = ObjectShape::TRIANGLE_MESH;
 		auto shapeData = ObjectCreationParams::TriangleMesh{};
 
-		shapeData.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT16;
+		shapeData.indexType =
+			ObjectCreationParams::TriangleMesh::IndexType::UINT16;
 		shapeData.vertices =
 			reinterpret_cast<float *>(collisionObject.vertices.data());
 		shapeData.indices16 =

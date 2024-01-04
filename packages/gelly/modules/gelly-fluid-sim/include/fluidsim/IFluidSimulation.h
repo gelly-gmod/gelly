@@ -1,6 +1,8 @@
 #ifndef GELLY_IFLUIDSIMULATION_H
 #define GELLY_IFLUIDSIMULATION_H
 
+#include <DirectXMath.h>
+
 #include <functional>
 
 #include "GellyInterface.h"
@@ -10,6 +12,8 @@
 #include "ISimContext.h"
 #include "ISimData.h"
 #include "ISimScene.h"
+
+using namespace DirectX;
 
 gelly_interface IFluidSimulation : public IFeatureQuery {
 public:
@@ -61,7 +65,7 @@ public:
 	 */
 	virtual void Update(float deltaTime) = 0;
 
-	virtual const char* GetComputeDeviceName() = 0;
+	virtual const char *GetComputeDeviceName() = 0;
 
 	// Past this point is mainly feature-specific stuff.
 	virtual void VisitLatestContactPlanes(ContactPlaneVisitor visitor) = 0;
