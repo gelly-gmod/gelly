@@ -28,7 +28,8 @@ add_library(
         include/fluidrender/CD3D11MappedBufferView.h
         src/fluidrender/CD3D11MappedBufferView.cpp
         include/fluidrender/util/Kernel.h
-        src/fluidrender/util/Kernel.cpp)
+        src/fluidrender/util/Kernel.cpp
+        include/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.h)
 
 target_include_directories(
         gelly_fluid_renderer

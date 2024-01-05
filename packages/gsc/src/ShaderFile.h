@@ -6,16 +6,9 @@
 
 namespace fs = std::filesystem;
 
-enum class ShaderProfile {
-	PS,
-	VS,
-	GS,
-};
+enum class ShaderProfile { PS, VS, GS, CS };
 
-enum ShaderModel {
-	SM_5,
-	SM_3
-};
+enum ShaderModel { SM_5, SM_3 };
 
 class ShaderFile {
 	using ShaderSource = std::string;

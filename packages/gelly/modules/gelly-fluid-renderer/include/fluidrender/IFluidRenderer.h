@@ -13,6 +13,23 @@ struct FluidRenderSettings {
 	float particleRadius = 0.1f;
 	int filterIterations = 72;
 	int thicknessFilterIterations = 13;
+
+	union {
+		struct {
+			uint voxelSize = 2;
+			uint domainWidth = 128;
+			uint domainHeight = 128;
+			uint domainDepth = 128;
+			uint maxNeighbors = 32;
+			/**
+			 * \brief More accurate as it increases, but way slower.
+			 * If your particles are pretty spread out (in FleX, this is a high
+			 * rest distance), then around four or so is ok. If they're closer,
+			 * consider increasing this.
+			 */
+			uint maxParticlesInVoxel = 4;
+		} isosurface;
+	} special;
 };
 
 /**
@@ -74,11 +91,13 @@ public:
 
 	virtual void PullPerParticleData() = 0;
 	/**
-	 * \brief Sets the absorption of the given particle, will throw if particle data isn't pulled.
-	 * \param particleIndex Index of the particle.
-	 * \param absorption Absorption vector, in the format of RGB.
+	 * \brief Sets the absorption of the given particle, will throw if particle
+	 * data isn't pulled. \param particleIndex Index of the particle. \param
+	 * absorption Absorption vector, in the format of RGB.
 	 */
-	virtual void SetPerParticleAbsorption(uint particleIndex, const float absorption[3]) = 0;
+	virtual void SetPerParticleAbsorption(
+		uint particleIndex, const float absorption[3]
+	) = 0;
 	virtual void PushPerParticleData() = 0;
 
 #ifdef _DEBUG

@@ -57,6 +57,10 @@ void ShaderFile::ComputeFriendlyNameAndProfile() {
 			shaderTypeString = "GS";
 			profile = ShaderProfile::GS;
 			break;
+		case 'c':
+			shaderTypeString = "CS";
+			profile = ShaderProfile::CS;
+			break;
 		default:
 			throw std::runtime_error("Unknown shader type");
 			break;
