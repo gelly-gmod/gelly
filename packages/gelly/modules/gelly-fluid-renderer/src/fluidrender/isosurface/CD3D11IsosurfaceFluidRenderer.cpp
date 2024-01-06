@@ -136,21 +136,21 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 	);
 
 	m_kernels.voxelize.SetInput(0, m_buffers.positions);
-	m_kernels.voxelize.SetOutput(0, m_buffers.particleCount);
-	m_kernels.voxelize.SetOutput(1, m_buffers.particlesInVoxels);
+	m_kernels.voxelize.SetOutput(1, m_buffers.particleCount);
+	m_kernels.voxelize.SetOutput(2, m_buffers.particlesInVoxels);
 	m_kernels.voxelize.SetCBuffer(0, m_buffers.voxelCBuffer);
 
 	m_kernels.constructBDG.SetInput(0, m_buffers.particleCount);
 	m_kernels.constructBDG.SetInput(1, m_buffers.particlesInVoxels);
 	m_kernels.constructBDG.SetInput(2, m_buffers.positions);
-	m_kernels.constructBDG.SetOutput(0, m_buffers.bdg);
+	m_kernels.constructBDG.SetOutput(3, m_buffers.bdg);
 	m_kernels.constructBDG.SetCBuffer(0, m_buffers.voxelCBuffer);
 
 	m_kernels.raymarch.SetInput(0, m_buffers.bdg);
 	m_kernels.raymarch.SetInput(1, m_buffers.positions);
 	m_kernels.raymarch.SetInput(2, m_buffers.positions);
-	m_kernels.raymarch.SetOutput(0, m_textures.depth);
-	m_kernels.raymarch.SetOutput(1, m_textures.normal);
+	m_kernels.raymarch.SetOutput(3, m_textures.depth);
+	m_kernels.raymarch.SetOutput(4, m_textures.normal);
 	m_kernels.raymarch.SetCBuffer(0, m_buffers.voxelCBuffer);
 	m_kernels.raymarch.SetCBuffer(1, m_buffers.fluidRenderCBuffer);
 };
@@ -179,6 +179,15 @@ void CD3D11IsosurfaceFluidRenderer::SetSimData(
 	GellyObserverPtr<ISimData> simData
 ) {
 	m_simData = simData;
+
+	CreateBuffers();
+	CreateTextures();
+	CreateKernels();
+
+	// link
+	m_simData->LinkBuffer(
+		SimBufferType::POSITION, m_buffers.positions->GetBufferResource()
+	);
 }
 
 void CD3D11IsosurfaceFluidRenderer::SetSettings(
