@@ -13,6 +13,12 @@
 #include "fluidrender/util/Kernel.h"
 #include "renderdoc_app.h"
 
+struct VoxelCBData {
+	float voxelSize;
+	util::uint3 domainSize;
+	uint maxParticlesInVoxel;
+};
+
 /**
  * \brief A fluid renderer based on the splatting + raymarching method
  * introduced in Tong Wu et al's "A Real-Time Adaptive Ray Marching Method for
@@ -28,6 +34,7 @@ private:
 
 	FluidRenderSettings m_settings;
 	FluidRenderParams m_perFrameData{};
+	VoxelCBData m_voxelCBData{};
 
 	struct {
 		/**
@@ -53,12 +60,13 @@ private:
 		GellyInterfaceVal<IManagedBuffer> particleCount;
 		/**
 		 * \brief This is a strided buffer,
-		 * where each member is a pointer to a particle index in the positions buffer.
-		 * This is strided according to the maximum amount of particles in a voxel, set in the settings.
+		 * where each member is a pointer to a particle index in the positions
+		 * buffer. This is strided according to the maximum amount of particles
+		 * in a voxel, set in the settings.
 		 *
 		 * \code{.hlsl}
-		 * g_ParticlesInVoxels[voxelIndex * maxParticlesPerVoxel + wantedParticleIndex]
-		 * \endcode
+		 * g_ParticlesInVoxels[voxelIndex * maxParticlesPerVoxel +
+		 * wantedParticleIndex] \endcode
 		 */
 		GellyInterfaceVal<IManagedBuffer> particlesInVoxels;
 		/**
@@ -75,6 +83,9 @@ private:
 		GellyInterfaceVal<IManagedBuffer> bdg;
 		GellyInterfaceVal<IManagedBuffer> positions;
 		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
+
+		GellyInterfaceVal<IManagedBuffer> fluidRenderCBuffer;
+		GellyInterfaceVal<IManagedBuffer> voxelCBuffer;
 	} m_buffers = {};
 
 	struct {

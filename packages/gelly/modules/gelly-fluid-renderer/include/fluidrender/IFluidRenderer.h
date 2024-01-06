@@ -20,7 +20,6 @@ struct FluidRenderSettings {
 			uint domainWidth = 128;
 			uint domainHeight = 128;
 			uint domainDepth = 128;
-			uint maxNeighbors = 32;
 			/**
 			 * \brief More accurate as it increases, but way slower.
 			 * If your particles are pretty spread out (in FleX, this is a high
