@@ -51,6 +51,15 @@ private:
 
 	struct {
 		GellyInterfaceVal<IManagedBuffer> particleCount;
+		/**
+		 * \brief This is a strided buffer,
+		 * where each member is a pointer to a particle index in the positions buffer.
+		 * This is strided according to the maximum amount of particles in a voxel, set in the settings.
+		 *
+		 * \code{.hlsl}
+		 * g_ParticlesInVoxels[voxelIndex * maxParticlesPerVoxel + wantedParticleIndex]
+		 * \endcode
+		 */
 		GellyInterfaceVal<IManagedBuffer> particlesInVoxels;
 		/**
 		 * BDG is a 3D texture where each voxel contains a
@@ -67,10 +76,27 @@ private:
 		GellyInterfaceVal<IManagedBuffer> positions;
 		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
 	} m_buffers = {};
+
+	struct {
+		GellyInterfaceVal<IManagedTexture> depth;
+		GellyInterfaceVal<IManagedTexture> normal;
+	} m_textures = {};
+
 #ifdef _DEBUG
 	RENDERDOC_API_1_1_2 *m_renderDoc = nullptr;
 #endif
+
+	void CreateBuffers();
+	void CreateTextures();
+	void CreateKernels();
+
+	void ConstructMarchingBuffers();
+	void Raymarch();
+
 public:
+	CD3D11IsosurfaceFluidRenderer();
+	~CD3D11IsosurfaceFluidRenderer() override = default;
+
 	void SetSimData(GellyObserverPtr<ISimData> simData) override;
 	void AttachToContext(GellyObserverPtr<IRenderContext> context) override;
 	GellyObserverPtr<IFluidTextures> GetFluidTextures() override;

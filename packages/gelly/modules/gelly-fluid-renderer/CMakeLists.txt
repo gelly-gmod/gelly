@@ -29,13 +29,16 @@ add_library(
         src/fluidrender/CD3D11MappedBufferView.cpp
         include/fluidrender/util/Kernel.h
         src/fluidrender/util/Kernel.cpp
-        include/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.h)
+        include/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.h
+        src/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.cpp
+        include/fluidrender/util/Exceptions.h)
 
 target_include_directories(
         gelly_fluid_renderer
         PUBLIC
         include
         src/shaders/out
+        src/shaders/isosurface/out
         ../gelly-interfaces/include
         ../gelly-d3d/include
         ../gelly-fluid-sim/include

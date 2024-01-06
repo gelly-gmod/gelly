@@ -28,6 +28,11 @@ enum class TextureFormat : uint8_t {
 	R16G16B16A16_FLOAT,
 	R10G10B10A2_UNORM,
 	R32G32_FLOAT,
+	R16_FLOAT,
+	R32_FLOAT,
+	R16G16_FLOAT,
+	R16_UINT,
+	R32_UINT,
 };
 
 /**
@@ -108,6 +113,16 @@ inline DXGI_FORMAT GetDXGIFormat(const TextureFormat format) {
 			return DXGI_FORMAT_R10G10B10A2_UNORM;
 		case TextureFormat::R32G32_FLOAT:
 			return DXGI_FORMAT_R32G32_FLOAT;
+		case TextureFormat::R16_FLOAT:
+			return DXGI_FORMAT_R16_FLOAT;
+		case TextureFormat::R32_FLOAT:
+			return DXGI_FORMAT_R32_FLOAT;
+		case TextureFormat::R16G16_FLOAT:
+			return DXGI_FORMAT_R16G16_FLOAT;
+		case TextureFormat::R16_UINT:
+			return DXGI_FORMAT_R16_UINT;
+		case TextureFormat::R32_UINT:
+			return DXGI_FORMAT_R32_UINT;
 		default:
 			throw std::logic_error("Invalid texture format");
 	}
@@ -125,6 +140,16 @@ inline TextureFormat GetTextureFormatFromDXGI(const DXGI_FORMAT format) {
 			return TextureFormat::R32G32_FLOAT;
 		case DXGI_FORMAT_R10G10B10A2_UNORM:
 			return TextureFormat::R10G10B10A2_UNORM;
+		case DXGI_FORMAT_R16_FLOAT:
+			return TextureFormat::R16_FLOAT;
+		case DXGI_FORMAT_R32_FLOAT:
+			return TextureFormat::R32_FLOAT;
+		case DXGI_FORMAT_R16G16_FLOAT:
+			return TextureFormat::R16G16_FLOAT;
+		case DXGI_FORMAT_R16_UINT:
+			return TextureFormat::R16_UINT;
+		case DXGI_FORMAT_R32_UINT:
+			return TextureFormat::R32_UINT;
 		default:
 			throw std::logic_error("Invalid texture format");
 	}

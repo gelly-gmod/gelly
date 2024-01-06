@@ -19,7 +19,7 @@ private:
 	GellyInterfaceVal<ISimData> simData;
 	CD3D11SplattingFluidTextures outputTextures;
 
-	Gelly::FluidRenderSettings settings;
+	Gelly::FluidRenderSettings settings = {};
 	int maxParticles{};
 
 	FluidRenderParams cbufferData{};

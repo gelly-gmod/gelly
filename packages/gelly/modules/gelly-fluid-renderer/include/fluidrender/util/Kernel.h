@@ -12,7 +12,19 @@ using KernelIO = std::variant<
 	GellyInterfaceVal<IManagedBuffer>,
 	GellyInterfaceVal<IManagedTexture>>;
 
-inline bool IsKernelIOEmpty(const KernelIO &io) { return io.index() == 0; }
+enum KernelIOIndex : uint { EMPTY = 0, BUFFER = 1, TEXTURE = 2 };
+
+inline bool IsKernelIOEmpty(const KernelIO &io) {
+	return io.index() == KernelIOIndex::EMPTY;
+}
+
+inline bool IsKernelIOBuffer(const KernelIO &io) {
+	return io.index() == KernelIOIndex::BUFFER;
+}
+
+inline bool IsKernelIOTexture(const KernelIO &io) {
+	return io.index() == KernelIOIndex::TEXTURE;
+}
 
 struct uint3 {
 	uint x;
@@ -59,8 +71,12 @@ private:
 		const GellyInterfaceVal<IManagedBuffer> &cBuffer, uint index
 	);
 
+	bool m_initialized = false;
+
 public:
-	Kernel(
+	Kernel();
+
+	void Initialize(
 		GellyInterfaceVal<IRenderContext> context,
 		const uint8_t *shaderBytecode,
 		size_t shaderBytecodeSize,
