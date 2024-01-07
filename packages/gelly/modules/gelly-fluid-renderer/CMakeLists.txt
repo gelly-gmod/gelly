@@ -2,6 +2,8 @@
 file(GLOB_RECURSE SHADER_GLUE_CODE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/isosurface/out/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/isosurface/out/*.h"
 )
 
 add_library(

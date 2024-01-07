@@ -72,10 +72,10 @@ private:
 		GellyInterfaceVal<IManagedShader> filterThicknessPS;
 		GellyInterfaceVal<IManagedShader> encodeDepthPS;
 	} shaders{};
-
 #ifdef _DEBUG
 	RENDERDOC_API_1_1_2 *renderDocApi = nullptr;
 #endif
+
 
 	void CreateBuffers();
 	void CreateTextures();

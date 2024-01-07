@@ -17,9 +17,11 @@ void Kernel::Initialize(
 	);
 	m_dispatchSize = dispatchSize;
 
-	m_inputs.reserve(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
-	m_outputs.reserve(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
-	m_cBuffers.reserve(D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT);
+	// important: reserve will pre-allocate, but we actually want to initialize
+	// the vectors with empty values.
+	m_inputs.resize(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
+	m_outputs.resize(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT);
+	m_cBuffers.resize(D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT);
 
 	m_initialized = true;
 }

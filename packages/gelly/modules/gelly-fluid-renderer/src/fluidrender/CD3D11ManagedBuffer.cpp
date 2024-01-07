@@ -84,7 +84,7 @@ bool CD3D11ManagedBuffer::Create() {
 
 	if ((desc.type & BufferType::UNORDERED_ACCESS) != 0) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC d3dUAVDesc = {};
-		d3dUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
+		d3dUAVDesc.Format = GetDXGIFormat(desc.format);
 		d3dUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		d3dUAVDesc.Buffer.FirstElement = 0;
 		d3dUAVDesc.Buffer.NumElements = desc.byteWidth / desc.stride;
@@ -179,6 +179,7 @@ void CD3D11ManagedBuffer::BindToPipeline(
 					);
 					break;
 			}
+			break;
 		case BufferType::VERTEX: {
 			// Shader type is not used here. But, the vertex shader is the only
 			// shader that can use vertex buffers.

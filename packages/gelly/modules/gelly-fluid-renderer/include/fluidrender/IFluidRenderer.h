@@ -16,7 +16,7 @@ struct FluidRenderSettings {
 
 	union {
 		struct {
-			uint voxelSize = 2;
+			float voxelSize = 0.25f;
 			uint domainWidth = 128;
 			uint domainHeight = 128;
 			uint domainDepth = 128;
@@ -37,6 +37,7 @@ struct FluidRenderSettings {
  * Some members will be filled out by the renderer, check the member
  * documentation for more information.
  */
+
 struct FluidRenderParams {
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 proj;
@@ -56,7 +57,8 @@ struct FluidRenderParams {
 
 	float nearPlane;
 	float farPlane;
-	float pad[2] = {};
+	XMFLOAT3 cameraPos;
+	float pad[3] = {};
 };
 }  // namespace Gelly
 

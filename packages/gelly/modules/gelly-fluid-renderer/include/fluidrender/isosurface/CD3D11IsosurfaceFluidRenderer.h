@@ -34,7 +34,7 @@ private:
 	GellyInterfaceVal<ISimData> m_simData = nullptr;
 	CD3D11SplattingFluidTextures m_outputTextures;
 
-	FluidRenderSettings m_settings;
+	FluidRenderSettings m_settings{};
 	FluidRenderParams m_perFrameData{};
 	VoxelCBData m_voxelCBData{};
 

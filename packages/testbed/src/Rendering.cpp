@@ -661,6 +661,7 @@ void testbed::RenderWorldList(
 		BIND_MEMBER_TO_UI_DATA(params, TestbedWindow, particleRadius);
 		params.nearPlane = camera.nearPlane;
 		params.farPlane = camera.farPlane;
+		params.cameraPos = camera.position;
 
 		{
 			ZoneScopedN("Matrix gen");

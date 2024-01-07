@@ -7,7 +7,7 @@
 #include "fluidrender/util/Exceptions.h"
 
 CD3D11IsosurfaceFluidRenderer::CD3D11IsosurfaceFluidRenderer()
-	: m_kernels({}), m_settings({}) {}
+	: m_kernels({}) {}
 
 void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 	THROW_IF_FALSY(
@@ -30,10 +30,11 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 	m_buffers.positions = m_context->CreateBuffer(particlePositionDesc);
 
 	BufferDesc particleCountDesc = {};
-	// Realistically there's never going to be > 65535 particles
-	particleCountDesc.format = BufferFormat::R16_UINT;
-	particleCountDesc.stride = sizeof(uint16_t);
-	particleCountDesc.byteWidth = sizeof(uint16_t) * totalVoxels;
+	// NOTE: We can't change this format to be more compact since we use
+	// Interlocked* functions which only work with 32-bit types
+	particleCountDesc.format = BufferFormat::R32_UINT;
+	particleCountDesc.stride = sizeof(uint32_t);
+	particleCountDesc.byteWidth = sizeof(uint32_t) * totalVoxels;
 	particleCountDesc.type = BufferType::UNORDERED_ACCESS;
 
 	m_buffers.particleCount = m_context->CreateBuffer(particleCountDesc);
@@ -83,7 +84,7 @@ void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 		m_context->CreateTexture("isosurfacerenderer/depth", depthDesc);
 
 	TextureDesc normalDesc = {};
-	normalDesc.format = TextureFormat::R8G8B8A8_SNORM;
+	normalDesc.format = TextureFormat::R32G32B32A32_FLOAT;
 	normalDesc.width = width;
 	normalDesc.height = height;
 	normalDesc.isFullscreen = true;
@@ -145,10 +146,11 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 	m_kernels.constructBDG.SetCBuffer(0, m_buffers.voxelCBuffer);
 
 	m_kernels.raymarch.SetInput(0, m_buffers.bdg);
-	m_kernels.raymarch.SetInput(1, m_buffers.positions);
-	m_kernels.raymarch.SetInput(2, m_buffers.positions);
-	m_kernels.raymarch.SetOutput(3, m_textures.depth);
-	m_kernels.raymarch.SetOutput(4, m_textures.normal);
+	m_kernels.raymarch.SetInput(1, m_buffers.particleCount);
+	m_kernels.raymarch.SetInput(2, m_buffers.particlesInVoxels);
+	m_kernels.raymarch.SetInput(3, m_buffers.positions);
+	m_kernels.raymarch.SetOutput(4, m_textures.depth);
+	m_kernels.raymarch.SetOutput(5, m_textures.normal);
 	m_kernels.raymarch.SetCBuffer(0, m_buffers.voxelCBuffer);
 	m_kernels.raymarch.SetCBuffer(1, m_buffers.fluidRenderCBuffer);
 };
@@ -157,16 +159,10 @@ void CD3D11IsosurfaceFluidRenderer::ConstructMarchingBuffers() {
 	// We need to voxelize and construct the BDG before we can raymarch
 	m_kernels.voxelize.Invoke();
 	// m_kernels.constructBDG.Invoke(); TODO: implement this
-
-	m_context->SubmitWork();
 }
 
-void CD3D11IsosurfaceFluidRenderer::Raymarch() {
-	// m_kernels.raymarch.Invoke(); TODO: implement this
-}
+void CD3D11IsosurfaceFluidRenderer::Raymarch() { m_kernels.raymarch.Invoke(); }
 
-// TODO: Implement this and the renderdoc capture function + the capturer API
-// calls here
 void CD3D11IsosurfaceFluidRenderer::Render() {
 	THROW_IF_FALSY(m_context, "Renderer must be attached to a context");
 	THROW_IF_FALSY(m_simData, "Renderer must be linked to simulation data");
@@ -186,6 +182,9 @@ void CD3D11IsosurfaceFluidRenderer::Render() {
 #endif
 
 	ConstructMarchingBuffers();
+	Raymarch();
+
+	m_context->SubmitWork();
 
 #ifdef _DEBUG
 	if (m_renderDoc != nullptr) {
@@ -209,6 +208,18 @@ void CD3D11IsosurfaceFluidRenderer::SetSimData(
 	CreateTextures();
 	CreateKernels();
 
+	m_voxelCBData.domainSize = {
+		m_settings.special.isosurface.domainWidth,
+		m_settings.special.isosurface.domainHeight,
+		m_settings.special.isosurface.domainDepth
+	};
+
+	m_voxelCBData.voxelSize = m_settings.special.isosurface.voxelSize;
+	m_voxelCBData.maxParticlesInVoxel =
+		m_settings.special.isosurface.maxParticlesInVoxel;
+	m_voxelCBData.maxParticles = m_simData->GetMaxParticles();
+	util::UpdateCBuffer(&m_voxelCBData, m_buffers.voxelCBuffer);
+
 	// link
 	m_simData->LinkBuffer(
 		SimBufferType::POSITION, m_buffers.positions->GetBufferResource()
@@ -219,16 +230,6 @@ void CD3D11IsosurfaceFluidRenderer::SetSettings(
 	const Gelly::FluidRenderSettings &settings
 ) {
 	m_settings = settings;
-	m_voxelCBData.domainSize = {
-		m_settings.special.isosurface.domainWidth,
-		m_settings.special.isosurface.domainHeight,
-		m_settings.special.isosurface.domainDepth
-	};
-
-	m_voxelCBData.voxelSize =
-		static_cast<float>(m_settings.special.isosurface.voxelSize);
-	m_voxelCBData.maxParticlesInVoxel =
-		m_settings.special.isosurface.maxParticlesInVoxel;
 }
 
 GellyObserverPtr<IFluidTextures>
@@ -252,6 +253,12 @@ void CD3D11IsosurfaceFluidRenderer::SetPerFrameParams(
 	const Gelly::FluidRenderParams &params
 ) {
 	m_perFrameData = params;
+	uint16_t width, height;
+	m_context->GetDimensions(width, height);
+
+	m_perFrameData.width = static_cast<float>(width);
+	m_perFrameData.height = static_cast<float>(height);
+
 	util::UpdateCBuffer(&m_perFrameData, m_buffers.fluidRenderCBuffer);
 }
 
