@@ -12,8 +12,7 @@ RWBuffer<uint> g_particlesInVoxel : register(u2);
 [numthreads(64, 1, 1)]
 void main(uint3 threadID : SV_DispatchThreadID) {
     uint particleIndex = threadID.y * DISPATCH_SIZE.x + threadID.x;
-
-    if (particleIndex >= g_voxelCB.maxParticles) {
+    if (particleIndex >= g_maxParticles) {
         return;
     }
 
@@ -21,15 +20,18 @@ void main(uint3 threadID : SV_DispatchThreadID) {
     uint3 voxelPosition = VoxelizePosition(position.xyz);
 
     uint voxelIndex = VoxelToIndex(voxelPosition);
-    uint currentCount = g_particlesInVoxel[voxelIndex];
+    uint currentCount = g_particleCount[voxelIndex];
 
-    // If the voxel is full, we can't add any more particles to it.
-    if (currentCount >= g_voxelCB.maxParticlesInVoxel) {
+    // If the voxel is full, we can't add any more particles to it- so early out.
+    if (currentCount >= g_maxParticlesInVoxel) {
         return;
     }
 
-    uint particleCount = InterlockedAdd(g_particleCount[voxelIndex], 1);
-    if (particleCount < g_voxelCB.maxParticlesInVoxel) {
-        g_particlesInVoxel[voxelIndex * g_voxelCB.maxParticlesInVoxel + particleCount] = particleIndex;
+    // must do this atomically since some other thread might be trying to write to the same voxel
+    InterlockedAdd(g_particleCount[voxelIndex], 1);
+    
+    uint newCount = currentCount + 1;
+    if (newCount < g_maxParticlesInVoxel) {
+        g_particlesInVoxel[voxelIndex * g_maxParticlesInVoxel + newCount] = particleIndex;
     }
 }
