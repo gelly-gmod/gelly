@@ -127,6 +127,10 @@ public:
 	void PushPerParticleData() override;
 
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
+
+#ifdef _DEBUG
+	bool EnableRenderDocCaptures() override;
+#endif
 };
 
 #endif	// CD3D11ISOSURFACEFLUIDRENDERER_H

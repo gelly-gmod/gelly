@@ -51,10 +51,8 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 
 	BufferDesc bdgDesc = {};
 	bdgDesc.format = BufferFormat::R16G16_FLOAT;
-	bdgDesc.stride = 4;	 // It's not pretty, but since we're using R16G16_FLOAT,
-						 // we need to set the stride to 4 since a half float
-						 // takes up 2 bytes and there's 2 of them.
-	bdgDesc.byteWidth = totalVoxels * 4;
+	bdgDesc.stride = sizeof(uint16_t) * 2;
+	bdgDesc.byteWidth = totalVoxels * sizeof(uint16_t) * 2;
 	bdgDesc.type = BufferType::UNORDERED_ACCESS;
 
 	m_buffers.bdg = m_context->CreateBuffer(bdgDesc);
@@ -169,7 +167,32 @@ void CD3D11IsosurfaceFluidRenderer::Raymarch() {
 
 // TODO: Implement this and the renderdoc capture function + the capturer API
 // calls here
-void CD3D11IsosurfaceFluidRenderer::Render() {}
+void CD3D11IsosurfaceFluidRenderer::Render() {
+	THROW_IF_FALSY(m_context, "Renderer must be attached to a context");
+	THROW_IF_FALSY(m_simData, "Renderer must be linked to simulation data");
+	THROW_IF_FALSY(
+		m_outputTextures.IsInitialized(),
+		"Fluid textures must be initialized before rendering"
+	);
+
+#ifdef _DEBUG
+	auto *device = static_cast<ID3D11Device *>(
+		m_context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
+	);
+
+	if (m_renderDoc != nullptr) {
+		m_renderDoc->StartFrameCapture(device, nullptr);
+	}
+#endif
+
+	ConstructMarchingBuffers();
+
+#ifdef _DEBUG
+	if (m_renderDoc != nullptr) {
+		m_renderDoc->EndFrameCapture(device, nullptr);
+	}
+#endif
+}
 
 void CD3D11IsosurfaceFluidRenderer::AttachToContext(
 	GellyObserverPtr<IRenderContext> context
@@ -212,3 +235,52 @@ GellyObserverPtr<IFluidTextures>
 CD3D11IsosurfaceFluidRenderer::GetFluidTextures() {
 	return &m_outputTextures;
 }
+
+void CD3D11IsosurfaceFluidRenderer::EnableLowBitMode() {
+	// Nothing
+	// TODO: Feature-gate this so it's not called unless the feature is
+	// supported
+}
+
+void CD3D11IsosurfaceFluidRenderer::PullPerParticleData() {}
+void CD3D11IsosurfaceFluidRenderer::PushPerParticleData() {}
+void CD3D11IsosurfaceFluidRenderer::SetPerParticleAbsorption(
+	uint particleIndex, const float absorption[3]
+) {}
+
+void CD3D11IsosurfaceFluidRenderer::SetPerFrameParams(
+	const Gelly::FluidRenderParams &params
+) {
+	m_perFrameData = params;
+	util::UpdateCBuffer(&m_perFrameData, m_buffers.fluidRenderCBuffer);
+}
+
+bool CD3D11IsosurfaceFluidRenderer::CheckFeatureSupport(GELLY_FEATURE feature) {
+	switch (feature) {
+		default:
+			return false;
+	}
+}
+
+#ifdef _DEBUG
+bool CD3D11IsosurfaceFluidRenderer::EnableRenderDocCaptures() {
+	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");
+	if (renderDocModule == nullptr) {
+		return false;
+	}
+
+	const auto RENDERDOC_GetAPI = reinterpret_cast<pRENDERDOC_GetAPI>(
+		GetProcAddress(renderDocModule, "RENDERDOC_GetAPI")
+	);
+
+	if (const auto ret = RENDERDOC_GetAPI(
+			eRENDERDOC_API_Version_1_1_2,
+			reinterpret_cast<void **>(&m_renderDoc)
+		);
+		ret != 1) {
+		return false;
+	}
+
+	return true;
+}
+#endif
