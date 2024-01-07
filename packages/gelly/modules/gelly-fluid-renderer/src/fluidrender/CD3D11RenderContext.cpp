@@ -175,6 +175,17 @@ IManagedTexture *CD3D11RenderContext::CreateTexture(
 	texture->AttachToContext(this);
 	texture->Create();
 	textures[name] = texture;
+
+	// Attach name to debug private data
+	auto *tex = static_cast<ID3D11Resource *>(
+		texture->GetResource(TextureResource::D3D11_RESOURCE)
+	);
+
+	DX("Failed to set texture debug name",
+	   tex->SetPrivateData(
+		   WKPDID_D3DDebugObjectName, static_cast<UINT>(strlen(name)), name
+	   ));
+
 	return texture;
 }
 

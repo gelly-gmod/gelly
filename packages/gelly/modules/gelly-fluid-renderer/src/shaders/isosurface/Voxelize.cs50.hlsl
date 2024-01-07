@@ -20,7 +20,6 @@ void main(uint3 threadID : SV_DispatchThreadID) {
     float4 position = g_positions[particleIndex];
     uint3 voxelPosition = VoxelizePosition(position.xyz);
 
-    // Compute the voxel index.
     uint voxelIndex = VoxelToIndex(voxelPosition);
     uint currentCount = g_particlesInVoxel[voxelIndex];
 

@@ -18,7 +18,7 @@ struct VoxelCBData {
 	util::uint3 domainSize;
 	uint maxParticlesInVoxel;
 	uint maxParticles;
-	util::uint3 pad = {};
+	uint pad[2];
 };
 
 /**

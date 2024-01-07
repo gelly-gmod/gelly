@@ -167,6 +167,8 @@ void CD3D11IsosurfaceFluidRenderer::Raymarch() {
 	// m_kernels.raymarch.Invoke(); TODO: implement this
 }
 
+// TODO: Implement this and the renderdoc capture function + the capturer API
+// calls here
 void CD3D11IsosurfaceFluidRenderer::Render() {}
 
 void CD3D11IsosurfaceFluidRenderer::AttachToContext(
