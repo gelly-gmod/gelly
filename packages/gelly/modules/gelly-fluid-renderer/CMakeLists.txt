@@ -51,6 +51,7 @@ target_link_libraries(
         PUBLIC
         gelly_d3d9
         gelly_fluid_sim
+        dxguid.lib
 )
 
 # If tracy is being used we need to link to it

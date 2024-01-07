@@ -600,7 +600,7 @@ bool CD3D11SplattingFluidRenderer::CheckFeatureSupport(GELLY_FEATURE feature) {
 }
 
 #ifdef _DEBUG
-bool CD3D11DebugFluidRenderer::EnableRenderDocCaptures() {
+bool CD3D11SplattingFluidRenderer::EnableRenderDocCaptures() {
 	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");
 	if (renderDocModule == nullptr) {
 		return false;
