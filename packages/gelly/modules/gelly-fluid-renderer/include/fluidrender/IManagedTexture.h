@@ -65,6 +65,11 @@ struct TextureDesc {
 
 	uint16_t width{};
 	uint16_t height{};
+	/**
+	 * \brief Depth of the texture, zero implies 2D while non-zero will create a
+	 * 3D texture.
+	 */
+	uint16_t depth = 0;
 
 	bool isFullscreen = false;
 };
@@ -192,6 +197,9 @@ constexpr bool operator==(const enum TextureAccess a, const int b) {
  * However, notice that there is no standard API for accessing the
  * underlying resource. This is because many rendering APIs have different
  * ways of representing textures.
+ *
+ * \note It's incorrect to assume that the underlying resource is a 2D texture,
+ * in an effort to reduce complexity.
  */
 gelly_interface IManagedTexture {
 public:

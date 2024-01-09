@@ -66,7 +66,7 @@ static void RenderSpecificSimTypeUI() {
 
 IMPLEMENT_WINDOW(ChangeSim) {
 	UI_DATA(ChangeSim, submitted) = false;
-	if (ImGui::BeginPopupModal("Change Simulation")) {
+	if (ImGui::BeginPopup("Change Simulation")) {
 		ImGui::SeparatorText("Simulation type");
 		ImGui::Separator();
 		ImGui::ListBox(
@@ -84,6 +84,8 @@ IMPLEMENT_WINDOW(ChangeSim) {
 			UI_DATA(ChangeSim, submitted) = true;
 			ImGui::CloseCurrentPopup();
 		}
+
+		ImGui::EndPopup();
 	}
 }
 

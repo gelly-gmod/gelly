@@ -11,7 +11,11 @@ private:
 	IRenderContext *context;
 	TextureDesc desc;
 
-	ID3D11Texture2D *texture;
+	// don't think this warrants anything more complicated, if it's 3d then only
+	// texture3D is used- vice versa
+	ID3D11Texture2D *texture2D;
+	ID3D11Texture3D *texture3D;
+
 	ID3D11ShaderResourceView *srv;
 	ID3D11RenderTargetView *rtv;
 	ID3D11UnorderedAccessView *uav;
@@ -19,12 +23,16 @@ private:
 
 	ID3D11Resource *d3d11Resource;
 
+	inline bool Is3D() const { return desc.depth > 1; }
+
 public:
 	CD3D11ManagedTexture();
 	~CD3D11ManagedTexture() override;
 
 	void SetDesc(const TextureDesc &desc) override;
 	[[nodiscard]] const TextureDesc &GetDesc() const override;
+	void Create3DTexture(ID3D11Device *device, DXGI_FORMAT format);
+	void Create2DTexture(ID3D11Device *device, DXGI_FORMAT format);
 
 	bool Create() override;
 	void Destroy() override;

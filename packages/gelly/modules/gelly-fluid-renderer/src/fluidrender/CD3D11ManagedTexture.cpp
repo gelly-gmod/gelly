@@ -6,7 +6,7 @@
 
 CD3D11ManagedTexture::CD3D11ManagedTexture()
 	: context(nullptr),
-	  texture(nullptr),
+	  texture2D(nullptr),
 	  srv(nullptr),
 	  rtv(nullptr),
 	  desc({}) {}
@@ -23,25 +23,33 @@ void CD3D11ManagedTexture::SetDesc(const TextureDesc &desc) {
 
 const TextureDesc &CD3D11ManagedTexture::GetDesc() const { return desc; }
 
-bool CD3D11ManagedTexture::Create() {
-	if (context == nullptr) {
-		return false;
+void CD3D11ManagedTexture::Create3DTexture(
+	ID3D11Device *device, DXGI_FORMAT format
+) {
+	D3D11_TEXTURE3D_DESC texDesc = {};
+	texDesc.Width = desc.width;
+	texDesc.Height = desc.height;
+	texDesc.Depth = desc.depth;
+	texDesc.MipLevels = 1;
+	texDesc.Format = format;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
+
+	if ((desc.access & TextureAccess::READ) != 0) {
+		texDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 	}
 
-	if (texture != nullptr) {
-		return false;
+	if ((desc.access & TextureAccess::WRITE) != 0) {
+		texDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	}
 
-	if (desc.isFullscreen) {
-		SetFullscreenSize();
-	}
+	DX("Failed to create D3D11 texture",
+	   device->CreateTexture3D(&texDesc, nullptr, &texture3D));
+}
 
-	auto *device = static_cast<ID3D11Device *>(
-		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
-	);
-
-	auto format = GetDXGIFormat(desc.format);
-
+void CD3D11ManagedTexture::Create2DTexture(
+	ID3D11Device *device, DXGI_FORMAT format
+) {
 	D3D11_TEXTURE2D_DESC texDesc = {};
 	texDesc.Width = desc.width;
 	texDesc.Height = desc.height;
@@ -62,7 +70,35 @@ bool CD3D11ManagedTexture::Create() {
 	}
 
 	DX("Failed to create D3D11 texture",
-	   device->CreateTexture2D(&texDesc, nullptr, &texture));
+	   device->CreateTexture2D(&texDesc, nullptr, &texture2D));
+}
+
+bool CD3D11ManagedTexture::Create() {
+	if (context == nullptr) {
+		return false;
+	}
+
+	if (texture2D != nullptr) {
+		return false;
+	}
+
+	if (desc.isFullscreen) {
+		SetFullscreenSize();
+	}
+
+	auto *device = static_cast<ID3D11Device *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
+	);
+
+	auto format = GetDXGIFormat(desc.format);
+	if (Is3D()) {
+		Create3DTexture(device, format);
+	} else {
+		Create2DTexture(device, format);
+	}
+
+	d3d11Resource = Is3D() ? static_cast<ID3D11Resource *>(texture3D)
+						   : static_cast<ID3D11Resource *>(texture2D);
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = format;
@@ -70,7 +106,7 @@ bool CD3D11ManagedTexture::Create() {
 	rtvDesc.Texture2D.MipSlice = 0;
 
 	DX("Failed to create D3D11 RTV",
-	   device->CreateRenderTargetView(texture, &rtvDesc, &rtv));
+	   device->CreateRenderTargetView(d3d11Resource, &rtvDesc, &rtv));
 
 	if ((desc.access & TextureAccess::READ) != 0) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -79,7 +115,7 @@ bool CD3D11ManagedTexture::Create() {
 		srvDesc.Texture2D.MipLevels = 1;
 
 		DX("Failed to create D3D11 SRV",
-		   device->CreateShaderResourceView(texture, &srvDesc, &srv));
+		   device->CreateShaderResourceView(d3d11Resource, &srvDesc, &srv));
 	}
 
 	if ((desc.access & TextureAccess::WRITE) != 0) {
@@ -89,7 +125,7 @@ bool CD3D11ManagedTexture::Create() {
 		uavDesc.Texture2D.MipSlice = 0;
 
 		DX("Failed to create D3D11 UAV",
-		   device->CreateUnorderedAccessView(texture, &uavDesc, &uav));
+		   device->CreateUnorderedAccessView(d3d11Resource, &uavDesc, &uav));
 	}
 
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -100,18 +136,18 @@ bool CD3D11ManagedTexture::Create() {
 	DX("Failed to create D3D11 sampler",
 	   device->CreateSamplerState(&samplerDesc, &sampler));
 
-	DX("Failed to query ID3D11Resource from texture",
-	   texture->QueryInterface(
-		   __uuidof(ID3D11Resource), reinterpret_cast<void **>(&d3d11Resource)
-	   ));
-
 	return true;
 }
 
 void CD3D11ManagedTexture::Destroy() {
-	if (texture != nullptr) {
-		texture->Release();
-		texture = nullptr;
+	if (texture2D != nullptr) {
+		texture2D->Release();
+		texture2D = nullptr;
+	}
+
+	if (texture3D != nullptr) {
+		texture3D->Release();
+		texture3D = nullptr;
 	}
 
 	if (srv != nullptr) {
@@ -148,15 +184,22 @@ void CD3D11ManagedTexture::SetFullscreenSize() {
 }
 
 void *CD3D11ManagedTexture::GetSharedHandle() {
-	if (!texture) {
+	if (!texture2D && !texture3D) {
 		return nullptr;
 	}
 
 	IDXGIResource *resource;
-	DX("Failed to get DXGI resource",
-	   texture->QueryInterface(
-		   __uuidof(IDXGIResource), reinterpret_cast<void **>(&resource)
-	   ));
+	if (Is3D()) {
+		DX("Failed to get DXGI resource",
+		   texture3D->QueryInterface(
+			   __uuidof(IDXGIResource), reinterpret_cast<void **>(&resource)
+		   ));
+	} else {
+		DX("Failed to get DXGI resource",
+		   texture2D->QueryInterface(
+			   __uuidof(IDXGIResource), reinterpret_cast<void **>(&resource)
+		   ));
+	}
 
 	HANDLE handle;
 	DX("Failed to get shared handle", resource->GetSharedHandle(&handle));

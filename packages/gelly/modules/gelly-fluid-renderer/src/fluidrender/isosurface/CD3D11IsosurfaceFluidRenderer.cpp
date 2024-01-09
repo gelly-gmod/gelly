@@ -1,5 +1,6 @@
 #include "fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.h"
 
+#include "ClearBuffersCS.h"
 #include "ConstructBDGCS.h"
 #include "RaymarchCS.h"
 #include "VoxelizeCS.h"
@@ -69,6 +70,14 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 	THROW_IF_FALSY(m_context, "Renderer must be attached to a context");
 
+	if (m_textures.depth) {
+		m_context->DestroyTexture("isosurfacerenderer/depth");
+	}
+
+	if (m_textures.normal) {
+		m_context->DestroyTexture("isosurfacerenderer/normal");
+	}
+
 	uint16_t width, height;
 	m_context->GetDimensions(width, height);
 
@@ -134,6 +143,13 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 		{raymarchX, raymarchY, 1}
 	);
 
+	m_kernels.clearBuffers.Initialize(
+		m_context,
+		gsc::ClearBuffersCS::GetBytecode(),
+		gsc::ClearBuffersCS::GetBytecodeSize(),
+		{voxelDispatchX, voxelDispatchY, voxelDispatchZ}
+	);
+
 	m_kernels.voxelize.SetInput(0, m_buffers.positions);
 	m_kernels.voxelize.SetOutput(1, m_buffers.particleCount);
 	m_kernels.voxelize.SetOutput(2, m_buffers.particlesInVoxels);
@@ -149,16 +165,25 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 	m_kernels.raymarch.SetInput(1, m_buffers.particleCount);
 	m_kernels.raymarch.SetInput(2, m_buffers.particlesInVoxels);
 	m_kernels.raymarch.SetInput(3, m_buffers.positions);
-	m_kernels.raymarch.SetOutput(4, m_textures.depth);
-	m_kernels.raymarch.SetOutput(5, m_textures.normal);
+	m_kernels.raymarch.SetOutput(4, m_outputTextures.GetFeatureTexture(DEPTH));
+	m_kernels.raymarch.SetOutput(
+		5, m_outputTextures.GetFeatureTexture(NORMALS)
+	);
 	m_kernels.raymarch.SetCBuffer(0, m_buffers.voxelCBuffer);
 	m_kernels.raymarch.SetCBuffer(1, m_buffers.fluidRenderCBuffer);
+
+	m_kernels.clearBuffers.SetOutput(0, m_buffers.particleCount);
+	m_kernels.clearBuffers.SetOutput(1, m_buffers.particlesInVoxels);
+	m_kernels.clearBuffers.SetCBuffer(0, m_buffers.voxelCBuffer);
 };
 
 void CD3D11IsosurfaceFluidRenderer::ConstructMarchingBuffers() {
 	// We need to voxelize and construct the BDG before we can raymarch
+	m_kernels.clearBuffers.Invoke();
+	m_context->SubmitWork();  // we need to wait for the clear to finish
+
 	m_kernels.voxelize.Invoke();
-	// m_kernels.constructBDG.Invoke(); TODO: implement this
+	m_kernels.constructBDG.Invoke();
 }
 
 void CD3D11IsosurfaceFluidRenderer::Raymarch() { m_kernels.raymarch.Invoke(); }
@@ -183,7 +208,6 @@ void CD3D11IsosurfaceFluidRenderer::Render() {
 
 	ConstructMarchingBuffers();
 	Raymarch();
-
 	m_context->SubmitWork();
 
 #ifdef _DEBUG

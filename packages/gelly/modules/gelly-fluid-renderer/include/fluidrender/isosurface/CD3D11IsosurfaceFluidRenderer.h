@@ -56,6 +56,7 @@ private:
 		 * full-screen raymarch, but it uses adaptive tiles.
 		 */
 		util::Kernel raymarch;
+		util::Kernel clearBuffers;
 	} m_kernels;
 
 	struct {

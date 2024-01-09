@@ -159,6 +159,7 @@ void testbed::CreateFeatureTexture(
 
 	if (info.shared) {
 		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
+		textureDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 	}
 
 	auto result = rendererDevice->CreateTexture2D(

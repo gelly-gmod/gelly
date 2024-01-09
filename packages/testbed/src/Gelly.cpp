@@ -145,13 +145,13 @@ void testbed::InitializeGelly(
 			)
 		);
 
-		InitializeNewGellySim(
-			GellySimInit{GellySimMode::DEBUG, GellySimInit::DebugInfo{10000}}
-		);
-
 		logger->Info("Creating Gelly GBuffers...");
 		CreateGellyTextures();
 		logger->Info("Gelly GBuffers successfully created and linked");
+
+		InitializeNewGellySim(
+			GellySimInit{GellySimMode::DEBUG, GellySimInit::DebugInfo{10000}}
+		);
 
 #ifdef GELLY_OVERRIDE_RENDERDOC
 #ifdef _DEBUG

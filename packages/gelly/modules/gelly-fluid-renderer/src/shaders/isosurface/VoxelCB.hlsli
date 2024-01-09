@@ -1,3 +1,5 @@
+#ifndef VOXEL_CB_HLSLI
+#define VOXEL_CB_HLSLI
 cbuffer g_voxelCB : register(b0) {
     float g_voxelSize;
     uint3 g_domainSize;
@@ -5,3 +7,4 @@ cbuffer g_voxelCB : register(b0) {
     uint g_maxParticles;
     uint2 _PAD;
 };
+#endif
