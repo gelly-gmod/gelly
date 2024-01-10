@@ -13,8 +13,8 @@ private:
 
 	// don't think this warrants anything more complicated, if it's 3d then only
 	// texture3D is used- vice versa
-	ID3D11Texture2D *texture2D;
-	ID3D11Texture3D *texture3D;
+	ID3D11Texture2D *texture2D = nullptr;
+	ID3D11Texture3D *texture3D = nullptr;
 
 	ID3D11ShaderResourceView *srv;
 	ID3D11RenderTargetView *rtv;

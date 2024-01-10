@@ -30,16 +30,6 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 
 	m_buffers.positions = m_context->CreateBuffer(particlePositionDesc);
 
-	BufferDesc particleCountDesc = {};
-	// NOTE: We can't change this format to be more compact since we use
-	// Interlocked* functions which only work with 32-bit types
-	particleCountDesc.format = BufferFormat::R32_UINT;
-	particleCountDesc.stride = sizeof(uint32_t);
-	particleCountDesc.byteWidth = sizeof(uint32_t) * totalVoxels;
-	particleCountDesc.type = BufferType::UNORDERED_ACCESS;
-
-	m_buffers.particleCount = m_context->CreateBuffer(particleCountDesc);
-
 	BufferDesc particlesInVoxelsDesc = {};
 	particlesInVoxelsDesc.format = BufferFormat::R32_UINT;
 	particlesInVoxelsDesc.stride = sizeof(uint32_t);
@@ -50,14 +40,6 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 
 	m_buffers.particlesInVoxels =
 		m_context->CreateBuffer(particlesInVoxelsDesc);
-
-	BufferDesc bdgDesc = {};
-	bdgDesc.format = BufferFormat::R16G16_FLOAT;
-	bdgDesc.stride = sizeof(uint16_t) * 2;
-	bdgDesc.byteWidth = totalVoxels * sizeof(uint16_t) * 2;
-	bdgDesc.type = BufferType::UNORDERED_ACCESS;
-
-	m_buffers.bdg = m_context->CreateBuffer(bdgDesc);
 
 	// position layout is unused for now (comes later on when we need to perform
 	// splatting)
@@ -76,6 +58,14 @@ void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 
 	if (m_textures.normal) {
 		m_context->DestroyTexture("isosurfacerenderer/normal");
+	}
+
+	if (m_textures.bdg) {
+		m_context->DestroyTexture("isosurfacerenderer/bdg");
+	}
+
+	if (m_textures.particleCount) {
+		m_context->DestroyTexture("isosurfacerenderer/particlecount");
 	}
 
 	uint16_t width, height;
@@ -101,6 +91,29 @@ void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 
 	m_textures.normal =
 		m_context->CreateTexture("isosurfacerenderer/normal", normalDesc);
+
+	TextureDesc bdgDesc = {};
+	bdgDesc.format = TextureFormat::R16G16_FLOAT;
+	bdgDesc.width = m_settings.special.isosurface.domainWidth;
+	bdgDesc.height = m_settings.special.isosurface.domainHeight;
+	bdgDesc.depth = m_settings.special.isosurface.domainDepth;
+	bdgDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+	// We need trilinear filtering for the raymarch kernel
+	bdgDesc.filter = TextureFilter::LINEAR;
+
+	m_textures.bdg =
+		m_context->CreateTexture("isosurfacerenderer/bdg", bdgDesc);
+
+	TextureDesc particleCountDesc = {};
+	particleCountDesc.format = TextureFormat::R32_UINT;
+	particleCountDesc.width = m_settings.special.isosurface.domainWidth;
+	particleCountDesc.height = m_settings.special.isosurface.domainHeight;
+	particleCountDesc.depth = m_settings.special.isosurface.domainDepth;
+	particleCountDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+
+	m_textures.particleCount = m_context->CreateTexture(
+		"isosurfacerenderer/particlecount", particleCountDesc
+	);
 }
 
 void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
@@ -151,18 +164,18 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 	);
 
 	m_kernels.voxelize.SetInput(0, m_buffers.positions);
-	m_kernels.voxelize.SetOutput(1, m_buffers.particleCount);
+	m_kernels.voxelize.SetOutput(1, m_textures.particleCount);
 	m_kernels.voxelize.SetOutput(2, m_buffers.particlesInVoxels);
 	m_kernels.voxelize.SetCBuffer(0, m_buffers.voxelCBuffer);
 
-	m_kernels.constructBDG.SetInput(0, m_buffers.particleCount);
+	m_kernels.constructBDG.SetInput(0, m_textures.particleCount);
 	m_kernels.constructBDG.SetInput(1, m_buffers.particlesInVoxels);
 	m_kernels.constructBDG.SetInput(2, m_buffers.positions);
-	m_kernels.constructBDG.SetOutput(3, m_buffers.bdg);
+	m_kernels.constructBDG.SetOutput(3, m_textures.bdg);
 	m_kernels.constructBDG.SetCBuffer(0, m_buffers.voxelCBuffer);
 
-	m_kernels.raymarch.SetInput(0, m_buffers.bdg);
-	m_kernels.raymarch.SetInput(1, m_buffers.particleCount);
+	m_kernels.raymarch.SetInput(0, m_textures.bdg);
+	m_kernels.raymarch.SetInput(1, m_textures.particleCount);
 	m_kernels.raymarch.SetInput(2, m_buffers.particlesInVoxels);
 	m_kernels.raymarch.SetInput(3, m_buffers.positions);
 	m_kernels.raymarch.SetOutput(4, m_outputTextures.GetFeatureTexture(DEPTH));
@@ -172,12 +185,15 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 	m_kernels.raymarch.SetCBuffer(0, m_buffers.voxelCBuffer);
 	m_kernels.raymarch.SetCBuffer(1, m_buffers.fluidRenderCBuffer);
 
-	m_kernels.clearBuffers.SetOutput(0, m_buffers.particleCount);
+	m_kernels.clearBuffers.SetOutput(0, m_textures.particleCount);
 	m_kernels.clearBuffers.SetOutput(1, m_buffers.particlesInVoxels);
 	m_kernels.clearBuffers.SetCBuffer(0, m_buffers.voxelCBuffer);
 };
 
 void CD3D11IsosurfaceFluidRenderer::ConstructMarchingBuffers() {
+	m_voxelCBData.activeParticles = m_simData->GetActiveParticles();
+	util::UpdateCBuffer(&m_voxelCBData, m_buffers.voxelCBuffer);
+
 	// We need to voxelize and construct the BDG before we can raymarch
 	m_kernels.clearBuffers.Invoke();
 	m_context->SubmitWork();  // we need to wait for the clear to finish

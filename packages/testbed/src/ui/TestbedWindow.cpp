@@ -90,7 +90,7 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 						{ADD_PARTICLE,
 						 AddParticle{
 							 0.5f + (rand() % 100) / 100.0f,
-							 20.5f + (rand() % 100) / 100.0f,
+							 0.5f + (rand() % 100) / 100.0f,
 							 0.5f + (rand() % 100) / 100.0f
 						 }}
 					);

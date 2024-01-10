@@ -41,18 +41,12 @@ float W(float3 xi, float3 xj) {
 float CalculateDensity(float3 currentPosition, uint3 voxelPosition) {
     float density = 0.0f;
 
-    for (uint i = 0; i < 27; i++) {
-        uint3 neighborPosition = voxelPosition + NEIGHBOR_OFFSETS[i];
-        uint neighborIndex = VoxelToIndex(neighborPosition);
-        uint particleCount = g_particleCount[neighborIndex];
-        
-        for (uint j = 0; j < particleCount; j++) {
-            uint particleIndex = g_particlesInVoxel[neighborIndex * g_maxParticlesInVoxel + j];
-            float4 position = g_positions[particleIndex];
-            float weight = W(currentPosition, position.xyz);
-            density += weight;
-        }
-    }
+    // we can sample trilinearly at the voxel position to get the density
+    currentPosition.xyz += 0.5f * g_voxelSize;
+    float3 fractionalVoxelPosition = currentPosition / float3(g_voxelSize, g_voxelSize, g_voxelSize);
+    // Then we need to convert to 0-1
+    fractionalVoxelPosition /= g_domainSize;
+    density += g_bdg.SampleLevel(g_bdgSampler, fractionalVoxelPosition, 0).x;
 
     return density;
 }

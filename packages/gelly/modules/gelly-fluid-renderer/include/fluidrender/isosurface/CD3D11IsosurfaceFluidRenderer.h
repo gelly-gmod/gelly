@@ -18,7 +18,8 @@ struct VoxelCBData {
 	util::uint3 domainSize;
 	uint maxParticlesInVoxel;
 	uint maxParticles;
-	uint pad[2];
+	uint activeParticles;
+	uint pad;
 };
 
 /**
@@ -60,11 +61,12 @@ private:
 	} m_kernels;
 
 	struct {
-		GellyInterfaceVal<IManagedBuffer> particleCount;
 		/**
 		 * \brief This is a strided buffer,
-		 * where each member is a pointer to a particle index in the positions
-		 * buffer. This is strided according to the maximum amount of particles
+		 * where each member is a pointer to a particle index in the
+		 positions
+		 * buffer. This is strided according to the maximum amount of
+		 particles
 		 * in a voxel, set in the settings.
 		 *
 		 * \code{.hlsl}
@@ -72,18 +74,7 @@ private:
 		 * wantedParticleIndex] \endcode
 		 */
 		GellyInterfaceVal<IManagedBuffer> particlesInVoxels;
-		/**
-		 * BDG is a 3D texture where each voxel contains a
-		 * R16G16_FLOAT.
-		 *
-		 * R - p^max_c (max density for a given voxel)
-		 *
-		 * G - M_c (0 if no isosurface, 1 if isosurface) (M_c = p^max_c > sigma)
-		 * (sigma is the threshold)
-		 *
-		 * \note It stands for binary density grid.
-		 */
-		GellyInterfaceVal<IManagedBuffer> bdg;
+
 		GellyInterfaceVal<IManagedBuffer> positions;
 		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
 
@@ -92,6 +83,21 @@ private:
 	} m_buffers = {};
 
 	struct {
+		/**
+		 * BDG is a 3D texture where each voxel contains a
+		 * R16G16_FLOAT.
+		 *
+		 * R - p^max_c (max density for a given voxel)
+		 *
+		 * G - M_c (0 if no isosurface, 1 if isosurface) (M_c = p^max_c >
+		 sigma)
+		 * (sigma is the threshold)
+		 *
+		 * \note It stands for binary density grid.
+		 */
+		GellyInterfaceVal<IManagedTexture> bdg;
+		GellyInterfaceVal<IManagedTexture> particleCount;
+
 		GellyInterfaceVal<IManagedTexture> depth;
 		GellyInterfaceVal<IManagedTexture> normal;
 	} m_textures = {};

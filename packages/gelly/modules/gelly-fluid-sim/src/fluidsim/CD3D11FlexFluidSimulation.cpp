@@ -286,8 +286,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	// the radius is really what determines the properties of the fluid.
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
-	solverParams.gravity[1] = 0.f;
-	solverParams.gravity[2] = -4.f;
+	solverParams.gravity[1] = -4.f;
+	solverParams.gravity[2] = 0.f;
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;

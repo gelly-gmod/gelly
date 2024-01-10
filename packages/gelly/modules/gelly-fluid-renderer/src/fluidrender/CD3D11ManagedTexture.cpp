@@ -102,8 +102,15 @@ bool CD3D11ManagedTexture::Create() {
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = format;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	rtvDesc.Texture2D.MipSlice = 0;
+	if (Is3D()) {
+		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE3D;
+		rtvDesc.Texture3D.MipSlice = 0;
+		rtvDesc.Texture3D.FirstWSlice = 0;
+		rtvDesc.Texture3D.WSize = desc.depth;
+	} else {
+		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		rtvDesc.Texture2D.MipSlice = 0;
+	}
 
 	DX("Failed to create D3D11 RTV",
 	   device->CreateRenderTargetView(d3d11Resource, &rtvDesc, &rtv));
@@ -111,8 +118,13 @@ bool CD3D11ManagedTexture::Create() {
 	if ((desc.access & TextureAccess::READ) != 0) {
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
+		if (Is3D()) {
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+			srvDesc.Texture3D.MipLevels = 1;
+		} else {
+			srvDesc.Texture2D.MipLevels = 1;
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		}
 
 		DX("Failed to create D3D11 SRV",
 		   device->CreateShaderResourceView(d3d11Resource, &srvDesc, &srv));
@@ -121,8 +133,15 @@ bool CD3D11ManagedTexture::Create() {
 	if ((desc.access & TextureAccess::WRITE) != 0) {
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 		uavDesc.Format = format;
-		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-		uavDesc.Texture2D.MipSlice = 0;
+		if (Is3D()) {
+			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
+			uavDesc.Texture3D.MipSlice = 0;
+			uavDesc.Texture3D.FirstWSlice = 0;
+			uavDesc.Texture3D.WSize = desc.depth;
+		} else {
+			uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+			uavDesc.Texture2D.MipSlice = 0;
+		}
 
 		DX("Failed to create D3D11 UAV",
 		   device->CreateUnorderedAccessView(d3d11Resource, &uavDesc, &uav));

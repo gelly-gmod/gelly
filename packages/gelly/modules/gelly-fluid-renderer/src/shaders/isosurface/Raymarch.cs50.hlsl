@@ -5,8 +5,9 @@
 #include "FluidCB.hlsli"
 #include "../util/EyeToProjDepth.hlsli"
 
-RWBuffer<half2> g_bdg : register(u0);
-RWBuffer<uint> g_particleCount : register(u1);
+Texture3D<half2> g_bdg : register(t0);
+SamplerState g_bdgSampler : register(s0);
+Texture3D<uint> g_particleCount : register(t1);
 RWBuffer<uint> g_particlesInVoxel : register(u2);
 Buffer<float4> g_positions : register(t3);
 
@@ -15,8 +16,8 @@ RWTexture2D<float4> g_normal : register(u5);
 
 #include "util/CalculateDensity.hlsli"
 
-static const float g_stepLength = g_voxelSize * 2.5f;
-static const uint g_maxSteps = 4;
+static const float g_stepLength = g_voxelSize * 0.3f;
+static const uint g_maxSteps = 128;
 
 float3 colorHash(uint3 voxel) {
     uint hash = voxel.x * 73856093 + voxel.y * 19349663 + voxel.z * 83492791;
@@ -30,7 +31,7 @@ float3 colorHash(uint3 voxel) {
 }
 
 // iso-value for the surface
-static const float g_isoValue = 15.f;
+static const float g_isoValue = 150.f;
 
 [numthreads(8, 8, 1)]
 void main(uint3 threadID : SV_DispatchThreadID) {
@@ -65,22 +66,34 @@ void main(uint3 threadID : SV_DispatchThreadID) {
         uint3 voxelPosition = VoxelizePosition(position);
         uint voxelIndex = VoxelToIndex(voxelPosition);
 
-        half2 bdg = g_bdg[voxelIndex];
-        if (bdg.y == 0.0f) {
-            continue;
-        }
-
         // if out of bounds, stop marching
         if (voxelIndex >= g_domainSize.x * g_domainSize.y * g_domainSize.z) {
             break;
         }
 
-        uint currentCount = g_particleCount[voxelIndex];
+        uint currentCount = g_particleCount[voxelPosition];
         
         // we've hit the surface, so color the voxel
-        float3 color = colorHash(voxelPosition);
-        g_depth[threadID.xy] = half2(position.z, 1.0f);
-        g_normal[threadID.xy] = float4(bdg.x / 1000.f, bdg.y, 1.f, 1.f);
+        if (CalculateDensity(position, voxelPosition) > g_isoValue) {
+            // we can sample the density field to grab normals
+            float3 normal = float3(
+                CalculateDensity(position + float3(g_voxelSize, 0.f, 0.f), voxelPosition) - CalculateDensity(position - float3(g_voxelSize, 0.f, 0.f), voxelPosition),
+                CalculateDensity(position + float3(0.f, g_voxelSize, 0.f), voxelPosition) - CalculateDensity(position - float3(0.f, g_voxelSize, 0.f), voxelPosition),
+                CalculateDensity(position + float3(0.f, 0.f, g_voxelSize), voxelPosition) - CalculateDensity(position - float3(0.f, 0.f, g_voxelSize), voxelPosition)
+            );
+
+            normal = -normalize(normal);
+            float3 sunDir = normalize(float3(0.5f, 0.5f, 0.5f));
+
+            float3 diffuse = max(dot(normal, sunDir), 0.0f);
+            float3 reflectionDir = reflect(rayDirection, normal);
+            float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0f), 64.0f);
+
+            float3 color = colorHash(voxelPosition);
+            g_depth[threadID.xy] = half2(position.z, 1.0f);
+            g_normal[threadID.xy] = float4(diffuse + specular, 1.0f);
+            return;
+        }
     }
 
     g_depth[threadID.xy] = half2(0.0f, 1.0f);

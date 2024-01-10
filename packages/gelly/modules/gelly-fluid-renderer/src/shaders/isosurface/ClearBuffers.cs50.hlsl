@@ -1,4 +1,4 @@
-RWBuffer<uint> g_particleCount : register(u0);
+RWTexture3D<uint> g_particleCount : register(u0);
 RWBuffer<uint> g_particlesInVoxel : register(u1);
 
 #include "VoxelCB.hlsli"
@@ -17,5 +17,5 @@ void main(uint3 threadID : SV_DispatchThreadID) {
         g_particlesInVoxel[voxelIndex * g_maxParticlesInVoxel + i] = 0;
     }
 
-    g_particleCount[voxelIndex] = 0;
+    g_particleCount[voxelPosition] = 0;
 }
