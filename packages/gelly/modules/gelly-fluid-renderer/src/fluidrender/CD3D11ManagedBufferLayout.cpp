@@ -106,7 +106,7 @@ void CD3D11ManagedBufferLayout::AttachBufferAtSlot(
 		throw std::runtime_error("Slot index out of range");
 	}
 
-	if (buffer->GetDesc().type != BufferType::VERTEX) {
+	if (buffer->GetDesc().type & BufferType::VERTEX == 0) {
 		throw std::runtime_error(
 			"Cannot attach buffer to vertex buffer layout if it's not a vertex "
 			"buffer"

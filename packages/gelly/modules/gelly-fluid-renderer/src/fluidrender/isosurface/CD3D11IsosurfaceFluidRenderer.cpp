@@ -30,7 +30,8 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 	particlePositionDesc.format = BufferFormat::R32G32B32A32_FLOAT;
 	particlePositionDesc.stride = sizeof(SimFloat4);
 	particlePositionDesc.byteWidth = maxParticles * sizeof(SimFloat4);
-	particlePositionDesc.type = BufferType::SHADER_RESOURCE;
+	particlePositionDesc.type =
+		BufferType::SHADER_RESOURCE | BufferType::VERTEX;
 
 	m_buffers.positions = m_context->CreateBuffer(particlePositionDesc);
 
@@ -45,8 +46,18 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 	m_buffers.particlesInVoxels =
 		m_context->CreateBuffer(particlesInVoxelsDesc);
 
-	// position layout is unused for now (comes later on when we need to perform
-	// splatting)
+	BufferLayoutDesc particlePositionLayoutDesc = {};
+	particlePositionLayoutDesc.items[0] = {
+		0, "SV_POSITION", 0, BufferLayoutFormat::FLOAT4
+	};
+	particlePositionLayoutDesc.itemCount = 1;
+	particlePositionLayoutDesc.vertexShader = m_shaders.splattingVS;
+	particlePositionLayoutDesc.topology = BufferLayoutTopology::POINTS;
+
+	m_buffers.positionsLayout =
+		m_context->CreateBufferLayout(particlePositionLayoutDesc);
+
+	m_buffers.positionsLayout->AttachBufferAtSlot(m_buffers.positions, 0);
 
 	m_buffers.fluidRenderCBuffer =
 		util::CreateCBuffer<FluidRenderParams>(m_context);
@@ -286,6 +297,7 @@ void CD3D11IsosurfaceFluidRenderer::SetSimData(
 ) {
 	m_simData = simData;
 
+	CreateShaders();
 	CreateBuffers();
 	CreateTextures();
 	CreateKernels();

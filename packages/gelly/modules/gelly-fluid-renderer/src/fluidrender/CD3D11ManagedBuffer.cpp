@@ -132,7 +132,22 @@ void CD3D11ManagedBuffer::BindToPipeline(
 		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
 	);
 
-	switch (desc.type) {
+	if (shaderType == ShaderType::Vertex &&
+		(desc.type & BufferType::VERTEX) > 0) {
+		// Edge-case to handle dual purpose vertex buffers.
+		const UINT stride = static_cast<UINT>(desc.stride);
+		constexpr UINT offset = static_cast<UINT>(0);
+
+		deviceContext->IASetVertexBuffers(slot, 1, &buffer, &stride, &offset);
+		return;
+	}
+
+	// Since the above guard clause handles the vertex buffer case, we can
+	// remove the vertex flag to process other types.
+	const auto nonVBType =
+		static_cast<BufferType>(desc.type & ~BufferType::VERTEX);
+
+	switch (nonVBType) {
 		case BufferType::CONSTANT:
 			switch (shaderType) {
 				case ShaderType::Vertex:
@@ -180,16 +195,6 @@ void CD3D11ManagedBuffer::BindToPipeline(
 					break;
 			}
 			break;
-		case BufferType::VERTEX: {
-			// Shader type is not used here. But, the vertex shader is the only
-			// shader that can use vertex buffers.
-			const UINT stride = static_cast<UINT>(desc.stride);
-			constexpr UINT offset = static_cast<UINT>(0);
-
-			deviceContext->IASetVertexBuffers(
-				slot, 1, &buffer, &stride, &offset
-			);
-		} break;
 		default:
 			throw std::runtime_error(
 				"CD3D11ManagedBuffer::BindToPipeline called with an invalid "

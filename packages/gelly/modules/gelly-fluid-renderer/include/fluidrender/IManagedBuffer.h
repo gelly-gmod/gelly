@@ -11,7 +11,7 @@
 namespace Gelly {
 using BufferFormat = TextureFormat;
 
-enum class BufferType : uint8_t {
+enum BufferType : uint8_t {
 	NONE = 0b0000,
 	VERTEX = 0b0001,
 	CONSTANT = 0b0010,

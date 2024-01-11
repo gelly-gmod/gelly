@@ -31,8 +31,9 @@ bool Kernel::ValidateInput(const KernelIO &input) {
 		const auto &buffer = std::get<GellyInterfaceVal<IManagedBuffer>>(input);
 		const auto bufferDesc = buffer->GetDesc();
 
-		const bool isValid = bufferDesc.type == BufferType::SHADER_RESOURCE ||
-							 bufferDesc.type == BufferType::UNORDERED_ACCESS;
+		const bool isValid =
+			(bufferDesc.type & BufferType::UNORDERED_ACCESS) > 0 ||
+			(bufferDesc.type & BufferType::SHADER_RESOURCE) > 0;
 
 		return isValid;
 	}
