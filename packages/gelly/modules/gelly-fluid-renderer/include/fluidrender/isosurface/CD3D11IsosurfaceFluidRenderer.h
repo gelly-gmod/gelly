@@ -111,7 +111,8 @@ private:
 		GellyInterfaceVal<IManagedTexture> bdg;
 		GellyInterfaceVal<IManagedTexture> particleCount;
 
-		GellyInterfaceVal<IManagedTexture> depth;
+		GellyInterfaceVal<IManagedTexture> frontDepth;
+		GellyInterfaceVal<IManagedTexture> backDepth;
 		GellyInterfaceVal<IManagedTexture> normal;
 	} m_textures = {};
 
@@ -125,6 +126,7 @@ private:
 	void CreateShaders();
 
 	void ConstructMarchingBuffers();
+	void ConstructEntryExitBuffers();
 	void Raymarch();
 
 public:

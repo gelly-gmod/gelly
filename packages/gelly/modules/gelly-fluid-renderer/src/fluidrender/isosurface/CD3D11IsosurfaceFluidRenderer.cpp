@@ -79,8 +79,12 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 	THROW_IF_FALSY(m_context, "Renderer must be attached to a context");
 
-	if (m_textures.depth) {
-		m_context->DestroyTexture("isosurfacerenderer/depth");
+	if (m_textures.frontDepth) {
+		m_context->DestroyTexture("isosurfacerenderer/frontdepth");
+	}
+
+	if (m_textures.backDepth) {
+		m_context->DestroyTexture("isosurfacerenderer/backdepth");
 	}
 
 	if (m_textures.normal) {
@@ -98,16 +102,20 @@ void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 	uint16_t width, height;
 	m_context->GetDimensions(width, height);
 
-	TextureDesc depthDesc = {};
+	TextureDesc frontDepth = {};
 	// Some algorithms perform far better in eye space, so we store eye and proj
-	depthDesc.format = TextureFormat::R32G32_FLOAT;
-	depthDesc.width = width;
-	depthDesc.height = height;
-	depthDesc.isFullscreen = true;
-	depthDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+	frontDepth.format = TextureFormat::R32G32_FLOAT;
+	frontDepth.width = width;
+	frontDepth.height = height;
+	frontDepth.isFullscreen = true;
+	frontDepth.access = TextureAccess::READ | TextureAccess::WRITE;
 
-	m_textures.depth =
-		m_context->CreateTexture("isosurfacerenderer/depth", depthDesc);
+	m_textures.frontDepth =
+		m_context->CreateTexture("isosurfacerenderer/frontdepth", frontDepth);
+
+	const TextureDesc backDepth = frontDepth;
+	m_textures.backDepth =
+		m_context->CreateTexture("isosurfacerenderer/backdepth", backDepth);
 
 	TextureDesc normalDesc = {};
 	normalDesc.format = TextureFormat::R32G32B32A32_FLOAT;
