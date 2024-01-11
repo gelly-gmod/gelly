@@ -175,7 +175,7 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 				"Particle radius",
 				&UI_DATA(TestbedWindow, particleRadius),
 				0.0f,
-				1.0f
+				1000.0f
 			);
 		}
 	}

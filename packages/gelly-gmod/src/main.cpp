@@ -497,6 +497,17 @@ GMOD_MODULE_OPEN() {
 		new GellyIntegration(currentView.width, currentView.height, d3dDevice);
 
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	// lets check sig version and this version first
+	LUA->GetField(-1, "VERSION");
+	int version = static_cast<int>(LUA->GetNumber(-1));
+	LUA->Pop();
+
+	if (version != sigs::VERSION) {
+		LOG_WARNING(
+			"Sig mismatch! Expected %d, got %d", sigs::VERSION, version
+		);
+	}
+
 	LUA->CreateTable();
 	DEFINE_LUA_FUNC(gelly, Render);
 	DEFINE_LUA_FUNC(gelly, Simulate);

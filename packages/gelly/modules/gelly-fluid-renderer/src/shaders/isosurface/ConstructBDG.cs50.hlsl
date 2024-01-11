@@ -1,7 +1,7 @@
 Texture3D<uint> g_particleCount : register(t0);
 RWBuffer<uint> g_particlesInVoxel : register(u1);
 Buffer<float4> g_positions : register(t2);
-RWTexture3D<half2> g_bdg : register(u3);
+RWTexture3D<float2> g_bdg : register(u3);
 
 #include "VoxelCB.hlsli"
 #include "util/VoxelToIndex.hlsli"
@@ -71,7 +71,7 @@ void main(uint3 threadID : SV_DispatchThreadID) {
     uint voxelIndex = VoxelToIndex(voxelPosition);
     float maxDensity = EstimateMaxDensity(voxelPosition);
 
-    half2 bd = half2(
+    float2 bd = float2(
         maxDensity,
         maxDensity > g_isoValue ? 1.0f : 0.0f
     );

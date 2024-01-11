@@ -2,6 +2,10 @@
 
 #include "ClearBuffersCS.h"
 #include "ConstructBDGCS.h"
+#include "IsoSplattingEntryPS.h"
+#include "IsoSplattingExitPS.h"
+#include "IsoSplattingGS.h"
+#include "IsoSplattingVS.h"
 #include "RaymarchCS.h"
 #include "VoxelizeCS.h"
 #include "fluidrender/util/CBuffers.h"
@@ -93,7 +97,7 @@ void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 		m_context->CreateTexture("isosurfacerenderer/normal", normalDesc);
 
 	TextureDesc bdgDesc = {};
-	bdgDesc.format = TextureFormat::R16G16_FLOAT;
+	bdgDesc.format = TextureFormat::R32G32_FLOAT;
 	bdgDesc.width = m_settings.special.isosurface.domainWidth;
 	bdgDesc.height = m_settings.special.isosurface.domainHeight;
 	bdgDesc.depth = m_settings.special.isosurface.domainDepth;
@@ -189,6 +193,32 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 	m_kernels.clearBuffers.SetOutput(1, m_buffers.particlesInVoxels);
 	m_kernels.clearBuffers.SetCBuffer(0, m_buffers.voxelCBuffer);
 };
+
+void CD3D11IsosurfaceFluidRenderer::CreateShaders() {
+	m_shaders.splattingVS = m_context->CreateShader(
+		gsc::IsoSplattingVS::GetBytecode(),
+		gsc::IsoSplattingVS::GetBytecodeSize(),
+		ShaderType::Vertex
+	);
+
+	m_shaders.splattingGS = m_context->CreateShader(
+		gsc::IsoSplattingGS::GetBytecode(),
+		gsc::IsoSplattingGS::GetBytecodeSize(),
+		ShaderType::Geometry
+	);
+
+	m_shaders.splattingEntryPS = m_context->CreateShader(
+		gsc::IsoSplattingEntryPS::GetBytecode(),
+		gsc::IsoSplattingEntryPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
+
+	m_shaders.splattingExitPS = m_context->CreateShader(
+		gsc::IsoSplattingExitPS::GetBytecode(),
+		gsc::IsoSplattingExitPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
+}
 
 void CD3D11IsosurfaceFluidRenderer::ConstructMarchingBuffers() {
 	m_voxelCBData.activeParticles = m_simData->GetActiveParticles();

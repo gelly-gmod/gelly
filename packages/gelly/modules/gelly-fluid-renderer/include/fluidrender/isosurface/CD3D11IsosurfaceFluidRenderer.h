@@ -40,6 +40,14 @@ private:
 	VoxelCBData m_voxelCBData{};
 
 	struct {
+		GellyInterfaceVal<IManagedShader> splattingVS;
+		GellyInterfaceVal<IManagedShader> splattingGS;
+		// these two are used twice to generate a front depth and a back depth
+		GellyInterfaceVal<IManagedShader> splattingEntryPS;
+		GellyInterfaceVal<IManagedShader> splattingExitPS;
+	} m_shaders;
+
+	struct {
 		/**
 		 * \brief Voxelizes the fluid domain into a 3D texture.
 		 * Each voxel contains the number of particles in that voxel.
@@ -109,6 +117,7 @@ private:
 	void CreateBuffers();
 	void CreateTextures();
 	void CreateKernels();
+	void CreateShaders();
 
 	void ConstructMarchingBuffers();
 	void Raymarch();

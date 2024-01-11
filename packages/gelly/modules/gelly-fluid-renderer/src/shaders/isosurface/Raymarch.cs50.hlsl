@@ -5,7 +5,7 @@
 #include "FluidCB.hlsli"
 #include "../util/EyeToProjDepth.hlsli"
 
-Texture3D<half2> g_bdg : register(t0);
+Texture3D<float2> g_bdg : register(t0);
 SamplerState g_bdgSampler : register(s0);
 Texture3D<uint> g_particleCount : register(t1);
 RWBuffer<uint> g_particlesInVoxel : register(u2);
@@ -74,7 +74,7 @@ void main(uint3 threadID : SV_DispatchThreadID) {
         uint currentCount = g_particleCount[voxelPosition];
         
         // we've hit the surface, so color the voxel
-        if (CalculateDensity(position, voxelPosition) > g_isoValue) {
+        if (CalculateDensity(position, voxelPosition) > g_ParticleRadius) {
             // we can sample the density field to grab normals
             float3 normal = float3(
                 CalculateDensity(position + float3(g_voxelSize, 0.f, 0.f), voxelPosition) - CalculateDensity(position - float3(g_voxelSize, 0.f, 0.f), voxelPosition),
