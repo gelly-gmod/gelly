@@ -27,7 +27,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float4 nudgedPosition = viewPosition;
     // For the exit shader, we want to move the position in the opposite direction of the normal so we can
     // find the maximum depth of the particles (the depth will be sorted oppositely this shader)
-    nudgedPosition.z -= normal.z * (g_ParticleRadius);
+    nudgedPosition.z -= normal.z * (g_voxelSize);
     float4 viewNudgedPosition = nudgedPosition;
     nudgedPosition = mul(g_Projection, nudgedPosition);
 

@@ -25,7 +25,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
     viewPosition /= viewPosition.w;
 
     float4 nudgedPosition = viewPosition;
-    nudgedPosition.z += normal.z * (g_ParticleRadius);
+    nudgedPosition.z += normal.z * (g_voxelSize);
     float4 viewNudgedPosition = nudgedPosition;
     nudgedPosition = mul(g_Projection, nudgedPosition);
 

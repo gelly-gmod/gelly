@@ -255,12 +255,52 @@ void CD3D11IsosurfaceFluidRenderer::ConstructMarchingBuffers() {
 	m_voxelCBData.activeParticles = m_simData->GetActiveParticles();
 	util::UpdateCBuffer(&m_voxelCBData, m_buffers.voxelCBuffer);
 
-	// We need to voxelize and construct the BDG before we can raymarch
-	m_kernels.clearBuffers.Invoke();
-	m_context->SubmitWork();  // we need to wait for the clear to finish
-
 	m_kernels.voxelize.Invoke();
 	m_kernels.constructBDG.Invoke();
+}
+
+constexpr float depthClearColor[4] = {0.f, 1.f, 0.f, 0.f};
+void CD3D11IsosurfaceFluidRenderer::ConstructEntryExitBuffers() {
+	// Culling doesn't matter for this pass
+	m_context->SetRasterizerFlags(RasterizerFlags::DISABLE_CULL);
+
+	m_depthBuffers.front->Clear(1.f);
+	m_depthBuffers.back->Clear(0.f);
+
+	m_textures.frontDepth->Clear(depthClearColor);
+	m_textures.backDepth->Clear(depthClearColor);
+
+	m_shaders.splattingVS->Bind();
+	m_shaders.splattingGS->Bind();
+
+	m_buffers.positionsLayout->BindAsVertexBuffer();
+	m_buffers.voxelCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+	m_buffers.voxelCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+	m_buffers.voxelCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	m_buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 1);
+	m_buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 1);
+	m_buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 1);
+
+	m_textures.frontDepth->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, m_depthBuffers.front
+	);
+	m_shaders.splattingEntryPS->Bind();
+
+	m_context->Draw(m_simData->GetActiveParticles(), 0);
+
+	m_textures.backDepth->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, m_depthBuffers.back
+	);
+	m_shaders.splattingExitPS->Bind();
+	m_depthBuffers.back->BindState(
+	);	// important since this one deviates from the default
+
+	m_context->Draw(m_simData->GetActiveParticles(), 0);
+
+	// We don't care what order front/back is drawn in but we do need these two
+	// to be filled out by the end of this function
+	m_context->ResetPipeline();
+	m_context->SubmitWork();
 }
 
 void CD3D11IsosurfaceFluidRenderer::Raymarch() { m_kernels.raymarch.Invoke(); }
@@ -283,6 +323,7 @@ void CD3D11IsosurfaceFluidRenderer::Render() {
 	}
 #endif
 
+	ConstructEntryExitBuffers();
 	ConstructMarchingBuffers();
 	Raymarch();
 	m_context->SubmitWork();

@@ -70,6 +70,14 @@ void CD3D11ManagedDepthBuffer::Clear(float depth) {
 	);
 }
 
+void CD3D11ManagedDepthBuffer::BindState() {
+	auto *deviceContext = static_cast<ID3D11DeviceContext *>(
+		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+	);
+
+	deviceContext->OMSetDepthStencilState(depthStencilState, 1);
+}
+
 void CD3D11ManagedDepthBuffer::Create() {
 	auto *device = static_cast<ID3D11Device *>(
 		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)

@@ -23,6 +23,7 @@ public:
 
 	void AttachToContext(GellyInterfaceVal<IRenderContext> context) override;
 	void Clear(float depth) override;
+	void BindState() override;
 
 	void Create() override;
 	void Destroy() override;

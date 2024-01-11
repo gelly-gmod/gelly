@@ -41,6 +41,7 @@ public:
 
 	virtual void AttachToContext(GellyInterfaceVal<IRenderContext> context) = 0;
 	virtual void Clear(float depth) = 0;
+	virtual void BindState() = 0;
 
 	virtual void Create() = 0;
 	virtual void Destroy() = 0;
