@@ -48,6 +48,11 @@ private:
 	} m_shaders;
 
 	struct {
+		GellyInterfaceVal<IManagedDepthBuffer> front;
+		GellyInterfaceVal<IManagedDepthBuffer> back;
+	} m_depthBuffers;
+
+	struct {
 		/**
 		 * \brief Voxelizes the fluid domain into a 3D texture.
 		 * Each voxel contains the number of particles in that voxel.

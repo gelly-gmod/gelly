@@ -51,6 +51,18 @@ void CD3D11IsosurfaceFluidRenderer::CreateBuffers() {
 	m_buffers.fluidRenderCBuffer =
 		util::CreateCBuffer<FluidRenderParams>(m_context);
 	m_buffers.voxelCBuffer = util::CreateCBuffer<VoxelCBData>(m_context);
+
+	DepthBufferDesc frontDesc = {};
+	frontDesc.format = DepthFormat::D24S8;
+	frontDesc.depthOp = DepthOp::LESS_EQUAL;
+
+	m_depthBuffers.front = m_context->CreateDepthBuffer(frontDesc);
+
+	DepthBufferDesc backDesc = {};
+	backDesc.format = DepthFormat::D24S8;
+	backDesc.depthOp = DepthOp::GREATER_EQUAL;
+
+	m_depthBuffers.back = m_context->CreateDepthBuffer(backDesc);
 }
 
 void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
