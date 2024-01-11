@@ -22,6 +22,15 @@
 	LUA->PushCFunction(namespace##_##name); \
 	LUA->SetField(-2, #name);
 
+#define START_GELLY_EXCEPTIONS() try {
+#define CATCH_GELLY_EXCEPTIONS()        \
+	}                                   \
+	catch (const std::exception &e) {   \
+		std::string error = e.what();   \
+		error += "\n";                  \
+		LUA->ThrowError(error.c_str()); \
+	}
+
 static GellyIntegration *gelly = nullptr;
 static std::map<ObjectHandle, int> handleToEntIndexMap;
 
@@ -32,29 +41,36 @@ void InjectConsoleWindow() {
 }
 
 LUA_FUNCTION(gelly_Render) {
+	START_GELLY_EXCEPTIONS()
 	gelly->Render();
+	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }
 
 LUA_FUNCTION(gelly_Simulate) {
+	START_GELLY_EXCEPTIONS()
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Delta time
 	auto dt = static_cast<float>(LUA->GetNumber(1));
 
 	gelly->Simulate(dt);
+	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }
 
 LUA_FUNCTION(gelly_LoadMap) {
+	START_GELLY_EXCEPTIONS()
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
 
 	LUA->CheckType(1, GarrysMod::Lua::Type::String);  // Map name
 	gelly->LoadMap(LUA->GetString(1));
+	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }
 
 LUA_FUNCTION(gelly_AddObject) {
+	START_GELLY_EXCEPTIONS()
 	if (!gelly->IsInteractive()) {
 		LUA->PushNumber(INVALID_OBJECT_HANDLE);
 		return 1;
@@ -118,11 +134,12 @@ LUA_FUNCTION(gelly_AddObject) {
 	delete[] indices;
 
 	handleToEntIndexMap[handle] = entIndex;
-
+	CATCH_GELLY_EXCEPTIONS();
 	return 1;
 }
 
 LUA_FUNCTION(gelly_AddPlayerObject) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		LUA->PushNumber(INVALID_OBJECT_HANDLE);
 		return 1;
@@ -156,10 +173,12 @@ LUA_FUNCTION(gelly_AddPlayerObject) {
 	LOG_INFO("Created player object with handle %d", handle);
 
 	LUA->PushNumber(static_cast<double>(handle));
+	CATCH_GELLY_EXCEPTIONS();
 	return 1;
 }
 
 LUA_FUNCTION(gelly_RemoveObject) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
@@ -168,10 +187,12 @@ LUA_FUNCTION(gelly_RemoveObject) {
 	gelly->GetSimulation()->GetScene()->RemoveObject(
 		static_cast<ObjectHandle>(LUA->GetNumber(1))
 	);
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
 LUA_FUNCTION(gelly_SetObjectPosition) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
@@ -185,10 +206,12 @@ LUA_FUNCTION(gelly_SetObjectPosition) {
 		LUA->GetVector(2).y,
 		LUA->GetVector(2).z
 	);
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
 LUA_FUNCTION(gelly_SetObjectRotation) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
@@ -213,11 +236,12 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 		XMVectorGetZ(quat),
 		XMVectorGetW(quat)
 	);
-
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
 LUA_FUNCTION(gelly_AddParticles) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
@@ -271,10 +295,12 @@ LUA_FUNCTION(gelly_AddParticles) {
 
 	gelly->GetSimulation()->ExecuteCommandList(cmdList);
 	gelly->GetSimulation()->DestroyCommandList(cmdList);
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
 LUA_FUNCTION(gelly_GetStatus) {
+	START_GELLY_EXCEPTIONS();
 	// Current status table:
 	//	- ComputeDeviceName: string
 	//	- ActiveParticles: number
@@ -291,7 +317,7 @@ LUA_FUNCTION(gelly_GetStatus) {
 		gelly->GetSimulation()->GetSimulationData()->GetMaxParticles()
 	);
 	LUA->SetField(-2, "MaxParticles");
-
+	CATCH_GELLY_EXCEPTIONS();
 	return 1;
 }
 
@@ -315,6 +341,7 @@ LUA_FUNCTION(gelly_GetStatus) {
 	}
 
 LUA_FUNCTION(gelly_SetFluidProperties) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
@@ -338,11 +365,13 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	cmdList->AddCommand({SET_FLUID_PROPERTIES, props});
 	gelly->GetSimulation()->ExecuteCommandList(cmdList);
 	gelly->GetSimulation()->DestroyCommandList(cmdList);
+	CATCH_GELLY_EXCEPTIONS();
 
 	return 0;
 }
 
 LUA_FUNCTION(gelly_SetFluidVisualParams) {
+	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
 
 	GET_LUA_TABLE_MEMBER(float, Shininess);
@@ -357,11 +386,12 @@ LUA_FUNCTION(gelly_SetFluidVisualParams) {
 	params.refractionStrength = RefractionStrength;
 
 	gelly->SetFluidParams(params);
-
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
 LUA_FUNCTION(gelly_ChangeParticleRadius) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
@@ -370,11 +400,12 @@ LUA_FUNCTION(gelly_ChangeParticleRadius) {
 
 	const auto newRadius = static_cast<float>(LUA->GetNumber(1));
 	gelly->ChangeParticleRadius(newRadius);
-
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
 LUA_FUNCTION(gelly_Reset) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
 		return 0;
 	}
@@ -383,37 +414,12 @@ LUA_FUNCTION(gelly_Reset) {
 	cmdList->AddCommand({RESET, Reset{}});
 	gelly->GetSimulation()->ExecuteCommandList(cmdList);
 	gelly->GetSimulation()->DestroyCommandList(cmdList);
-
-	return 0;
-}
-
-LUA_FUNCTION(gelly_TestToss) {
-	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
-	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);  // Impulse
-
-	Vector impulse = LUA->GetVector(2);
-	int entIndex = static_cast<int>(LUA->GetNumber(1));
-
-	try {
-		edict_t *ent = GetEngineServer()->PEntityOfEntIndex(entIndex);
-		if (ent == nullptr) {
-			LUA->ThrowError("Invalid entity index");
-		}
-
-		CBaseEntity *entity = GetServerGameEnts()->EdictToBaseEntity(ent);
-		if (entity == nullptr) {
-			LUA->ThrowError("Invalid entity");
-		}
-
-		ApplyImpulseToServerEntity(entity, impulse);
-	} catch (const std::exception &e) {
-		LUA->ThrowError(e.what());
-	}
-
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
 LUA_FUNCTION(gelly_IsEntityCollidingWithParticles) {
+	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive() || !gelly->IsEntityCollisionSupported()) {
 		return 0;
 	}
@@ -436,13 +442,16 @@ LUA_FUNCTION(gelly_IsEntityCollidingWithParticles) {
 	gelly->GetSimulation()->VisitLatestContactPlanes(contactVisitor);
 
 	LUA->PushBool(isColliding);
+	CATCH_GELLY_EXCEPTIONS();
 	return 1;
 }
 
 LUA_FUNCTION(gelly_ChangeThresholdRatio) {
+	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Ratio
 
 	gelly->ChangeThresholdRatio(static_cast<float>(LUA->GetNumber(1)));
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
@@ -503,7 +512,6 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetFluidVisualParams);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
-	DEFINE_LUA_FUNC(gelly, TestToss);
 	DEFINE_LUA_FUNC(gelly, IsEntityCollidingWithParticles);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
 	LUA->SetField(-2, "gelly");

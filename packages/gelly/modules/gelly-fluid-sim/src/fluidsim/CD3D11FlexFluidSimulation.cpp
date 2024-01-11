@@ -20,12 +20,7 @@ struct FlexFloat3 {
 static void FlexErrorCallback(
 	NvFlexErrorSeverity severity, const char *msg, const char *file, int line
 ) {
-	printf(
-		"FlexErrorCallback: %s - %s:%d\n",
-		msg,
-		file,
-		line
-	);
+	printf("FlexErrorCallback: %s - %s:%d\n", msg, file, line);
 }
 
 CD3D11FlexFluidSimulation::CD3D11FlexFluidSimulation()
@@ -84,7 +79,8 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	initDesc.renderDevice =
 		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE);
 #ifdef _DEBUG
-	// FleX will try to use GPU extensions and compute queues which destroy most rendering debuggers
+	// FleX will try to use GPU extensions and compute queues which destroy most
+	// rendering debuggers
 	initDesc.enableExtensions = false;
 	initDesc.runOnRenderContext = true;
 #else
@@ -126,7 +122,10 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	);
 
 	buffers.contactVelocities = NvFlexAllocBuffer(
-		library, maxParticles * maxContactsPerParticle, sizeof(FlexFloat4), eNvFlexBufferHost
+		library,
+		maxParticles * maxContactsPerParticle,
+		sizeof(FlexFloat4),
+		eNvFlexBufferHost
 	);
 
 	buffers.contactCounts = NvFlexAllocBuffer(
@@ -194,7 +193,8 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					solverParams.adhesion = arg.adhesion;
 					solverParams.cohesion = arg.cohesion;
 					solverParams.surfaceTension = arg.surfaceTension;
-					solverParams.vorticityConfinement = arg.vorticityConfinement;
+					solverParams.vorticityConfinement =
+						arg.vorticityConfinement;
 					solverParams.viscosity = arg.viscosity;
 					DebugDumpParams();
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
@@ -231,7 +231,9 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 
 		for (uint i = currentActiveParticles; i < newActiveParticles; i++) {
 			_mm_prefetch(
-				reinterpret_cast<const char *>(&newParticles[i - currentActiveParticles] + 1),
+				reinterpret_cast<const char *>(
+					&newParticles[i - currentActiveParticles] + 1
+				),
 				_MM_HINT_T0
 			);
 
@@ -286,8 +288,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	// the radius is really what determines the properties of the fluid.
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
-	solverParams.gravity[1] = -4.f;
-	solverParams.gravity[2] = 0.f;
+	solverParams.gravity[1] = 0.f;
+	solverParams.gravity[2] = -4.f;
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
@@ -324,7 +326,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.solidPressure = 1.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
-	solverParams.surfaceTension = 1.5f;
+	solverParams.surfaceTension = 1.0f;
 	solverParams.vorticityConfinement = 1.0f;
 	solverParams.buoyancy = 1.0f;
 	printf("== NEW PARAMS ==\n");
@@ -334,8 +336,12 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 void CD3D11FlexFluidSimulation::DebugDumpParams() {
 	printf("== DEBUG PARAM DUMP ==\n");
 	printf("\tradius: %f\n", solverParams.radius);
-	printf("\tgravity: %f, %f, %f\n", solverParams.gravity[0],
-		   solverParams.gravity[1], solverParams.gravity[2]);
+	printf(
+		"\tgravity: %f, %f, %f\n",
+		solverParams.gravity[0],
+		solverParams.gravity[1],
+		solverParams.gravity[2]
+	);
 	printf("\tviscosity: %f\n", solverParams.viscosity);
 	printf("\tdynamicFriction: %f\n", solverParams.dynamicFriction);
 	printf("\tstaticFriction: %f\n", solverParams.staticFriction);
@@ -352,8 +358,9 @@ void CD3D11FlexFluidSimulation::DebugDumpParams() {
 	printf("\tsmoothing: %f\n", solverParams.smoothing);
 	printf("\tdissipation: %f\n", solverParams.dissipation);
 	printf("\tdamping: %f\n", solverParams.damping);
-	printf("\tparticleCollisionMargin: %f\n",
-		   solverParams.particleCollisionMargin);
+	printf(
+		"\tparticleCollisionMargin: %f\n", solverParams.particleCollisionMargin
+	);
 	printf("\tshapeCollisionMargin: %f\n", solverParams.shapeCollisionMargin);
 	printf("\tcollisionDistance: %f\n", solverParams.collisionDistance);
 	printf("\tsleepThreshold: %f\n", solverParams.sleepThreshold);
@@ -388,32 +395,39 @@ bool CD3D11FlexFluidSimulation::CheckFeatureSupport(GELLY_FEATURE feature) {
 void CD3D11FlexFluidSimulation::VisitLatestContactPlanes(
 	ContactPlaneVisitor visitor
 ) {
-	NvFlexGetContacts(solver, nullptr, buffers.contactVelocities, nullptr, buffers.contactCounts);
+	NvFlexGetContacts(
+		solver,
+		nullptr,
+		buffers.contactVelocities,
+		nullptr,
+		buffers.contactCounts
+	);
 	NvFlexGetParticles(solver, buffers.positions, nullptr);
 
-	const auto* velocities = static_cast<FlexFloat4*>(
+	const auto *velocities = static_cast<FlexFloat4 *>(
 		NvFlexMap(buffers.contactVelocities, eNvFlexMapWait)
 	);
 
-	const auto* counts = static_cast<int*>(
-		NvFlexMap(buffers.contactCounts, eNvFlexMapWait)
-	);
+	const auto *counts =
+		static_cast<int *>(NvFlexMap(buffers.contactCounts, eNvFlexMapWait));
 
 	for (uint i = 0; i < simData->GetActiveParticles(); i++) {
 		const int contactCount = counts[i];
 
-		for (int contactIndex = 0; contactIndex < contactCount; contactIndex++) {
-			const FlexFloat4 velocity = velocities[i * maxContactsPerParticle + contactIndex];
+		for (int contactIndex = 0; contactIndex < contactCount;
+			 contactIndex++) {
+			const FlexFloat4 velocity =
+				velocities[i * maxContactsPerParticle + contactIndex];
 			uint shapeIndex = static_cast<uint>(velocity.w);
 
 			ObjectHandle handle = scene->GetHandleFromShapeIndex(shapeIndex);
-			XMFLOAT3 velocityVector = XMFLOAT3(
-				velocity.x, velocity.y, velocity.z
-			);
+			XMFLOAT3 velocityVector =
+				XMFLOAT3(velocity.x, velocity.y, velocity.z);
 
-			XMStoreFloat3(&velocityVector, XMVectorScale(
-				XMLoadFloat3(&velocityVector), 25.f
-			));
+			XMStoreFloat3(
+				&velocityVector,
+				XMVectorScale(XMLoadFloat3(&velocityVector), 25.f)
+			);
 
 			if (visitor(velocityVector, handle)) {
 				break;
