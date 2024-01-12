@@ -31,7 +31,6 @@ void main(uint3 threadID : SV_DispatchThreadID) {
     InterlockedAdd(g_particleCount[voxelPosition], 1);
 
     uint newCount = currentCount + 1;
-    if (newCount < g_maxParticlesInVoxel) {
-        g_particlesInVoxel[voxelIndex * g_maxParticlesInVoxel + newCount] = particleIndex;
-    }
+    
+    g_particlesInVoxel[voxelIndex * g_maxParticlesInVoxel + min(currentCount, g_maxParticlesInVoxel - 1)] = particleIndex;
 }

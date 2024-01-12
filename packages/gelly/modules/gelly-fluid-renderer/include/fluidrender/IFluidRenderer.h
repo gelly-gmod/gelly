@@ -26,7 +26,7 @@ struct FluidRenderSettings {
 			 * rest distance), then around four or so is ok. If they're closer,
 			 * consider increasing this.
 			 */
-			uint maxParticlesInVoxel = 64;
+			uint maxParticlesInVoxel = 8;
 		} isosurface;
 	} special;
 };

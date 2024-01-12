@@ -14,6 +14,9 @@ Buffer<float4> g_positions : register(t3);
 RWTexture2D<half2> g_depth : register(u4);
 RWTexture2D<float4> g_normal : register(u5);
 
+Texture2D<float2> g_entryDepth : register(t6);
+Texture2D<float2> g_exitDepth : register(t7);
+
 #include "util/CalculateDensity.hlsli"
 
 static const float g_stepLength = g_voxelSize * 0.3f;
@@ -37,32 +40,43 @@ static const float g_isoValue = 150.f;
 void main(uint3 threadID : SV_DispatchThreadID) {
     float2 texcoord = threadID.xy / float2(g_ViewportWidth, g_ViewportHeight);
 
-    float4 rayEnd = float4(
+    float entryProjDepth = g_entryDepth.Load(int3(threadID.xy, 0)).y;
+    float exitProjDepth = g_exitDepth.Load(int3(threadID.xy, 0)).y;
+
+    if (entryProjDepth == 1.f || exitProjDepth == 1.f) {
+        g_depth[threadID.xy] = half2(0.0f, 1.0f);
+        g_normal[threadID.xy] = float4(0.f, 0.f, 0.f, 1.0f);
+        return;
+    }
+
+    float4 rayEntryPosition = float4(
         texcoord.x * 2.0f - 1.0f,
         (1.f - texcoord.y) * 2.0f - 1.0f,
-        1.f,
+        entryProjDepth,
         1.0f
     );
 
-    rayEnd = mul(g_InverseProjection, rayEnd);
-    rayEnd = mul(g_InverseView, rayEnd);
-    rayEnd /= rayEnd.w;
+    rayEntryPosition = mul(g_InverseProjection, rayEntryPosition);
+    rayEntryPosition = mul(g_InverseView, rayEntryPosition);
+    rayEntryPosition /= rayEntryPosition.w;
 
-    float4 rayStart = float4(
+    float4 rayExitPosition = float4(
         texcoord.x * 2.0f - 1.0f,
         (1.f - texcoord.y) * 2.0f - 1.0f,
-        0.f,
+        exitProjDepth,
         1.0f
     );
 
-    rayStart = mul(g_InverseProjection, rayStart);
-    rayStart = mul(g_InverseView, rayStart);
-    rayStart /= rayStart.w;
+    rayExitPosition = mul(g_InverseProjection, rayExitPosition);
+    rayExitPosition = mul(g_InverseView, rayExitPosition);
+    rayExitPosition /= rayExitPosition.w;
 
-    float3 rayDirection = normalize(rayEnd.xyz - rayStart.xyz);
+    float3 rayDirection = normalize(rayExitPosition.xyz - rayEntryPosition.xyz);
+    // using the parametric equation we can split up the ray into steps
+    float t_step = length(rayExitPosition.xyz - rayEntryPosition.xyz) / g_maxSteps;
 
     for (uint i = 0; i < g_maxSteps; i++) {
-        float3 position = rayStart.xyz + (rayDirection * (g_stepLength * (float)i));
+        float3 position = rayEntryPosition.xyz + (rayDirection * (t_step * i));
         uint3 voxelPosition = VoxelizePosition(position);
         uint voxelIndex = VoxelToIndex(voxelPosition);
 
@@ -71,10 +85,18 @@ void main(uint3 threadID : SV_DispatchThreadID) {
             break;
         }
 
+        // evaluate BDG here, if we have no surface, we can skip this voxel
+        // also important to not sample since that'll confuse the raymarcher
+        float2 bdg = g_bdg[voxelPosition];
+        if (bdg.y == 0.f) {
+            continue;
+        }
+
         uint currentCount = g_particleCount[voxelPosition];
         
         // we've hit the surface, so color the voxel
-        if (CalculateDensity(position, voxelPosition) > g_ParticleRadius) {
+        float density = CalculateDensity(position, voxelPosition);
+        if (density > g_ParticleRadius) {
             // we can sample the density field to grab normals
             float3 normal = float3(
                 CalculateDensity(position + float3(g_voxelSize, 0.f, 0.f), voxelPosition) - CalculateDensity(position - float3(g_voxelSize, 0.f, 0.f), voxelPosition),
@@ -91,7 +113,7 @@ void main(uint3 threadID : SV_DispatchThreadID) {
 
             float3 color = colorHash(voxelPosition);
             g_depth[threadID.xy] = half2(position.z, 1.0f);
-            g_normal[threadID.xy] = float4(diffuse + specular, 1.0f);
+            g_normal[threadID.xy] = float4(density, density, density, 1.0f);
             return;
         }
     }

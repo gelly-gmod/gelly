@@ -307,7 +307,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.anisotropyScale = 1.0f;
 	solverParams.anisotropyMin = 0.1f;
 	solverParams.anisotropyMax = 2.0f;
-	solverParams.smoothing = 1.0f;
+	solverParams.smoothing = 2.2f;
 
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;

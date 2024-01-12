@@ -217,6 +217,9 @@ void CD3D11IsosurfaceFluidRenderer::CreateKernels() {
 	m_kernels.raymarch.SetOutput(
 		5, m_outputTextures.GetFeatureTexture(NORMALS)
 	);
+	m_kernels.raymarch.SetInput(6, m_textures.frontDepth);
+	m_kernels.raymarch.SetInput(7, m_textures.backDepth);
+
 	m_kernels.raymarch.SetCBuffer(0, m_buffers.voxelCBuffer);
 	m_kernels.raymarch.SetCBuffer(1, m_buffers.fluidRenderCBuffer);
 
