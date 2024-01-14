@@ -109,6 +109,9 @@ void CD3D11IsosurfaceFluidRenderer::CreateTextures() {
 	frontDepth.height = height;
 	frontDepth.isFullscreen = true;
 	frontDepth.access = TextureAccess::READ | TextureAccess::WRITE;
+	frontDepth.filter =
+		TextureFilter::LINEAR;	// we can smooth out the spherical depth using a
+								// quick 8x8 box blur with linear filtering
 
 	m_textures.frontDepth =
 		m_context->CreateTexture("isosurfacerenderer/frontdepth", frontDepth);
@@ -258,6 +261,7 @@ void CD3D11IsosurfaceFluidRenderer::ConstructMarchingBuffers() {
 	m_voxelCBData.activeParticles = m_simData->GetActiveParticles();
 	util::UpdateCBuffer(&m_voxelCBData, m_buffers.voxelCBuffer);
 
+	m_kernels.clearBuffers.Invoke();
 	m_kernels.voxelize.Invoke();
 	m_kernels.constructBDG.Invoke();
 }

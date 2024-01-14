@@ -70,7 +70,10 @@ void CD3D11RTFRFluidSimulation::LoadFrameIntoBuffers() {
 	for (int i = 0; i < simData->GetActiveParticles(); i++) {
 		const float *positionVec = dataset.GetParticle(i, currentFrameIndex);
 		positionData[i] = {
-			positionVec[0], positionVec[1], positionVec[2], 1.0f
+			positionVec[0] + 1.f,
+			positionVec[1] + 1.f,
+			positionVec[2] + 1.f,
+			1.f,
 		};
 	}
 
@@ -197,7 +200,7 @@ void CD3D11RTFRFluidSimulation::AttachToContext(
 }
 
 static float t = 0.f;
-constexpr float DELAY_TIME = 1 / 60.f;
+constexpr float DELAY_TIME = 1 / 1.f;
 void CD3D11RTFRFluidSimulation::Update(const float deltaTime) {
 	t += deltaTime;
 	// quick n dirty
@@ -213,11 +216,10 @@ void CD3D11RTFRFluidSimulation::Update(const float deltaTime) {
 	LoadFrameIntoBuffers();
 }
 
-const char *CD3D11RTFRFluidSimulation::GetComputeDeviceName() {
-	return "CPU";
-}
+const char *CD3D11RTFRFluidSimulation::GetComputeDeviceName() { return "CPU"; }
 
 // Aside from the inherent base featureset, this simulation has nothing.
-bool CD3D11RTFRFluidSimulation::CheckFeatureSupport(const GELLY_FEATURE feature) {
+bool CD3D11RTFRFluidSimulation::CheckFeatureSupport(const GELLY_FEATURE feature
+) {
 	return false;
 }

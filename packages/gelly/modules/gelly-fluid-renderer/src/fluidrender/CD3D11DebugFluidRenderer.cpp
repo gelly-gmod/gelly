@@ -500,15 +500,20 @@ void CD3D11SplattingFluidRenderer::Render() {
 		);
 	}
 
-	if (simData->GetActiveParticles() <= 0) {
-		return;
-	}
-
 	if (!outputTextures.IsInitialized()) {
 		throw std::logic_error(
 			"CD3D11DebugFluidRenderer::Render: outputTextures is not "
 			"initialized."
 		);
+	}
+
+	if (simData->GetActiveParticles() <= 0) {
+		// Just clear the textures and return.
+		outputTextures.GetFeatureTexture(DEPTH)->Clear(depthClearColor);
+		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS)
+			->Clear(genericClearColor);
+
+		return;
 	}
 
 	context->SetRasterizerFlags(RasterizerFlags::DISABLE_CULL);

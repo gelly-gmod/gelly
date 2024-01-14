@@ -16,7 +16,7 @@ struct FluidRenderSettings {
 
 	union {
 		struct {
-			float voxelSize = 0.05f;
+			float voxelSize = 0.04f;
 			uint domainWidth = 128;
 			uint domainHeight = 128;
 			uint domainDepth = 128;
@@ -26,7 +26,7 @@ struct FluidRenderSettings {
 			 * rest distance), then around four or so is ok. If they're closer,
 			 * consider increasing this.
 			 */
-			uint maxParticlesInVoxel = 8;
+			uint maxParticlesInVoxel = 32;
 		} isosurface;
 	} special;
 };

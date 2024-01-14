@@ -165,7 +165,7 @@ IMPLEMENT_WINDOW(TestbedWindow) {
 				"Threshold ratio",
 				&UI_DATA(TestbedWindow, thresholdRatio),
 				0.0f,
-				30.0f
+				1.0f
 			);
 
 			// ideally this'd be driven by the simulation but

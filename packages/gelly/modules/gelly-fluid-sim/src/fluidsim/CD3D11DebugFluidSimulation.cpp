@@ -57,6 +57,7 @@ void CD3D11DebugFluidSimulation::GenerateRandomParticles() {
 	t += 0.01f;
 	for (int i = 0; i < maxParticles; i++) {
 		// A simple cube
+
 		positionData[i].x = (rand() % 1000) / 1000.0f;
 		positionData[i].y = (rand() % 1000) / 1000.0f;
 		positionData[i].z = (rand() % 1000) / 1000.0f;
@@ -182,11 +183,10 @@ void CD3D11DebugFluidSimulation::Update(const float deltaTime) {
 	// Do nothing.
 }
 
-const char *CD3D11DebugFluidSimulation::GetComputeDeviceName() {
-	return "CPU";
-}
+const char *CD3D11DebugFluidSimulation::GetComputeDeviceName() { return "CPU"; }
 
 // Aside from the inherent base featureset, this simulation has nothing.
-bool CD3D11DebugFluidSimulation::CheckFeatureSupport(const GELLY_FEATURE feature) {
+bool CD3D11DebugFluidSimulation::CheckFeatureSupport(const GELLY_FEATURE feature
+) {
 	return false;
 }
