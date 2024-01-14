@@ -85,6 +85,7 @@ private:
 	CompositeConstants compositeConstants = {};
 	IDirect3DStateBlock9 *stateBlock = nullptr;
 	FluidRenderParams renderParams = {};
+	FluidRenderSettings renderSettings = {};
 
 	bool entityCollisionSupported = false;
 	bool perParticleAbsorptionSupported = false;
@@ -113,6 +114,9 @@ public:
 	[[nodiscard]] bool IsInteractive() const;
 	[[nodiscard]] bool IsEntityCollisionSupported() const;
 	[[nodiscard]] bool IsPerParticleAbsorptionSupported() const;
+
+	[[nodiscard]] FluidRenderSettings GetRenderSettings() const;
+	void SetRenderSettings(const FluidRenderSettings &settings);
 
 	[[nodiscard]] const char *GetComputeDeviceName() const;
 

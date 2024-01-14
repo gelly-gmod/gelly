@@ -396,8 +396,9 @@ void GellyIntegration::Render() {
 	{
 		ZoneScopedN("Gelly render");
 		{
-			ZoneScopedN("Per frame params");
+			ZoneScopedN("Per frame params & settings");
 			renderer->SetPerFrameParams(renderParams);
+			renderer->SetSettings(renderSettings);
 		}
 		renderer->Render();
 	}
@@ -571,6 +572,14 @@ bool GellyIntegration::IsPerParticleAbsorptionSupported() const {
 	return perParticleAbsorptionSupported;
 }
 
+FluidRenderSettings GellyIntegration::GetRenderSettings() const {
+	return renderSettings;
+}
+
+void GellyIntegration::SetRenderSettings(const FluidRenderSettings &settings) {
+	renderSettings = settings;
+}
+
 IFluidRenderer *GellyIntegration::GetRenderer() const { return renderer; }
 IFluidSimulation *GellyIntegration::GetSimulation() const { return simulation; }
 
@@ -584,8 +593,60 @@ XMFLOAT3 GellyIntegration::GetCurrentAbsorption() const {
 	return absorption;
 }
 
+// Due to the way that GMod binary modules function
+// we have to make sure that each and every resource gets cleared and destroyed
+// so that the next time the binary module is invoked, everything is at a clean
+// state.
+// TODO: use smart pointers!! this is not maintainable!
 GellyIntegration::~GellyIntegration() {
+	LOG_INFO("Destroying GellyIntegration");
+
 	if (renderContext) {
 		// soon
 	}
+
+	if (simulation) {
+		DestroyGellyFluidSim(simulation);
+		LOG_INFO("Destroyed simulation");
+	}
+
+	if (gellyTextures.albedoTexture) {
+		renderContext->DestroyTexture("gelly-gmod/albedo");
+		renderContext->DestroyTexture("gelly-gmod/depth");
+		renderContext->DestroyTexture("gelly-gmod/normal");
+		renderContext->DestroyTexture("gelly-gmod/position");
+		renderContext->DestroyTexture("gelly-gmod/thickness");
+		LOG_INFO("Destroyed D3D11-side textures");
+	}
+
+	if (textures.albedoTexture) {
+		// we can reasonably assume from here on out that all the d3d11 textures
+		// are valid
+
+		textures.albedoTexture->Release();
+		textures.depthTexture->Release();
+		textures.normalTexture->Release();
+		textures.positionTexture->Release();
+		textures.thicknessTexture->Release();
+		textures.backbufferTexture->Release();
+		LOG_INFO("Destroyed D3D9-side textures");
+	}
+
+	if (shaders.compositePS) {
+		shaders.compositePS->Release();
+		shaders.ndcQuadVS->Release();
+		LOG_INFO("Destroyed shaders");
+	}
+
+	if (buffers.ndcQuadVB) {
+		buffers.ndcQuadVB->Release();
+		LOG_INFO("Destroyed buffers");
+	}
+
+	if (stateBlock) {
+		stateBlock->Release();
+		LOG_INFO("Destroyed state block");
+	}
+
+	LOG_INFO("Destroyed GellyIntegration");
 }

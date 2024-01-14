@@ -28,7 +28,7 @@ struct FluidRenderSettings {
 			 */
 			uint maxParticlesInVoxel = 32;
 		} isosurface;
-	} special;
+	} special = {};
 };
 
 /**

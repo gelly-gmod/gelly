@@ -455,6 +455,22 @@ LUA_FUNCTION(gelly_ChangeThresholdRatio) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetRenderSettings) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);	 // new render settings
+
+	FluidRenderSettings newSettings;
+	GET_LUA_TABLE_MEMBER(int, SmoothingIterations);
+	GET_LUA_TABLE_MEMBER(int, ThicknessIterations);
+
+	newSettings.filterIterations = SmoothingIterations;
+	newSettings.thicknessFilterIterations = ThicknessIterations;
+
+	gelly->SetRenderSettings(newSettings);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem();
@@ -525,10 +541,9 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, IsEntityCollidingWithParticles);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
+	DEFINE_LUA_FUNC(gelly, SetRenderSettings);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
-
-	GetEngineServer()->ServerCommand("say Hello from gelly-gmod serverside\n");
 
 	return 0;
 }
