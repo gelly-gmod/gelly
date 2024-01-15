@@ -1,8 +1,4 @@
 -- Really just a normal box but with a gelly emitter on it
-
----@module "gelly.fluid-presets"
-local fluidPresets = include("gelly/fluid-presets.lua")
-
 local BOX_MODEL = "models/hunter/blocks/cube075x075x075.mdl"
 
 AddCSLuaFile()
@@ -52,7 +48,7 @@ function ENT:Think()
 
 	local isEmitting = self:GetNWBool("Emitting")
 	if isEmitting then
-		fluidPresets.selectPreset(self.Preset)
+		gellyx.presets.select(self.Preset)
 		gellyx.emitters.Cube({
 			center = self:GetPos(),
 			velocity = self:GetVelocity(),

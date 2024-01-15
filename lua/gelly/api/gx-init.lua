@@ -1,4 +1,5 @@
 include("gx-soft-functions.lua")
+include("gx-fluid-presets.lua")
 include("emitters/cube-emitter.lua")
 include("emitters/mesh-emitter.lua")
 include("emitters/sphere-emitter.lua")
