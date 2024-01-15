@@ -10,10 +10,22 @@
 		"editor.defaultFormatter": "JohnnyMorganz.stylua"
 	},
 	"Lua.runtime.special": {
-		"include": "require"
+		"include": "require",
+		"IncludeCS": "require"
 	},
 	"Lua.diagnostics.disable": [
-		"undefined-global"
+		"undefined-global",
+		"duplicate-set-field"
 	],
-	"stylua.targetReleaseVersion": "latest"
+	"stylua.targetReleaseVersion": "latest",
+	"Lua.workspace.library": [
+		"lib",
+		"c:\\Users\\puffy\\.vscode\\extensions\\derpius.nanosworld-1.0.0/EmmyLua/",
+		"C:/Users/puffy/AppData/Roaming/Code/User/globalStorage/sumneko.lua/addonManager/addons/garrysmod/module/library"
+	],
+	"Lua.runtime.version": "Lua 5.1",
+	"Lua.runtime.nonstandardSymbol": [
+		"continue"
+	],
+	"Lua.workspace.checkThirdParty": false
 }

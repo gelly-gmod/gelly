@@ -22,9 +22,6 @@ SWEP.ParticleDensity = 300
 SWEP.FireRate = 40 -- bursts per second
 SWEP.RapidFireBoost = 2 -- how much proportional quantity of particles to emit when rapid firing
 
----@module "gelly.emitters.cube-emitter"
-local emitCube = include("gelly/emitters/cube-emitter.lua")
-
 function SWEP:Initialize()
 	self:SetHoldType("pistol")
 end
@@ -36,14 +33,15 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
+	---@type Player
 	local owner = self:GetOwner()
-	local position = owner:GetShootPos()
-	local velocity = owner:GetAimVector() * 2
-	position = position + owner:GetAimVector() * 50
-	local size = Vector(1, 1, 1) * 50
-	local density = self.ParticleDensity
 
-	emitCube(position, velocity, size, density)
+	gellyx.emitters.Cube({
+		center = owner:GetShootPos() + owner:GetAimVector() * 50,
+		velocity = owner:GetAimVector() * 2,
+		bounds = Vector(50, 50, 50),
+		density = self.ParticleDensity,
+	})
 
 	self:SetNextPrimaryFire(CurTime() + 1 / self.FireRate)
 end
@@ -56,13 +54,13 @@ function SWEP:SecondaryAttack()
 	end
 
 	local owner = self:GetOwner()
-	local position = owner:GetShootPos()
-	local velocity = owner:GetAimVector() * 50
-	position = position + owner:GetAimVector() * 50
-	local size = Vector(1, 1, 1) * 50
-	local density = self.ParticleDensity * self.RapidFireBoost
 
-	emitCube(position, velocity, size, density)
+	gellyx.emitters.Cube({
+		center = owner:GetShootPos() + owner:GetAimVector() * 50,
+		velocity = owner:GetAimVector() * 50,
+		bounds = Vector(50, 50, 50),
+		density = self.ParticleDensity * self.RapidFireBoost,
+	})
 
 	self:SetNextSecondaryFire(CurTime() + 1 / self.FireRate * self.RapidFireBoost)
 end

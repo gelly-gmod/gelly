@@ -20,6 +20,9 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 	local mapPath = ("maps/%s.bsp"):format(game.GetMap())
 	gelly.LoadMap(mapPath)
 
+	-- setup the gellyx api before other addons can use it
+	include("gelly/api/gx-init.lua")
+
 	hook.Run("GellyLoaded")
 	-- also, add the particle system
 	game.AddParticles("particles/gelly.pcf")

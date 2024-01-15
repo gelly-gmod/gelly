@@ -1,7 +1,5 @@
 -- Really just a normal box but with a gelly emitter on it
 
----@module "gelly.emitters.cube-emitter"
-local emitCube = include("gelly/emitters/cube-emitter.lua")
 ---@module "gelly.fluid-presets"
 local fluidPresets = include("gelly/fluid-presets.lua")
 
@@ -54,13 +52,13 @@ function ENT:Think()
 
 	local isEmitting = self:GetNWBool("Emitting")
 	if isEmitting then
-		local center = self:GetPos()
-		local velocity = self:GetVelocity()
-		local size = self.CubeSize
-		local density = 25
-
 		fluidPresets.selectPreset(self.Preset)
-		emitCube(center, velocity, size, density)
+		gellyx.emitters.Cube({
+			center = self:GetPos(),
+			velocity = self:GetVelocity(),
+			bounds = self.CubeSize,
+			density = 25,
+		})
 	end
 
 	self:SetNextClientThink(CurTime() + 0.01)

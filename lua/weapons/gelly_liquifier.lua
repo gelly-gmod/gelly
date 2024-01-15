@@ -21,9 +21,6 @@ SWEP.Secondary.Ammo = ""
 SWEP.TriangleDensity = 25
 SWEP.FireRate = 1 -- projectiles per second
 
----@module "gelly.emitters.mesh-emitter"
-local emitMesh = include("gelly/emitters/mesh-emitter.lua")
-
 function SWEP:Initialize()
 	self:SetHoldType("pistol")
 end
@@ -44,7 +41,10 @@ function SWEP:PrimaryAttack()
 	end
 
 	print("Primary attack")
-	emitMesh(hitEntity, self.TriangleDensity)
+	gellyx.emitters.Mesh({
+		entity = hitEntity,
+		density = self.TriangleDensity,
+	})
 	CreateParticleSystemNoEntity("Liquifier_ChargeBlast", hitPos)
 	self:SetNextPrimaryFire(CurTime() + 1 / self.FireRate)
 end
