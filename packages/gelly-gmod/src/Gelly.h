@@ -105,6 +105,7 @@ public:
 	~GellyIntegration();
 
 	void Render();
+	void Composite();
 	void Simulate(float dt);
 	void LoadMap(const char *mapName);
 	void SetFluidParams(const FluidVisualParams &params);

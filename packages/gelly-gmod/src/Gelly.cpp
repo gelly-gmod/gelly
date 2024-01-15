@@ -362,8 +362,7 @@ GellyIntegration::GellyIntegration(
 	}
 }
 
-void GellyIntegration::Render() {
-	ZoneScoped;
+void GellyIntegration::Composite() {
 	{
 		ZoneScopedN("Back buffer copy");
 		// copy backbuffer to texture
@@ -390,17 +389,6 @@ void GellyIntegration::Render() {
 				D3DTEXF_NONE
 			)
 		);
-	}
-
-	UpdateRenderParams();
-	{
-		ZoneScopedN("Gelly render");
-		{
-			ZoneScopedN("Per frame params & settings");
-			renderer->SetPerFrameParams(renderParams);
-			renderer->SetSettings(renderSettings);
-		}
-		renderer->Render();
 	}
 
 	// get current state
@@ -470,6 +458,19 @@ void GellyIntegration::Render() {
 
 	// Restore state
 	stateBlock->Apply();
+}
+void GellyIntegration::Render() {
+	ZoneScoped;
+	UpdateRenderParams();
+	{
+		ZoneScopedN("Gelly render");
+		{
+			ZoneScopedN("Per frame params & settings");
+			renderer->SetPerFrameParams(renderParams);
+			renderer->SetSettings(renderSettings);
+		}
+		renderer->Render();
+	}
 }
 
 void GellyIntegration::Simulate(float dt) {

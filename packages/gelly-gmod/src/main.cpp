@@ -54,6 +54,13 @@ LUA_FUNCTION(gelly_Render) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_Composite) {
+	START_GELLY_EXCEPTIONS()
+	gelly->Composite();
+	CATCH_GELLY_EXCEPTIONS()
+	return 0;
+}
+
 LUA_FUNCTION(gelly_Simulate) {
 	START_GELLY_EXCEPTIONS()
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Delta time
@@ -533,6 +540,7 @@ GMOD_MODULE_OPEN() {
 
 	LUA->CreateTable();
 	DEFINE_LUA_FUNC(gelly, Render);
+	DEFINE_LUA_FUNC(gelly, Composite);
 	DEFINE_LUA_FUNC(gelly, Simulate);
 	DEFINE_LUA_FUNC(gelly, GetStatus);
 	DEFINE_LUA_FUNC(gelly, AddParticles);
