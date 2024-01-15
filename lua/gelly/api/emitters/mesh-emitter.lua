@@ -60,7 +60,6 @@ function gellyx.emitters.Mesh(params)
 	local function sampleEquidistantly(particles, triangle)
 		local position = (triangle[1] + triangle[2] + triangle[3]) / 3
 
-		debugoverlay.Cross(position, 1, 4, Color(255, 0, 0), true)
 		table.insert(particles, {
 			pos = position,
 			vel = Vector(0, 0, 0),
@@ -77,7 +76,6 @@ function gellyx.emitters.Mesh(params)
 			end
 
 			local position = triangle[1] * x + triangle[2] * y + triangle[3] * (1 - x - y)
-			debugoverlay.Cross(position, 1, 4, Color(255, 0, 0), true)
 			table.insert(particles, {
 				pos = position,
 				vel = Vector(0, 0, 0),
