@@ -601,10 +601,6 @@ XMFLOAT3 GellyIntegration::GetCurrentAbsorption() const {
 GellyIntegration::~GellyIntegration() {
 	LOG_INFO("Destroying GellyIntegration");
 
-	if (renderContext) {
-		// soon
-	}
-
 	if (simulation) {
 		DestroyGellyFluidSim(simulation);
 		LOG_INFO("Destroyed simulation");
@@ -617,6 +613,16 @@ GellyIntegration::~GellyIntegration() {
 		renderContext->DestroyTexture("gelly-gmod/position");
 		renderContext->DestroyTexture("gelly-gmod/thickness");
 		LOG_INFO("Destroyed D3D11-side textures");
+	}
+
+	if (renderContext) {
+		DestroyGellyFluidRenderContext(renderContext);
+		LOG_INFO("Destroyed render context");
+	}
+
+	if (renderer) {
+		DestroyGellyFluidRenderer(renderer);
+		LOG_INFO("Destroyed renderer");
 	}
 
 	if (textures.albedoTexture) {

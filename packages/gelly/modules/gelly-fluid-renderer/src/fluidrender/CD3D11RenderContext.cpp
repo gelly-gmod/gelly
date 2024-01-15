@@ -458,6 +458,8 @@ CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllShaders();
 	ReleaseDevice();
 
+	// very important--dll won't be unloaded if an NT kernel object is still
+	// open
 	CloseHandle(fenceEvent);
 
 	if (blendState) {

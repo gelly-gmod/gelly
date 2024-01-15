@@ -12,7 +12,6 @@ private:
 
 public:
 	explicit CD3D11SimContext();
-
 	SimContextAPI GetAPI() override;
 
 	void SetAPIHandle(SimContextHandle handle, void *value) override;

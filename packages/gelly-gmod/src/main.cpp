@@ -17,6 +17,7 @@
 #include "source/IBaseClientDLL.h"
 #include "source/IServerGameEnts.h"
 #include "source/IVEngineServer.h"
+#include "tracy/Tracy.hpp"
 
 #define DEFINE_LUA_FUNC(namespace, name)    \
 	LUA->PushCFunction(namespace##_##name); \
@@ -38,6 +39,12 @@ void InjectConsoleWindow() {
 	AllocConsole();
 	freopen_s((FILE **)stdout, "CONOUT$", "w", stdout);
 	freopen_s((FILE **)stdin, "CONIN$", "r", stdin);
+}
+
+void RemoveConsoleWindow() {
+	fclose((FILE *)stdout);
+	fclose((FILE *)stdin);
+	FreeConsole();
 }
 
 LUA_FUNCTION(gelly_Render) {
@@ -557,5 +564,8 @@ GMOD_MODULE_CLOSE() {
 		return 0;
 	}
 	delete gelly;
+	gelly = nullptr;
+	LOG_INFO("Shut down tracy");
+	RemoveConsoleWindow();
 	return 0;
 }

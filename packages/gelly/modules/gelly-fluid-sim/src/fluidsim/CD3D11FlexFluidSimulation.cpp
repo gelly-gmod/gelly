@@ -49,6 +49,14 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 		NvFlexFreeBuffer(buffers.actives);
 	}
 
+	if (buffers.contactCounts != nullptr) {
+		NvFlexFreeBuffer(buffers.contactCounts);
+	}
+
+	if (buffers.contactVelocities != nullptr) {
+		NvFlexFreeBuffer(buffers.contactVelocities);
+	}
+
 	NvFlexDestroySolver(solver);
 	NvFlexShutdown(library);
 }
@@ -84,8 +92,8 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	initDesc.enableExtensions = false;
 	initDesc.runOnRenderContext = true;
 #else
-	initDesc.enableExtensions = true;
-	initDesc.runOnRenderContext = false;
+	initDesc.enableExtensions = false;
+	initDesc.runOnRenderContext = true;
 #endif
 
 	library = NvFlexInit(NV_FLEX_VERSION, FlexErrorCallback, &initDesc);

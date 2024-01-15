@@ -26,3 +26,11 @@ IFluidRenderer *Gelly::CreateD3D11SplattingFluidRenderer(IRenderContext *context
 	renderer->AttachToContext(context);
 	return renderer;
 }
+
+void Gelly::DestroyGellyFluidRenderContext(IRenderContext *context) {
+	delete context;
+}
+
+void Gelly::DestroyGellyFluidRenderer(IFluidRenderer *renderer) {
+	delete renderer;
+}

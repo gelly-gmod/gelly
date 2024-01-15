@@ -6,8 +6,11 @@ add_subdirectory(vendor/minhook)
 add_subdirectory(vendor/GMFS)
 add_subdirectory(vendor/BSPParser)
 
-option(TRACY_ENABLE "Enable tracy profiler" ON)
-option(TRACY_ON_DEMAND "Enable tracy profiler on demand" ON)
+set(TRACY_ENABLE OFF CACHE BOOL "Enable tracy" FORCE)
+set(TRACY_ON_DEMAND OFF CACHE BOOL "Enable tracy on demand" FORCE)
+# Incredibly important as we use tracy in a dll
+set(TRACY_MANUAL_LIFETIME ON CACHE BOOL "Don't use tracy's lifetime feature" FORCE)
+set(TRACY_DELAYED_INIT ON CACHE BOOL "Don't use tracy's delayed init feature" FORCE)
 add_subdirectory(vendor/tracy)
 
 add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly")
@@ -15,19 +18,19 @@ add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly")
 file(GLOB_RECURSE SHADER_GLUE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.h
-        )
+)
 
 add_library(
-    gelly-gmod SHARED
-    src/main.cpp
-    src/Gelly.cpp
-    src/Gelly.h
-    src/LoggingMacros.h
-    src/source/Interface.h
-    src/source/IBaseClientDLL.h
-    src/source/MathTypes.h
-    src/source/CViewSetup.h
-    src/source/IBaseClientDLL.cpp
+        gelly-gmod SHARED
+        src/main.cpp
+        src/Gelly.cpp
+        src/Gelly.h
+        src/LoggingMacros.h
+        src/source/Interface.h
+        src/source/IBaseClientDLL.h
+        src/source/MathTypes.h
+        src/source/CViewSetup.h
+        src/source/IBaseClientDLL.cpp
         src/source/IVRenderView.h
         src/source/IVRenderView.cpp
         src/source/D3DDeviceWrapper.h
@@ -47,7 +50,7 @@ add_library(
 )
 
 target_link_libraries(gelly-gmod
-    PUBLIC
+        PUBLIC
         ${GELLY_LIBS}
         gmod-module-base
         minhook
@@ -57,7 +60,7 @@ target_link_libraries(gelly-gmod
 )
 
 target_include_directories(gelly-gmod
-    PUBLIC
+        PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/gmod-module-base/include
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/minhook/include
         ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -71,10 +74,10 @@ target_include_directories(gelly-gmod
 if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win32.dll")
-else()
+else ()
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll")
-endif()
+endif ()
 
 add_custom_target(
         GellyGModShaders
