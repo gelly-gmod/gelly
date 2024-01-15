@@ -1,5 +1,4 @@
 local showPopup = include("gelly/ui/show-popup.lua")
-
 local GELLY_MISSING_TITLE = "Gelly Missing"
 local GELLY_MISSING_CONTENT =
 	"The binary module for gelly-gmod is missing, or can't be loaded. Please check your installation."

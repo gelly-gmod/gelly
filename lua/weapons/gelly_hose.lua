@@ -38,7 +38,7 @@ function SWEP:PrimaryAttack()
 
 	local owner = self:GetOwner()
 	local position = owner:GetShootPos()
-	local velocity = owner:GetAimVector() * 50
+	local velocity = owner:GetAimVector() * 2
 	position = position + owner:GetAimVector() * 50
 	local size = Vector(1, 1, 1) * 50
 	local density = self.ParticleDensity

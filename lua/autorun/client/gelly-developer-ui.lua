@@ -139,4 +139,16 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 			("Toggle Kill Player On Contact %s"):format(suffix)
 		)
 	end
+
+	local thresholdRatioSlider = vgui.Create("DNumSlider")
+	thresholdRatioSlider:SetPos(ScrW() - 200, 400)
+	thresholdRatioSlider:SetSize(200, 50)
+	thresholdRatioSlider:SetText("Threshold Ratio")
+	thresholdRatioSlider:SetMin(0)
+	thresholdRatioSlider:SetMax(15)
+	thresholdRatioSlider:SetDecimals(2)
+	thresholdRatioSlider:SetValue(3)
+	thresholdRatioSlider.OnValueChanged = function(_, value)
+		gelly.ChangeThresholdRatio(value)
+	end
 end)
