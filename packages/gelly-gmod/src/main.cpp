@@ -477,8 +477,9 @@ LUA_FUNCTION(gelly_SetRenderSettings) {
 	GET_LUA_TABLE_MEMBER(int, SmoothingIterations);
 	GET_LUA_TABLE_MEMBER(int, ThicknessIterations);
 
-	newSettings.filterIterations = SmoothingIterations;
-	newSettings.thicknessFilterIterations = ThicknessIterations;
+	newSettings.filterIterations = static_cast<int>(SmoothingIterations);
+	newSettings.thicknessFilterIterations =
+		static_cast<int>(ThicknessIterations);
 
 	gelly->SetRenderSettings(newSettings);
 	CATCH_GELLY_EXCEPTIONS();

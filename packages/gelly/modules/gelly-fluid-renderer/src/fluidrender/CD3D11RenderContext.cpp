@@ -18,6 +18,23 @@
 #include <tracy/Tracy.hpp>
 #endif
 
+static const char *GetDeviceRemovedMessage(const HRESULT &code) {
+	switch (code) {
+		case DXGI_ERROR_DEVICE_HUNG:
+			return "The GPU that Gelly was using stopped responding.";
+		case DXGI_ERROR_DEVICE_REMOVED:
+			return "Gelly was notified that the GPU was removed from the "
+				   "system.";
+		case DXGI_ERROR_DEVICE_RESET:
+			return "The GPU that Gelly was using received an invalid command, "
+				   "and reset itself.";
+		case DXGI_ERROR_DRIVER_INTERNAL_ERROR:
+			return "There was an internal error with the GPU driver.";
+		case DXGI_ERROR_INVALID_CALL:
+			return "Gelly made an invalid call to the GPU.";
+	}
+}
+
 CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 	: device(nullptr),
 	  deviceContext(nullptr),
@@ -85,8 +102,8 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 
-	// And our absorption RT, we want to take the accumulated absorption
-	// of the absorption vectors
+	// And our absorption RT, we want to take the accumulated
+	// absorption of the absorption vectors
 	blendDesc.RenderTarget[1].BlendEnable = true;
 	blendDesc.RenderTarget[1].BlendOp = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[1].BlendOpAlpha = D3D11_BLEND_OP_ADD;
@@ -254,7 +271,8 @@ CD3D11RenderContext::CreateMappedBufferView(
 	view->AttachToContext(this);
 	view->View(buffer);
 
-	// not at all required due to copy elision, but I like to be explicit
+	// not at all required due to copy elision, but I like to be
+	// explicit
 	return std::move(view);
 }
 
@@ -294,7 +312,8 @@ void CD3D11RenderContext::BindMultipleTexturesAsOutput(
 		auto *texture = textures[i];
 		if (texture == nullptr) {
 			throw std::logic_error(
-				"CD3D11RenderContext::BindMultipleTexturesAsOutput encountered "
+				"CD3D11RenderContext::BindMultipleTexturesAsOutput "
+				"encountered "
 				"a null texture"
 			);
 		}
@@ -302,7 +321,8 @@ void CD3D11RenderContext::BindMultipleTexturesAsOutput(
 		auto *rtv = texture->GetResource(TextureResource::D3D11_RTV);
 		if (rtv == nullptr) {
 			throw std::logic_error(
-				"CD3D11RenderContext::BindMultipleTexturesAsOutput encountered "
+				"CD3D11RenderContext::BindMultipleTexturesAsOutput "
+				"encountered "
 				"a null RTV"
 			);
 		}
@@ -317,7 +337,8 @@ void CD3D11RenderContext::BindMultipleTexturesAsOutput(
 
 		if (dsv == nullptr) {
 			throw std::logic_error(
-				"CD3D11RenderContext::BindMultipleTexturesAsOutput encountered "
+				"CD3D11RenderContext::BindMultipleTexturesAsOutput "
+				"encountered "
 				"a null DSV"
 			);
 		}
@@ -352,12 +373,22 @@ void CD3D11RenderContext::SubmitWork() {
 
 	if (const auto removeResult = device->GetDeviceRemovedReason();
 		removeResult != S_OK) {
+		printf(
+			"Gelly has detected a GPU TDR event. Attempting to "
+			"recover...\n"
+		);
+		printf(GetDeviceRemovedMessage(removeResult));
 		DestroyAllTextures();
 		DestroyAllShaders();
 		ReleaseDevice();
+		printf(
+			"Released invalid resources, attempting to "
+			"recreate...\n"
+		);
 		CreateDeviceAndContext();
 		CreateAllTextures();
 		CreateAllShaders();
+		printf("Successfully recovered from GPU TDR event.\n");
 	}
 }
 
@@ -458,8 +489,8 @@ CD3D11RenderContext::~CD3D11RenderContext() {
 	DestroyAllShaders();
 	ReleaseDevice();
 
-	// very important--dll won't be unloaded if an NT kernel object is still
-	// open
+	// very important--dll won't be unloaded if an NT kernel object
+	// is still open
 	CloseHandle(fenceEvent);
 
 	if (blendState) {

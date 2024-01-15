@@ -130,8 +130,8 @@ void testbed::InitializeGelly(
 
 		renderContext->SetDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
 		logger->Info("Creating the Gelly fluid renderer...");
-		// fluidRenderer = CreateD3D11SplattingFluidRenderer(renderContext);
-		fluidRenderer = CreateD3D11IsosurfaceFluidRenderer(renderContext);
+		fluidRenderer = CreateD3D11SplattingFluidRenderer(renderContext);
+		// fluidRenderer = CreateD3D11IsosurfaceFluidRenderer(renderContext);
 
 		logger->Info("Creating the Gelly sim context...");
 		simContext = CreateD3D11SimContext(
