@@ -92,8 +92,8 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	initDesc.enableExtensions = false;
 	initDesc.runOnRenderContext = true;
 #else
-	initDesc.enableExtensions = false;
-	initDesc.runOnRenderContext = true;
+	initDesc.enableExtensions = true;
+	initDesc.runOnRenderContext = false;
 #endif
 
 	library = NvFlexInit(NV_FLEX_VERSION, FlexErrorCallback, &initDesc);
