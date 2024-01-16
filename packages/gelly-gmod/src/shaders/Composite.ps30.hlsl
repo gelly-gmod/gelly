@@ -53,23 +53,12 @@ float4 Shade(VS_INPUT input) {
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     float2 transmissionUV = input.Tex + normal.xy * refractionStrength;
-    // float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
-    // // apply inverse gamma correction
-    // transmission = pow(transmission, 2.2);
-    // transmission *= absorption;
+    float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
+    // apply inverse gamma correction
+    transmission = pow(transmission, 2.2);
+    transmission *= absorption;
 
-    // we can estimate IBL with a mipmapped cubemap
-    float3 diffuse = texCUBElod(cubemapTex, float4(normal, 3)).xyz;
-    diffuse = pow(diffuse, 2.2);
-    // MORE FAKERY: since we're not really doing IBL,
-    // we can sort of make it a bit more realistic by
-    // darkening the diffuse color based on the angle of the surface
-    // to the up vector, although it can't be too dark
-    diffuse *= saturate(dot(normal, float3(0, 0, 1)) + 0.1);
-    // since this light is coming from everywhere,
-    // the dot product is always 1
-    
-    float3 weight = (1.f - fresnel) * diffuse + fresnel * specular;
+    float3 weight = (1.f - fresnel) * transmission + fresnel * specular;
 
     return float4(weight, 1.0);
 }
