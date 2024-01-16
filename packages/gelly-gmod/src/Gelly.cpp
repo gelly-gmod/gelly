@@ -433,7 +433,7 @@ void GellyIntegration::Composite() {
 		device->SetSamplerState(5, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 		device->SetSamplerState(5, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 		device->SetSamplerState(5, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-		device->SetSamplerState(5, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+		device->SetSamplerState(5, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
 
 		device->SetSamplerState(6, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 		device->SetSamplerState(6, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);

@@ -38,7 +38,7 @@ float3 NormalizeAbsorption(float3 absorption, float thickness) {
 float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
     float thickness = tex2D(thicknessTex, input.Tex).x;
-    if (thickness < 0.02f) {
+    if (thickness < 0.1f) {
         discard;
     }
 
@@ -49,17 +49,27 @@ float4 Shade(VS_INPUT input) {
     
     float3 eyeDir = normalize(eyePos - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
-    float3 specular = pow(max(dot(reflectionDir, sunDir), 0.0), absorptionCoeffs.w) * 55.f;
-    specular += texCUBE(cubemapTex, reflectionDir).xyz;
+    float3 specular = pow(texCUBE(cubemapTex, reflectionDir).xyz, 2.2);
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     float2 transmissionUV = input.Tex + normal.xy * refractionStrength;
-    float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
-    // apply inverse gamma correction
-    transmission = pow(transmission, 2.2);
-    transmission *= absorption;
+    // float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
+    // // apply inverse gamma correction
+    // transmission = pow(transmission, 2.2);
+    // transmission *= absorption;
 
-    float3 weight = (1.f - fresnel) * transmission + fresnel * specular;
+    // we can estimate IBL with a mipmapped cubemap
+    float3 diffuse = texCUBElod(cubemapTex, float4(normal, 3)).xyz;
+    diffuse = pow(diffuse, 2.2);
+    // MORE FAKERY: since we're not really doing IBL,
+    // we can sort of make it a bit more realistic by
+    // darkening the diffuse color based on the angle of the surface
+    // to the up vector, although it can't be too dark
+    diffuse *= saturate(dot(normal, float3(0, 0, 1)) + 0.1);
+    // since this light is coming from everywhere,
+    // the dot product is always 1
+    
+    float3 weight = (1.f - fresnel) * diffuse + fresnel * specular;
 
     return float4(weight, 1.0);
 }
