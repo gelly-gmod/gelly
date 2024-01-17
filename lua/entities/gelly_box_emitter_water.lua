@@ -49,7 +49,6 @@ function ENT:Think()
 
 	local isEmitting = self:GetNWBool("Emitting")
 	if isEmitting then
-		gellyx.presets.select(self.Preset)
 		gellyx.emitters.Cube({
 			center = self:GetPos(),
 			velocity = self:GetVelocity(),

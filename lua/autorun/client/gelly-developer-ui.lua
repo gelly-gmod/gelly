@@ -1,6 +1,4 @@
 -- A simple UI for developers to check the status of gelly-gmod.
----@module "gelly.fluid-presets"
-local presets = include("gelly/fluid-presets.lua")
 
 hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 	local developerConvar = GetConVar("developer")
@@ -38,8 +36,8 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 			TEXT_ALIGN_RIGHT
 		)
 
-		local activePresetName = presets.getActivePreset()
-				and presets.getActivePreset().Name
+		local activePresetName = gellyx.presets.getActivePreset()
+				and gellyx.presets.getActivePreset().Name
 			or "None"
 
 		draw.SimpleText(
@@ -64,7 +62,7 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		gelly.Reset()
 		gelly.ChangeParticleRadius(value)
 		-- Re apply the preset as that causes an invalidation of the simulation
-		presets.selectPreset(presets.getActivePreset().Name)
+		gellyx.presets.select(gellyx.presets.getActivePreset().Name)
 	end
 
 	local timeScaleSlider = vgui.Create("DNumSlider")
@@ -84,9 +82,9 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 	reloadPresetsButton:SetSize(200, 50)
 	reloadPresetsButton:SetText("Reload Presets")
 	reloadPresetsButton.DoClick = function()
-		local name = presets.getActivePreset().Name
-		presets.loadPresets()
-		presets.selectPreset(name)
+		local name = gellyx.presets.getActivePreset().Name
+		gellyx.presets.loadPresetFiles()
+		gellyx.presets.select(name)
 	end
 
 	local selectPresetButton = vgui.Create("DButton")
@@ -110,7 +108,7 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 
 		presetList.OnRowSelected = function(_, _, row)
 			local name = row:GetValue(1)
-			presets.selectPreset(name)
+			gellyx.presets.select(name)
 			frame:Close()
 		end
 	end

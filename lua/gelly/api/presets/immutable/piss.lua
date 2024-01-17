@@ -9,7 +9,7 @@ return {
 	},
 	VisualParams = {
 		-- phong shininess
-		Shininess = 200,
+		Shininess = 400000,
 		Absorption = Vector(0, 0, 0.5) * 0.005,
 		RefractionStrength = 0.015,
 	},
