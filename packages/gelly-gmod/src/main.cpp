@@ -238,17 +238,17 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 	XMVECTOR quat = XMQuaternionRotationRollPitchYaw(
 		// We need to convert to radians, but also re-order since Source uses a
 		// right handed Z-offset euler angle system
-		XMConvertToRadians(-angle.x),
-		XMConvertToRadians(angle.z),
-		XMConvertToRadians(angle.y)
+		XMConvertToRadians(angle.y),
+		XMConvertToRadians(angle.x),
+		XMConvertToRadians(-angle.z)
 	);
 
 	gelly->GetSimulation()->GetScene()->SetObjectQuaternion(
 		static_cast<ObjectHandle>(LUA->GetNumber(1)),
-		XMVectorGetX(quat),
 		XMVectorGetY(quat),
 		XMVectorGetZ(quat),
-		XMVectorGetW(quat)
+		XMVectorGetW(quat),
+		XMVectorGetX(quat)
 	);
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;

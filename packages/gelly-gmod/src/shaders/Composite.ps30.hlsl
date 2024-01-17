@@ -64,9 +64,13 @@ float4 Shade(VS_INPUT input) {
 }
 
 PS_OUTPUT main(VS_INPUT input) {
+    float4 depthFragment = tex2D(depthTex, input.Tex);
+    if (depthFragment.g >= 1.f) {
+        discard;
+    }
+    
     PS_OUTPUT output = (PS_OUTPUT)0;
     output.Color = Shade(input);
-    float4 depthFragment = tex2D(depthTex, input.Tex);
     output.Depth = depthFragment.g;
     return output;
 }
