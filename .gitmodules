@@ -84,3 +84,6 @@
 [submodule "packages/gelly/modules/gelly-fluid-renderer/vendor/tracy"]
 	path = packages/gelly/modules/gelly-fluid-renderer/vendor/tracy
 	url = https://github.com/wolfpld/tracy.git
+[submodule "packages/gelly/modules/gelly-cpu-refs/vendor/raylib"]
+	path = packages/gelly/modules/gelly-cpu-refs/vendor/raylib
+	url = https://github.com/raysan5/raylib.git

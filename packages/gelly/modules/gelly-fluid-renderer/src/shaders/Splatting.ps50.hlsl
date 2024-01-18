@@ -1,6 +1,7 @@
 #include "FluidRenderCBuffer.hlsli"
 #include "SplattingStructs.hlsli"
 
+[earlydepthstencil]
 PS_OUTPUT main(GS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
     
