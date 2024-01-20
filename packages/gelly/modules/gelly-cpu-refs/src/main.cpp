@@ -1,9 +1,9 @@
+#include <gelly-cpu-refs/Logging.h>
 #include <raylib.h>
 
 #include <cstdio>
 
 #include "IVisualizer.h"
-#include "Logging.h"
 #include "WindowConstants.h"
 #include "visualizers/Example.h"
 

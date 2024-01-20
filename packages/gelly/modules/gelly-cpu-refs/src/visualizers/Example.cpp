@@ -1,10 +1,9 @@
 #include "Example.h"
 
+#include <gelly-cpu-refs/Logging.h>
 #include <raylib.h>
 
 #include <cmath>
-
-#include "../Logging.h"
 
 static Color GetRGBFromHSL(float hue, float saturation, float lightness) {
 	// https://stackoverflow.com/a/64090995

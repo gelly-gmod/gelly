@@ -87,3 +87,6 @@
 [submodule "packages/gelly/modules/gelly-cpu-refs/vendor/raylib"]
 	path = packages/gelly/modules/gelly-cpu-refs/vendor/raylib
 	url = https://github.com/raysan5/raylib.git
+[submodule "packages/gelly/modules/gelly-cpu-refs/vendor/DirectXMath"]
+	path = packages/gelly/modules/gelly-cpu-refs/vendor/DirectXMath
+	url = https://github.com/microsoft/DirectXMath.git
