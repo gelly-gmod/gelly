@@ -5,6 +5,7 @@
 
 #include "IVisualizer.h"
 #include "WindowConstants.h"
+#include "visualizers/CMarchingCubesVisualizer.h"
 #include "visualizers/Example.h"
 
 static IVisualizer *g_visualizer = nullptr;
@@ -23,6 +24,8 @@ void ChangeVisualizer(IVisualizer *newVisualizer) {
 void Render() {
 	ClearBackground(BLACK);
 	DrawText("gelly cpu ref visualizer", 10, 10, 20, WHITE);
+	DrawFPS(WINDOW_WIDTH - 100, 10);
+
 	if (!g_visualizer) {
 		DrawText("No visualizer loaded", 10, 40, 20, WHITE);
 		return;
@@ -54,7 +57,7 @@ int main() {
 	GCR_LOG_INFO("Hello world!");
 	GCR_LOG_INFO("Creating window...");
 
-	ChangeVisualizer(new CExampleVisualizer());
+	ChangeVisualizer(new CMarchingCubesVisualizer());
 	g_visualizer->Start();
 
 	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);

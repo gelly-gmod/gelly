@@ -20,29 +20,11 @@ constexpr bool IsTypePOD() {
  * \tparam Key Type for the key, must be hashable with HashFunction
  * \tparam Value Type for the value, must be POD and addable with itself for
  * fast increment
- * \tparam HashFunction Type for the hash function, must be
- * callable with Key and return uint32_t
  */
-template <typename Key, typename Value, typename HashFunction>
+template <typename Key, typename Value>
 class HashTable {
+	using HashFunction = uint32_t (*)(const Key &);
 	static_assert(detail::IsTypePOD<Value>(), "Value must be a POD type");
-	static_assert(
-		std::is_default_constructible<HashFunction>::value,
-		"HashFunction must be default constructible"
-	);
-
-	static_assert(
-		std::is_invocable_r_v<uint32_t, HashFunction, Key>,
-		"HashFunction must be callable with Key"
-	);
-
-	// also ensure we can add any Value to another Value
-	// TODO: Hopefully this is not too restrictive, but incrementing can be
-	// faster if we ensure this at compile time
-	static_assert(
-		std::is_invocable_r_v<Value, decltype(&Value::operator+), Value, Value>,
-		"Value must be addable with itself"
-	);
 
 private:
 	Value *m_memory;
@@ -53,7 +35,7 @@ private:
 
 	// in the future we might want to look into load factors
 public:
-	explicit HashTable(uint32_t startingCapacity);
+	explicit HashTable(uint32_t startingCapacity, HashFunction hashFunction);
 	~HashTable();
 
 	void Insert(const Key &key, const Value &value);
@@ -67,24 +49,25 @@ public:
 	void Clear();
 };
 
-template <typename Key, typename Value, typename HashFunction>
-HashTable<Key, Value, HashFunction>::HashTable(uint32_t startingCapacity)
-	: m_capacity(startingCapacity), m_size(0) {
+template <typename Key, typename Value>
+HashTable<Key, Value>::HashTable(
+	uint32_t startingCapacity, HashFunction hashFunction
+)
+	: m_capacity(startingCapacity), m_size(0), m_hashFunction(hashFunction) {
 	m_memory = new Value[m_capacity];
 	std::memset(m_memory, 0, sizeof(Value) * m_capacity);
 }
 
-template <typename Key, typename Value, typename HashFunction>
-HashTable<Key, Value, HashFunction>::~HashTable() {
+template <typename Key, typename Value>
+HashTable<Key, Value>::~HashTable() {
 	delete[] m_memory;
 }
 
-template <typename Key, typename Value, typename HashFunction>
-void HashTable<Key, Value, HashFunction>::Insert(
-	const Key &key, const Value &value
-) {
+template <typename Key, typename Value>
+void HashTable<Key, Value>::Insert(const Key &key, const Value &value) {
 	if (m_size >= m_capacity) {
-		throw std::runtime_error("Hash table is full");
+		// nothing inherently wrong with this, but we should probably resize
+		// later
 	}
 
 	const auto hash = m_hashFunction(key);
@@ -94,10 +77,11 @@ void HashTable<Key, Value, HashFunction>::Insert(
 	m_size++;
 }
 
-template <typename Key, typename Value, typename HashFunction>
-void HashTable<Key, Value, HashFunction>::Insert(Key &&key, Value &&value) {
+template <typename Key, typename Value>
+void HashTable<Key, Value>::Insert(Key &&key, Value &&value) {
 	if (m_size >= m_capacity) {
-		throw std::runtime_error("Hash table is full");
+		// nothing inherently wrong with this, but we should probably resize
+		// later
 	}
 
 	const auto hash = m_hashFunction(key);
@@ -107,38 +91,32 @@ void HashTable<Key, Value, HashFunction>::Insert(Key &&key, Value &&value) {
 	m_size++;
 }
 
-template <typename Key, typename Value, typename HashFunction>
-void HashTable<Key, Value, HashFunction>::Increment(
-	const Key &key, const Value &value
-) {
-	if (m_size >= m_capacity) {
-		throw std::runtime_error("Hash table is full");
-	}
-
+template <typename Key, typename Value>
+void HashTable<Key, Value>::Increment(const Key &key, const Value &value) {
 	const auto hash = m_hashFunction(key);
 	const auto index = hash % m_capacity;
 
-	m_memory[index] = m_memory[index] + value;
+	m_memory[index] += value;
 }
 
-template <typename Key, typename Value, typename HashFunction>
-const Value *HashTable<Key, Value, HashFunction>::Find(const Key &key) const {
+template <typename Key, typename Value>
+const Value *HashTable<Key, Value>::Find(const Key &key) const {
 	const auto hash = m_hashFunction(key);
 	const auto index = hash % m_capacity;
 
 	return &m_memory[index];
 }
 
-template <typename Key, typename Value, typename HashFunction>
-const Value *HashTable<Key, Value, HashFunction>::Find(Key &&key) const {
+template <typename Key, typename Value>
+const Value *HashTable<Key, Value>::Find(Key &&key) const {
 	const auto hash = m_hashFunction(key);
 	const auto index = hash % m_capacity;
 
 	return &m_memory[index];
 }
 
-template <typename Key, typename Value, typename HashFunction>
-void HashTable<Key, Value, HashFunction>::Clear() {
+template <typename Key, typename Value>
+void HashTable<Key, Value>::Clear() {
 	m_size = 0;
 	std::memset(m_memory, 0, sizeof(Value) * m_capacity);
 }

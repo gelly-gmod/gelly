@@ -31,6 +31,10 @@ if (GELLY_ENABLE_CPU_VISUALIZER)
             src/IVisualizer.h
             src/visualizers/Example.h
             src/visualizers/Example.cpp
+            src/CRaylibVisualDebugFacility.h
+            src/CRaylibVisualDebugFacility.cpp
+            src/visualizers/CMarchingCubesVisualizer.cpp
+            src/visualizers/CMarchingCubesVisualizer.h
     )
 
     add_subdirectory(vendor/raylib)
@@ -44,5 +48,11 @@ if (GELLY_ENABLE_CPU_VISUALIZER)
             PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/vendor/raylib/src
             ${CMAKE_CURRENT_SOURCE_DIR}/lib/include
+    )
+
+    set_target_properties(gelly_cpu_visualizer PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED YES
+            CXX_EXTENSIONS NO
     )
 endif ()

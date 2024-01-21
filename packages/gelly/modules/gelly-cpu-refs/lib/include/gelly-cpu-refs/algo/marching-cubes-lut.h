@@ -19,6 +19,7 @@ constexpr XMINT3 NEIGHBORS[27] = {
 	XMINT3{1, -1, 1},	XMINT3{-1, 0, 1},  XMINT3{0, 0, 1},	  XMINT3{1, 0, 1},
 	XMINT3{-1, 1, 1},	XMINT3{0, 1, 1},   XMINT3{1, 1, 1},
 };
+
 }
 
 #endif	// MARCHING_CUBES_LUT_H
