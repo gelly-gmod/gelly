@@ -2,6 +2,7 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
 #include "hooking/Library.h"
 
 static Library shaderAPI;
@@ -42,7 +43,6 @@ IDirect3DDevice9Ex *GetD3DDevice() {
 	// interop and thus Gelly will refuse to load.
 
 	IDirect3DDevice9Ex *d3d9DeviceEx = nullptr;
-
 	HRESULT result = d3d9Device->QueryInterface(IID_PPV_ARGS(&d3d9DeviceEx));
 
 	if (FAILED(result)) {

@@ -515,6 +515,20 @@ GMOD_MODULE_OPEN() {
 	auto *d3dDevice = GetD3DDevice();
 	LOG_INFO("D3D9Ex device: %p", d3dDevice);
 
+	// If we didnt get an Ex version, bail--there really isnt a point to running
+	// 16-bit Gelly. Its awful, theres so many limitations, and it just doesnt
+	// work well.
+	if (!d3dDevice) {
+		LUA->ThrowError(
+			"Gelly has detected that the current GMod instance is running in "
+			"DirectX 9 mode. Gelly requires Direct3D9Ex to function. Check if "
+			"you have any launch options that force DirectX 9 mode--such as "
+			"'-nod3d9ex' "
+			"Certain optimization configs/mods might also force DirectX 9 "
+			"mode. "
+		);
+	}
+
 	D3DCAPS9 caps = {};
 	d3dDevice->GetDeviceCaps(&caps);
 	LOG_INFO("D3D9Ex device caps:");
