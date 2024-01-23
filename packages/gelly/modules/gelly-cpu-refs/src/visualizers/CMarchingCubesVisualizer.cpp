@@ -1,7 +1,7 @@
 #include "CMarchingCubesVisualizer.h"
 
 CMarchingCubesVisualizer::CMarchingCubesVisualizer()
-	: m_densityField(1.f, 0.1f), m_points(225000), m_camera({}) {
+	: m_densityField(1.f, 0.0f), m_points(25000), m_camera({}) {
 	m_camera.position = Vector3{40.f, 40.f, 40.f};
 	m_camera.target = Vector3{0.f, 0.f, 0.f};
 	m_camera.up = Vector3{0.f, 1.f, 0.f};
@@ -14,8 +14,8 @@ void CMarchingCubesVisualizer::OnNewFrame() {
 
 	UpdateCamera(&m_camera, CAMERA_THIRD_PERSON);
 
-	const auto min = XMINT3{-20, -20, -20};
-	const auto max = XMINT3{20, 20, 20};
+	const auto min = XMINT3{-30, -30, -30};
+	const auto max = XMINT3{30, 30, 30};
 
 	BeginMode3D(m_camera);
 	March(Input{

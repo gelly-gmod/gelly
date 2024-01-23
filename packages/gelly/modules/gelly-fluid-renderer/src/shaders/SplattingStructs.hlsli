@@ -9,5 +9,5 @@ struct GS_OUTPUT {
 
 struct PS_OUTPUT {
     float4 ShaderDepth : SV_Target0;
-    float Depth : SV_DepthGreaterEqual;
+    float Depth : SV_DEPTH;
 };

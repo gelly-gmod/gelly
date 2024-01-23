@@ -41,7 +41,16 @@ public:
 	void Insert(const Key &key, const Value &value);
 	void Insert(Key &&key, Value &&value);
 
-	void Increment(const Key &key, const Value &value);
+	// only expose if value is numeric
+	template <typename T = Value>
+	std::enable_if_t<std::is_arithmetic_v<T>, void> Increment(
+		const Key &key, const Value &value
+	) {
+		const auto hash = m_hashFunction(key);
+		const auto index = hash % m_capacity;
+
+		m_memory[index] += value;
+	}
 
 	const Value *Find(const Key &key) const;
 	const Value *Find(Key &&key) const;
@@ -89,14 +98,6 @@ void HashTable<Key, Value>::Insert(Key &&key, Value &&value) {
 
 	m_memory[index] = value;
 	m_size++;
-}
-
-template <typename Key, typename Value>
-void HashTable<Key, Value>::Increment(const Key &key, const Value &value) {
-	const auto hash = m_hashFunction(key);
-	const auto index = hash % m_capacity;
-
-	m_memory[index] += value;
 }
 
 template <typename Key, typename Value>

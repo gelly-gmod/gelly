@@ -9,7 +9,7 @@
 
 class CMarchingCubesVisualizer : public IVisualizer {
 private:
-	DensityField m_densityField;
+	NeighborAcceleration m_densityField;
 	vector<XMFLOAT4> m_points;
 	CRaylibVisualDebugFacility m_visualDebugFacility;
 	Camera3D m_camera;
