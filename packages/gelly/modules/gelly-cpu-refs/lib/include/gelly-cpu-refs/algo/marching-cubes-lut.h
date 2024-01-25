@@ -20,6 +20,17 @@ constexpr XMINT3 NEIGHBORS[27] = {
 	XMINT3{-1, 1, 1},	XMINT3{0, 1, 1},   XMINT3{1, 1, 1},
 };
 
-}
+constexpr XMFLOAT3 CUBE_VERTEX_OFFSETS_CENTERED[8] = {
+	XMFLOAT3{-0.5f, -0.5f, -0.5f},
+	XMFLOAT3{0.5f, -0.5f, -0.5f},
+	XMFLOAT3{-0.5f, 0.5f, -0.5f},
+	XMFLOAT3{0.5f, 0.5f, -0.5f},
+	XMFLOAT3{-0.5f, -0.5f, 0.5f},
+	XMFLOAT3{0.5f, -0.5f, 0.5f},
+	XMFLOAT3{-0.5f, 0.5f, 0.5f},
+	XMFLOAT3{0.5f, 0.5f, 0.5f},
+};
+
+}  // namespace gcr::marching_cubes::lut
 
 #endif	// MARCHING_CUBES_LUT_H
