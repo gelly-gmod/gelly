@@ -37,7 +37,7 @@ function SWEP:PrimaryAttack()
 	local owner = self:GetOwner()
 
 	gellyx.emitters.Cube({
-		center = owner:GetShootPos() + owner:GetAimVector() * 50,
+		center = owner:GetShootPos() + owner:GetAimVector() * 110,
 		velocity = owner:GetAimVector() * 2,
 		bounds = Vector(50, 50, 50),
 		density = self.ParticleDensity,
@@ -56,7 +56,7 @@ function SWEP:SecondaryAttack()
 	local owner = self:GetOwner()
 
 	gellyx.emitters.Cube({
-		center = owner:GetShootPos() + owner:GetAimVector() * 50,
+		center = owner:GetShootPos() + owner:GetAimVector() * 110,
 		velocity = owner:GetAimVector() * 50,
 		bounds = Vector(50, 50, 50),
 		density = self.ParticleDensity * self.RapidFireBoost,

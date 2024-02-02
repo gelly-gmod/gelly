@@ -4,13 +4,14 @@ return {
 		Viscosity = 0,
 		SurfaceTension = 0,
 		Adhesion = 0,
-		Cohesion = 0.005,
+		Cohesion = 0.01,
 		VorticityConfinement = 10,
+		DynamicFriction = 0.1,
 	},
 	VisualParams = {
 		-- phong shininess
 		Shininess = 200,
-		Absorption = Vector(0, 0, 0) * 0.005,
+		Absorption = Vector(0.0001, 0.0001, 0),
 		RefractionStrength = 0.015,
 	},
 }

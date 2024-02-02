@@ -6,6 +6,7 @@ return {
 		Adhesion = 0,
 		Cohesion = 0.005,
 		VorticityConfinement = 10,
+		DynamicFriction = 0.1,
 	},
 	VisualParams = {
 		-- phong shininess
