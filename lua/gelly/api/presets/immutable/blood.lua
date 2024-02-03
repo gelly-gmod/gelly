@@ -1,12 +1,12 @@
 return {
 	Name = "Blood",
 	SolverParams = {
-		Viscosity = 5,
-		SurfaceTension = 0,
-		Adhesion = 0.001,
-		Cohesion = 0.05,
-		VorticityConfinement = 10,
-		DynamicFriction = 2,
+		Viscosity = 25,
+		SurfaceTension = 0.013,
+		Adhesion = 0.02,
+		Cohesion = 0.2,
+		VorticityConfinement = 0,
+		DynamicFriction = 1,
 	},
 	VisualParams = {
 		-- phong shininess

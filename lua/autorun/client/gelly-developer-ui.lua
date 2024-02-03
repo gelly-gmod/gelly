@@ -161,4 +161,13 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 	iterationSlider.OnValueChanged = function(_, value)
 		gelly.SetRenderSettings({ SmoothingIterations = value, ThicknessIterations = 13 })
 	end
+
+	local reloadModsButton = vgui.Create("DButton")
+	reloadModsButton:SetPos(ScrW() - 200, 500)
+	reloadModsButton:SetSize(200, 50)
+	reloadModsButton:SetText("Reload Mods")
+	reloadModsButton.DoClick = function()
+		gellyx.mods.loadMods()
+		gellyx.mods.initializeMods() -- have to manually initialize mods
+	end
 end)
