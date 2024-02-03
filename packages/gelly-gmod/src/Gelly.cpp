@@ -453,12 +453,16 @@ void GellyIntegration::Composite() {
 		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
 		device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		// Disable decals from messing with the coloring
+		device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
 		device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 	}
 
 	// Restore state
 	stateBlock->Apply();
 }
+
 void GellyIntegration::Render() {
 	ZoneScoped;
 	UpdateRenderParams();
@@ -495,14 +499,11 @@ void GellyIntegration::LoadMap(const char *mapName) {
 	const auto buffer = new byte[size];
 	FileSystem::Read(buffer, size, handle);
 
+	// any issues will bubble up to the user of this function (likely a lua
+	// function with a guard)
 	const BSPMap mapParser(buffer, size);
-	if (!mapParser.IsValid()) {
-		LOG_ERROR("Failed to parse map %s", mapName);
-		throw std::runtime_error("Failed to parse map");
-	}
 
-	const auto *vertices = mapParser.GetVertices();
-	const auto vertexCount = mapParser.GetNumTris() * 3;
+	const auto vertexCount = mapParser.GetNumVertices();
 
 	// maps dont have indices, but they do have to be long since maps can be
 	// huge
@@ -519,7 +520,7 @@ void GellyIntegration::LoadMap(const char *mapName) {
 
 	ObjectCreationParams::TriangleMesh mesh = {};
 	mesh.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT32;
-	mesh.vertices = reinterpret_cast<const float *>(vertices);
+	mesh.vertices = mapParser.GetVertices<const float>().data();
 	mesh.indices32 = indices;
 	mesh.vertexCount = vertexCount;
 	mesh.indexCount = vertexCount;

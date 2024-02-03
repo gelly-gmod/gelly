@@ -23,6 +23,7 @@ struct SetFluidProperties {
 	float surfaceTension;
 	float vorticityConfinement;
 	float adhesion;
+	float dynamicFriction;
 };
 
 struct Reset {};

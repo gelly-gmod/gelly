@@ -204,6 +204,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					solverParams.vorticityConfinement =
 						arg.vorticityConfinement;
 					solverParams.viscosity = arg.viscosity;
+					solverParams.dynamicFriction = arg.dynamicFriction;
 					DebugDumpParams();
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
@@ -312,7 +313,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.fluidRestDistance = solverParams.radius * 0.73f;
 	solverParams.solidRestDistance = solverParams.radius * 2.13f;
 
-	solverParams.anisotropyScale = 1.0f;
+	solverParams.anisotropyScale = 0.0f;
 	solverParams.anisotropyMin = 0.1f;
 	solverParams.anisotropyMax = 2.0f;
 	solverParams.smoothing = 2.2f;
@@ -331,7 +332,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 
 	solverParams.relaxationMode = eNvFlexRelaxationLocal;
 	solverParams.relaxationFactor = 1.0f;
-	solverParams.solidPressure = 1.0f;
+	solverParams.solidPressure = 5.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
 	solverParams.surfaceTension = 1.0f;

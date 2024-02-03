@@ -74,7 +74,7 @@
 	url = https://github.com/TsudaKageyu/minhook.git
 [submodule "packages/gelly-gmod/vendor/BSPParser"]
 	path = packages/gelly-gmod/vendor/BSPParser
-	url = https://github.com/Derpius/BSPParser.git
+	url = https://github.com/yogwoggf/BSPParser
 [submodule "packages/gelly-gmod/vendor/GMFS"]
 	path = packages/gelly-gmod/vendor/GMFS
 	url = https://github.com/Derpius/GMFS.git
@@ -90,3 +90,7 @@
 [submodule "packages/gelly/modules/gelly-cpu-refs/vendor/DirectXMath"]
 	path = packages/gelly/modules/gelly-cpu-refs/vendor/DirectXMath
 	url = https://github.com/microsoft/DirectXMath.git
+[submodule "BSPParser"]
+	url = https://github.com/yogwoggf/BSPParser
+[submodule "packages/gelly-gmod/vendorBSPParser"]
+	url = https://github.com/yogwoggf/BSPParser

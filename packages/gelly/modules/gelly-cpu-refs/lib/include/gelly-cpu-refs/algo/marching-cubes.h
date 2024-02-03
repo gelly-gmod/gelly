@@ -221,6 +221,7 @@ inline Output gcr::marching_cubes::March(
 										   &smoothingRadius,
 										   &smoothingRadius2Squared,
 										   &input,
+										   &domain,
 										   &settings](const XMFLOAT3 &position
 										  ) {
 		float density = 0.0f;
@@ -242,6 +243,17 @@ inline Output gcr::marching_cubes::March(
 				static_cast<uint32_t>(neighborPosition.y),
 				static_cast<uint32_t>(neighborPosition.z)
 			};
+
+			neighborGridPosition.x = std::max(neighborGridPosition.x, 0u);
+			neighborGridPosition.y = std::max(neighborGridPosition.y, 0u);
+			neighborGridPosition.z = std::max(neighborGridPosition.z, 0u);
+
+			neighborGridPosition.x =
+				std::min(neighborGridPosition.x, domain.x - 1);
+			neighborGridPosition.y =
+				std::min(neighborGridPosition.y, domain.y - 1);
+			neighborGridPosition.z =
+				std::min(neighborGridPosition.z, domain.z - 1);
 
 			const uint32_t neighborCellIndex =
 				alignedPositionToIndex(neighborGridPosition);
@@ -270,7 +282,7 @@ inline Output gcr::marching_cubes::March(
 				const float distanceSquared =
 					fabsf(XMVectorGetX(XMVector3LengthSq(distanceVector)));
 
-				if (distanceSquared < smoothingRadius2Squared) {
+				if (distanceSquared > smoothingRadius2Squared) {
 					// No point running the kernel if the distance is greater
 					// than 2h which literally evaluates to 0
 					continue;
@@ -278,6 +290,9 @@ inline Output gcr::marching_cubes::March(
 
 				density +=
 					M4SplineKernel(sqrtf(distanceSquared), smoothingRadius);
+
+				// ensure its normalized and not greater than 1
+				density = std::min(density, 1.0f);
 			}
 		}
 
@@ -314,11 +329,38 @@ inline Output gcr::marching_cubes::March(
 					if (density > settings.m_isovalue) {
 						cells[cellIndex].m_index |= (1 << i);
 					}
+
+					float voxSizeInterface[3];
+					voxSizeInterface[0] = settings.m_voxelSize / 8.0f;
+					voxSizeInterface[1] = settings.m_voxelSize / 8.0f;
+					voxSizeInterface[2] = settings.m_voxelSize / 8.0f;
+
+					input.m_visualDebugFacility->Draw3DCube(
+						&vertexPositionVector.x,
+						&voxSizeInterface[0],
+						density * 255.f,
+						density * 255.f,
+						density * 255.f
+					);
+
+					if (density > 0.5f) {
+						printf("density: %0.2f\n", density);
+					}
+
+					// index into edge table for now and draw the edges
+					uint32_t edgeIndex =
+						lut::EDGE_TABLE[cells[cellIndex].m_index];
+					if (edgeIndex == 0) {
+						continue;
+					}
 				}
 			}
 		}
 	}
 
+	delete[] particleIndexBuffer;
+	delete[] particleCountBuffer;
+	delete[] cells;
 	return Output{vertices, indices, normals};
 }
 

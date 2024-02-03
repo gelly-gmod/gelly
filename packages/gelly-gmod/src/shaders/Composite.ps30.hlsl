@@ -38,9 +38,6 @@ float3 NormalizeAbsorption(float3 absorption, float thickness) {
 float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
     float thickness = tex2D(thicknessTex, input.Tex).x;
-    if (thickness < 0.1f) {
-        discard;
-    }
 
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
 
@@ -49,7 +46,7 @@ float4 Shade(VS_INPUT input) {
     
     float3 eyeDir = normalize(eyePos - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
-    float3 specular = pow(texCUBE(cubemapTex, reflectionDir).xyz, 2.2);
+    float3 specular = texCUBE(cubemapTex, reflectionDir).xyz;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     float2 transmissionUV = input.Tex + normal.xy * refractionStrength;

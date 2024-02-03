@@ -367,6 +367,7 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	GET_LUA_TABLE_MEMBER(float, SurfaceTension);
 	GET_LUA_TABLE_MEMBER(float, VorticityConfinement);
 	GET_LUA_TABLE_MEMBER(float, Adhesion);
+	GET_LUA_TABLE_MEMBER(float, DynamicFriction);
 
 	SetFluidProperties props = {};
 	props.viscosity = Viscosity;
@@ -374,6 +375,7 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	props.surfaceTension = SurfaceTension;
 	props.vorticityConfinement = VorticityConfinement;
 	props.adhesion = Adhesion;
+	props.dynamicFriction = DynamicFriction;
 
 	auto *cmdList = gelly->GetSimulation()->CreateCommandList();
 	cmdList->AddCommand({SET_FLUID_PROPERTIES, props});
