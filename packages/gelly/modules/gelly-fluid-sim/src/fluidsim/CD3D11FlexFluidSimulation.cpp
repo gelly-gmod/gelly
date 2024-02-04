@@ -86,7 +86,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	initDesc.computeType = eNvFlexD3D11;
 	initDesc.renderDevice =
 		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE);
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	// FleX will try to use GPU extensions and compute queues which destroy most
 	// rendering debuggers
 	initDesc.enableExtensions = false;

@@ -101,7 +101,7 @@ public:
 	) = 0;
 	virtual void PushPerParticleData() = 0;
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	/**
 	 * \brief Uses RenderDoc to capture the fluid renderer's output. Normally,
 	 * RenderDoc will only capture the output of the user's application. \note

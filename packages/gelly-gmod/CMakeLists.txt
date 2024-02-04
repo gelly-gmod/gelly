@@ -6,14 +6,16 @@ add_subdirectory(vendor/minhook)
 add_subdirectory(vendor/GMFS)
 add_subdirectory(vendor/BSPParser)
 
-set(TRACY_ENABLE OFF CACHE BOOL "Enable tracy" FORCE)
+option(GELLY_ENABLE_RENDERDOC_CAPTURES "Enable RenderDoc capture functionality" OFF)
+
+set(TRACY_ENABLE OFF CACHE BOOL " Enable tracy" FORCE)
 set(TRACY_ON_DEMAND OFF CACHE BOOL "Enable tracy on demand" FORCE)
 # Incredibly important as we use tracy in a dll
 set(TRACY_MANUAL_LIFETIME ON CACHE BOOL "Don't use tracy's lifetime feature" FORCE)
 set(TRACY_DELAYED_INIT ON CACHE BOOL "Don't use tracy's delayed init feature" FORCE)
 add_subdirectory(vendor/tracy)
 
-add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly")
+add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly ")
 
 file(GLOB_RECURSE SHADER_GLUE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.cpp
@@ -49,6 +51,11 @@ add_library(
         src/source/GetCubemap.cpp
 )
 
+# Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
+if (GELLY_ENABLE_RENDERDOC_CAPTURES)
+    add_compile_definitions("GELLY_ENABLE_RENDERDOC_CAPTURES")
+endif ()
+
 target_link_libraries(gelly-gmod
         PUBLIC
         ${GELLY_LIBS}
@@ -71,19 +78,19 @@ target_include_directories(gelly-gmod
         ${GELLY_INCLUDE_DIRS}
 )
 
-if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL " x86_64")
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win32.dll")
 else ()
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
-    set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll")
+    set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll ")
 endif ()
 
 add_custom_target(
         GellyGModShaders
         COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DGSC_PATH=${GSC_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Compiling gelly-gmod shaders"
+        COMMENT " Compiling gelly-gmod shaders "
 )
 
 add_dependencies(gelly-gmod GellyGModShaders)

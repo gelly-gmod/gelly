@@ -21,7 +21,7 @@
 #include <tracy/Tracy.hpp>
 #endif
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 #include <windows.h>
 #endif
 
@@ -518,7 +518,7 @@ void CD3D11SplattingFluidRenderer::Render() {
 
 	context->SetRasterizerFlags(RasterizerFlags::DISABLE_CULL);
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto *device = static_cast<ID3D11Device *>(
 		context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
 	);
@@ -547,7 +547,7 @@ void CD3D11SplattingFluidRenderer::Render() {
 		EncodeDepth();
 	}
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDocApi != nullptr) {
 		renderDocApi->EndFrameCapture(device, nullptr);
 	}
@@ -604,7 +604,7 @@ bool CD3D11SplattingFluidRenderer::CheckFeatureSupport(GELLY_FEATURE feature) {
 	}
 }
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 bool CD3D11SplattingFluidRenderer::EnableRenderDocCaptures() {
 	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");
 	if (renderDocModule == nullptr) {

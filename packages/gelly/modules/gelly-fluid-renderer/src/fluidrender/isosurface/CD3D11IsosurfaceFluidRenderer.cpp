@@ -320,7 +320,7 @@ void CD3D11IsosurfaceFluidRenderer::Render() {
 		"Fluid textures must be initialized before rendering"
 	);
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto *device = static_cast<ID3D11Device *>(
 		m_context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
 	);
@@ -335,7 +335,7 @@ void CD3D11IsosurfaceFluidRenderer::Render() {
 	Raymarch();
 	m_context->SubmitWork();
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (m_renderDoc != nullptr) {
 		m_renderDoc->EndFrameCapture(device, nullptr);
 	}
@@ -419,7 +419,7 @@ bool CD3D11IsosurfaceFluidRenderer::CheckFeatureSupport(GELLY_FEATURE feature) {
 	}
 }
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 bool CD3D11IsosurfaceFluidRenderer::EnableRenderDocCaptures() {
 	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");
 	if (renderDocModule == nullptr) {

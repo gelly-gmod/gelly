@@ -345,8 +345,8 @@ GellyIntegration::GellyIntegration(
 
 		ChangeParticleRadius(particleRadius);
 
-#ifdef _DEBUG
-		LOG_INFO("Debugging detected, enabling RenderDoc integration...");
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+		LOG_INFO("GPU debugging detected, enabling RenderDoc integration...");
 		if (const auto success = renderer->EnableRenderDocCaptures();
 			!success) {
 			LOG_WARNING(

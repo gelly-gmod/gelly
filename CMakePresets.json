@@ -80,6 +80,17 @@
       "hidden": false
     },
     {
+      "name": "gelly-gmod-relwithdebinfo+renderdoc",
+      "displayName": "Gelly GMod + RenderDoc",
+      "description": "Same as the other Gelly GMod config except with RenderDoc enabled",
+      "cacheVariables": {
+        "GELLY_ENABLE_RENDERDOC_CAPTURES": "ON"
+      },
+      "inherits": [
+        "gelly-gmod-relwithdebinfo"
+      ]
+    },
+    {
       "name": "gelly-cpu-ref-debug",
       "displayName": "Gelly CPU Ref",
       "description": "Debug Gelly CPU Ref configuration, also should not be used directly",
@@ -143,6 +154,14 @@
       "name": "Gelly-GMod-RelWithDebInfo",
       "jobs": 8,
       "configurePreset": "gelly-gmod-relwithdebinfo",
+      "targets": [
+        "gelly-gmod"
+      ]
+    },
+    {
+      "name": "Gelly-GMod-RWDI+RenderDoc",
+      "jobs": 8,
+      "configurePreset": "gelly-gmod-relwithdebinfo+renderdoc",
       "targets": [
         "gelly-gmod"
       ]

@@ -39,6 +39,10 @@ float4 Shade(VS_INPUT input) {
     float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
     float thickness = tex2D(thicknessTex, input.Tex).x;
 
+    if (thickness < 0.02f) {
+        discard;
+    }
+
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
 
     float3 position = tex2D(positionTex, input.Tex).xyz;
@@ -49,7 +53,7 @@ float4 Shade(VS_INPUT input) {
     float3 specular = texCUBE(cubemapTex, reflectionDir).xyz;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
-    float2 transmissionUV = input.Tex + normal.xy * refractionStrength;
+    float2 transmissionUV = input.Tex + normal.zx * refractionStrength;
     float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
     // apply inverse gamma correction
     transmission = pow(transmission, 2.2);

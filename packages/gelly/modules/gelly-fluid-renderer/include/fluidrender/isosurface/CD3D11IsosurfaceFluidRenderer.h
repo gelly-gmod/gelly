@@ -116,7 +116,7 @@ private:
 		GellyInterfaceVal<IManagedTexture> normal;
 	} m_textures = {};
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	RENDERDOC_API_1_1_2 *m_renderDoc = nullptr;
 #endif
 
@@ -151,7 +151,7 @@ public:
 
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	bool EnableRenderDocCaptures() override;
 #endif
 };

@@ -72,6 +72,11 @@ if (TRACY_ENABLE)
     )
 endif ()
 
+# Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
+if (GELLY_ENABLE_RENDERDOC_CAPTURES)
+    add_compile_definitions("GELLY_ENABLE_RENDERDOC_CAPTURES")
+endif ()
+
 add_custom_target(
         GellyShaderCompile
         COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} -DGSC_PATH=${GSC_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake

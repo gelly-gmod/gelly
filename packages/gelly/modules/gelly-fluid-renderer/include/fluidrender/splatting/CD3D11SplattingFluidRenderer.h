@@ -72,10 +72,9 @@ private:
 		GellyInterfaceVal<IManagedShader> filterThicknessPS;
 		GellyInterfaceVal<IManagedShader> encodeDepthPS;
 	} shaders{};
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	RENDERDOC_API_1_1_2 *renderDocApi = nullptr;
 #endif
-
 
 	void CreateBuffers();
 	void CreateTextures();
@@ -112,7 +111,7 @@ public:
 
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
 
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	bool EnableRenderDocCaptures() override;
 #endif
 };

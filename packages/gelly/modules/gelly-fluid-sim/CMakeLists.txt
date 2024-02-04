@@ -50,6 +50,12 @@ set(FLEX_DLLS
         PARENT_SCOPE
 )
 
+# Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
+if (GELLY_ENABLE_RENDERDOC_CAPTURES)
+    add_compile_definitions("GELLY_ENABLE_RENDERDOC_CAPTURES")
+endif ()
+
+
 target_include_directories(
         gelly_fluid_sim
         PUBLIC
