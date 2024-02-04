@@ -272,6 +272,8 @@ LUA_FUNCTION(gelly_AddParticles) {
 	const uint32_t startParticleIndex =
 		gelly->GetSimulation()->GetSimulationData()->GetActiveParticles();
 
+	uint32_t currentParticleIndex = 0;
+
 	for (uint32_t i = 0; i < particleCount; i += 2) {
 		LUA->PushNumber(i + 1);
 		LUA->GetTable(-2);
@@ -292,10 +294,12 @@ LUA_FUNCTION(gelly_AddParticles) {
 			 }}
 		);
 
+		currentParticleIndex++;
+
 		if (gelly->IsPerParticleAbsorptionSupported()) {
 			const auto absorption = gelly->GetCurrentAbsorption();
 			gelly->GetRenderer()->SetPerParticleAbsorption(
-				startParticleIndex + i / 2,
+				startParticleIndex + currentParticleIndex,
 				reinterpret_cast<const float *>(&absorption)
 			);
 		}
@@ -310,6 +314,7 @@ LUA_FUNCTION(gelly_AddParticles) {
 	gelly->GetSimulation()->ExecuteCommandList(cmdList);
 	gelly->GetSimulation()->DestroyCommandList(cmdList);
 	CATCH_GELLY_EXCEPTIONS();
+
 	return 0;
 }
 

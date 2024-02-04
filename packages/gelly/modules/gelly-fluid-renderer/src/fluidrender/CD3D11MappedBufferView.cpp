@@ -30,7 +30,7 @@ void CD3D11MappedBufferView::View(GellyInterfaceRef<IManagedBuffer> buffer) {
 	);
 
 	if (const auto result = context->Map(
-			bufferResource, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_resource
+			bufferResource, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &m_resource
 		);
 		FAILED(result)) {
 		throw std::runtime_error(
