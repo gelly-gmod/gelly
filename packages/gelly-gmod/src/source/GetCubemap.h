@@ -9,6 +9,12 @@
  * function will return the currently active cubemap in the game at the camera's
  * position. \return Returns the currently active cubemap in the game.
  */
-IDirect3DBaseTexture9* GetCubemap();
+IDirect3DBaseTexture9 *GetCubemap();
 
-#endif //GETCUBEMAP_H
+/**
+ * \brief Forcefully disables the "Queued Material System," as Valve calls
+ * it--which is a multi-threaded D3D9 command builder mode.
+ */
+void DisableMaterialSystemThreading();
+
+#endif	// GETCUBEMAP_H

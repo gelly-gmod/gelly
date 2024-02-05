@@ -560,6 +560,9 @@ GMOD_MODULE_OPEN() {
 		);
 	}
 
+	LOG_INFO("Disabling the queued material system...");
+	DisableMaterialSystemThreading();
+
 	LUA->CreateTable();
 	DEFINE_LUA_FUNC(gelly, Render);
 	DEFINE_LUA_FUNC(gelly, Composite);
