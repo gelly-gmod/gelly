@@ -1,5 +1,5 @@
 // clang-format off
-#include <fastgltf/parser.hpp>
+#include <fastgltf/core.hpp>
 // clang-format on
 
 #include "Scene.h"
@@ -59,7 +59,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 	std::filesystem::path path = metadata.filepath;
 	fileData.loadFromFile(path);
 
-	auto asset = parser.loadGLTF(
+	auto asset = parser.loadGltf(
 		&fileData,
 		path.parent_path(),
 		fastgltf::Options::LoadGLBBuffers |
@@ -94,7 +94,7 @@ void testbed::LoadScene(const SceneMetadata &metadata) {
 
 		XMFLOAT4X4 transformMatrix = {};
 
-		const auto &trs = std::get_if<fastgltf::Node::TRS>(&transform);
+		const auto &trs = std::get_if<fastgltf::TRS>(&transform);
 		if (trs) {
 			XMVECTOR translation = XMVectorSet(
 				trs->translation[0],

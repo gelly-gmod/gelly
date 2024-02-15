@@ -200,7 +200,7 @@ void CD3D11RTFRFluidSimulation::AttachToContext(
 }
 
 static float t = 0.f;
-constexpr float DELAY_TIME = 1 / 1.f;
+constexpr float DELAY_TIME = 1 / 60.f;
 void CD3D11RTFRFluidSimulation::Update(const float deltaTime) {
 	t += deltaTime;
 	// quick n dirty
