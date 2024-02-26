@@ -1,5 +1,6 @@
 return {
 	Name = "Water",
+	Radius = 3,
 	SolverParams = {
 		Viscosity = 0,
 		SurfaceTension = 0,

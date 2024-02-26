@@ -41,6 +41,7 @@ function gellyx.presets.select(name)
 		logging.error("Preset %s does not exist", name)
 	end
 
+	gelly.ChangeParticleRadius(preset.Radius)
 	gelly.SetFluidProperties(preset.SolverParams)
 	gelly.SetFluidVisualParams(preset.VisualParams)
 	GELLY_ACTIVE_PRESET = preset

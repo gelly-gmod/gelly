@@ -8,7 +8,7 @@ local BLOOD_CONFIGS = {
 		VelocityPower = 10, -- bullets usually are rotating so they can end up flinging blood
 		Randomness = 0.8, -- spray in the direction of the normal
 		CubeSize = 22,
-		DamageMultiplier = 225, -- density is added by the damage * this
+		DamageMultiplier = 95, -- density is added by the damage * this
 	},
 
 	[DMG_CRUSH] = {
@@ -97,6 +97,13 @@ hook.Add(
 	"GellyXDamage",
 	"gelly.builtin.blood-mod",
 	function(_, attacker, position, force, damage, type)
+		if
+			not attacker:IsPlayer()
+			and not attacker:IsNPC()
+			and attacker:GetClass() ~= "prop_ragdoll"
+		then
+			return
+		end
 		-- 8194 is the combination used in M9K for bullets
 		if type == 8194 then
 			type = 2
@@ -107,5 +114,4 @@ hook.Add(
 	end
 )
 
-gelly.ChangeParticleRadius(1.10)
 gellyx.presets.select("Blood")

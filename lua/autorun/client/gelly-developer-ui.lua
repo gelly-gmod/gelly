@@ -170,4 +170,12 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		gellyx.mods.loadMods()
 		gellyx.mods.initializeMods() -- have to manually initialize mods
 	end
+
+	local resetButton = vgui.Create("DButton")
+	resetButton:SetPos(ScrW() - 200, 550)
+	resetButton:SetSize(200, 50)
+	resetButton:SetText("Reset")
+	resetButton.DoClick = function()
+		gelly.Reset()
+	end
 end)

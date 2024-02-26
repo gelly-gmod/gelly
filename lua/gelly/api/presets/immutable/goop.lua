@@ -1,5 +1,6 @@
 return {
 	Name = "Goop",
+	Radius = 5,
 	SolverParams = {
 		Viscosity = 80,
 		SurfaceTension = 0,
