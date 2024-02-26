@@ -1,4 +1,5 @@
 import {
+	Alert,
 	AppBar,
 	Box,
 	Button,
@@ -7,16 +8,21 @@ import {
 	Tabs,
 	Toolbar,
 	Typography,
+	Zoom,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SettingsContainer from "./SettingsContainer.tsx";
 import DiscardDialog from "../presentation/DiscardDialog.tsx";
 import useReversibleSettings from "../hooks/useReversibleSettings.ts";
 
+const SUCCESS_ALERT_DURATION_MS = 3000;
+
 function ApplyCancelButtons({
 	setDiscardDialogOpen,
+	setSuccessAlertOpen,
 }: {
 	setDiscardDialogOpen: (open: boolean) => void;
+	setSuccessAlertOpen: (open: boolean) => void;
 }) {
 	const reversibleSettings = useReversibleSettings();
 
@@ -31,6 +37,7 @@ function ApplyCancelButtons({
 				variant="contained"
 				onClick={() => {
 					reversibleSettings.saveSettings();
+					setSuccessAlertOpen(true);
 				}}
 			>
 				APPLY
@@ -51,7 +58,19 @@ function ApplyCancelButtons({
 export default function MenuContainer() {
 	const [tabIndex, setTabIndex] = useState(0);
 	const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
+	const [successAlertOpen, setSuccessAlertOpen] = useState(false);
+
 	const reversibleSettings = useReversibleSettings();
+
+	useEffect(() => {
+		if (successAlertOpen) {
+			const timer = setTimeout(() => {
+				setSuccessAlertOpen(false);
+			}, SUCCESS_ALERT_DURATION_MS);
+
+			return () => clearTimeout(timer);
+		}
+	}, [successAlertOpen]);
 
 	return (
 		<>
@@ -63,6 +82,15 @@ export default function MenuContainer() {
 				open={discardDialogOpen}
 				setOpen={setDiscardDialogOpen}
 			/>
+
+			<Box sx={{ position: "fixed", bottom: 0, left: 0, padding: 2 }}>
+				<Zoom in={successAlertOpen}>
+					<Alert severity="success">
+						Settings applied successfully
+					</Alert>
+				</Zoom>
+			</Box>
+
 			<Box
 				sx={{
 					width: "100%",
@@ -97,6 +125,7 @@ export default function MenuContainer() {
 
 				<ApplyCancelButtons
 					setDiscardDialogOpen={setDiscardDialogOpen}
+					setSuccessAlertOpen={setSuccessAlertOpen}
 				/>
 			</Box>
 		</>
