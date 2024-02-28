@@ -5,6 +5,11 @@ option(GELLY_OVERRIDE_RENDERDOC "" ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+# Tracy integration, must be up here so that we can have Gelly add tracy markers
+option(TRACY_ENABLE "" ON)
+option(TRACY_ON_DEMAND "" ON)
+add_subdirectory(vendor/tracy)
+
 add_subdirectory(../gelly ${CMAKE_BINARY_DIR}/gelly)
 
 set(IMGUI_SOURCES
@@ -46,11 +51,6 @@ add_executable(testbed
 
 add_subdirectory(vendor/SDL)
 add_subdirectory(vendor/fastgltf)
-
-# Tracy integration
-option(TRACY_ENABLE "" ON)
-option(TRACY_ON_DEMAND "" ON)
-add_subdirectory(vendor/tracy)
 
 target_link_libraries(
         testbed

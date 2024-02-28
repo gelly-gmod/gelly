@@ -15,12 +15,7 @@ public:
 	virtual void Draw3DPoint(const float *point, float r, float g, float b) = 0;
 
 	virtual void Draw3DTriangle(
-		const float *A,
-		const float *B,
-		const float *C,
-		float r,
-		float g,
-		float b
+		float *A, float *B, float *C, float r, float g, float b
 	) = 0;
 
 	virtual void Draw3DCube(

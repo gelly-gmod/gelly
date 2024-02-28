@@ -15,14 +15,8 @@ public:
 		const float *start, const float *end, float r, float g, float b
 	) override;
 	void Draw3DPoint(const float *point, float r, float g, float b) override;
-	void Draw3DTriangle(
-		const float *A,
-		const float *B,
-		const float *C,
-		float r,
-		float g,
-		float b
-	) override;
+	void Draw3DTriangle(float *A, float *B, float *C, float r, float g, float b)
+		override;
 	void Draw3DCube(
 		const float *position, const float *size, float r, float g, float b
 	) override;

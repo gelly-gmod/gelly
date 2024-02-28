@@ -37,7 +37,7 @@ void CRaylibVisualDebugFacility::Draw3DPoint(
 }
 
 void CRaylibVisualDebugFacility::Draw3DTriangle(
-	const float *A, const float *B, const float *C, float r, float g, float b
+	float *A, float *B, float *C, float r, float g, float b
 ) {
 	DrawTriangle3D(
 		Vector3{A[0], A[1], A[2]},

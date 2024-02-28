@@ -153,100 +153,100 @@ void testbed::InitializeGelly(
 			GellySimInit{GellySimMode::DEBUG, GellySimInit::DebugInfo{10000}}
 		);
 
-#ifdef GELLY_OVERRIDE_RENDERDOC
-#ifdef _DEBUG
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 		logger->Info("Enabling Gelly RenderDoc captures...");
 		if (!fluidRenderer->EnableRenderDocCaptures()) {
 			logger->Warning(
 				"Failed to enable Gelly RenderDoc captures. This is normal "
 				"if RenderDoc is not running or if the API has changed."
 			);
+#endif
 		}
-#endif
-#endif
-	} catch (const std::exception &e) {
+		catch (const std::exception &e) {
 #ifdef _DEBUG
-		renderContext->PrintDebugInfo();
+			renderContext->PrintDebugInfo();
 #endif
-		logger->Error("Failed to call Gelly: %s", e.what());
-		throw;
+			logger->Error("Failed to call Gelly: %s", e.what());
+			throw;
+		}
+		logger->Info("Gelly initialized");
 	}
-	logger->Info("Gelly initialized");
-}
 
-void testbed::InitializeNewGellySim(const GellySimInit &init) {
-	try {
-		if (fluidSim) {
-			DestroyGellyFluidSim(fluidSim);
-			logger->Info("Destroyed old Gelly simulation");
-			fluidSim = nullptr;
-		}
-
-		logger->Info("Initializing new Gelly simulation...");
-		switch (init.mode) {
-			case GellySimMode::DEBUG: {
-				const auto &debugInfo =
-					std::get<GellySimInit::DebugInfo>(init.modeInfo);
-
-				fluidSim = CreateD3D11DebugFluidSimulation(simContext);
-				fluidSim->SetMaxParticles(debugInfo.maxParticles);
-				break;
+	void testbed::InitializeNewGellySim(const GellySimInit &init) {
+		try {
+			if (fluidSim) {
+				DestroyGellyFluidSim(fluidSim);
+				logger->Info("Destroyed old Gelly simulation");
+				fluidSim = nullptr;
 			}
 
-			case GellySimMode::RTFR: {
-				const auto &rtfrInfo =
-					std::get<GellySimInit::RTFRInfo>(init.modeInfo);
+			logger->Info("Initializing new Gelly simulation...");
+			switch (init.mode) {
+				case GellySimMode::DEBUG: {
+					const auto &debugInfo =
+						std::get<GellySimInit::DebugInfo>(init.modeInfo);
 
-				fluidSim = CreateD3D11RTFRFluidSimulation(
-					simContext, rtfrInfo.folderPath
-				);
-				break;
+					fluidSim = CreateD3D11DebugFluidSimulation(simContext);
+					fluidSim->SetMaxParticles(debugInfo.maxParticles);
+					break;
+				}
+
+				case GellySimMode::RTFR: {
+					const auto &rtfrInfo =
+						std::get<GellySimInit::RTFRInfo>(init.modeInfo);
+
+					fluidSim = CreateD3D11RTFRFluidSimulation(
+						simContext, rtfrInfo.folderPath
+					);
+					break;
+				}
+
+				case GellySimMode::FLEX: {
+					const auto &flexInfo =
+						std::get<GellySimInit::FlexInfo>(init.modeInfo);
+
+					fluidSim = CreateD3D11FlexFluidSimulation(simContext);
+					fluidSim->SetMaxParticles(flexInfo.maxParticles);
+					break;
+				}
 			}
 
-			case GellySimMode::FLEX: {
-				const auto &flexInfo =
-					std::get<GellySimInit::FlexInfo>(init.modeInfo);
+			currentSimMode = init.mode;
 
-				fluidSim = CreateD3D11FlexFluidSimulation(simContext);
-				fluidSim->SetMaxParticles(flexInfo.maxParticles);
-				break;
+			logger->Info("Linking the Gelly fluid simulation and renderer...");
+			fluidRenderer->SetSimData(fluidSim->GetSimulationData());
+			fluidSim->Initialize();
+			logger->Info("Gelly simulation initialized");
+
+			if (!fluidSim->GetScene()) {
+				logger->Warning("Simulation has no interactive scene.");
+			} else {
+				// tell scene system to register
+				RegisterSceneToGellySim(fluidSim);
 			}
+		} catch (const std::exception &e) {
+			logger->Error(
+				"Failed to initialize Gelly simulation: %s", e.what()
+			);
+			throw;
 		}
-
-		currentSimMode = init.mode;
-
-		logger->Info("Linking the Gelly fluid simulation and renderer...");
-		fluidRenderer->SetSimData(fluidSim->GetSimulationData());
-		fluidSim->Initialize();
-		logger->Info("Gelly simulation initialized");
-
-		if (!fluidSim->GetScene()) {
-			logger->Warning("Simulation has no interactive scene.");
-		} else {
-			// tell scene system to register
-			RegisterSceneToGellySim(fluidSim);
-		}
-	} catch (const std::exception &e) {
-		logger->Error("Failed to initialize Gelly simulation: %s", e.what());
-		throw;
 	}
-}
 
-IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }
+	IFluidSimulation *testbed::GetGellyFluidSim() { return fluidSim; }
 
-GellySimMode testbed::GetCurrentGellySimMode() { return currentSimMode; }
+	GellySimMode testbed::GetCurrentGellySimMode() { return currentSimMode; }
 
-IFluidRenderer *testbed::GetGellyFluidRenderer() { return fluidRenderer; }
+	IFluidRenderer *testbed::GetGellyFluidRenderer() { return fluidRenderer; }
 
-IRenderContext *testbed::GetGellyRenderContext() { return renderContext; }
+	IRenderContext *testbed::GetGellyRenderContext() { return renderContext; }
 
-Gelly::FluidRenderSettings testbed::GetGellyFluidRenderSettings() {
-	return fluidRenderSettings;
-}
+	Gelly::FluidRenderSettings testbed::GetGellyFluidRenderSettings() {
+		return fluidRenderSettings;
+	}
 
-void testbed::UpdateGellyFluidRenderSettings(
-	const Gelly::FluidRenderSettings &settings
-) {
-	fluidRenderSettings = settings;
-	fluidRenderer->SetSettings(settings);
-}
+	void testbed::UpdateGellyFluidRenderSettings(
+		const Gelly::FluidRenderSettings &settings
+	) {
+		fluidRenderSettings = settings;
+		fluidRenderer->SetSettings(settings);
+	}

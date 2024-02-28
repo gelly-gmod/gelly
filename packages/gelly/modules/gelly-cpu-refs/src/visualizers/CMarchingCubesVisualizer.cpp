@@ -11,7 +11,7 @@ CMarchingCubesVisualizer::CMarchingCubesVisualizer()
 
 void CMarchingCubesVisualizer::OnNewFrame() {
 	// March to visualize the density field.
-
+	Start();
 	UpdateCamera(&m_camera, CAMERA_THIRD_PERSON);
 
 	const auto min = XMINT3{-5, -5, -5};
@@ -28,13 +28,13 @@ void CMarchingCubesVisualizer::OnNewFrame() {
 		},
 		Settings{
 			.m_radius = 1.f,
-			.m_isovalue = 0.9f,
+			.m_isovalue = 0.3f,
 			.m_voxelSize = 1.f,
 		}
 	);
-	// for (const auto &point : m_points) {
-	// 	m_visualDebugFacility.Draw3DPoint(&point.x, 1.f, 1.f, 1.f);
-	// }
+	for (const auto &point : m_points) {
+		m_visualDebugFacility.Draw3DPoint(&point.x, 1.f, 1.f, 1.f);
+	}
 
 	DrawGrid(50, 15.f);
 	EndMode3D();
@@ -47,7 +47,7 @@ void CMarchingCubesVisualizer::Start() {
 		float phi = rand() / static_cast<float>(RAND_MAX) * 2.f * PI;
 		float r = 3.f;
 
-		point.x = r * sinf(theta) * cosf(phi);
+		point.x = r * sinf(theta) * cosf(phi) * fabsf(sinf(GetTime()) * 1.25);
 		point.y = r * sinf(theta) * sinf(phi);
 		point.z = r * cosf(theta);
 		point.w = 1.f;

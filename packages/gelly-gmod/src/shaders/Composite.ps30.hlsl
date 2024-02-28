@@ -36,7 +36,6 @@ float3 NormalizeAbsorption(float3 absorption, float thickness) {
 }
 
 float4 Shade(VS_INPUT input) {
-    float3 sunDir = float3(-0.377821, 0.520026, 0.766044);
     float thickness = tex2D(thicknessTex, input.Tex).x;
 
     if (thickness < 0.02f) {
