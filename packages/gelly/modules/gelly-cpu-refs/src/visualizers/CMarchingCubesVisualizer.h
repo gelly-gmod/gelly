@@ -12,6 +12,7 @@ private:
 	vector<XMFLOAT4> m_points;
 	CRaylibVisualDebugFacility m_visualDebugFacility;
 	Camera3D m_camera;
+	Mesh m_mesh;
 
 public:
 	CMarchingCubesVisualizer();

@@ -53,18 +53,25 @@ void Render() {
 	g_visualizer->OnNewFrame();
 }
 
+void HandleInput() {
+	if (IsKeyPressed(KEY_SPACE)) {
+		g_visualizer->Start();
+	}
+}
+
 int main() {
 	GCR_LOG_INFO("Hello world!");
 	GCR_LOG_INFO("Creating window...");
 
+	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
+
 	ChangeVisualizer(new CMarchingCubesVisualizer());
 	g_visualizer->Start();
-
-	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
 
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 		Render();
+		HandleInput();
 		EndDrawing();
 	}
 

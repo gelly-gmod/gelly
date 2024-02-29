@@ -28,6 +28,16 @@ void CRaylibVisualDebugFacility::Draw3DCube(
 	);
 }
 
+void CRaylibVisualDebugFacility::Draw3DWireCube(
+	const float *position, const float *size, float r, float g, float b
+) {
+	DrawCubeWiresV(
+		Vector3{position[0], position[1], position[2]},
+		Vector3{size[0], size[1], size[2]},
+		FloatRGBToColor(r, g, b)
+	);
+}
+
 void CRaylibVisualDebugFacility::Draw3DPoint(
 	const float *point, float r, float g, float b
 ) {

@@ -21,6 +21,10 @@ public:
 	virtual void Draw3DCube(
 		const float *position, const float *size, float r, float g, float b
 	) = 0;
+
+	virtual void Draw3DWireCube(
+		const float *position, const float *size, float r, float g, float b
+	) = 0;
 };
 }  // namespace gcr::debugging
 

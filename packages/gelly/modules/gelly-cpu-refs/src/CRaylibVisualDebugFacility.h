@@ -20,6 +20,10 @@ public:
 	void Draw3DCube(
 		const float *position, const float *size, float r, float g, float b
 	) override;
+
+	void Draw3DWireCube(
+		const float *position, const float *size, float r, float g, float b
+	) override;
 };
 
 #endif	// CRAYLIBVISUALDEBUGFACILITY_H

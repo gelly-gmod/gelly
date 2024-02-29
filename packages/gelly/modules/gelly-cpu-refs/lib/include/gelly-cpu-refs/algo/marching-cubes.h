@@ -16,7 +16,7 @@ namespace gcr::marching_cubes {
 namespace detail {
 static constexpr uint16_t MAX_PARTICLES_PER_CELL = 8;
 static constexpr float INTERPOLATION_EPSILON = 0.00001f;
-static constexpr float CENTRAL_DIFFERENCING_DELTA = 0.001f;
+static constexpr float CENTRAL_DIFFERENCING_DELTA = 1.f;
 
 inline uint32_t HashAlignedPosition(const XMUINT3 &position) {
 	// var h = (xi * 92837111) ^ (yi * 689287499) ^ (zi * 283923481);
@@ -147,9 +147,9 @@ inline Output gcr::marching_cubes::March(
 	vector<uint32_t> indices;
 	vector<XMFLOAT3> normals;
 
-	vertices.resize(1000000);
-	indices.resize(1000000);
-	normals.resize(1000000);
+	vertices.reserve(1000000);
+	indices.reserve(1000000);
+	normals.reserve(1000000);
 
 	XMUINT3 domain = XMUINT3{
 		static_cast<uint32_t>(input.m_max.x - input.m_min.x),
@@ -203,7 +203,7 @@ inline Output gcr::marching_cubes::March(
 	// fifth pass: make duplicate vertices unique and generate indices
 
 	const auto alignPositionToGrid =
-		[&domain, &input, &settings](const XMFLOAT3 &position) {
+		[&domain, &voxelsPerUnit, &input, &settings](const XMFLOAT3 &position) {
 			XMFLOAT3 localPosition = position;
 			localPosition.x -= input.m_min.x;
 			localPosition.y -= input.m_min.y;
@@ -271,6 +271,16 @@ inline Output gcr::marching_cubes::March(
 			static_cast<int32_t>(gridPosition.x),
 			static_cast<int32_t>(gridPosition.y),
 			static_cast<int32_t>(gridPosition.z)
+		};
+
+		XMFLOAT3 densityCube = XMFLOAT3{
+			static_cast<float>(signedGridPosition.x),
+			static_cast<float>(signedGridPosition.y),
+			static_cast<float>(signedGridPosition.z)
+		};
+
+		float size[3] = {
+			settings.m_voxelSize, settings.m_voxelSize, settings.m_voxelSize
 		};
 
 		for (const auto &neighborOffset : lut::NEIGHBORS) {
@@ -371,12 +381,15 @@ inline Output gcr::marching_cubes::March(
 				position.x, position.y, position.z - CENTRAL_DIFFERENCING_DELTA
 			};
 
-			normal.x = computeDensityAtPosition(posXPositive) -
-					   computeDensityAtPosition(posXNegative);
-			normal.y = computeDensityAtPosition(posYPositive) -
-					   computeDensityAtPosition(posYNegative);
-			normal.z = computeDensityAtPosition(posZPositive) -
-					   computeDensityAtPosition(posZPositive);
+			normal.x =
+				-(computeDensityAtPosition(posXPositive) -
+				  computeDensityAtPosition(posXNegative));
+			normal.y =
+				-(computeDensityAtPosition(posYPositive) -
+				  computeDensityAtPosition(posYNegative));
+			normal.z =
+				-(computeDensityAtPosition(posZPositive) -
+				  computeDensityAtPosition(posZNegative));
 
 			return normal;
 		};
@@ -388,22 +401,34 @@ inline Output gcr::marching_cubes::March(
 	for (uint32_t x = 0; x < domain.x * voxelsPerUnit; x++) {
 		for (uint32_t y = 0; y < domain.y * voxelsPerUnit; y++) {
 			for (uint32_t z = 0; z < domain.z * voxelsPerUnit; z++) {
+				XMFLOAT3 cellPos = {
+					static_cast<float>(x) / voxelsPerUnit,
+					static_cast<float>(y) / voxelsPerUnit,
+					static_cast<float>(z) / voxelsPerUnit
+				};
+
+				XMFLOAT3 cellSize = {
+					settings.m_voxelSize,
+					settings.m_voxelSize,
+					settings.m_voxelSize
+				};
+
 				uint32_t cellIndex = alignedPositionToIndex(XMUINT3{x, y, z});
 				cells[cellIndex].m_index = 0;
 
 				for (uint32_t i = 0; i < 8; i++) {
 					XMFLOAT3 vertexPositionVector = XMFLOAT3{
-						static_cast<float>(x) +
+						static_cast<float>(cellPos.x) +
 							lut::CUBE_VERTEX_OFFSETS_CENTERED[i].x *
-								settings.m_voxelSize +
+								(settings.m_voxelSize) +
 							input.m_min.x,
-						static_cast<float>(y) +
+						static_cast<float>(cellPos.y) +
 							lut::CUBE_VERTEX_OFFSETS_CENTERED[i].y *
-								settings.m_voxelSize +
+								(settings.m_voxelSize) +
 							input.m_min.y,
-						static_cast<float>(z) +
+						static_cast<float>(cellPos.z) +
 							lut::CUBE_VERTEX_OFFSETS_CENTERED[i].z *
-								settings.m_voxelSize +
+								(settings.m_voxelSize) +
 							input.m_min.z
 					};
 
@@ -422,7 +447,7 @@ inline Output gcr::marching_cubes::March(
 		}
 	}
 
-	const uint32_t indexCounter = 0;
+	uint32_t indexCounter = 0;
 
 	for (uint32_t x = 0; x < domain.x * voxelsPerUnit; x++) {
 		for (uint32_t y = 0; y < domain.y * voxelsPerUnit; y++) {
@@ -431,6 +456,10 @@ inline Output gcr::marching_cubes::March(
 
 				XMFLOAT3 triangleVertices[12] = {};
 				GridCell &cell = cells[cellIndex];
+
+				if (cell.m_index == 0xFF) {
+					continue;
+				}
 
 				if (lut::EDGE_TABLE[cell.m_index] == 0) {
 					continue;
@@ -560,19 +589,45 @@ inline Output gcr::marching_cubes::March(
 					 i += 3) {
 					const auto triTable = lut::TRIANGLE_TABLE[cell.m_index];
 
-					input.m_visualDebugFacility->Draw3DTriangle(
-						reinterpret_cast<float *>(&triangleVertices[triTable[i]]
-						),
-						reinterpret_cast<float *>(
-							&triangleVertices[triTable[i + 1]]
-						),
-						reinterpret_cast<float *>(
-							&triangleVertices[triTable[i + 2]]
-						),
-						(float)rand() / RAND_MAX,
-						(float)rand() / RAND_MAX,
-						(float)rand() / RAND_MAX
-					);
+					// input.m_visualDebugFacility->Draw3DLine(
+					// 	&triangleVertices[triTable[i]].x,
+					// 	&triangleVertices[triTable[i + 1]].x,
+					// 	1,
+					// 	0,
+					// 	0
+					// );
+					//
+					// input.m_visualDebugFacility->Draw3DLine(
+					// 	&triangleVertices[triTable[i + 1]].x,
+					// 	&triangleVertices[triTable[i + 2]].x,
+					// 	0,
+					// 	1,
+					// 	0
+					// );
+					//
+					// input.m_visualDebugFacility->Draw3DLine(
+					// 	&triangleVertices[triTable[i + 2]].x,
+					// 	&triangleVertices[triTable[i]].x,
+					// 	0,
+					// 	0,
+					// 	1
+					// );
+
+					vertices.push_back(triangleVertices[triTable[i]]);
+					vertices.push_back(triangleVertices[triTable[i + 1]]);
+					vertices.push_back(triangleVertices[triTable[i + 2]]);
+
+					indices.push_back(indexCounter++);
+
+					normals.push_back(computeCentralDifferenceAtPoint(
+						triangleVertices[triTable[i]]
+					));
+					normals.push_back(computeCentralDifferenceAtPoint(
+						triangleVertices[triTable[i + 1]]
+					));
+					normals.push_back(computeCentralDifferenceAtPoint(
+						triangleVertices[triTable[i + 2]]
+					));
 				}
 			}
 		}
