@@ -76,6 +76,10 @@ export default class ReversibleSettings {
 		);
 	}
 
+	isModified(): boolean {
+		return false;
+	}
+
 	saveSettings(): void {
 		this.settingRepository.saveSettings(this.currentSettings);
 		for (const subscriber of this.saveSubscribers) {

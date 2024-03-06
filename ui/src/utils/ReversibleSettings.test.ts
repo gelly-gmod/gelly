@@ -152,4 +152,11 @@ describe("ReversibleSettings", () => {
 			).toBe(true);
 		});
 	});
+
+	describe("isModified", () => {
+		it("should return false when no setting has been modified", () => {
+			const reversibleSettings = loadReversibleSettings();
+			expect(reversibleSettings.isModified()).toBe(false);
+		});
+	});
 });
