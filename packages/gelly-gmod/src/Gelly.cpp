@@ -80,7 +80,7 @@ void GellyIntegration::CreateBuffers() {
 
 void GellyIntegration::CreateTextures() {
 	uint16_t width, height;
-	renderContext->GetDimensions(width, height);
+	gellyHandles.renderContext->GetDimensions(width, height);
 
 	LOG_DX_CALL(
 		"Failed to create D3D9-side depth texture",
@@ -167,33 +167,40 @@ void GellyIntegration::CreateTextures() {
 		)
 	);
 
-	gellyTextures.depthTexture = renderContext->CreateSharedTexture(
-		"gelly-gmod/depth", sharedHandles.depthTexture, ContextRenderAPI::D3D9Ex
-	);
-	gellyTextures.albedoTexture = renderContext->CreateSharedTexture(
-		"gelly-gmod/albedo",
-		sharedHandles.albedoTexture,
-		ContextRenderAPI::D3D9Ex
-	);
-	gellyTextures.normalTexture = renderContext->CreateSharedTexture(
-		"gelly-gmod/normal",
-		sharedHandles.normalTexture,
-		ContextRenderAPI::D3D9Ex
-	);
-	gellyTextures.positionTexture = renderContext->CreateSharedTexture(
-		"gelly-gmod/position",
-		sharedHandles.positionTexture,
-		ContextRenderAPI::D3D9Ex
-	);
-	gellyTextures.thicknessTexture = renderContext->CreateSharedTexture(
-		"gelly-gmod/thickness",
-		sharedHandles.thicknessTexture,
-		ContextRenderAPI::D3D9Ex
-	);
+	gellyTextures.depthTexture =
+		gellyHandles.renderContext->CreateSharedTexture(
+			"gelly-gmod/depth",
+			sharedHandles.depthTexture,
+			ContextRenderAPI::D3D9Ex
+		);
+	gellyTextures.albedoTexture =
+		gellyHandles.renderContext->CreateSharedTexture(
+			"gelly-gmod/albedo",
+			sharedHandles.albedoTexture,
+			ContextRenderAPI::D3D9Ex
+		);
+	gellyTextures.normalTexture =
+		gellyHandles.renderContext->CreateSharedTexture(
+			"gelly-gmod/normal",
+			sharedHandles.normalTexture,
+			ContextRenderAPI::D3D9Ex
+		);
+	gellyTextures.positionTexture =
+		gellyHandles.renderContext->CreateSharedTexture(
+			"gelly-gmod/position",
+			sharedHandles.positionTexture,
+			ContextRenderAPI::D3D9Ex
+		);
+	gellyTextures.thicknessTexture =
+		gellyHandles.renderContext->CreateSharedTexture(
+			"gelly-gmod/thickness",
+			sharedHandles.thicknessTexture,
+			ContextRenderAPI::D3D9Ex
+		);
 }
 
 void GellyIntegration::LinkTextures() const {
-	auto *fluidTextures = renderer->GetFluidTextures();
+	auto *fluidTextures = gellyHandles.renderer->GetFluidTextures();
 	fluidTextures->SetFeatureTexture(DEPTH, gellyTextures.depthTexture);
 	fluidTextures->SetFeatureTexture(ALBEDO, gellyTextures.albedoTexture);
 	fluidTextures->SetFeatureTexture(NORMALS, gellyTextures.normalTexture);
@@ -281,32 +288,39 @@ GellyIntegration::GellyIntegration(
 )
 	: device(device), textures({}) {
 	try {
-		renderContext = CreateD3D11FluidRenderContext(width, height);
+		gellyHandles.renderContext =
+			CreateD3D11FluidRenderContext(width, height);
 		LOG_INFO("Created render context");
-		renderer = CreateD3D11SplattingFluidRenderer(renderContext);
+		gellyHandles.renderer =
+			CreateD3D11SplattingFluidRenderer(gellyHandles.renderContext);
 		LOG_INFO("Created renderer");
-		simContext = CreateD3D11SimContext(
-			static_cast<ID3D11Device *>(renderContext->GetRenderAPIResource(
-				RenderAPIResource::D3D11Device
-			)),
+		gellyHandles.simContext = CreateD3D11SimContext(
+			static_cast<ID3D11Device *>(
+				gellyHandles.renderContext->GetRenderAPIResource(
+					RenderAPIResource::D3D11Device
+				)
+			),
 			static_cast<ID3D11DeviceContext *>(
-				renderContext->GetRenderAPIResource(
+				gellyHandles.renderContext->GetRenderAPIResource(
 					RenderAPIResource::D3D11DeviceContext
 				)
 			)
 		);
 		LOG_INFO("Created simulation context");
-		simulation = CreateD3D11FlexFluidSimulation(simContext);
+		gellyHandles.simulation =
+			CreateD3D11FlexFluidSimulation(gellyHandles.simContext);
 		LOG_INFO("Created FleX simulation");
 
-		simulation->SetMaxParticles(defaultMaxParticles);
-		renderer->SetSimData(simulation->GetSimulationData());
+		gellyHandles.simulation->SetMaxParticles(defaultMaxParticles);
+		gellyHandles.renderer->SetSimData(
+			gellyHandles.simulation->GetSimulationData()
+		);
 
-		simulation->Initialize();
-		LOG_INFO("Linked simulation and renderer");
+		gellyHandles.simulation->Initialize();
+		LOG_INFO("Linked gellyHandles.simulation and renderer");
 
 		LOG_INFO("Querying for interactivity support...");
-		if (simulation->GetScene()) {
+		if (gellyHandles.simulation->GetScene()) {
 			LOG_INFO("Interactivity is supported");
 			isSimulationInteractive = true;
 		} else {
@@ -314,7 +328,7 @@ GellyIntegration::GellyIntegration(
 		}
 
 		LOG_INFO("Querying for two-way physics coupling support...");
-		if (simulation->CheckFeatureSupport(
+		if (gellyHandles.simulation->CheckFeatureSupport(
 				GELLY_FEATURE::FLUIDSIM_CONTACTPLANES
 			)) {
 			LOG_INFO("Two-way physics coupling is supported");
@@ -324,7 +338,7 @@ GellyIntegration::GellyIntegration(
 		}
 
 		LOG_INFO("Querying for per-particle absorption support...");
-		if (renderer->CheckFeatureSupport(
+		if (gellyHandles.renderer->CheckFeatureSupport(
 				GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION
 			)) {
 			LOG_INFO("Per-particle absorption is supported");
@@ -347,7 +361,8 @@ GellyIntegration::GellyIntegration(
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 		LOG_INFO("GPU debugging detected, enabling RenderDoc integration...");
-		if (const auto success = renderer->EnableRenderDocCaptures();
+		if (const auto success =
+				gellyHandles.renderer->EnableRenderDocCaptures();
 			!success) {
 			LOG_WARNING(
 				"Failed to enable captures, maybe RenderDoc is not running or "
@@ -470,17 +485,17 @@ void GellyIntegration::Render() {
 		ZoneScopedN("Gelly render");
 		{
 			ZoneScopedN("Per frame params & settings");
-			renderer->SetPerFrameParams(renderParams);
-			renderer->SetSettings(renderSettings);
+			gellyHandles.renderer->SetPerFrameParams(renderParams);
+			gellyHandles.renderer->SetSettings(renderSettings);
 		}
-		renderer->Render();
+		gellyHandles.renderer->Render();
 	}
 }
 
 void GellyIntegration::Simulate(float dt) {
-	simulation->Update(dt);
+	gellyHandles.simulation->Update(dt);
 	// update
-	simulation->GetScene()->Update();
+	gellyHandles.simulation->GetScene()->Update();
 }
 
 void GellyIntegration::LoadMap(const char *mapName) {
@@ -530,7 +545,7 @@ void GellyIntegration::LoadMap(const char *mapName) {
 
 	params.shapeData = mesh;
 
-	mapHandle = simulation->GetScene()->CreateObject(params);
+	mapHandle = gellyHandles.simulation->GetScene()->CreateObject(params);
 	LOG_INFO("Loaded map %s with scene handle %d", mapName, mapHandle);
 
 	delete[] buffer;
@@ -538,7 +553,7 @@ void GellyIntegration::LoadMap(const char *mapName) {
 }
 
 const char *GellyIntegration::GetComputeDeviceName() const {
-	return simulation->GetComputeDeviceName();
+	return gellyHandles.simulation->GetComputeDeviceName();
 }
 
 void GellyIntegration::SetFluidParams(const FluidVisualParams &params) {
@@ -553,11 +568,11 @@ void GellyIntegration::SetFluidParams(const FluidVisualParams &params) {
 void GellyIntegration::ChangeParticleRadius(float radius) {
 	particleRadius = radius;
 
-	ISimCommandList *commandList = simulation->CreateCommandList();
+	ISimCommandList *commandList = gellyHandles.simulation->CreateCommandList();
 	commandList->AddCommand({CHANGE_RADIUS, ChangeRadius{particleRadius}});
-	simulation->ExecuteCommandList(commandList);
-	simulation->DestroyCommandList(commandList);
-	LOG_INFO("Sent particle radius commands to simulation");
+	gellyHandles.simulation->ExecuteCommandList(commandList);
+	gellyHandles.simulation->DestroyCommandList(commandList);
+	LOG_INFO("Sent particle radius commands to gellyHandles.simulation");
 }
 
 void GellyIntegration::ChangeThresholdRatio(float ratio) {
@@ -582,8 +597,12 @@ void GellyIntegration::SetRenderSettings(const FluidRenderSettings &settings) {
 	renderSettings = settings;
 }
 
-IFluidRenderer *GellyIntegration::GetRenderer() const { return renderer; }
-IFluidSimulation *GellyIntegration::GetSimulation() const { return simulation; }
+IFluidRenderer *GellyIntegration::GetRenderer() const {
+	return gellyHandles.renderer;
+}
+IFluidSimulation *GellyIntegration::GetSimulation() const {
+	return gellyHandles.simulation;
+}
 
 XMFLOAT3 GellyIntegration::GetCurrentAbsorption() const {
 	const XMFLOAT3 absorption = {
@@ -603,27 +622,27 @@ XMFLOAT3 GellyIntegration::GetCurrentAbsorption() const {
 GellyIntegration::~GellyIntegration() {
 	LOG_INFO("Destroying GellyIntegration");
 
-	if (simulation) {
-		DestroyGellyFluidSim(simulation);
-		LOG_INFO("Destroyed simulation");
+	if (gellyHandles.simulation) {
+		DestroyGellyFluidSim(gellyHandles.simulation);
+		LOG_INFO("Destroyed gellyHandles.simulation");
 	}
 
 	if (gellyTextures.albedoTexture) {
-		renderContext->DestroyTexture("gelly-gmod/albedo");
-		renderContext->DestroyTexture("gelly-gmod/depth");
-		renderContext->DestroyTexture("gelly-gmod/normal");
-		renderContext->DestroyTexture("gelly-gmod/position");
-		renderContext->DestroyTexture("gelly-gmod/thickness");
+		gellyHandles.renderContext->DestroyTexture("gelly-gmod/albedo");
+		gellyHandles.renderContext->DestroyTexture("gelly-gmod/depth");
+		gellyHandles.renderContext->DestroyTexture("gelly-gmod/normal");
+		gellyHandles.renderContext->DestroyTexture("gelly-gmod/position");
+		gellyHandles.renderContext->DestroyTexture("gelly-gmod/thickness");
 		LOG_INFO("Destroyed D3D11-side textures");
 	}
 
-	if (renderContext) {
-		DestroyGellyFluidRenderContext(renderContext);
+	if (gellyHandles.renderContext) {
+		DestroyGellyFluidRenderContext(gellyHandles.renderContext);
 		LOG_INFO("Destroyed render context");
 	}
 
-	if (renderer) {
-		DestroyGellyFluidRenderer(renderer);
+	if (gellyHandles.renderer) {
+		DestroyGellyFluidRenderer(gellyHandles.renderer);
 		LOG_INFO("Destroyed renderer");
 	}
 

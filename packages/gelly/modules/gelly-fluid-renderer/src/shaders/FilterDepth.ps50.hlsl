@@ -198,10 +198,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
         discard;
     }
 
-    // closer depths require a bigger timestep,
-    // so we can model an inverse relationship between depth and timestep
-    
-    float dt = 0.0004f;
+    float dt = 0.0005f;
     float dzt = 1000.0f;
     float3 dxyz = GetMeanCurvature(input.Tex);
 

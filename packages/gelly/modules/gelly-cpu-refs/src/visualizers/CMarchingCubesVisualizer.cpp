@@ -21,21 +21,25 @@ void CMarchingCubesVisualizer::OnNewFrame() {
 		m_visualDebugFacility.Draw3DPoint(&point.x, 1.f, 1.f, 1.f);
 	}
 
-	// const auto min = XMINT3{-2, -2, -2};
-	// const auto max = XMINT3{2, 2, 2};
-	//
-	// auto output = March(
-	// 	Input{
-	// 		.m_points = m_points.data(),
-	// 		.m_pointCount = static_cast<uint32_t>(m_points.size()),
-	// 		.m_min = min,
-	// 		.m_max = max,
-	// 		.m_visualDebugFacility = &m_visualDebugFacility
-	// 	},
-	// 	Settings{.m_radius = 0.75f, .m_isovalue = 0.9f, .m_voxelSize = 0.25f}
-	// );
+	const auto min = XMINT3{-5, -5, -5};
+	const auto max = XMINT3{5, 5, 5};
 
-	DrawMesh(m_mesh, LoadMaterialDefault(), MatrixIdentity());
+	auto output = March(
+		Input{
+			.m_points = m_points.data(),
+			.m_pointCount = static_cast<uint32_t>(m_points.size()),
+			.m_min = min,
+			.m_max = max,
+			.m_visualDebugFacility = &m_visualDebugFacility
+		},
+		Settings{
+			.m_radius = 1.f,
+			.m_isovalue = 0.5f,
+			.m_voxelSize = 0.125f,
+		}
+	);
+
+	// DrawMesh(m_mesh, LoadMaterialDefault(), MatrixIdentity());
 
 	DrawGrid(50, 15.f);
 	EndMode3D();
@@ -54,35 +58,35 @@ void CMarchingCubesVisualizer::Start() {
 		point.w = 1.f;
 	}
 
-	const auto min = XMINT3{-5, -5, -5};
-	const auto max = XMINT3{5, 5, 5};
-
-	auto output = March(
-		Input{
-			.m_points = m_points.data(),
-			.m_pointCount = static_cast<uint32_t>(m_points.size()),
-			.m_min = min,
-			.m_max = max,
-			.m_visualDebugFacility = &m_visualDebugFacility
-		},
-		Settings{
-			.m_radius = 1.f,
-			.m_isovalue = 0.09f,
-			.m_voxelSize = 0.125f,
-		}
-	);
-
-	m_mesh = Mesh{};
-
-	m_mesh.vertices = reinterpret_cast<float *>(output.m_vertices.data());
-	m_mesh.normals = reinterpret_cast<float *>(output.m_normals.data());
-	m_mesh.texcoords = reinterpret_cast<float *>(output.m_normals.data());
-
-	m_mesh.vertexCount = output.m_vertices.size();
-	m_mesh.triangleCount = output.m_vertices.size() / 3;
-
-	UploadMesh(&m_mesh, false);
-	ExportMesh(m_mesh, "gelly_march_output.obj");
+	// const auto min = XMINT3{-5, -5, -5};
+	// const auto max = XMINT3{5, 5, 5};
+	//
+	// auto output = March(
+	// 	Input{
+	// 		.m_points = m_points.data(),
+	// 		.m_pointCount = static_cast<uint32_t>(m_points.size()),
+	// 		.m_min = min,
+	// 		.m_max = max,
+	// 		.m_visualDebugFacility = &m_visualDebugFacility
+	// 	},
+	// 	Settings{
+	// 		.m_radius = 3.f,
+	// 		.m_isovalue = 0.5f,
+	// 		.m_voxelSize = 0.125f,
+	// 	}
+	// );
+	//
+	// m_mesh = Mesh{};
+	//
+	// m_mesh.vertices = reinterpret_cast<float *>(output.m_vertices.data());
+	// m_mesh.normals = reinterpret_cast<float *>(output.m_normals.data());
+	// m_mesh.texcoords = reinterpret_cast<float *>(output.m_normals.data());
+	//
+	// m_mesh.vertexCount = output.m_vertices.size();
+	// m_mesh.triangleCount = output.m_vertices.size() / 3;
+	//
+	// UploadMesh(&m_mesh, false);
+	// ExportMesh(m_mesh, "gelly_march_output.obj");
 }
 
 const char *CMarchingCubesVisualizer::GetName() const {

@@ -3,7 +3,7 @@ struct VS_INPUT {
 };
 
 struct GS_OUTPUT {
-    linear noperspective centroid float4 Pos : SV_Position;
+    float4 Pos : SV_Position;
     float2 Tex : TEXCOORD0;
 };
 

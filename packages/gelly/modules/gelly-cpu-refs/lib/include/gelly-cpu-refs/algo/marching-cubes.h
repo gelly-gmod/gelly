@@ -165,6 +165,7 @@ inline Output gcr::marching_cubes::March(
 	const float smoothingRadius = settings.m_radius * 2.0f;
 
 	uint32_t voxelsPerUnit = settings.m_voxelSize;
+	uint32_t densityVoxelsPerUnit = 1;
 	if (settings.m_voxelSize < 1.0f) {
 		// sizes less than 1.0f mean that we need to discretize the voxels
 		// themselves, so it turns into 1 voxel / m_voxelSize units
@@ -173,6 +174,10 @@ inline Output gcr::marching_cubes::March(
 		// voxel into 0.5 units
 		voxelsPerUnit = 1.f / settings.m_voxelSize;
 	}
+
+	const uint32_t totalDensityCellCount =
+		domain.x * domain.y * domain.z * densityVoxelsPerUnit *
+		densityVoxelsPerUnit * densityVoxelsPerUnit;
 
 	const uint32_t totalCellCount = domain.x * domain.y * domain.z *
 									voxelsPerUnit * voxelsPerUnit *
@@ -186,10 +191,10 @@ inline Output gcr::marching_cubes::March(
 	// access would look like: cellIndex * MAX_PARTICLES_PER_CELL +
 	// particleIndex (0-MAX_PARTICLES_PER_CELL)
 	uint32_t *particleIndexBuffer =
-		new uint32_t[totalCellCount * MAX_PARTICLES_PER_CELL];
+		new uint32_t[totalDensityCellCount * MAX_PARTICLES_PER_CELL];
 
-	uint32_t *particleCountBuffer = new uint32_t[totalCellCount];
-	memset(particleCountBuffer, 0, sizeof(uint32_t) * totalCellCount);
+	uint32_t *particleCountBuffer = new uint32_t[totalDensityCellCount];
+	memset(particleCountBuffer, 0, sizeof(uint32_t) * totalDensityCellCount);
 
 	GridCell *cells = new GridCell[totalCellCount];
 
@@ -203,30 +208,44 @@ inline Output gcr::marching_cubes::March(
 	// fifth pass: make duplicate vertices unique and generate indices
 
 	const auto alignPositionToGrid =
-		[&domain, &voxelsPerUnit, &input, &settings](const XMFLOAT3 &position) {
+		[&domain, &voxelsPerUnit, &input, &settings](
+			const XMFLOAT3 &position, float voxelSize
+		) {
 			XMFLOAT3 localPosition = position;
 			localPosition.x -= input.m_min.x;
 			localPosition.y -= input.m_min.y;
 			localPosition.z -= input.m_min.z;
 
 			XMUINT3 gridPosition = XMUINT3{
-				static_cast<uint32_t>(localPosition.x / settings.m_voxelSize),
-				static_cast<uint32_t>(localPosition.y / settings.m_voxelSize),
-				static_cast<uint32_t>(localPosition.z / settings.m_voxelSize)
+				static_cast<uint32_t>(floorf((localPosition.x) / voxelSize)),
+				static_cast<uint32_t>(floorf((localPosition.y) / voxelSize)),
+				static_cast<uint32_t>(floorf((localPosition.z) / voxelSize))
 			};
-
-			gridPosition.x = std::max(gridPosition.x, 0u);
-			gridPosition.y = std::max(gridPosition.y, 0u);
-			gridPosition.z = std::max(gridPosition.z, 0u);
-
-			gridPosition.x = std::min(gridPosition.x, domain.x - 1);
-			gridPosition.y = std::min(gridPosition.y, domain.y - 1);
-			gridPosition.z = std::min(gridPosition.z, domain.z - 1);
 
 			return gridPosition;
 		};
 
 	const auto alignedPositionToIndex =
+		[&domain, &input, &smoothingRadius, &densityVoxelsPerUnit](
+			const XMUINT3 &position
+		) {
+			const XMUINT3 scaledDomain = XMUINT3{
+				domain.x * densityVoxelsPerUnit,
+				domain.y * densityVoxelsPerUnit,
+				domain.z * densityVoxelsPerUnit
+			};
+
+			XMUINT3 clampedPosition = XMUINT3{
+				std::min(position.x, domain.x - 1),
+				std::min(position.y, domain.y - 1),
+				std::min(position.z, domain.z - 1)
+			};
+
+			return clampedPosition.x + clampedPosition.y * scaledDomain.x +
+				   clampedPosition.z * scaledDomain.x * scaledDomain.y;
+		};
+
+	const auto marchingCellAlignedPositionToIndex =
 		[&domain, &voxelsPerUnit](const XMUINT3 &position) {
 			const XMUINT3 scaledDomain = XMUINT3{
 				domain.x * voxelsPerUnit,
@@ -240,8 +259,23 @@ inline Output gcr::marching_cubes::March(
 
 	for (uint32_t i = 0; i < input.m_pointCount; i++) {
 		const XMFLOAT4 &position = input.m_points[i];
-		const XMUINT3 gridPosition =
-			alignPositionToGrid(XMFLOAT3{position.x, position.y, position.z});
+		const XMUINT3 gridPosition = alignPositionToGrid(
+			XMFLOAT3{position.x, position.y, position.z}, smoothingRadius
+		);
+
+		float size[3] = {smoothingRadius, smoothingRadius, smoothingRadius};
+		float size2[3] = {
+			settings.m_radius, settings.m_radius, settings.m_radius
+		};
+
+		float pos[3] = {
+			static_cast<float>(gridPosition.x) + input.m_min.x,
+			static_cast<float>(gridPosition.y) + input.m_min.y,
+			static_cast<float>(gridPosition.z) + input.m_min.z,
+		};
+
+		input.m_visualDebugFacility->Draw3DWireCube(&pos[0], &size[0], 1, 0, 0);
+		input.m_visualDebugFacility->Draw3DLine(&position.x, &pos[0], 0, 0, 1);
 
 		const uint32_t cellIndex = alignedPositionToIndex(gridPosition);
 		const uint32_t currentCount = particleCountBuffer[cellIndex];
@@ -266,7 +300,8 @@ inline Output gcr::marching_cubes::March(
 										   &settings](const XMFLOAT3 &position
 										  ) {
 		float density = 0.0f;
-		const XMUINT3 &gridPosition = alignPositionToGrid(position);
+		const XMUINT3 &gridPosition =
+			alignPositionToGrid(position, settings.m_voxelSize);
 		XMINT3 signedGridPosition = XMINT3{
 			static_cast<int32_t>(gridPosition.x),
 			static_cast<int32_t>(gridPosition.y),
@@ -394,244 +429,247 @@ inline Output gcr::marching_cubes::March(
 			return normal;
 		};
 
-	// now we can calculate the index and scalar vertices for each cell in the
-	// **scaled** domain, not the original domain
-
-	// O(n^3 + 8) complexity, but we can parallelize this
-	for (uint32_t x = 0; x < domain.x * voxelsPerUnit; x++) {
-		for (uint32_t y = 0; y < domain.y * voxelsPerUnit; y++) {
-			for (uint32_t z = 0; z < domain.z * voxelsPerUnit; z++) {
-				XMFLOAT3 cellPos = {
-					static_cast<float>(x) / voxelsPerUnit,
-					static_cast<float>(y) / voxelsPerUnit,
-					static_cast<float>(z) / voxelsPerUnit
-				};
-
-				XMFLOAT3 cellSize = {
-					settings.m_voxelSize,
-					settings.m_voxelSize,
-					settings.m_voxelSize
-				};
-
-				uint32_t cellIndex = alignedPositionToIndex(XMUINT3{x, y, z});
-				cells[cellIndex].m_index = 0;
-
-				for (uint32_t i = 0; i < 8; i++) {
-					XMFLOAT3 vertexPositionVector = XMFLOAT3{
-						static_cast<float>(cellPos.x) +
-							lut::CUBE_VERTEX_OFFSETS_CENTERED[i].x *
-								(settings.m_voxelSize) +
-							input.m_min.x,
-						static_cast<float>(cellPos.y) +
-							lut::CUBE_VERTEX_OFFSETS_CENTERED[i].y *
-								(settings.m_voxelSize) +
-							input.m_min.y,
-						static_cast<float>(cellPos.z) +
-							lut::CUBE_VERTEX_OFFSETS_CENTERED[i].z *
-								(settings.m_voxelSize) +
-							input.m_min.z
-					};
-
-					const float density =
-						computeDensityAtPosition(vertexPositionVector);
-
-					cells[cellIndex].m_vertDensities[i] = density;
-
-					if (density > settings.m_isovalue) {
-						cells[cellIndex].m_index |= (1 << i);
-					}
-
-					cells[cellIndex].m_vertPositions[i] = vertexPositionVector;
-				}
-			}
-		}
-	}
-
-	uint32_t indexCounter = 0;
-
-	for (uint32_t x = 0; x < domain.x * voxelsPerUnit; x++) {
-		for (uint32_t y = 0; y < domain.y * voxelsPerUnit; y++) {
-			for (uint32_t z = 0; z < domain.z * voxelsPerUnit; z++) {
-				uint32_t cellIndex = alignedPositionToIndex(XMUINT3{x, y, z});
-
-				XMFLOAT3 triangleVertices[12] = {};
-				GridCell &cell = cells[cellIndex];
-
-				if (cell.m_index == 0xFF) {
-					continue;
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] == 0) {
-					continue;
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 1) {
-					triangleVertices[0] = InterpolateVertex(
-						cell.m_vertPositions[0],
-						cell.m_vertPositions[1],
-						cell.m_vertDensities[0],
-						cell.m_vertDensities[1],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 2) {
-					triangleVertices[1] = InterpolateVertex(
-						cell.m_vertPositions[1],
-						cell.m_vertPositions[2],
-						cell.m_vertDensities[1],
-						cell.m_vertDensities[2],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 4) {
-					triangleVertices[2] = InterpolateVertex(
-						cell.m_vertPositions[2],
-						cell.m_vertPositions[3],
-						cell.m_vertDensities[2],
-						cell.m_vertDensities[3],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 8) {
-					triangleVertices[3] = InterpolateVertex(
-						cell.m_vertPositions[3],
-						cell.m_vertPositions[0],
-						cell.m_vertDensities[3],
-						cell.m_vertDensities[0],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 16) {
-					triangleVertices[4] = InterpolateVertex(
-						cell.m_vertPositions[4],
-						cell.m_vertPositions[5],
-						cell.m_vertDensities[4],
-						cell.m_vertDensities[5],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 32) {
-					triangleVertices[5] = InterpolateVertex(
-						cell.m_vertPositions[5],
-						cell.m_vertPositions[6],
-						cell.m_vertDensities[5],
-						cell.m_vertDensities[6],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 64) {
-					triangleVertices[6] = InterpolateVertex(
-						cell.m_vertPositions[6],
-						cell.m_vertPositions[7],
-						cell.m_vertDensities[6],
-						cell.m_vertDensities[7],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 128) {
-					triangleVertices[7] = InterpolateVertex(
-						cell.m_vertPositions[7],
-						cell.m_vertPositions[4],
-						cell.m_vertDensities[7],
-						cell.m_vertDensities[4],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 256) {
-					triangleVertices[8] = InterpolateVertex(
-						cell.m_vertPositions[0],
-						cell.m_vertPositions[4],
-						cell.m_vertDensities[0],
-						cell.m_vertDensities[4],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 512) {
-					triangleVertices[9] = InterpolateVertex(
-						cell.m_vertPositions[1],
-						cell.m_vertPositions[5],
-						cell.m_vertDensities[1],
-						cell.m_vertDensities[5],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 1024) {
-					triangleVertices[10] = InterpolateVertex(
-						cell.m_vertPositions[2],
-						cell.m_vertPositions[6],
-						cell.m_vertDensities[2],
-						cell.m_vertDensities[6],
-						settings.m_isovalue
-					);
-				}
-
-				if (lut::EDGE_TABLE[cell.m_index] & 2048) {
-					triangleVertices[11] = InterpolateVertex(
-						cell.m_vertPositions[3],
-						cell.m_vertPositions[7],
-						cell.m_vertDensities[3],
-						cell.m_vertDensities[7],
-						settings.m_isovalue
-					);
-				}
-
-				for (int i = 0; lut::TRIANGLE_TABLE[cell.m_index][i] != -1;
-					 i += 3) {
-					const auto triTable = lut::TRIANGLE_TABLE[cell.m_index];
-
-					// input.m_visualDebugFacility->Draw3DLine(
-					// 	&triangleVertices[triTable[i]].x,
-					// 	&triangleVertices[triTable[i + 1]].x,
-					// 	1,
-					// 	0,
-					// 	0
-					// );
-					//
-					// input.m_visualDebugFacility->Draw3DLine(
-					// 	&triangleVertices[triTable[i + 1]].x,
-					// 	&triangleVertices[triTable[i + 2]].x,
-					// 	0,
-					// 	1,
-					// 	0
-					// );
-					//
-					// input.m_visualDebugFacility->Draw3DLine(
-					// 	&triangleVertices[triTable[i + 2]].x,
-					// 	&triangleVertices[triTable[i]].x,
-					// 	0,
-					// 	0,
-					// 	1
-					// );
-
-					vertices.push_back(triangleVertices[triTable[i]]);
-					vertices.push_back(triangleVertices[triTable[i + 1]]);
-					vertices.push_back(triangleVertices[triTable[i + 2]]);
-
-					indices.push_back(indexCounter++);
-
-					normals.push_back(computeCentralDifferenceAtPoint(
-						triangleVertices[triTable[i]]
-					));
-					normals.push_back(computeCentralDifferenceAtPoint(
-						triangleVertices[triTable[i + 1]]
-					));
-					normals.push_back(computeCentralDifferenceAtPoint(
-						triangleVertices[triTable[i + 2]]
-					));
-				}
-			}
-		}
-	}
+	// // now we can calculate the index and scalar vertices for each cell in
+	// the
+	// // **scaled** domain, not the original domain
+	//
+	// // O(n^3 + 8) complexity, but we can parallelize this
+	// for (uint32_t x = 0; x < domain.x * voxelsPerUnit; x++) {
+	// 	for (uint32_t y = 0; y < domain.y * voxelsPerUnit; y++) {
+	// 		for (uint32_t z = 0; z < domain.z * voxelsPerUnit; z++) {
+	// 			XMFLOAT3 cellPos = {
+	// 				static_cast<float>(x) / voxelsPerUnit,
+	// 				static_cast<float>(y) / voxelsPerUnit,
+	// 				static_cast<float>(z) / voxelsPerUnit
+	// 			};
+	//
+	// 			XMFLOAT3 cellSize = {
+	// 				settings.m_voxelSize,
+	// 				settings.m_voxelSize,
+	// 				settings.m_voxelSize
+	// 			};
+	//
+	// 			uint32_t cellIndex =
+	// 				marchingCellAlignedPositionToIndex(XMUINT3{x, y, z});
+	// 			cells[cellIndex].m_index = 0;
+	//
+	// 			for (uint32_t i = 0; i < 8; i++) {
+	// 				XMFLOAT3 vertexPositionVector = XMFLOAT3{
+	// 					static_cast<float>(cellPos.x) +
+	// 						lut::CUBE_VERTEX_OFFSETS_CENTERED[i].x *
+	// 							(settings.m_voxelSize) +
+	// 						input.m_min.x,
+	// 					static_cast<float>(cellPos.y) +
+	// 						lut::CUBE_VERTEX_OFFSETS_CENTERED[i].y *
+	// 							(settings.m_voxelSize) +
+	// 						input.m_min.y,
+	// 					static_cast<float>(cellPos.z) +
+	// 						lut::CUBE_VERTEX_OFFSETS_CENTERED[i].z *
+	// 							(settings.m_voxelSize) +
+	// 						input.m_min.z
+	// 				};
+	//
+	// 				const float density =
+	// 					computeDensityAtPosition(vertexPositionVector);
+	//
+	// 				cells[cellIndex].m_vertDensities[i] = density;
+	//
+	// 				if (density > settings.m_isovalue) {
+	// 					cells[cellIndex].m_index |= (1 << i);
+	// 				}
+	//
+	// 				cells[cellIndex].m_vertPositions[i] = vertexPositionVector;
+	// 			}
+	// 		}
+	// 	}
+	// }
+	//
+	// uint32_t indexCounter = 0;
+	//
+	// for (uint32_t x = 0; x < domain.x * voxelsPerUnit; x++) {
+	// 	for (uint32_t y = 0; y < domain.y * voxelsPerUnit; y++) {
+	// 		for (uint32_t z = 0; z < domain.z * voxelsPerUnit; z++) {
+	// 			uint32_t cellIndex =
+	// 				marchingCellAlignedPositionToIndex(XMUINT3{x, y, z});
+	//
+	// 			XMFLOAT3 triangleVertices[12] = {};
+	// 			GridCell &cell = cells[cellIndex];
+	//
+	// 			if (cell.m_index == 0xFF) {
+	// 				continue;
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] == 0) {
+	// 				continue;
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 1) {
+	// 				triangleVertices[0] = InterpolateVertex(
+	// 					cell.m_vertPositions[0],
+	// 					cell.m_vertPositions[1],
+	// 					cell.m_vertDensities[0],
+	// 					cell.m_vertDensities[1],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 2) {
+	// 				triangleVertices[1] = InterpolateVertex(
+	// 					cell.m_vertPositions[1],
+	// 					cell.m_vertPositions[2],
+	// 					cell.m_vertDensities[1],
+	// 					cell.m_vertDensities[2],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 4) {
+	// 				triangleVertices[2] = InterpolateVertex(
+	// 					cell.m_vertPositions[2],
+	// 					cell.m_vertPositions[3],
+	// 					cell.m_vertDensities[2],
+	// 					cell.m_vertDensities[3],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 8) {
+	// 				triangleVertices[3] = InterpolateVertex(
+	// 					cell.m_vertPositions[3],
+	// 					cell.m_vertPositions[0],
+	// 					cell.m_vertDensities[3],
+	// 					cell.m_vertDensities[0],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 16) {
+	// 				triangleVertices[4] = InterpolateVertex(
+	// 					cell.m_vertPositions[4],
+	// 					cell.m_vertPositions[5],
+	// 					cell.m_vertDensities[4],
+	// 					cell.m_vertDensities[5],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 32) {
+	// 				triangleVertices[5] = InterpolateVertex(
+	// 					cell.m_vertPositions[5],
+	// 					cell.m_vertPositions[6],
+	// 					cell.m_vertDensities[5],
+	// 					cell.m_vertDensities[6],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 64) {
+	// 				triangleVertices[6] = InterpolateVertex(
+	// 					cell.m_vertPositions[6],
+	// 					cell.m_vertPositions[7],
+	// 					cell.m_vertDensities[6],
+	// 					cell.m_vertDensities[7],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 128) {
+	// 				triangleVertices[7] = InterpolateVertex(
+	// 					cell.m_vertPositions[7],
+	// 					cell.m_vertPositions[4],
+	// 					cell.m_vertDensities[7],
+	// 					cell.m_vertDensities[4],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 256) {
+	// 				triangleVertices[8] = InterpolateVertex(
+	// 					cell.m_vertPositions[0],
+	// 					cell.m_vertPositions[4],
+	// 					cell.m_vertDensities[0],
+	// 					cell.m_vertDensities[4],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 512) {
+	// 				triangleVertices[9] = InterpolateVertex(
+	// 					cell.m_vertPositions[1],
+	// 					cell.m_vertPositions[5],
+	// 					cell.m_vertDensities[1],
+	// 					cell.m_vertDensities[5],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 1024) {
+	// 				triangleVertices[10] = InterpolateVertex(
+	// 					cell.m_vertPositions[2],
+	// 					cell.m_vertPositions[6],
+	// 					cell.m_vertDensities[2],
+	// 					cell.m_vertDensities[6],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			if (lut::EDGE_TABLE[cell.m_index] & 2048) {
+	// 				triangleVertices[11] = InterpolateVertex(
+	// 					cell.m_vertPositions[3],
+	// 					cell.m_vertPositions[7],
+	// 					cell.m_vertDensities[3],
+	// 					cell.m_vertDensities[7],
+	// 					settings.m_isovalue
+	// 				);
+	// 			}
+	//
+	// 			for (int i = 0; lut::TRIANGLE_TABLE[cell.m_index][i] != -1;
+	// 				 i += 3) {
+	// 				const auto triTable = lut::TRIANGLE_TABLE[cell.m_index];
+	//
+	// 				// input.m_visualDebugFacility->Draw3DLine(
+	// 				// 	&triangleVertices[triTable[i]].x,
+	// 				// 	&triangleVertices[triTable[i + 1]].x,
+	// 				// 	1,
+	// 				// 	0,
+	// 				// 	0
+	// 				// );
+	// 				//
+	// 				// input.m_visualDebugFacility->Draw3DLine(
+	// 				// 	&triangleVertices[triTable[i + 1]].x,
+	// 				// 	&triangleVertices[triTable[i + 2]].x,
+	// 				// 	0,
+	// 				// 	1,
+	// 				// 	0
+	// 				// );
+	// 				//
+	// 				// input.m_visualDebugFacility->Draw3DLine(
+	// 				// 	&triangleVertices[triTable[i + 2]].x,
+	// 				// 	&triangleVertices[triTable[i]].x,
+	// 				// 	0,
+	// 				// 	0,
+	// 				// 	1
+	// 				// );
+	//
+	// 				vertices.push_back(triangleVertices[triTable[i]]);
+	// 				vertices.push_back(triangleVertices[triTable[i + 1]]);
+	// 				vertices.push_back(triangleVertices[triTable[i + 2]]);
+	//
+	// 				indices.push_back(indexCounter++);
+	//
+	// 				normals.push_back(computeCentralDifferenceAtPoint(
+	// 					triangleVertices[triTable[i]]
+	// 				));
+	// 				normals.push_back(computeCentralDifferenceAtPoint(
+	// 					triangleVertices[triTable[i + 1]]
+	// 				));
+	// 				normals.push_back(computeCentralDifferenceAtPoint(
+	// 					triangleVertices[triTable[i + 2]]
+	// 				));
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	delete[] particleIndexBuffer;
 	delete[] particleCountBuffer;

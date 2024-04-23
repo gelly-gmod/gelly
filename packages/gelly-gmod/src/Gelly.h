@@ -7,6 +7,8 @@
 #include <memory>
 #include <thread>
 
+#include "gelly-integration/GellyHandles.h"
+
 struct FluidVisualParams {
 	// 4th member is shininess
 	float absorption[4] = {0.3f, 0.3f, 0.f, 1024.f};
@@ -29,10 +31,7 @@ static_assert(sizeof(CompositeConstants) % 16 == 0);
  */
 class GellyIntegration {
 private:
-	IFluidRenderer *renderer;
-	IFluidSimulation *simulation;
-	IRenderContext *renderContext;
-	ISimContext *simContext;
+	GellyHandles gellyHandles;
 	ObjectHandle mapHandle = INVALID_OBJECT_HANDLE;
 
 	IDirect3DDevice9Ex *device;

@@ -7,7 +7,6 @@ SamplerState InputDepthSampler : register(s0);
 
 float SampleNoDiscontinuity(float2 tex, float4 zc) {
     float4 frag = InputDepth.Sample(InputDepthSampler, tex);
-
     return frag.r;
 }
 

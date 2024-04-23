@@ -86,6 +86,7 @@
       "cacheVariables": {
         "GELLY_ENABLE_RENDERDOC_CAPTURES": "ON"
       },
+      "binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo-renderdoc",
       "inherits": [
         "gelly-gmod-relwithdebinfo"
       ]

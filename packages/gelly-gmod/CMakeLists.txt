@@ -49,6 +49,7 @@ add_library(
         src/source/Signatures.h
         src/source/GetCubemap.h
         src/source/GetCubemap.cpp
+        src/gelly-integration/GellyHandles.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
@@ -93,4 +94,4 @@ add_custom_target(
         COMMENT " Compiling gelly-gmod shaders "
 )
 
-add_dependencies(gelly-gmod GellyGModShaders)
+add_dependencies(gelly-gmod gsc GellyGModShaders)
