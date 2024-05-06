@@ -9,185 +9,65 @@ struct PS_OUTPUT {
     float4 Color : SV_Target0;
 };
 
-static const float g_blurWeights[9] = {
-    0.0625f, 0.125f, 0.0625f,
-    0.125f, 0.25f, 0.125f,
-    0.0625f, 0.125f, 0.0625f
-};
-
-// float4 BlurDepth(float2 tex) {
-//     float4 color = 0.0f;
-//     float2 texelSize = 1.0f / float2(g_ViewportWidth, g_ViewportHeight);
-    
-//     for (int i = 0; i < 9; ++i) {
-//         float2 offset = float2(i % 3 - 1, i / 3 - 1) * texelSize;
-//         float4 gausSample = InputDepth.Sample(InputDepthSampler, tex + offset);
-
-//         // Also, if the depth is too far away, we're going to assume that it's a discontinuity and discard it
-//         if (abs(gausSample.z - InputDepth.Sample(InputDepthSampler, tex).z) > 0.01f) {
-//             gausSample = InputDepth.Sample(InputDepthSampler, tex);
-//         }
-
-//         gausSample.xyz *= g_blurWeights[i];
-
-//         // if (gausSample.a == 0.f) {
-//         //     gausSample = InputDepth.Sample(InputDepthSampler, tex) * g_blurWeights[i];
-//         // }
-//         // branchless
-//         // we just take the original sample if the current sample is null
-//         gausSample = lerp(gausSample, InputDepth.Sample(InputDepthSampler, tex) * g_blurWeights[i], 1.f - gausSample.a);
-//         color += float4(gausSample.xyz, 1.0f);
-//     }
-
-//     return color;
-// }
-
-/*
-const float thresholdRatio = 5.0;
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-vec3 meanCurvature(vec2 pos)
-{
-    // Width of one pixel
-    vec2 dx = vec2(1.0f / u_ScreenWidth, 0.0f);
-    vec2 dy = vec2(0.0f, 1.0f / u_ScreenHeight);
-
-    // Central z value
-    float zc = texture(u_DepthTex, pos).r - 1.0f;
-
-    float zdxp = texture(u_DepthTex, pos + dx).r - 1.0f;
-    float zdxn = texture(u_DepthTex, pos - dx).r - 1.0f;
-
-    float zdx = 0.5f * (zdxp - zdxn);
-
-    float zdyp = texture(u_DepthTex, pos + dy).r - 1.0f;
-    float zdyn = texture(u_DepthTex, pos - dy).r - 1.0f;
-
-    float zdy = 0.5f * (zdyp - zdyn);
-
-    // Take second order finite differences
-    float zdx2 = zdxp + zdxn - 2.0f * zc;
-    float zdy2 = zdyp + zdyn - 2.0f * zc;
-
-    // Second order finite differences, alternating variables
-    float zdxpyp = texture(u_DepthTex, pos + dx + dy).r - 1.0f;
-    float zdxnyn = texture(u_DepthTex, pos - dx - dy).r - 1.0f;
-    float zdxpyn = texture(u_DepthTex, pos + dx - dy).r - 1.0f;
-    float zdxnyp = texture(u_DepthTex, pos - dx + dy).r - 1.0f;
-
-    float zdxy = (zdxpyp + zdxnyn - zdxpyn - zdxnyp) / 4.0f;
-
-    if(abs(zdx) > u_ParticleRadius * thresholdRatio) {
-        zdx  = 0.0f;
-        zdx2 = 0.0f;
-    }
-
-    if(abs(zdy) > u_ParticleRadius * thresholdRatio) {
-        zdy  = 0.0f;
-        zdy2 = 0.0f;
-    }
-
-    if(abs(zdxy) > u_ParticleRadius * thresholdRatio) {
-        zdxy = 0.0f;
-    }
-
-    // Projection transform inversion terms
-    float cx = 2.0f / (u_ScreenWidth * -projectionMatrix[0][0]);
-    float cy = 2.0f / (u_ScreenHeight * -projectionMatrix[1][1]);
-
-    // Normalization term
-    float d = cy * cy * zdx * zdx + cx * cx * zdy * zdy + cx * cx * cy * cy * zc * zc;
-
-    // Derivatives of said term
-    float ddx = cy * cy * 2.0f * zdx * zdx2 + cx * cx * 2.0f * zdy * zdxy + cx * cx * cy * cy * 2.0f * zc * zdx;
-    float ddy = cy * cy * 2.0f * zdx * zdxy + cx * cx * 2.0f * zdy * zdy2 + cx * cx * cy * cy * 2.0f * zc * zdy;
-
-    // Temporary variables to calculate mean curvature
-    float ex = 0.5f * zdx * ddx - zdx2 * d;
-    float ey = 0.5f * zdy * ddy - zdy2 * d;
-
-    // Finally, mean curvature
-    float h = 0.5f * ((cy * ex + cx * ey) / pow(d, 1.5f));
-
-    return (vec3(zdx, zdy, h));
+float sqr(float x) {
+    return x * x;
 }
 
-void main()
-{
-    float particleDepth = texture(u_DepthTex, f_TexCoord).r;
-    if(particleDepth < -1000.0f || particleDepth > 0) {
-        outDepth = particleDepth;
-    } else {
-        const float dt   = 0.0003f;
-        const float dzt  = 1000.0f;
-        vec3        dxyz = meanCurvature(f_TexCoord);
-
-        outDepth = particleDepth + dxyz.z * dt * (1.0f + (abs(dxyz.x) + abs(dxyz.y)) * dzt);
-    }
-}
-*/
-
-float SampleNoDiscontinuity(float2 tex, float zc) {
-    float4 frag = InputDepth.SampleLevel(InputDepthSampler, tex, 0);
-    bool isVoid = frag.r == 1.f;
-    float depth = frag.r;
-
-    if (isVoid) {
-        depth = zc;
-    }
-
-    if (abs(depth - zc) > g_ParticleRadius * g_ThresholdRatio) {
-        depth = zc;
-    }
-
-    return depth;
+float ComputeBlurScale() {
+    float aspect = g_ViewportWidth / g_ViewportHeight;
+    return g_ViewportWidth / aspect * g_Projection._m11;
 }
 
-float3 GetMeanCurvature(float2 pos) {
-    float2 dx = float2(1.0f / g_ViewportWidth, 0.0f);
-    float2 dy = float2(0.0f, 1.0f / g_ViewportHeight);
+float FetchEyeDepth(float2 pixel) {
+    return InputDepth.Load(int3(pixel, 0)).r;
+}
 
-    // float zc = InputDepth.Sample(InputDepthSampler, pos).r - 1.0f;
-    // float zdxpyp = InputDepth.Sample(InputDepthSampler, pos + dx + dy).r - 1.0f;
-    // float zdxnyn = InputDepth.Sample(InputDepthSampler, pos - dx - dy).r - 1.0f;
-    // float zdxpyn = InputDepth.Sample(InputDepthSampler, pos + dx - dy).r - 1.0f;
-    // float zdxnyp = InputDepth.Sample(InputDepthSampler, pos - dx + dy).r - 1.0f;
-    // float zdxp = InputDepth.Sample(InputDepthSampler, pos + dx).r - 1.0f;
-    // float zdxn = InputDepth.Sample(InputDepthSampler, pos - dx).r - 1.0f;
-    // float zdyp = InputDepth.Sample(InputDepthSampler, pos + dy).r - 1.0f;
-    // float zdyn = InputDepth.Sample(InputDepthSampler, pos - dy).r - 1.0f;
+float CreateIsosurfaceDepth(float2 tex) {
+    float2 inPosition = tex * float2(g_ViewportWidth, g_ViewportHeight);
+    const float blurRadiusWorld = g_ParticleRadius * 0.5f;
+    const float blurScale = ComputeBlurScale();
+    const float blurFalloff = g_ThresholdRatio;
 
-    float zc = InputDepth.SampleLevel(InputDepthSampler, pos, 0).r;
-    float zdxpyp = SampleNoDiscontinuity(pos + dx + dy, zc);
-    float zdxnyn = SampleNoDiscontinuity(pos - dx - dy, zc);
-    float zdxpyn = SampleNoDiscontinuity(pos + dx - dy, zc);
-    float zdxnyp = SampleNoDiscontinuity(pos - dx + dy, zc);
-    float zdxp = SampleNoDiscontinuity(pos + dx, zc);
-    float zdxn = SampleNoDiscontinuity(pos - dx, zc);
-    float zdyp = SampleNoDiscontinuity(pos + dy, zc);
-    float zdyn = SampleNoDiscontinuity(pos - dy, zc);
+    float depth = FetchEyeDepth(inPosition);
 
-    float zdx = 0.5f * (zdxp - zdxn);
-    float zdy = 0.5f * (zdyp - zdyn);
+    float blurDepthFalloff = g_ThresholdRatio;
+    float maxBlurRadius = 5.0;
 
-    float zdx2 = zdxp + zdxn - 2.0f * zc;
-    float zdy2 = zdyp + zdyn - 2.0f * zc;
+    float radius = min(maxBlurRadius, blurScale * (blurRadiusWorld / -depth));
+    float radiusInv = 1.0 / radius;
+    float taps = ceil(radius);
+    float frac = taps - radius;
 
-    float zdxy = (zdxpyp + zdxnyn - zdxpyn - zdxnyp) / 4.0f;
+    float sum = 0.0;
+    float wsum = 0.0;
+    float count = 0.0;
 
-    float cx = 2.0f / (g_ViewportWidth * -g_Projection[0][0]);
-    float cy = 2.0f / (g_ViewportHeight * -g_Projection[1][1]);
+    for (float y = -taps; y <= taps; y += 1.0) {
+        for (float x = -taps; x <= taps; x += 1.0) {
+            float2 offset = float2(x, y);
+            float sample = FetchEyeDepth(inPosition + offset);
 
-    float d = cy * cy * zdx * zdx + cx * cx * zdy * zdy + cx * cx * cy * cy * zc * zc;
+            float r1 = length(float2(x, y)) * radiusInv;
+            float w = exp(-(r1 * r1));
 
-    float ddx = cy * cy * 2.0f * zdx * zdx2 + cx * cx * 2.0f * zdy * zdxy + cx * cx * cy * cy * 2.0f * zc * zdx;
-    float ddy = cy * cy * 2.0f * zdx * zdxy + cx * cx * 2.0f * zdy * zdy2 + cx * cx * cy * cy * 2.0f * zc * zdy;
+            float r2 = (sample - depth) * blurDepthFalloff;
+            float g = exp(-(r2 * r2));
 
-    float ex = 0.5f * zdx * ddx - zdx2 * d;
-    float ey = 0.5f * zdy * ddy - zdy2 * d;
+            float wBoundary = step(radius, max(abs(x), abs(y)));
+            float wFrac = 1.0 - wBoundary * frac;
 
-    float h = 0.5f * ((cy * ex + cx * ey) / pow(d, 1.5f));
+            sum += sample * w * g * wFrac;
+            wsum += w * g * wFrac;
+            count += g * wFrac;
+        }
+    }
 
-    return float3(zdx, zdy, h);
+    if (wsum > 0.0) {
+        sum /= wsum;
+    }
+
+    float blend = count / sqr(2.0 * radius + 1.0);
+    return lerp(depth, sum, blend);
 }
 
 
@@ -198,15 +78,9 @@ PS_OUTPUT main(VS_OUTPUT input) {
         discard;
     }
 
-    float dt = 0.0005f;
-    float dzt = 1000.0f;
-    float3 dxyz = GetMeanCurvature(input.Tex);
-
-    float depth = original.r + dxyz.z * dt * (1.0f + (abs(dxyz.x) + abs(dxyz.y)) * dzt);
-    // Convert view depth to projection depth
-    //z_ndc = ( -z_eye * (f+n)/(f-n) - 2*f*n/(f-n) ) / -z_eye
-    float projDepth = EyeToProjDepth(depth);
+    float eyeDepth = CreateIsosurfaceDepth(input.Tex);
+    float projDepth = EyeToProjDepth(eyeDepth);
     
-    output.Color = float4(depth, projDepth, 0.f, 1.0f);
+    output.Color = float4(eyeDepth, projDepth, 0.f, 1.0f);
     return output;
 }

@@ -119,19 +119,48 @@ void CD3D11SplattingFluidRenderer::CreateBuffers() {
 	positionBufferDesc.stride = sizeof(SimFloat4);
 
 	buffers.positions = context->CreateBuffer(positionBufferDesc);
+
+	BufferDesc anisotropyDesc = {};
+	anisotropyDesc.type = BufferType::VERTEX;
+	anisotropyDesc.usage = BufferUsage::DEFAULT;
+	anisotropyDesc.format = BufferFormat::R32G32B32A32_FLOAT;
+	anisotropyDesc.byteWidth = sizeof(SimFloat4) * simData->GetMaxParticles();
+	anisotropyDesc.stride = sizeof(SimFloat4);
+
+	buffers.anisotropyQ1 = context->CreateBuffer(anisotropyDesc);
+	buffers.anisotropyQ2 = context->CreateBuffer(anisotropyDesc);
+	buffers.anisotropyQ3 = context->CreateBuffer(anisotropyDesc);
+
 	buffers.fluidRenderCBuffer =
 		util::CreateCBuffer<FluidRenderParams>(context);
 
-	BufferLayoutDesc positionLayoutDesc = {};
-	positionLayoutDesc.items[0] = {
-		0, "SV_POSITION", 0, BufferLayoutFormat::FLOAT4
+	BufferLayoutDesc splattingLayoutDesc = {};
+	splattingLayoutDesc.items[0] = {
+		0,
+		"SV_POSITION",
+		0,
+		BufferLayoutFormat::FLOAT4,
 	};
-	positionLayoutDesc.itemCount = 1;
-	positionLayoutDesc.vertexShader = shaders.splattingVS;
-	positionLayoutDesc.topology = BufferLayoutTopology::POINTS;
 
-	buffers.positionsLayout = context->CreateBufferLayout(positionLayoutDesc);
-	buffers.positionsLayout->AttachBufferAtSlot(buffers.positions, 0);
+	splattingLayoutDesc.items[1] = {
+		0, "ANISOTROPY", 1, BufferLayoutFormat::FLOAT4
+	};
+	splattingLayoutDesc.items[2] = {
+		1, "ANISOTROPY", 2, BufferLayoutFormat::FLOAT4
+	};
+	splattingLayoutDesc.items[3] = {
+		2, "ANISOTROPY", 3, BufferLayoutFormat::FLOAT4
+	};
+
+	splattingLayoutDesc.itemCount = 4;
+	splattingLayoutDesc.vertexShader = shaders.splattingVS;
+	splattingLayoutDesc.topology = BufferLayoutTopology::POINTS;
+
+	buffers.splattingLayout = context->CreateBufferLayout(splattingLayoutDesc);
+	buffers.splattingLayout->AttachBufferAtSlot(buffers.positions, 0);
+	buffers.splattingLayout->AttachBufferAtSlot(buffers.anisotropyQ1, 1);
+	buffers.splattingLayout->AttachBufferAtSlot(buffers.anisotropyQ2, 2);
+	buffers.splattingLayout->AttachBufferAtSlot(buffers.anisotropyQ3, 3);
 
 	BufferDesc particleAbsorptionBufferDesc = {};
 	particleAbsorptionBufferDesc.type = BufferType::SHADER_RESOURCE;
@@ -232,6 +261,15 @@ void CD3D11SplattingFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData
 	simData->LinkBuffer(
 		SimBufferType::POSITION, buffers.positions->GetBufferResource()
 	);
+	simData->LinkBuffer(
+		SimBufferType::ANISOTROPY_Q1, buffers.anisotropyQ1->GetBufferResource()
+	);
+	simData->LinkBuffer(
+		SimBufferType::ANISOTROPY_Q2, buffers.anisotropyQ2->GetBufferResource()
+	);
+	simData->LinkBuffer(
+		SimBufferType::ANISOTROPY_Q3, buffers.anisotropyQ3->GetBufferResource()
+	);
 }
 
 void CD3D11SplattingFluidRenderer::AttachToContext(
@@ -282,7 +320,7 @@ void CD3D11SplattingFluidRenderer::RenderUnfilteredDepth() {
 		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
 	);
 
-	buffers.positionsLayout->BindAsVertexBuffer();
+	buffers.splattingLayout->BindAsVertexBuffer();
 
 	shaders.splattingGS->Bind();
 	shaders.splattingPS->Bind();
@@ -396,7 +434,7 @@ void CD3D11SplattingFluidRenderer::RenderThickness() {
 		renderTargets, ARRAYSIZE(renderTargets), std::nullopt
 	);
 
-	buffers.positionsLayout->BindAsVertexBuffer();
+	buffers.splattingLayout->BindAsVertexBuffer();
 
 	shaders.thicknessGS->Bind();
 	shaders.thicknessPS->Bind();

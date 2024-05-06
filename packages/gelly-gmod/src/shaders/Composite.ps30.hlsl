@@ -38,10 +38,6 @@ float3 NormalizeAbsorption(float3 absorption, float thickness) {
 float4 Shade(VS_INPUT input) {
     float thickness = tex2D(thicknessTex, input.Tex).x;
 
-    if (thickness < 0.02f) {
-        discard;
-    }
-
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
 
     float3 position = tex2D(positionTex, input.Tex).xyz;
@@ -52,6 +48,10 @@ float4 Shade(VS_INPUT input) {
     float3 specular = texCUBE(cubemapTex, reflectionDir).xyz;
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
+    if (fresnel > 0.89f) {
+        discard;
+    }
+
     float2 transmissionUV = input.Tex + normal.zx * refractionStrength;
     float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
     // apply inverse gamma correction
@@ -59,7 +59,6 @@ float4 Shade(VS_INPUT input) {
     transmission *= absorption;
 
     float3 weight = (1.f - fresnel) * transmission + fresnel * specular;
-
     return float4(weight, 1.0);
 }
 

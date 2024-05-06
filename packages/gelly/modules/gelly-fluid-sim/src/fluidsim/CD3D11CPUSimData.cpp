@@ -11,6 +11,15 @@ void CD3D11CPUSimData::LinkBuffer(SimBufferType type, void *buffer) {
 		case SimBufferType::VELOCITY:
 			velocityBuffer = static_cast<ID3D11Buffer *>(buffer);
 			break;
+		case SimBufferType::ANISOTROPY_Q1:
+			anisotropyQ1Buffer = static_cast<ID3D11Buffer *>(buffer);
+			break;
+		case SimBufferType::ANISOTROPY_Q2:
+			anisotropyQ2Buffer = static_cast<ID3D11Buffer *>(buffer);
+			break;
+		case SimBufferType::ANISOTROPY_Q3:
+			anisotropyQ3Buffer = static_cast<ID3D11Buffer *>(buffer);
+			break;
 	}
 }
 
@@ -20,6 +29,12 @@ bool CD3D11CPUSimData::IsBufferLinked(SimBufferType type) {
 			return positionBuffer != nullptr;
 		case SimBufferType::VELOCITY:
 			return velocityBuffer != nullptr;
+		case SimBufferType::ANISOTROPY_Q1:
+			return anisotropyQ1Buffer != nullptr;
+		case SimBufferType::ANISOTROPY_Q2:
+			return anisotropyQ2Buffer != nullptr;
+		case SimBufferType::ANISOTROPY_Q3:
+			return anisotropyQ3Buffer != nullptr;
 	}
 	return false;
 }
@@ -30,6 +45,12 @@ void *CD3D11CPUSimData::GetLinkedBuffer(SimBufferType type) {
 			return positionBuffer;
 		case SimBufferType::VELOCITY:
 			return velocityBuffer;
+		case SimBufferType::ANISOTROPY_Q1:
+			return anisotropyQ1Buffer;
+		case SimBufferType::ANISOTROPY_Q2:
+			return anisotropyQ2Buffer;
+		case SimBufferType::ANISOTROPY_Q3:
+			return anisotropyQ3Buffer;
 	}
 	return nullptr;
 }

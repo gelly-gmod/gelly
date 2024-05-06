@@ -82,6 +82,15 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		);
 	}
 
+	if (!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q1) ||
+		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q2) ||
+		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q3)) {
+		throw std::runtime_error(
+			"CD3D11FlexFluidSimulation::Initialize: anisotropy buffers must be "
+			"linked before initializing the simulation."
+		);
+	}
+
 	NvFlexInitDesc initDesc = {};
 	initDesc.computeType = eNvFlexD3D11;
 	initDesc.renderDevice =
@@ -143,6 +152,27 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	sharedBuffers.positions = NvFlexRegisterD3DBuffer(
 		library,
 		simData->GetLinkedBuffer(SimBufferType::POSITION),
+		maxParticles,
+		sizeof(FlexFloat4)
+	);
+
+	sharedBuffers.anisotropyQ1Buffer = NvFlexRegisterD3DBuffer(
+		library,
+		simData->GetLinkedBuffer(SimBufferType::ANISOTROPY_Q1),
+		maxParticles,
+		sizeof(FlexFloat4)
+	);
+
+	sharedBuffers.anisotropyQ2Buffer = NvFlexRegisterD3DBuffer(
+		library,
+		simData->GetLinkedBuffer(SimBufferType::ANISOTROPY_Q2),
+		maxParticles,
+		sizeof(FlexFloat4)
+	);
+
+	sharedBuffers.anisotropyQ3Buffer = NvFlexRegisterD3DBuffer(
+		library,
+		simData->GetLinkedBuffer(SimBufferType::ANISOTROPY_Q3),
 		maxParticles,
 		sizeof(FlexFloat4)
 	);
@@ -289,6 +319,13 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 
 	NvFlexUpdateSolver(solver, deltaTime, substeps, false);
 	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, &copyDesc);
+	NvFlexGetAnisotropy(
+		solver,
+		sharedBuffers.anisotropyQ1Buffer,
+		sharedBuffers.anisotropyQ2Buffer,
+		sharedBuffers.anisotropyQ3Buffer,
+		&copyDesc
+	);
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
@@ -313,7 +350,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.fluidRestDistance = solverParams.radius * 0.73f;
 	solverParams.solidRestDistance = solverParams.radius * 2.13f;
 
-	solverParams.anisotropyScale = 0.0f;
+	solverParams.anisotropyScale = 1.0f;
 	solverParams.anisotropyMin = 0.1f;
 	solverParams.anisotropyMax = 2.0f;
 	solverParams.smoothing = 2.2f;

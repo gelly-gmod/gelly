@@ -11,6 +11,10 @@ struct SimFloat4 {
 enum class SimBufferType {
 	POSITION,
 	VELOCITY,
+	// Basis vectors for oriented ellipsoid surface extraction
+	ANISOTROPY_Q1,
+	ANISOTROPY_Q2,
+	ANISOTROPY_Q3
 };
 }  // namespace Gelly
 

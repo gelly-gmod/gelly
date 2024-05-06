@@ -28,7 +28,10 @@ private:
 
 	struct {
 		GellyInterfaceVal<IManagedBuffer> positions;
-		GellyInterfaceVal<IManagedBufferLayout> positionsLayout;
+		GellyInterfaceVal<IManagedBuffer> anisotropyQ1;
+		GellyInterfaceVal<IManagedBuffer> anisotropyQ2;
+		GellyInterfaceVal<IManagedBuffer> anisotropyQ3;
+		GellyInterfaceVal<IManagedBufferLayout> splattingLayout;
 		GellyInterfaceVal<IManagedBuffer> fluidRenderCBuffer;
 		GellyInterfaceVal<IManagedDepthBuffer> depthBuffer;
 

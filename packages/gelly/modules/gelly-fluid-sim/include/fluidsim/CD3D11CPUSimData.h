@@ -12,6 +12,9 @@ class CD3D11CPUSimData : public ISimData {
 private:
 	ID3D11Buffer *positionBuffer;
 	ID3D11Buffer *velocityBuffer;
+	ID3D11Buffer *anisotropyQ1Buffer;
+	ID3D11Buffer *anisotropyQ2Buffer;
+	ID3D11Buffer *anisotropyQ3Buffer;
 
 	int maxParticles = 0;
 	int activeParticles = 0;

@@ -1,36 +1,58 @@
 #include "FluidRenderCBuffer.hlsli"
 #include "SplattingStructs.hlsli"
+#include "util/SolveQuadratic.hlsli"
+
+float sqr(float x) {
+    return x * x;
+}
 
 PS_OUTPUT main(GS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    
-    float3 normal;
-    normal.xy = input.Tex * float2(2.0, -2.0) + float2(-1.0, 1.0);
-    float magnitude = dot(normal.xy, normal.xy);
 
-    if (magnitude > 1.0) {
+    float4x4 invQuadric;
+    invQuadric._m00_m10_m20_m30 = input.InvQ0;
+    invQuadric._m01_m11_m21_m31 = input.InvQ1;
+    invQuadric._m02_m12_m22_m32 = input.InvQ2;
+    invQuadric._m03_m13_m23_m33 = input.InvQ3;
+
+    float4 position = input.Pos;
+
+    float2 invViewport = float2(
+        1.f / g_ViewportWidth,
+        (g_ViewportWidth / g_ViewportHeight) / g_ViewportWidth
+    );
+
+    float4 ndcPos = float4(
+        input.Pos.x * invViewport.x * 2.f - 1.f,
+        (1.f - input.Pos.y * invViewport.y) * 2.f - 1.f,
+        0.f,
+        1.f
+    );
+
+    float4 viewDir = mul(g_InverseProjection, ndcPos);
+
+    float4 dir = mul(invQuadric, float4(viewDir.xyz, 0.f));
+    float4 origin = invQuadric._m03_m13_m23_m33;
+
+    // Solve the quadratic equation
+    float a = sqr(dir.x) + sqr(dir.y) + sqr(dir.z);
+    float b = dir.x*origin.x + dir.y*origin.y + dir.z*origin.z - dir.w*origin.w;
+    float c = sqr(origin.x) + sqr(origin.y) + sqr(origin.z) - sqr(origin.w);
+
+    float minT, maxT;
+
+    if (!SolveQuadratic(a, 2.f * b, c, minT, maxT)) {
         discard;
     }
 
-    normal.z = sqrt(1.0 - magnitude);
+    float3 eyePos = viewDir.xyz * minT;
+    float4 rayNDCPos = mul(g_Projection, float4(eyePos, 1.f));
 
-    // We can calculate the depth from the normal by using the z component of the normal
+    float projectionDepth = rayNDCPos.z / rayNDCPos.w;
+    float eyeDepth = eyePos.z;
 
-    float4 ndcPosition = input.Pos;
-    ndcPosition.xy /= float2(g_ViewportWidth, g_ViewportHeight);
-    ndcPosition.xy = ndcPosition.xy * 2.0 - 1.0;
-    ndcPosition.w = 1.0;
-    float4 viewPosition = mul(g_InverseProjection, ndcPosition);
-    viewPosition /= viewPosition.w;
+    output.ShaderDepth = float4(eyeDepth, projectionDepth, 0.f, 1.f);
+    output.Depth = projectionDepth;
 
-    float4 nudgedPosition = viewPosition;
-    nudgedPosition.z += normal.z * (g_ParticleRadius);
-    float4 viewNudgedPosition = nudgedPosition;
-    nudgedPosition = mul(g_Projection, nudgedPosition);
-
-    float depth = nudgedPosition.z / nudgedPosition.w;
-
-    output.ShaderDepth = float4(viewNudgedPosition.z, depth, 0.f, 1.f);
-    output.Depth = depth;
     return output;
 }

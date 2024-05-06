@@ -224,6 +224,8 @@ LUA_FUNCTION(gelly_SetObjectPosition) {
 	return 0;
 }
 
+inline float rad(float deg) { return deg * (XM_PI / 180.0); }
+
 LUA_FUNCTION(gelly_SetObjectRotation) {
 	START_GELLY_EXCEPTIONS();
 	if (!gelly->IsInteractive()) {
@@ -232,24 +234,34 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
 	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);	  // Rotation
-	// we need to convert it from an angle to a quaternion
-	QAngle angle = LUA->GetAngle(2);
+	// we need to convert it from an ang to a quaternion
+	QAngle ang = LUA->GetAngle(2);
 
-	XMVECTOR quat = XMQuaternionRotationRollPitchYaw(
-		// We need to convert to radians, but also re-order since Source uses a
-		// right handed Z-offset euler angle system
-		XMConvertToRadians(angle.y),
-		XMConvertToRadians(angle.x),
-		XMConvertToRadians(-angle.z)
-	);
+	float p = rad(ang.x) / 2.f;
+	float y = rad(ang.y) / 2.f;
+	float r = rad(ang.z) / 2.f;
+	float cr = cos(r);
+	float sr = sin(r);
+	float cp = cos(p);
+	float sp = sin(p);
+	float cy = cos(y);
+	float sy = sin(y);
+
+	XMFLOAT4 quat = {
+		cr * cp * cy + sr * sp * sy,
+		sr * cp * cy - cr * sp * sy,
+		cr * sp * cy + sr * cp * sy,
+		cr * cp * sy - sr * sp * cy
+	};
 
 	gelly->GetSimulation()->GetScene()->SetObjectQuaternion(
 		static_cast<ObjectHandle>(LUA->GetNumber(1)),
-		XMVectorGetY(quat),
-		XMVectorGetZ(quat),
-		XMVectorGetW(quat),
-		XMVectorGetX(quat)
+		quat.y,
+		quat.z,
+		quat.w,
+		quat.x
 	);
+	
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }

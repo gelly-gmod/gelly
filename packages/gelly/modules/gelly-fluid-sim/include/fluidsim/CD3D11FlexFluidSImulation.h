@@ -11,7 +11,9 @@
 class CD3D11FlexFluidSimulation : public IFluidSimulation {
 private:
 	static constexpr SimCommandType supportedCommands =
-		static_cast<SimCommandType>(RESET | ADD_PARTICLE | CHANGE_RADIUS | SET_FLUID_PROPERTIES);
+		static_cast<SimCommandType>(
+			RESET | ADD_PARTICLE | CHANGE_RADIUS | SET_FLUID_PROPERTIES
+		);
 
 	CD3D11CPUSimData *simData;
 	GellyObserverPtr<ISimContext> context{};
@@ -38,6 +40,9 @@ private:
 	 */
 	struct {
 		NvFlexBuffer *positions;
+		NvFlexBuffer *anisotropyQ1Buffer;
+		NvFlexBuffer *anisotropyQ2Buffer;
+		NvFlexBuffer *anisotropyQ3Buffer;
 	} sharedBuffers{};
 
 	NvFlexLibrary *library{};
@@ -51,6 +56,7 @@ private:
 
 	void SetupParams();
 	void DebugDumpParams();
+
 public:
 	CD3D11FlexFluidSimulation();
 	~CD3D11FlexFluidSimulation() override;
@@ -70,7 +76,7 @@ public:
 
 	void Update(float deltaTime) override;
 
-	const char* GetComputeDeviceName() override;
+	const char *GetComputeDeviceName() override;
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
 
 	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override;
