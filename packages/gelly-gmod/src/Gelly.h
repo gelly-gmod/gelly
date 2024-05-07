@@ -37,7 +37,7 @@ private:
 	IDirect3DDevice9Ex *device;
 
 	float particleRadius = 20.f;
-	float thresholdRatio = 10.33f;
+	float thresholdRatio = 0.07f;
 	bool isSimulationInteractive = false;
 
 	struct {
