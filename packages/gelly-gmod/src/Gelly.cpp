@@ -197,6 +197,64 @@ void GellyIntegration::CreateTextures() {
 			sharedHandles.thicknessTexture,
 			ContextRenderAPI::D3D9Ex
 		);
+
+	IDirect3D9 *d3d9 = nullptr;
+	if (SUCCEEDED(device->GetDirect3D(&d3d9))) {
+		LOG_INFO("Got Direct3D instance.");
+
+		if (FAILED(d3d9->CheckDeviceFormat(
+				0,
+				D3DDEVTYPE_HAL,
+				D3DFMT_X8R8G8B8,
+				D3DUSAGE_DEPTHSTENCIL,
+				D3DRTYPE_TEXTURE,
+				(D3DFORMAT)MAKEFOURCC('I', 'N', 'T', 'Z')
+			))) {
+			LOG_INFO("Depth format not supported.");
+		} else {
+			LOG_INFO(
+				"Success! Driver reported support for the depth hack "
+				"(NVIDIA-INTZ)."
+			)
+			LOG_INFO("Applying...")
+
+			if (device->CreateTexture(
+					width,
+					height,
+					1,
+					D3DUSAGE_DEPTHSTENCIL,
+					(D3DFORMAT)MAKEFOURCC('I', 'N', 'T', 'Z'),
+					D3DPOOL_DEFAULT,
+					&textures.depthStencilTexture,
+					nullptr
+				) == D3D_OK) {
+				LOG_INFO(
+					"Hacked texture created successfully. (INTZ@%dx%d)",
+					width,
+					height
+				);
+				LOG_INFO("Injecting...");
+
+				if (FAILED(textures.depthStencilTexture->GetSurfaceLevel(
+						0, &textures.depthStencilSurface
+					))) {
+					LOG_INFO("Failed to get hacked surface.");
+				} else {
+					LOG_INFO("Got hacked surface.");
+					if (FAILED(device->SetDepthStencilSurface(
+							textures.depthStencilSurface
+						))) {
+						LOG_INFO("Failed to hack depth buffer.");
+					} else {
+						LOG_INFO(
+							"SUCCESS! GMod's depth buffer has now been hacked "
+							"to a INTZ buffer."
+						);
+					}
+				}
+			}
+		}
+	}
 }
 
 void GellyIntegration::LinkTextures() const {
@@ -281,6 +339,16 @@ void GellyIntegration::UpdateRenderParams() {
 	compositeConstants.eyePos[0] = currentView.origin.x;
 	compositeConstants.eyePos[1] = currentView.origin.y;
 	compositeConstants.eyePos[2] = currentView.origin.z;
+
+	XMMATRIX invVP = XMMatrixMultiply(
+		XMLoadFloat4x4(&inverseProjectionMatrix),
+		XMLoadFloat4x4(&inverseViewMatrix)
+	);
+
+	XMFLOAT4X4 invMVPData = {};
+	XMStoreFloat4x4(&invMVPData, XMMatrixTranspose(invVP));
+
+	compositeConstants.inverseMVP = invMVPData;
 }
 
 GellyIntegration::GellyIntegration(
@@ -365,7 +433,8 @@ GellyIntegration::GellyIntegration(
 				gellyHandles.renderer->EnableRenderDocCaptures();
 			!success) {
 			LOG_WARNING(
-				"Failed to enable captures, maybe RenderDoc is not running or "
+				"Failed to enable captures, maybe RenderDoc is not running "
+				"or "
 				"the API has changed?"
 			);
 		} else {
@@ -456,6 +525,12 @@ void GellyIntegration::Composite() {
 		device->SetSamplerState(6, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 		device->SetSamplerState(6, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 
+		device->SetSamplerState(7, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(7, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		device->SetSamplerState(7, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(7, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(7, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+
 		device->SetTexture(0, textures.depthTexture);
 		device->SetTexture(1, textures.normalTexture);
 		device->SetTexture(2, textures.positionTexture);
@@ -463,11 +538,13 @@ void GellyIntegration::Composite() {
 		device->SetTexture(4, textures.thicknessTexture);
 		device->SetTexture(5, GetCubemap());
 		device->SetTexture(6, textures.albedoTexture);
+		device->SetTexture(7, textures.depthStencilTexture);
 
 		device->SetStreamSource(0, buffers.ndcQuadVB, 0, sizeof(NDCVertex));
 		device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
 		device->SetRenderState(D3DRS_ZENABLE, TRUE);
+		device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 		// Disable decals from messing with the coloring
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
@@ -614,10 +691,14 @@ XMFLOAT3 GellyIntegration::GetCurrentAbsorption() const {
 	return absorption;
 }
 
+IDirect3DSurface9 *GellyIntegration::RetrieveCustomDepthSurface() const {
+	return textures.depthStencilSurface;
+}
+
 // Due to the way that GMod binary modules function
-// we have to make sure that each and every resource gets cleared and destroyed
-// so that the next time the binary module is invoked, everything is at a clean
-// state.
+// we have to make sure that each and every resource gets cleared and
+// destroyed so that the next time the binary module is invoked, everything
+// is at a clean state.
 // TODO: use smart pointers!! this is not maintainable!
 GellyIntegration::~GellyIntegration() {
 	LOG_INFO("Destroying GellyIntegration");
@@ -647,8 +728,8 @@ GellyIntegration::~GellyIntegration() {
 	}
 
 	if (textures.albedoTexture) {
-		// we can reasonably assume from here on out that all the d3d11 textures
-		// are valid
+		// we can reasonably assume from here on out that all the d3d11
+		// textures are valid
 
 		textures.albedoTexture->Release();
 		textures.depthTexture->Release();

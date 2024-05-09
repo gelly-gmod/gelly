@@ -22,6 +22,7 @@ struct CompositeConstants {
 	float absorption[4] = {0.3f, 0.3f, 0.f, 1024.f};
 	float refractionStrength = 0.03f;
 	float pad1[3];
+	XMFLOAT4X4 inverseMVP;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -48,6 +49,8 @@ private:
 		IDirect3DTexture9 *thicknessTexture;
 
 		IDirect3DTexture9 *backbufferTexture;
+		IDirect3DTexture9 *depthStencilTexture;
+		IDirect3DSurface9 *depthStencilSurface;
 	} textures;
 
 	struct {
@@ -127,6 +130,8 @@ public:
 	 * Usually managed by Lua. \return The currently used absorption vector.
 	 */
 	[[nodiscard]] XMFLOAT3 GetCurrentAbsorption() const;
+
+	[[nodiscard]] IDirect3DSurface9 *RetrieveCustomDepthSurface() const;
 };
 
 #endif	// GELLY_H

@@ -17,6 +17,7 @@
 #include "source/IBaseClientDLL.h"
 #include "source/IServerGameEnts.h"
 #include "source/IVEngineServer.h"
+#include "source/IVRenderView.h"
 #include "tracy/Tracy.hpp"
 
 #define DEFINE_LUA_FUNC(namespace, name)    \
@@ -261,7 +262,7 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 		quat.w,
 		quat.x
 	);
-	
+
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -505,6 +506,68 @@ LUA_FUNCTION(gelly_SetRenderSettings) {
 	return 0;
 }
 
+typedef HRESULT(WINAPI *SetDepthStencilSurface_t)(
+	IDirect3DDevice9Ex *device, IDirect3DSurface9 *surface
+);
+
+typedef HRESULT(WINAPI *Clear_t)(
+	IDirect3DDevice9Ex *device,
+	DWORD Count,
+	const D3DRECT *pRects,
+	DWORD Flags,
+	D3DCOLOR Color,
+	float Z,
+	DWORD Stencil
+);
+
+SetDepthStencilSurface_t originalSetDepthStencilSurface = nullptr;
+SetDepthStencilSurface_t hookedSetDepthStencilSurface = nullptr;
+
+Clear_t originalClear = nullptr;
+Clear_t hookedClear = nullptr;
+
+static bool captureDepth = false;
+
+HRESULT WINAPI HookedSetDepthStencilSurface(
+	IDirect3DDevice9Ex *device, IDirect3DSurface9 *surface
+) {
+	if (gelly) {
+		// Don't allow it as we have our own depth buffer
+		return originalSetDepthStencilSurface(
+			device, gelly->RetrieveCustomDepthSurface()
+		);
+	}
+
+	return originalSetDepthStencilSurface(device, surface);
+}
+
+HRESULT WINAPI HookedClear(
+	IDirect3DDevice9Ex *device,
+	DWORD Count,
+	const D3DRECT *pRects,
+	DWORD Flags,
+	D3DCOLOR Color,
+	float Z,
+	DWORD Stencil
+) {
+	if (gelly && captureDepth) {
+		if (Flags & D3DCLEAR_ZBUFFER) {
+			return D3D_OK;
+		}
+	}
+	return originalClear(device, Count, pRects, Flags, Color, Z, Stencil);
+}
+
+LUA_FUNCTION(gelly_CaptureDepth) {
+	captureDepth = true;
+	return 0;
+}
+
+LUA_FUNCTION(gelly_DisableCapturingDepth) {
+	captureDepth = false;
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem();
@@ -557,9 +620,44 @@ GMOD_MODULE_OPEN() {
 	LOG_INFO("  Max texture repeat: %lu", caps.MaxTextureRepeat);
 	LOG_INFO("  Texture filter caps: %lu", caps.TextureFilterCaps);
 
+	void **vtable = *reinterpret_cast<void ***>(d3dDevice);
+	void *setDepthStencilSurface = vtable[39];
+	void *clear = vtable[43];
+
+	LOG_INFO(
+		"IDirect3DDevice9Ex::SetDepthStencilSurface: %p", setDepthStencilSurface
+	);
+
+	LOG_INFO("IDirect3DDevice9Ex::Clear: %p", clear);
+
+	hookedSetDepthStencilSurface =
+		reinterpret_cast<SetDepthStencilSurface_t>(setDepthStencilSurface);
+
+	hookedClear = reinterpret_cast<Clear_t>(clear);
+
+	if (MH_CreateHook(
+			setDepthStencilSurface,
+			&HookedSetDepthStencilSurface,
+			reinterpret_cast<LPVOID *>(&originalSetDepthStencilSurface)
+		) != MH_OK) {
+		LOG_ERROR("Failed to hook IDirect3DDevice9Ex::SetDepthStencilSurface");
+		return 0;
+	}
+
+	if (MH_CreateHook(
+			clear, &HookedClear, reinterpret_cast<LPVOID *>(&originalClear)
+		) != MH_OK) {
+		LOG_ERROR("Failed to hook IDirect3DDevice9Ex::Clear");
+		return 0;
+	}
+
+	MH_EnableHook(setDepthStencilSurface);
+	MH_EnableHook(clear);
+
 	gelly =
 		new GellyIntegration(currentView.width, currentView.height, d3dDevice);
 
+	SetupWorldRenderingHooks(d3dDevice, gelly->RetrieveCustomDepthSurface());
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	// lets check sig version and this version first
 	LUA->GetField(-1, "VERSION");
@@ -594,6 +692,8 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, IsEntityCollidingWithParticles);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
 	DEFINE_LUA_FUNC(gelly, SetRenderSettings);
+	DEFINE_LUA_FUNC(gelly, CaptureDepth);
+	DEFINE_LUA_FUNC(gelly, DisableCapturingDepth);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 
@@ -602,6 +702,11 @@ GMOD_MODULE_OPEN() {
 
 GMOD_MODULE_CLOSE() {
 	LOG_INFO("Goodbye, world!");
+	MH_RemoveHook(reinterpret_cast<void *>(originalSetDepthStencilSurface));
+	MH_RemoveHook(reinterpret_cast<void *>(originalClear));
+
+	TeardownWorldRenderingHooks();
+
 	if (const auto status = MH_Uninitialize(); status != MH_OK) {
 		LOG_ERROR(
 			"Failed to uninitialize MinHook: %s", MH_StatusToString(status)

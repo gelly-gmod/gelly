@@ -3,6 +3,7 @@
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
+#include <d3d9.h>
 #include <windows.h>
 
 #include <cstddef>
@@ -259,4 +260,10 @@ void GetMatricesFromView(
 	VMatrix *pWorldToPixels
 );
 
-#endif //IVRENDERVIEW_H
+bool IsWorldRendering();
+void SetupWorldRenderingHooks(
+	IDirect3DDevice9Ex *device, IDirect3DSurface9 *depthStencilSurface
+);
+void TeardownWorldRenderingHooks();
+
+#endif	// IVRENDERVIEW_H
