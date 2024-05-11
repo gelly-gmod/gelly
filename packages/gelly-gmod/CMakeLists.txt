@@ -50,6 +50,11 @@ add_library(
         src/source/GetCubemap.h
         src/source/GetCubemap.cpp
         src/gelly-integration/GellyHandles.h
+        src/scene/Scene.cpp
+        src/scene/Scene.h
+        src/scene/Entities.cpp
+        src/scene/Entities.h
+        src/scene/EntIndex.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
