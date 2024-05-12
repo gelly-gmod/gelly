@@ -19,7 +19,7 @@ struct CompositeConstants {
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
-class StandardPipeline : Pipeline {
+class StandardPipeline : public Pipeline {
 private:
 	struct NDCVertex {
 		float x, y, z, w;

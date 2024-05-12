@@ -6,10 +6,10 @@
 
 #include "Config.h"
 #include "EntIndex.h"
-#include "Entities.h"
+#include "EntityManager.h"
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "Map.h"
-#include "Particles.h"
+#include "ParticleManager.h"
 #include "fluidrender/IFluidRenderer.h"
 
 class Scene {
@@ -18,9 +18,9 @@ private:
 	std::shared_ptr<IFluidSimulation> sim;
 	std::shared_ptr<IFluidRenderer> connectedRenderer;
 
-	Entities ents;
+	EntityManager ents;
 	std::optional<Map> map;
-	Particles particles;
+	ParticleManager particles;
 	Config config;
 
 public:

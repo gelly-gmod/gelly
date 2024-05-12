@@ -1,14 +1,14 @@
-#include "Entities.h"
+#include "EntityManager.h"
 
-Entities::Entities(ISimScene *scene) : simScene(scene) {}
+EntityManager::EntityManager(ISimScene *scene) : simScene(scene) {}
 
-Entities::~Entities() {
+EntityManager::~EntityManager() {
 	for (auto &ent : entities) {
 		simScene->RemoveObject(ent.second);
 	}
 }
 
-std::pair<std::vector<Vector>, std::vector<uint32_t>> Entities::ProcessGModMesh(
+std::pair<std::vector<Vector>, std::vector<uint32_t>> EntityManager::ProcessGModMesh(
 	std::vector<Vector> vertices
 ) const {
 	std::vector<Vector> processedVertices = vertices;
@@ -24,7 +24,7 @@ std::pair<std::vector<Vector>, std::vector<uint32_t>> Entities::ProcessGModMesh(
 	return std::make_pair(processedVertices, indices);
 }
 
-void Entities::AddEntity(
+void EntityManager::AddEntity(
 	EntIndex entIndex, const std::vector<Vector> &vertices
 ) {
 	ObjectCreationParams params = {};
@@ -47,7 +47,7 @@ void Entities::AddEntity(
 	entities[entIndex] = simScene->CreateObject(params);
 }
 
-void Entities::AddPlayerObject(
+void EntityManager::AddPlayerObject(
 	EntIndex entIndex, float radius, float halfHeight
 ) {
 	ObjectCreationParams params = {};
@@ -62,20 +62,20 @@ void Entities::AddPlayerObject(
 	entities[entIndex] = simScene->CreateObject(params);
 }
 
-void Entities::RemoveEntity(EntIndex entIndex) {
+void EntityManager::RemoveEntity(EntIndex entIndex) {
 	if (auto it = entities.find(entIndex); it != entities.end()) {
 		simScene->RemoveObject(it->second);
 		entities.erase(it);
 	}
 }
 
-void Entities::UpdateEntityPosition(EntIndex entIndex, Vector position) {
+void EntityManager::UpdateEntityPosition(EntIndex entIndex, Vector position) {
 	simScene->SetObjectPosition(
 		entities[entIndex], position.x, position.y, position.z
 	);
 }
 
-void Entities::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
+void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 	simScene->SetObjectQuaternion(
 		entities[entIndex], rotation.x, rotation.y, rotation.z, rotation.w
 	);

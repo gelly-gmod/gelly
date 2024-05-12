@@ -9,7 +9,7 @@
 #include "fluidsim/ISimCommandList.h"
 
 class ParticleListBuilder {
-	friend class Particles;
+	friend class ParticleManager;
 
 protected:
 	std::vector<AddParticle> particles;
@@ -27,7 +27,7 @@ public:
 	ParticleListBuilder SetAbsorption(float r, float g, float b);
 };
 
-class Particles {
+class ParticleManager {
 private:
 	std::shared_ptr<IFluidRenderer> renderer;
 	std::shared_ptr<IFluidSimulation> sim;
@@ -42,11 +42,11 @@ private:
 	void PushAbsorptionData(const ParticleListBuilder &builder) const;
 
 public:
-	Particles(
+	ParticleManager(
 		const std::shared_ptr<IFluidRenderer> &renderer,
 		const std::shared_ptr<IFluidSimulation> &sim
 	);
-	~Particles() = default;
+	~ParticleManager() = default;
 
 	static ParticleListBuilder CreateParticleList();
 	void AddParticles(const ParticleListBuilder &builder) const;

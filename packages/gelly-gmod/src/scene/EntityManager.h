@@ -9,7 +9,7 @@
 #include "fluidsim/IFluidSimulation.h"
 #include "fluidsim/ISimScene.h"
 
-class Entities {
+class EntityManager {
 private:
 	std::unordered_map<EntIndex, ObjectHandle> entities;
 	// Gelly's interface uses raw pointers
@@ -19,8 +19,8 @@ private:
 	ProcessGModMesh(std::vector<Vector> vertices) const;
 
 public:
-	explicit Entities(ISimScene *scene);
-	~Entities();
+	explicit EntityManager(ISimScene *scene);
+	~EntityManager();
 
 	void AddEntity(EntIndex entIndex, const std::vector<Vector> &vertices);
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);

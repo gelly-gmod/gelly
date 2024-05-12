@@ -1,4 +1,4 @@
-#include "Particles.h"
+#include "ParticleManager.h"
 
 ParticleListBuilder::ParticleListBuilder()
 	: particles(), absorption{0.f, 0.f, 0.f}, absorptionSet(false) {}
@@ -24,13 +24,13 @@ ParticleListBuilder ParticleListBuilder::SetAbsorption(
 	return *this;
 }
 
-Particles::Particles(
+ParticleManager::ParticleManager(
 	const std::shared_ptr<IFluidRenderer> &renderer,
 	const std::shared_ptr<IFluidSimulation> &sim
 )
 	: renderer(renderer), sim(sim) {}
 
-ISimCommandList *Particles::CreateCommandListFromBuilder(
+ISimCommandList *ParticleManager::CreateCommandListFromBuilder(
 	const ParticleListBuilder &builder
 ) const {
 	auto *cmdList = sim->CreateCommandList();
@@ -41,7 +41,7 @@ ISimCommandList *Particles::CreateCommandListFromBuilder(
 	return cmdList;
 }
 
-void Particles::SubmitPerParticleAbsorption(const ParticleListBuilder &builder
+void ParticleManager::SubmitPerParticleAbsorption(const ParticleListBuilder &builder
 ) const {
 	int startIndex = sim->GetSimulationData()->GetActiveParticles() + 1;
 	int endIndex = startIndex + builder.particles.size();
@@ -51,7 +51,7 @@ void Particles::SubmitPerParticleAbsorption(const ParticleListBuilder &builder
 	}
 }
 
-void Particles::PullAbsorptionData(const ParticleListBuilder &builder) const {
+void ParticleManager::PullAbsorptionData(const ParticleListBuilder &builder) const {
 	if (builder.absorptionSet &&
 		renderer->CheckFeatureSupport(
 			GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION
@@ -60,7 +60,7 @@ void Particles::PullAbsorptionData(const ParticleListBuilder &builder) const {
 	}
 }
 
-void Particles::PushAbsorptionData(const ParticleListBuilder &builder) const {
+void ParticleManager::PushAbsorptionData(const ParticleListBuilder &builder) const {
 	if (builder.absorptionSet &&
 		renderer->CheckFeatureSupport(
 			GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION
@@ -69,9 +69,9 @@ void Particles::PushAbsorptionData(const ParticleListBuilder &builder) const {
 	}
 }
 
-ParticleListBuilder Particles::CreateParticleList() { return {}; }
+ParticleListBuilder ParticleManager::CreateParticleList() { return {}; }
 
-void Particles::AddParticles(const ParticleListBuilder &builder) const {
+void ParticleManager::AddParticles(const ParticleListBuilder &builder) const {
 	auto *cmdList = CreateCommandListFromBuilder(builder);
 	PullAbsorptionData(builder);
 	SubmitPerParticleAbsorption(builder);
@@ -81,7 +81,7 @@ void Particles::AddParticles(const ParticleListBuilder &builder) const {
 	sim->DestroyCommandList(cmdList);
 }
 
-void Particles::ClearParticles() const {
+void ParticleManager::ClearParticles() const {
 	auto *cmdList = sim->CreateCommandList();
 	cmdList->AddCommand(SimCommand{RESET, Reset{}});
 	sim->ExecuteCommandList(cmdList);

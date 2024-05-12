@@ -52,17 +52,17 @@ add_library(
         src/gelly-integration/GellyHandles.h
         src/scene/Scene.cpp
         src/scene/Scene.h
-        src/scene/Entities.cpp
-        src/scene/Entities.h
+        src/scene/EntityManager.cpp
+        src/scene/EntityManager.h
         src/scene/EntIndex.h
         src/scene/Map.cpp
         src/scene/Map.h
-        src/scene/Particles.cpp
-        src/scene/Particles.h
+        src/scene/ParticleManager.cpp
+        src/scene/ParticleManager.h
         src/scene/Config.cpp
         src/scene/Config.h
-        src/composite/Composite.cpp
-        src/composite/Composite.h
+        src/composite/GModCompositor.cpp
+        src/composite/GModCompositor.h
         src/composite/Pipeline.h
         src/composite/UnownedResources.h
         src/composite/standard/StandardPipeline.cpp
@@ -71,6 +71,9 @@ add_library(
         src/composite/standard/StandardTextures.h
         src/composite/GellyResources.h
         src/composite/PipelineConfig.h
+        src/composite/Resources.cpp
+        src/composite/Resources.h
+        src/composite/PipelineType.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
