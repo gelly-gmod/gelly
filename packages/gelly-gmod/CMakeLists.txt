@@ -55,6 +55,12 @@ add_library(
         src/scene/Entities.cpp
         src/scene/Entities.h
         src/scene/EntIndex.h
+        src/scene/Map.cpp
+        src/scene/Map.h
+        src/scene/Particles.cpp
+        src/scene/Particles.h
+        src/scene/Config.cpp
+        src/scene/Config.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
