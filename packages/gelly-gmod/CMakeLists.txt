@@ -61,6 +61,16 @@ add_library(
         src/scene/Particles.h
         src/scene/Config.cpp
         src/scene/Config.h
+        src/composite/Composite.cpp
+        src/composite/Composite.h
+        src/composite/Pipeline.h
+        src/composite/UnownedResources.h
+        src/composite/standard/StandardPipeline.cpp
+        src/composite/standard/StandardPipeline.h
+        src/composite/standard/StandardTextures.cpp
+        src/composite/standard/StandardTextures.h
+        src/composite/GellyResources.h
+        src/composite/PipelineConfig.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions

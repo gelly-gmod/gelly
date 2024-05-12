@@ -34,6 +34,7 @@
 	}
 
 static GellyIntegration *gelly = nullptr;
+
 static std::map<ObjectHandle, int> handleToEntIndexMap;
 
 void InjectConsoleWindow() {
