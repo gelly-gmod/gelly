@@ -13,6 +13,7 @@ public:
 	~Config() = default;
 
 	void SetFluidProperties(const SetFluidProperties &props) const;
+	void ChangeRadius(float radius) const;
 };
 
 #endif	// CONFIG_H

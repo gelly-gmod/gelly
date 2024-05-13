@@ -12,7 +12,6 @@ using namespace DirectX;
 struct CompositeConstants {
 	float eyePos[3];
 	float pad0;
-	float absorption[4] = {0.3f, 0.3f, 0.f, 1024.f};
 	float refractionStrength = 0.03f;
 	float pad1[3];
 	XMFLOAT4X4 inverseMVP;
@@ -63,6 +62,9 @@ public:
 	) override;
 
 	void SetConfig(const PipelineConfig &config) override;
+	[[nodiscard]] PipelineConfig GetConfig() const override;
+
+	void SetFluidMaterial(const PipelineFluidMaterial &material) override;
 
 	void Composite() override;
 };

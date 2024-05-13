@@ -74,6 +74,7 @@ add_library(
         src/composite/Resources.cpp
         src/composite/Resources.h
         src/composite/PipelineType.h
+        src/util/GellySharedPtrs.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions

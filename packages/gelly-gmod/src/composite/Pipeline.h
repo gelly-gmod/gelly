@@ -6,6 +6,10 @@
 #include "UnownedResources.h"
 #include "fluidrender/IFluidTextures.h"
 
+struct PipelineFluidMaterial {
+	float refractionStrength;
+};
+
 /**
  * A D3D9 pipeline interface responsible for creating a state block to
  * draw the Gelly composite.
@@ -42,6 +46,9 @@ public:
 	) = 0;
 
 	virtual void SetConfig(const PipelineConfig &config) = 0;
+	[[nodiscard]] virtual PipelineConfig GetConfig() const = 0;
+
+	virtual void SetFluidMaterial(const PipelineFluidMaterial &material) = 0;
 
 	/**
 	 * Called during opaque rendering to composite and shade the Gelly frame.

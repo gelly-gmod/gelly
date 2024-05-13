@@ -2,12 +2,12 @@
 
 Scene::Scene(
 	const std::shared_ptr<IFluidRenderer> &connectedRenderer,
-	int maxParticles,
-	ID3D11Device *device,
-	ID3D11DeviceContext *context
+	const std::shared_ptr<ISimContext> &simContext,
+	const std::shared_ptr<IFluidSimulation> &sim,
+	int maxParticles
 )
-	: simContext(CreateD3D11SimContext(device, context)),
-	  sim(CreateD3D11FlexFluidSimulation(simContext.get())),
+	: simContext(simContext),
+	  sim(sim),
 	  connectedRenderer(connectedRenderer),
 	  ents(sim->GetScene()),
 	  particles(connectedRenderer, sim),
@@ -49,3 +49,5 @@ void Scene::ClearParticles() const { particles.ClearParticles(); }
 void Scene::SetFluidProperties(const ::SetFluidProperties &props) const {
 	config.SetFluidProperties(props);
 }
+
+void Scene::ChangeRadius(float radius) const { config.ChangeRadius(radius); }

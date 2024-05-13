@@ -26,9 +26,9 @@ private:
 public:
 	Scene(
 		const std::shared_ptr<IFluidRenderer> &connectedRenderer,
-		int maxParticles,
-		ID3D11Device *device,
-		ID3D11DeviceContext *deviceContext
+		const std::shared_ptr<ISimContext> &simContext,
+		const std::shared_ptr<IFluidSimulation> &sim,
+		int maxParticles
 	);
 
 	~Scene() = default;
@@ -45,6 +45,24 @@ public:
 	void ClearParticles() const;
 
 	void SetFluidProperties(const SetFluidProperties &props) const;
+	void ChangeRadius(float radius) const;
+
+	[[nodiscard]] int GetActiveParticles() const {
+		return sim->GetSimulationData()->GetActiveParticles();
+	}
+
+	[[nodiscard]] int GetMaxParticles() const {
+		return sim->GetSimulationData()->GetMaxParticles();
+	}
+
+	[[nodiscard]] const char *GetComputeDevice() const {
+		return sim->GetComputeDeviceName();
+	}
+
+	void Simulate(float dt) {
+		sim->Update(dt);
+		sim->GetScene()->Update();
+	}
 };
 
 #endif	// SCENE_H

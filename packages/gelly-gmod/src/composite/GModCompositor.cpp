@@ -5,24 +5,32 @@
 
 GModCompositor::GModCompositor(
 	PipelineType type,
-	GellyInterfaceVal<IFluidRenderer> renderer,
-	GellyInterfaceVal<IRenderContext> context
+	std::shared_ptr<IFluidRenderer> renderer,
+	std::shared_ptr<IRenderContext> context
 )
-	: pipeline(nullptr), gellyResources(), resources() {
-	gellyResources.renderer = std::shared_ptr<IFluidRenderer>(renderer);
-	gellyResources.context = std::shared_ptr<IRenderContext>(context);
+	: pipeline(nullptr), gellyResources() {
+	gellyResources.renderer = renderer;
+	gellyResources.context = context;
 	gellyResources.textures = renderer->GetFluidTextures();
 
 	if (type == PipelineType::STANDARD) {
 		pipeline = new StandardPipeline();
 		pipeline->CreatePipelineLocalResources(
-			gellyResources, resources.FindGModResources()
+			gellyResources, Resources::FindGModResources()
 		);
 	}
 }
 
 void GModCompositor::SetConfig(PipelineConfig config) {
 	pipeline->SetConfig(config);
+}
+
+[[nodiscard]] PipelineConfig GModCompositor::GetConfig() const {
+	return pipeline->GetConfig();
+}
+
+void GModCompositor::SetFluidMaterial(const PipelineFluidMaterial &material) {
+	pipeline->SetFluidMaterial(material);
 }
 
 void GModCompositor::Render() { pipeline->Composite(); }

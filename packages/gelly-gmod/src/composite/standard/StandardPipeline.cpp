@@ -264,6 +264,12 @@ void StandardPipeline::SetConfig(const PipelineConfig &config) {
 	this->config = config;
 }
 
+PipelineConfig StandardPipeline::GetConfig() const { return config; }
+
+void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
+	compositeConstants.refractionStrength = material.refractionStrength;
+}
+
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 

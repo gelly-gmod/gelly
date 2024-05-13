@@ -7,17 +7,19 @@
 class GModCompositor {
 private:
 	Pipeline *pipeline;
-	Resources resources;
 	GellyResources gellyResources;
 
 public:
 	GModCompositor(
 		PipelineType type,
-		GellyInterfaceVal<IFluidRenderer> renderer,
-		GellyInterfaceVal<IRenderContext> context
+		std::shared_ptr<IFluidRenderer> renderer,
+		std::shared_ptr<IRenderContext> context
 	);
 
 	void SetConfig(PipelineConfig config);
+	[[nodiscard]] PipelineConfig GetConfig() const;
+	void SetFluidMaterial(const PipelineFluidMaterial &material);
+
 	void Render();
 };
 
