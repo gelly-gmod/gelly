@@ -1,5 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
+// clang-format off
+#include "Map.h"
+// clang-format on
 
 #include <GellyFluidSim.h>
 #include <fluidsim/IFluidSimulation.h>
@@ -8,7 +11,6 @@
 #include "EntIndex.h"
 #include "EntityManager.h"
 #include "GarrysMod/Lua/SourceCompat.h"
-#include "Map.h"
 #include "ParticleManager.h"
 #include "fluidrender/IFluidRenderer.h"
 
@@ -18,7 +20,7 @@ private:
 	std::shared_ptr<IFluidSimulation> sim;
 	std::shared_ptr<IFluidRenderer> connectedRenderer;
 
-	EntityManager ents;
+	std::optional<EntityManager> ents;
 	std::optional<Map> map;
 	ParticleManager particles;
 	Config config;

@@ -1,8 +1,11 @@
 #ifndef MAP_H
 #define MAP_H
+// clang-format off
+#include "BSPParser.h"
+// clang-format on
+
 #include <string>
 
-#include "BSPParser.h"
 #include "fluidsim/ISimScene.h"
 
 /**
@@ -26,13 +29,16 @@ private:
 
 	static void CheckMapPath(const std::string &mapPath);
 	[[nodiscard]] static BSPMap LoadMap(const std::string &mapPath);
-	[[nodiscard]] static ObjectCreationParams CreateMapParams(BSPMap map);
+	[[nodiscard]] static ObjectCreationParams CreateMapParams(const BSPMap &map
+	);
 	[[nodiscard]] ObjectHandle CreateMapObject(
 		const ObjectCreationParams &params
 	) const;
 
 public:
 	Map(ISimScene *scene, const std::string &mapPath);
+	Map(Map &&other) = delete;
+
 	~Map();
 };
 

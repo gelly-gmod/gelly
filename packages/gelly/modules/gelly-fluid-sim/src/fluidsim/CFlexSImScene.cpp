@@ -75,7 +75,7 @@ CFlexSimScene::~CFlexSimScene() {
 }
 
 ObjectHandle CFlexSimScene::CreateObject(const ObjectCreationParams &params) {
-	ObjectData data;
+	ObjectData data = {};
 
 	switch (params.shape) {
 		case ObjectShape::TRIANGLE_MESH:
@@ -110,9 +110,7 @@ void CFlexSimScene::RemoveObject(ObjectHandle handle) {
 
 	const auto &object = objects.find(handle);
 	if (object == objects.end()) {
-		throw std::runtime_error(
-			"CFlexSimScene::DestroyObject: Invalid object handle"
-		);
+		return;
 	}
 
 	if (object->second.shape == ObjectShape::TRIANGLE_MESH) {
@@ -161,11 +159,11 @@ void CFlexSimScene::Update() {
 			NvFlexMap(geometry.rotations, eNvFlexMapWait)
 		);
 
-		auto* prevPositions = static_cast<FlexFloat4 *>(
+		auto *prevPositions = static_cast<FlexFloat4 *>(
 			NvFlexMap(geometry.prevPositions, eNvFlexMapWait)
 		);
 
-		auto* prevRotations = static_cast<FlexQuat *>(
+		auto *prevRotations = static_cast<FlexQuat *>(
 			NvFlexMap(geometry.prevRotations, eNvFlexMapWait)
 		);
 
@@ -208,9 +206,10 @@ void CFlexSimScene::Update() {
 			rotations[valueIndex].z = object.second.rotation[2];
 			rotations[valueIndex].w = object.second.rotation[3];
 
-			// HACK: Static props have higher priority than dynamic props, so we can use that
-			// to our advantage here. This lets player collision response become robust, and it's a simple compromise
-			// since all we need to do is mark the world as dynamic and the player as static.
+			// HACK: Static props have higher priority than dynamic props, so we
+			// can use that to our advantage here. This lets player collision
+			// response become robust, and it's a simple compromise since all we
+			// need to do is mark the world as dynamic and the player as static.
 			const bool isDynamic = valueIndex == 0;
 
 			flags[valueIndex] = NvFlexMakeShapeFlags(
@@ -251,7 +250,8 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 	FlexFloat3 minVertex = {FLT_MAX, FLT_MAX, FLT_MAX};
 	FlexFloat3 maxVertex = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
-	const auto *vertices = reinterpret_cast<const FlexFloat3 *>(params.vertices);
+	const auto *vertices =
+		reinterpret_cast<const FlexFloat3 *>(params.vertices);
 	for (uint i = 0; i < params.vertexCount; i++) {
 		minVertex.x = std::min(minVertex.x, vertices[i].x);
 		minVertex.y = std::min(minVertex.y, vertices[i].y);
@@ -275,16 +275,19 @@ ObjectData CFlexSimScene::CreateTriangleMesh(
 		void *verticesDst = NvFlexMap(verticesBuffer, eNvFlexMapWait);
 
 		// We have to convert our indices since they're ushorts
-		if (params.indexType == ObjectCreationParams::TriangleMesh::IndexType::UINT16) {
-			const ushort* indices = (params.indices16);
+		if (params.indexType ==
+			ObjectCreationParams::TriangleMesh::IndexType::UINT16) {
+			const ushort *indices = (params.indices16);
 			for (uint i = 0; i < params.indexCount; i++) {
-				static_cast<int *>(indicesDst)[i] = static_cast<int>(indices[i]);
+				static_cast<int *>(indicesDst)[i] =
+					static_cast<int>(indices[i]);
 			}
 		} else {
 			// We still need to convert our indices since they're uints
-			const uint* indices = (params.indices32);
+			const uint *indices = (params.indices32);
 			for (uint i = 0; i < params.indexCount; i++) {
-				static_cast<int *>(indicesDst)[i] = static_cast<int>(indices[i]);
+				static_cast<int *>(indicesDst)[i] =
+					static_cast<int>(indices[i]);
 			}
 		}
 
@@ -367,6 +370,4 @@ ObjectHandle CFlexSimScene::GetHandleFromShapeIndex(const uint &shapeIndex) {
 	return it->first;
 }
 
-NvFlexBuffer *CFlexSimScene::GetShapePositions() {
-	return geometry.positions;
-}
+NvFlexBuffer *CFlexSimScene::GetShapePositions() { return geometry.positions; }

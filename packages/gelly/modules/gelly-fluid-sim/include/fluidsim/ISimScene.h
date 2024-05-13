@@ -10,7 +10,7 @@
 using namespace Gelly::DataTypes;
 
 namespace Gelly {
-enum class ObjectShape {
+enum class ObjectShape : uint8_t {
 	TRIANGLE_MESH,
 	CAPSULE,
 };
@@ -46,7 +46,7 @@ struct ObjectCreationParams {
 		float halfHeight;
 	};
 
-	ObjectShape shape;
+	ObjectShape shape = ObjectShape::TRIANGLE_MESH;
 	std::variant<TriangleMesh, Capsule> shapeData;
 };
 

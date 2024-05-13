@@ -25,7 +25,7 @@ struct PipelineFluidMaterial {
  *
  * Unless the subclass is doing hooking, the destructor should be default.
  */
-__declspec(novtable) class Pipeline {
+class Pipeline {
 public:
 	virtual ~Pipeline() = default;
 

@@ -12,7 +12,7 @@ std::pair<uint16_t, uint16_t> StandardTextures::GetRenderContextSize() const {
 
 std::pair<ComPtr<IDirect3DTexture9>, GellyInterfaceVal<IManagedTexture>>
 StandardTextures::CreateTexture(const char *name, D3DFORMAT format) const {
-	HANDLE sharedHandle;
+	HANDLE sharedHandle = nullptr;
 	ComPtr<IDirect3DTexture9> gmodTexture;
 
 	auto [width, height] = GetRenderContextSize();
@@ -27,7 +27,9 @@ StandardTextures::CreateTexture(const char *name, D3DFORMAT format) const {
 			gmodTexture.GetAddressOf(),
 			&sharedHandle
 		))) {
-		throw std::runtime_error("Failed to create GMod texture");
+		throw std::runtime_error(
+			"Failed to create GMod texture '" + std::string(name) + "')"
+		);
 	}
 
 	GellyInterfaceVal<IManagedTexture> gellyTexture =
@@ -68,7 +70,7 @@ void StandardTextures::LinkFeatureTextures() const {
 }
 
 StandardTextures::StandardTextures(
-	const GellyResources& gelly, const UnownedResources &gmod
+	const GellyResources &gelly, const UnownedResources &gmod
 )
 	: gellyResources(gelly), gmodResources(gmod) {
 	CreateFeatureTextures();

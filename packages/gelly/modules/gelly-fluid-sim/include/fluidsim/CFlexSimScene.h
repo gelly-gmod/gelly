@@ -21,12 +21,12 @@ struct ObjectData {
 		float halfHeight;
 	};
 
-	ObjectShape shape;
-	float position[3];
-	float rotation[4];
+	ObjectShape shape{};
+	float position[3]{};
+	float rotation[4]{};
 
 	std::variant<TriangleMesh, Capsule> shapeData;
-	uint currentShapeIndex;
+	uint currentShapeIndex{};
 };
 
 class CFlexSimScene : public ISimScene {
@@ -76,8 +76,8 @@ public:
 		ObjectHandle handle, float x, float y, float z, float w
 	) override;
 
-	NvFlexBuffer* GetShapePositions();
-	ObjectHandle GetHandleFromShapeIndex(const uint& shapeIndex);
+	NvFlexBuffer *GetShapePositions();
+	ObjectHandle GetHandleFromShapeIndex(const uint &shapeIndex);
 
 	void Update() override;
 };

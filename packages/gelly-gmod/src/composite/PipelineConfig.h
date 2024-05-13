@@ -6,10 +6,10 @@
  */
 struct PipelineConfig {
 	float particleRadius;
-	float thresholdRatio;
+	float thresholdRatio = 0.07f;
 
-	float filterIterations;
-	float thicknessIterations;
+	float filterIterations = 2.f;
+	float thicknessIterations = 13.f;
 };
 
 #endif	// PIPELINECONFIG_H

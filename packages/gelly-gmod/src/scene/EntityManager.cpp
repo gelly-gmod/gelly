@@ -77,6 +77,6 @@ void EntityManager::UpdateEntityPosition(EntIndex entIndex, Vector position) {
 
 void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 	simScene->SetObjectQuaternion(
-		entities[entIndex], rotation.x, rotation.y, rotation.z, rotation.w
+		entities[entIndex], rotation.y, rotation.z, rotation.w, rotation.x
 	);
 }

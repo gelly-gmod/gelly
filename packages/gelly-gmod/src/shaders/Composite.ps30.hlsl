@@ -10,8 +10,7 @@ samplerCUBE cubemapTex : register(s5);
 sampler2D absorptionTex : register(s6);
 
 float3 eyePos : register(c0);
-float4 absorptionCoeffs : register(c1);
-float refractionStrength : register(c2);
+float refractionStrength : register(c1);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;

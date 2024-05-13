@@ -18,7 +18,7 @@ template <class... Args>
 std::shared_ptr<IRenderContext> MakeRenderContext(Args &&...args) {
 	return std::shared_ptr<IRenderContext>(
 		CreateD3D11FluidRenderContext(std::forward<Args>(args)...),
-		[](auto *ptr) { DestroyGellyRenderContext(ptr); }
+		[](auto *ptr) { DestroyGellyFluidRenderContext(ptr); }
 	);
 }
 
@@ -26,7 +26,7 @@ template <class... Args>
 std::shared_ptr<ISimContext> MakeSimContext(Args &&...args) {
 	return std::shared_ptr<ISimContext>(
 		CreateD3D11SimContext(std::forward<Args>(args)...),
-		[](auto *ptr) { DestroyGellySimContext(ptr); }
+		[](auto *ptr) { /* no-op till gelly fixes this */ }
 	);
 }
 
@@ -34,7 +34,7 @@ template <class... Args>
 std::shared_ptr<IFluidSimulation> MakeFluidSimulation(Args &&...args) {
 	return std::shared_ptr<IFluidSimulation>(
 		CreateD3D11FlexFluidSimulation(std::forward<Args>(args)...),
-		[](auto *ptr) { DestroyGellyFluidSimulation(ptr); }
+		[](auto *ptr) { DestroyGellyFluidSim(ptr); }
 	);
 }
 

@@ -106,7 +106,7 @@ void StandardPipeline::UpdateBackBuffer() const {
 	IDirect3DSurface9 *backBufferSurface;
 	IDirect3DSurface9 *backBufferTextureSurface;
 
-	if (const auto hr = backBuffer->GetSurfaceLevel(0, &backBufferSurface);
+	if (const auto hr = device->GetRenderTarget(0, &backBufferSurface);
 		FAILED(hr)) {
 		throw std::runtime_error("Failed to get back buffer surface");
 	}
@@ -279,6 +279,7 @@ void StandardPipeline::Composite() {
 
 	stateBlock->Capture();
 
+	SetCompositeShaderConstants();
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeShader.Get());
 
@@ -307,7 +308,7 @@ void StandardPipeline::Composite() {
 	// Ensures that any left over decal rendering doesn't interfere with the
 	// composite
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, FALSE);
+	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
 
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 

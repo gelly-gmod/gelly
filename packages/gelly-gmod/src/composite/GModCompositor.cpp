@@ -1,5 +1,6 @@
 #include "GModCompositor.h"
 
+#include "LoggingMacros.h"
 #include "Pipeline.h"
 #include "standard/StandardPipeline.h"
 
@@ -12,6 +13,19 @@ GModCompositor::GModCompositor(
 	gellyResources.renderer = renderer;
 	gellyResources.context = context;
 	gellyResources.textures = renderer->GetFluidTextures();
+
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	LOG_INFO("GPU debugging detected, enabling RenderDoc integration...");
+	if (const auto success = renderer->EnableRenderDocCaptures(); !success) {
+		LOG_WARNING(
+			"Failed to enable captures, maybe RenderDoc is not running "
+			"or "
+			"the API has changed?"
+		);
+	} else {
+		LOG_INFO("RenderDoc captures enabled");
+	}
+#endif
 
 	if (type == PipelineType::STANDARD) {
 		pipeline = new StandardPipeline();

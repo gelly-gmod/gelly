@@ -1,4 +1,7 @@
 #include <GarrysMod/Lua/Interface.h>
+// clang-format off
+#include "scene/Scene.h"
+// clang-format on
 
 #include <cstdio>
 
@@ -9,16 +12,10 @@
 #include <MinHook.h>
 #include <Windows.h>
 
-#include <map>
-
-#include "Gelly.h"
 #include "composite/GModCompositor.h"
-#include "scene/Scene.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
-#include "source/IServerGameEnts.h"
-#include "source/IVEngineServer.h"
 #include "source/IVRenderView.h"
 #include "tracy/Tracy.hpp"
 #include "util/GellySharedPtrs.h"
@@ -44,8 +41,6 @@ static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 1000000;
-
-static std::map<ObjectHandle, int> handleToEntIndexMap;
 
 void InjectConsoleWindow() {
 	AllocConsole();
@@ -385,12 +380,14 @@ GMOD_MODULE_OPEN() {
 	context = MakeRenderContext(currentView.width, currentView.height);
 	renderer = MakeFluidRenderer(context.get());
 	simContext = MakeSimContext(
-		context->GetRenderAPIResource(RenderAPIResource::D3D11Device),
-		context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+		static_cast<ID3D11Device *>(
+			context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
+		),
+		static_cast<ID3D11DeviceContext *>(
+			context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
+		)
 	);
 	sim = MakeFluidSimulation(simContext.get());
-
-	LOG_INFO("Created Gelly constructs");
 
 	compositor = std::make_shared<GModCompositor>(
 		PipelineType::STANDARD, renderer, context
