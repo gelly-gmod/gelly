@@ -3,12 +3,12 @@ print("Blood mod loaded")
 
 local BLOOD_CONFIGS = {
 	[DMG_BULLET] = {
-		MinDensity = 1220,
-		MaxDensity = 2380,
+		MinDensity = 200,
+		MaxDensity = 400,
 		VelocityPower = 10, -- bullets usually are rotating so they can end up flinging blood
 		Randomness = 0.8, -- spray in the direction of the normal
-		CubeSize = 22,
-		DamageMultiplier = 95, -- density is added by the damage * this
+		CubeSize = 9,
+		DamageMultiplier = 15, -- density is added by the damage * this
 	},
 
 	[DMG_CRUSH] = {
@@ -22,18 +22,18 @@ local BLOOD_CONFIGS = {
 
 	-- double barrel shotgun in m9k
 	[4098] = {
-		MinDensity = 3220,
-		MaxDensity = 4380,
+		MinDensity = 100,
+		MaxDensity = 200,
 		VelocityPower = 14, -- bullets usually are rotating so they can end up flinging blood
 		Randomness = 0.9, -- spray in the direction of the normal
 		CubeSize = 52,
-		DamageMultiplier = 225, -- density is added by the damage * this
+		DamageMultiplier = 35, -- density is added by the damage * this
 	},
 
 	-- shotgun
 	[536870914] = {
-		MinDensity = 420,
-		MaxDensity = 980,
+		MinDensity = 100,
+		MaxDensity = 200,
 		VelocityPower = 14,
 		Randomness = 0.1,
 		CubeSize = 5,

@@ -3,6 +3,10 @@ local logging = include("gelly/logging.lua")
 
 local objects = {}
 
+-- Used to offset the object handles so that they don't conflict with GMOD's entity handles
+-- once a multi-mesh object is added.
+local MULTI_OBJECT_OFFSET = 65536
+
 --- Returns a list of the individual meshes and their vertices of the given model.
 ---@param modelPath string
 local function getVerticesOfModel(modelPath)
@@ -27,8 +31,12 @@ local function addObject(entity)
 	local meshes = getVerticesOfModel(entity:GetModel())
 
 	local objectHandles = {}
+	local offset = #meshes > 1 and MULTI_OBJECT_OFFSET or 0
+
 	for _, mesh in ipairs(meshes) do
-		table.insert(objectHandles, gelly.AddObject(mesh, entity:EntIndex()))
+		table.insert(objectHandles, entity:EntIndex() + offset)
+		gelly.AddObject(mesh, entity:EntIndex() + offset)
+		offset = offset + 1
 	end
 
 	objects[entity] = objectHandles
@@ -51,7 +59,7 @@ local function updateObject(entity)
 	for _, objectHandle in ipairs(objectHandles) do
 		if entity == LocalPlayer() then
 			gelly.SetObjectPosition(objectHandle, entity:GetPos())
-			gelly.SetObjectRotation(objectHandle, Angle(0, 0, 90))
+			gelly.SetObjectRotation(objectHandle, Angle(90, 0, 0))
 			return
 		end
 
@@ -65,9 +73,8 @@ local PLAYER_RADIUS = 15
 local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 	-- Add local player
-	objects[LocalPlayer()] = {
-		gelly.AddPlayerObject(PLAYER_RADIUS, PLAYER_HALFHEIGHT, LocalPlayer():EntIndex()),
-	}
+	objects[LocalPlayer()] = { LocalPlayer():EntIndex() }
+	gelly.AddPlayerObject(PLAYER_RADIUS, PLAYER_HALFHEIGHT, LocalPlayer():EntIndex())
 
 	hook.Add("OnEntityCreated", "gelly.object-add", function(entity)
 		if not IsValid(entity) or entity:GetClass() ~= "prop_physics" then

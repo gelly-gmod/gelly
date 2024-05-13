@@ -25,6 +25,6 @@ function gellyx.AddParticles(particles)
 		rawParticles[#rawParticles + 1] = spawnData.vel
 	end
 
-	gelly.AddParticles(rawParticles)
+	gelly.AddParticles(rawParticles, GELLY_ACTIVE_PRESET.VisualParams.Absorption)
 	return true
 end
