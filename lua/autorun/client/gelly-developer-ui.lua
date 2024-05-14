@@ -70,7 +70,7 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 	timeScaleSlider:SetSize(200, 50)
 	timeScaleSlider:SetText("Time Scale")
 	timeScaleSlider:SetMin(0)
-	timeScaleSlider:SetMax(10)
+	timeScaleSlider:SetMax(20)
 	timeScaleSlider:SetDecimals(2)
 	timeScaleSlider:SetValue(GELLY_SIM_TIMESCALE)
 	timeScaleSlider.OnValueChanged = function(_, value)
@@ -177,5 +177,15 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 	resetButton:SetText("Reset")
 	resetButton.DoClick = function()
 		gelly.Reset()
+	end
+
+	local toggleSimulationButton = vgui.Create("DButton")
+	toggleSimulationButton:SetPos(ScrW() - 200, 600)
+	toggleSimulationButton:SetSize(200, 50)
+	toggleSimulationButton:SetText("Toggle Simulation (Y)")
+	toggleSimulationButton.DoClick = function()
+		SIMULATE_GELLY = not SIMULATE_GELLY
+		local suffix = SIMULATE_GELLY and "(Y)" or "(N)"
+		toggleSimulationButton:SetText(("Toggle Simulation %s"):format(suffix))
 	end
 end)

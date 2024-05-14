@@ -5,6 +5,8 @@ START_SIM_FPS = 144
 GELLY_SIM_TIMESCALE = 10
 GELLY_KILL_PLAYER_ON_CONTACT = false
 
+SIMULATE_GELLY = true
+
 local function calculateThrottledDeltaTime()
 	return 1
 		/ math.floor(
@@ -15,13 +17,19 @@ local function calculateThrottledDeltaTime()
 end
 
 hook.Add("GellyLoaded", "gelly.update-loop", function()
+	hook.Add("RenderScene", "gelly.render", function()
+		gelly.Render()
+	end)
+
 	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function(depth, skybox)
 		gelly.Composite()
 	end)
 
 	timer.Create("gelly.update", 1 / START_SIM_FPS, 0, function()
 		local dt = calculateThrottledDeltaTime()
-		gelly.Simulate(dt * GELLY_SIM_TIMESCALE)
+		if SIMULATE_GELLY then
+			gelly.Simulate(dt * GELLY_SIM_TIMESCALE)
+		end
 		timer.Adjust("gelly.update", dt, nil, nil)
 	end)
 end)
