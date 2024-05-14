@@ -54,6 +54,11 @@ public:
 	 * Called during opaque rendering to composite and shade the Gelly frame.
 	 */
 	virtual void Composite() = 0;
+
+	/**
+	 * Called when the pipeline should render the Gelly frame.
+	 */
+	virtual void Render() = 0;
 };
 
 #endif	// PIPELINE_H

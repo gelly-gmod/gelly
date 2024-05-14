@@ -40,7 +40,7 @@ static std::shared_ptr<IRenderContext> context = nullptr;
 static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 
-constexpr int DEFAULT_MAX_PARTICLES = 1000000;
+constexpr int DEFAULT_MAX_PARTICLES = 512000;
 
 void InjectConsoleWindow() {
 	AllocConsole();
@@ -54,9 +54,15 @@ void RemoveConsoleWindow() {
 	FreeConsole();
 }
 
+LUA_FUNCTION(gelly_Render) {
+	START_GELLY_EXCEPTIONS();
+	compositor->Render();
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
 LUA_FUNCTION(gelly_Composite) {
 	START_GELLY_EXCEPTIONS()
-	compositor->Render();
+	compositor->Composite();
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }
@@ -413,6 +419,7 @@ GMOD_MODULE_OPEN() {
 	DisableMaterialSystemThreading();
 
 	LUA->CreateTable();
+	DEFINE_LUA_FUNC(gelly, Render);
 	DEFINE_LUA_FUNC(gelly, Composite);
 	DEFINE_LUA_FUNC(gelly, Simulate);
 	DEFINE_LUA_FUNC(gelly, GetStatus);

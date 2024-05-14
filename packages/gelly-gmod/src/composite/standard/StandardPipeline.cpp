@@ -274,8 +274,6 @@ void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
 	UpdateBackBuffer();
-	UpdateGellyRenderParams();
-	RenderGellyFrame();
 
 	stateBlock->Capture();
 
@@ -313,4 +311,9 @@ void StandardPipeline::Composite() {
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	stateBlock->Apply();
+}
+
+void StandardPipeline::Render() {
+	UpdateGellyRenderParams();
+	RenderGellyFrame();
 }

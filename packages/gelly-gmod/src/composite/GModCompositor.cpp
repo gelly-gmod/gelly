@@ -47,4 +47,6 @@ void GModCompositor::SetFluidMaterial(const PipelineFluidMaterial &material) {
 	pipeline->SetFluidMaterial(material);
 }
 
-void GModCompositor::Render() { pipeline->Composite(); }
+void GModCompositor::Composite() { pipeline->Composite(); }
+
+void GModCompositor::Render() { pipeline->Render(); }

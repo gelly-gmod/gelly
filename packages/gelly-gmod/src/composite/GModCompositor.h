@@ -20,6 +20,7 @@ public:
 	[[nodiscard]] PipelineConfig GetConfig() const;
 	void SetFluidMaterial(const PipelineFluidMaterial &material);
 
+	void Composite();
 	void Render();
 };
 

@@ -67,6 +67,8 @@ public:
 	void SetFluidMaterial(const PipelineFluidMaterial &material) override;
 
 	void Composite() override;
+
+	void Render() override;
 };
 
 #endif	// STANDARDPIPELINE_H
