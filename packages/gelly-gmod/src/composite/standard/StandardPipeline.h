@@ -13,8 +13,26 @@ struct CompositeConstants {
 	float eyePos[3];
 	float pad0;
 	float refractionStrength = 0.03f;
-	float pad1[3];
-	XMFLOAT4X4 inverseMVP;
+	float cubemapStrength = 1.f;
+	float pad1[2];
+
+	struct CompositeLight {
+		/**
+		 * XYZ - Color,
+		 * W - Range
+		 */
+		float lightInfo[4];
+		float position[3];
+		float pad0;
+		/**
+		 * 0.0 == disabled, 1.0 == enabled
+		 * (a boolean always misaligns the struct)
+		 */
+		float enabled = 0.f;
+		float pad[3];
+	};
+
+	CompositeLight lights[2];
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);

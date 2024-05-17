@@ -25,8 +25,6 @@ file(GLOB_RECURSE SHADER_GLUE_FILES
 add_library(
         gelly-gmod SHARED
         src/main.cpp
-        src/Gelly.cpp
-        src/Gelly.h
         src/LoggingMacros.h
         src/source/Interface.h
         src/source/IBaseClientDLL.h
@@ -49,7 +47,6 @@ add_library(
         src/source/Signatures.h
         src/source/GetCubemap.h
         src/source/GetCubemap.cpp
-        src/gelly-integration/GellyHandles.h
         src/scene/Scene.cpp
         src/scene/Scene.h
         src/scene/EntityManager.cpp

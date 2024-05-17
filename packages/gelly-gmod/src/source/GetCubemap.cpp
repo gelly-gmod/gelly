@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include "GarrysMod/Lua/SourceCompat.h"
 #include "GellyDataTypes.h"
 #include "Interface.h"
 #include "hooking/Library.h"
@@ -19,8 +20,9 @@ using GetD3DTexture_t =
 	IDirect3DBaseTexture9 *(*__thiscall)(CShaderAPIDX8 *, TextureHandle_t);
 using GetTextureHandle_t =
 	TextureHandle_t (*__thiscall)(CTexture *, void *, uint);
-
-using AllowThreading_t = bool (*__thiscall)(CMaterialSystem*, bool, int);
+using GetLight_t = uintptr_t (*__thiscall)(CShaderAPIDX8 *, int);
+using GetMaxLights_t = int (*__thiscall)(CShaderAPIDX8 *);
+using AllowThreading_t = bool (*__thiscall)(CMaterialSystem *, bool, int);
 
 static Library g_shaderAPI;
 static Library g_materialSystem;
@@ -29,6 +31,8 @@ static GetLocalCubemap_t g_getLocalCubemap = nullptr;
 static GetD3DTexture_t g_getD3DTexture = nullptr;
 static GetTextureHandle_t g_getTextureHandle = nullptr;
 static AllowThreading_t g_allowThreading = nullptr;
+static GetLight_t g_getLight = nullptr;
+static GetMaxLights_t g_getMaxLights = nullptr;
 
 static CMaterialSystem *g_matSys = nullptr;
 static CShaderAPIDX8 *g_shaderAPIDX9 = nullptr;
@@ -63,7 +67,15 @@ void EnsureAllHandlesInitialized() {
 		sigs::CMaterialSystem_AllowThreading
 	);
 
-	if (!g_getLocalCubemap || !g_getD3DTexture || !g_getTextureHandle) {
+	g_getLight =
+		g_shaderAPI.FindFunction<GetLight_t>(sigs::CShaderAPIDX8_GetLight);
+
+	g_getMaxLights = g_shaderAPI.FindFunction<GetMaxLights_t>(
+		sigs::CShaderAPIDX8_GetMaxLights
+	);
+
+	if (!g_getLocalCubemap || !g_getD3DTexture || !g_getTextureHandle ||
+		!g_getLight || !g_getMaxLights) {
 		throw std::runtime_error("Failed to resolve all GetCubemap functions!");
 	}
 
@@ -121,4 +133,23 @@ IDirect3DBaseTexture9 *GetCubemap() {
 void DisableMaterialSystemThreading() {
 	EnsureAllHandlesInitialized();
 	g_allowThreading(g_matSys, false, -1);
+}
+
+std::optional<LightDesc_t> GetLightDesc(int index) {
+	EnsureAllHandlesInitialized();
+	auto light =
+		*reinterpret_cast<LightDesc_t *>(g_getLight(g_shaderAPIDX9, index));
+
+	if (light.m_Type == MATERIAL_LIGHT_DISABLE) {
+		return std::nullopt;
+	}
+
+	return light;
+}
+
+int GetMaxLights() {
+	EnsureAllHandlesInitialized();
+	return g_getMaxLights(g_shaderAPIDX9) -
+		   1;  // I have no idea why it's -1, but it's reflected in the original
+			   // decompiled code
 }

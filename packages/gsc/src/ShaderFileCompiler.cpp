@@ -39,7 +39,7 @@ void ShaderFileCompiler::CompileToBytecode() {
 	}
 
 	fxcCommand += fxcProfile;
-	fxcCommand += " /E main /Od /Zi /Fo ";
+	fxcCommand += " /E main /Fo ";
 
 	auto tempPath = fs::temp_directory_path();
 	tempPath /= shaderFile.GetFriendlyName() + ".dxbc";

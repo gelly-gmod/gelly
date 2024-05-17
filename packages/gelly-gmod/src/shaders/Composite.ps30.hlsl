@@ -10,7 +10,15 @@ samplerCUBE cubemapTex : register(s5);
 sampler2D absorptionTex : register(s6);
 
 float3 eyePos : register(c0);
-float refractionStrength : register(c1);
+float2 refractAndCubemapStrength : register(c1);
+
+struct CompositeLight {
+    float4 LightInfo;
+    float4 Position;
+    float4 Enabled;
+};
+
+CompositeLight lights[2] : register(c2);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
@@ -34,6 +42,22 @@ float3 NormalizeAbsorption(float3 absorption, float thickness) {
     return absorption / thickness;
 }
 
+float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 eyePos) {
+    float3 radiance = float3(0.0, 0.0, 0.0);
+
+    [unroll]
+    for (int i = 0; i < 2; i++) {
+        float3 lightDir = normalize(lights[i].Position.xyz - position);
+        float3 reflectionDir = reflect(-lightDir, normal);
+        float3 eyeDir = normalize(eyePos - position);
+        float specularRadiance = pow(max(dot(reflectionDir, eyeDir), 0.0), 64.0) * 4.f; // Source-engine-like specular
+
+        radiance += lights[i].LightInfo.xyz * specularRadiance * lights[i].Enabled.x;
+    }
+
+    return radiance;
+}
+
 float4 Shade(VS_INPUT input) {
     float thickness = tex2D(thicknessTex, input.Tex).x;
 
@@ -44,14 +68,14 @@ float4 Shade(VS_INPUT input) {
     
     float3 eyeDir = normalize(eyePos - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
-    float3 specular = texCUBE(cubemapTex, reflectionDir).xyz;
+    float3 specular = texCUBE(cubemapTex, reflectionDir).xyz * refractAndCubemapStrength.y + ComputeSpecularRadianceFromLights(position, normal, eyePos);
     
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
     if (fresnel > 0.89f) {
         discard;
     }
 
-    float2 transmissionUV = input.Tex + normal.zx * refractionStrength;
+    float2 transmissionUV = input.Tex + normal.zx * refractAndCubemapStrength.x;
     float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
     // apply inverse gamma correction
     transmission = pow(transmission, 2.2);

@@ -2,6 +2,7 @@
 
 #include <d3d9.h>
 
+#include "LoggingMacros.h"
 #include "shaders/out/CompositePS.h"
 #include "shaders/out/NDCQuadVS.h"
 #include "source/CViewSetup.h"
@@ -209,6 +210,30 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.eyePos[0] = viewSetup.origin.x;
 	compositeConstants.eyePos[1] = viewSetup.origin.y;
 	compositeConstants.eyePos[2] = viewSetup.origin.z;
+
+	compositeConstants.cubemapStrength = config.cubemapStrength;
+
+	for (int index = 1; index < 3; index++) {
+		auto light = GetLightDesc(index);
+
+		// Create a local index from 1-2 to 0-1 (lights 1-2 are the only ones
+		// that affect specular lighting in GMod) source: empirical testing
+
+		int lightIndex = index - 1;
+		if (!light || light->m_Type != MATERIAL_LIGHT_POINT) {
+			compositeConstants.lights[lightIndex].enabled = 0.f;
+			continue;
+		}
+
+		compositeConstants.lights[lightIndex].enabled = 1.f;
+		compositeConstants.lights[lightIndex].position[0] = light->m_Position.x;
+		compositeConstants.lights[lightIndex].position[1] = light->m_Position.y;
+		compositeConstants.lights[lightIndex].position[2] = light->m_Position.z;
+		compositeConstants.lights[lightIndex].lightInfo[0] = light->m_Color.x;
+		compositeConstants.lights[lightIndex].lightInfo[1] = light->m_Color.y;
+		compositeConstants.lights[lightIndex].lightInfo[2] = light->m_Color.z;
+		compositeConstants.lights[lightIndex].lightInfo[3] = light->m_Range;
+	}
 
 	renderer->SetPerFrameParams(renderParams);
 }

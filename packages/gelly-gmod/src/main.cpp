@@ -297,6 +297,19 @@ LUA_FUNCTION(gelly_SetFluidVisualParams) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetCubemapStrength) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
+
+	const float strength = static_cast<float>(LUA->GetNumber(1));
+	PipelineConfig config = compositor->GetConfig();
+	config.cubemapStrength = strength;
+	compositor->SetConfig(config);
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 LUA_FUNCTION(gelly_ChangeParticleRadius) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
@@ -432,6 +445,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	DEFINE_LUA_FUNC(gelly, SetFluidVisualParams);
+	DEFINE_LUA_FUNC(gelly, SetCubemapStrength);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);

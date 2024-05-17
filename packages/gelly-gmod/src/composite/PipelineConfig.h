@@ -10,6 +10,8 @@ struct PipelineConfig {
 
 	float filterIterations = 2.f;
 	float thicknessIterations = 13.f;
+
+	float cubemapStrength = 1.f;
 };
 
 #endif	// PIPELINECONFIG_H
