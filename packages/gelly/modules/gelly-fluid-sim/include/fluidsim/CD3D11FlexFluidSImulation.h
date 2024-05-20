@@ -32,6 +32,7 @@ private:
 		NvFlexBuffer *actives;
 		NvFlexBuffer *contactVelocities;
 		NvFlexBuffer *contactCounts;
+		NvFlexBuffer *diffuseParticleCount;
 	} buffers{};
 
 	/**
@@ -40,6 +41,8 @@ private:
 	 */
 	struct {
 		NvFlexBuffer *positions;
+		NvFlexBuffer *foamPositions;
+		NvFlexBuffer *foamVelocities;
 		NvFlexBuffer *anisotropyQ1Buffer;
 		NvFlexBuffer *anisotropyQ2Buffer;
 		NvFlexBuffer *anisotropyQ3Buffer;

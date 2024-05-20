@@ -15,6 +15,7 @@ enum FluidFeatureType {
 	THICKNESS,
 	// The rest beyond these will likely depend on the renderer.
 	// The above are considered critical for rendering.
+	FOAM
 };
 }
 
@@ -22,15 +23,6 @@ using namespace Gelly;
 
 /**
  * Interface for accessing the set of textures which make up the fluid surface.
- * There are four critical textures which must be provided:
- * - Albedo
- * - Normals
- * - Depth
- * - Positions
- * The rest are optional, and depend on the renderer.
- * This design allows for the end user to implement their own
- * uber-shader which can use different features depending on which
- * renderer is chosen.
  */
 gelly_interface IFluidTextures {
 public:

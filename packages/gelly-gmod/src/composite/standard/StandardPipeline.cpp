@@ -3,6 +3,7 @@
 #include <d3d9.h>
 
 #include "LoggingMacros.h"
+#include "shaders/out/CompositeFoamPS.h"
 #include "shaders/out/CompositePS.h"
 #include "shaders/out/NDCQuadVS.h"
 #include "source/CViewSetup.h"
@@ -21,6 +22,14 @@ void StandardPipeline::CreateCompositeShader() {
 		);
 		FAILED(hr)) {
 		throw std::runtime_error("Failed to create composite shader");
+	}
+
+	if (const auto hr = device->CreatePixelShader(
+			reinterpret_cast<const DWORD *>(CompositeFoamPS::GetBytecode()),
+			compositeFoamShader.GetAddressOf()
+		);
+		FAILED(hr)) {
+		throw std::runtime_error("Failed to create composite foam shader");
 	}
 }
 
@@ -201,11 +210,16 @@ void StandardPipeline::UpdateGellyRenderParams() {
 
 	renderParams.particleRadius = config.particleRadius;
 	renderParams.thresholdRatio = config.thresholdRatio;
+	renderParams.diffuseScale = config.diffuseScale;
 
 	renderParams.width = static_cast<float>(viewSetup.width);
 	renderParams.height = static_cast<float>(viewSetup.height);
 	renderParams.farPlane = viewSetup.zFar;
 	renderParams.nearPlane = viewSetup.zNear;
+
+	renderParams.cameraPos.x = viewSetup.origin.x;
+	renderParams.cameraPos.y = viewSetup.origin.y;
+	renderParams.cameraPos.z = viewSetup.origin.z;
 
 	compositeConstants.eyePos[0] = viewSetup.origin.x;
 	compositeConstants.eyePos[1] = viewSetup.origin.y;
@@ -234,6 +248,9 @@ void StandardPipeline::UpdateGellyRenderParams() {
 		compositeConstants.lights[lightIndex].lightInfo[2] = light->m_Color.z;
 		compositeConstants.lights[lightIndex].lightInfo[3] = light->m_Range;
 	}
+
+	compositeConstants.aspectRatio =
+		renderParams.width / renderParams.height;  // viewport aspect ratio
 
 	renderer->SetPerFrameParams(renderParams);
 }
@@ -295,9 +312,41 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 	compositeConstants.refractionStrength = material.refractionStrength;
 }
 
+void StandardPipeline::CompositeFoam(bool withGellyRendered) const {
+	auto &device = gmodResources.device;
+
+	stateBlock->Capture();
+
+	SetCompositeShaderConstants();
+	device->SetVertexShader(quadVertexShader.Get());
+	device->SetPixelShader(compositeFoamShader.Get());
+
+	SetCompositeSamplerState(0, D3DTEXF_POINT);
+
+	device->SetTexture(0, textures->gmodTextures.foam.Get());
+	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
+	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+
+	device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	device->SetRenderState(
+		D3DRS_ZWRITEENABLE, withGellyRendered ? TRUE : FALSE
+	);
+
+	// We do actually want to use an alpha blend here
+	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR);
+	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);
+
+	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	stateBlock->Apply();
+}
+
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
+	CompositeFoam(false);  // so that it can be seen in water
 	UpdateBackBuffer();
 
 	stateBlock->Capture();
@@ -336,6 +385,11 @@ void StandardPipeline::Composite() {
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	stateBlock->Apply();
+
+	// Then we composite foam again so that the foam's alpha blend includes the
+	// composite
+
+	CompositeFoam(true);
 }
 
 void StandardPipeline::Render() {

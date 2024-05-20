@@ -31,6 +31,8 @@ private:
 	std::vector<IManagedShader *> shaders{};
 
 	ID3D11BlendState *blendState;
+	ID3D11BlendState *foamAccumulateBlendState;
+	ID3D11BlendState *foamDepthOnlyBlendState;
 
 	ID3D11Fence *frameCompletionFence;
 
@@ -43,6 +45,8 @@ private:
 
 	uint32_t fenceValue = 0;
 	HANDLE fenceEvent = nullptr;
+
+	float accumulationFactor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 	void CreateDeviceAndContext();
 	void CreateAllShaders();
@@ -101,8 +105,11 @@ public:
 	void UseTextureResForNextDraw(GellyInterfaceRef<IManagedTexture> texture
 	) override;
 
-	void Draw(uint32_t vertexCount, uint32_t startVertex, bool accumulate)
-		override;
+	void SetAccumulationFactors(float x, float y, float z, float a) override;
+
+	void Draw(
+		uint32_t vertexCount, uint32_t startVertex, AccumulateType accumulate
+	) override;
 
 	void Dispatch(
 		uint32_t threadGroupCountX,

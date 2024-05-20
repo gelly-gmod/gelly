@@ -11,6 +11,8 @@ struct SimFloat4 {
 enum class SimBufferType {
 	POSITION,
 	VELOCITY,
+	FOAM_POSITION,
+	FOAM_VELOCITY,
 	// Basis vectors for oriented ellipsoid surface extraction
 	ANISOTROPY_Q1,
 	ANISOTROPY_Q2,
@@ -39,6 +41,12 @@ public:
 
 	virtual void *GetLinkedBuffer(SimBufferType type) = 0;
 	virtual SimContextAPI GetAPI() = 0;
+
+	virtual void SetMaxFoamParticles(int maxFoamParticles) = 0;
+	virtual int GetMaxFoamParticles() = 0;
+
+	virtual void SetActiveFoamParticles(int activeFoamParticles) = 0;
+	virtual int GetActiveFoamParticles() = 0;
 
 	virtual void SetMaxParticles(int maxParticles) = 0;
 	virtual int GetMaxParticles() = 0;

@@ -11,6 +11,12 @@ void CD3D11CPUSimData::LinkBuffer(SimBufferType type, void *buffer) {
 		case SimBufferType::VELOCITY:
 			velocityBuffer = static_cast<ID3D11Buffer *>(buffer);
 			break;
+		case SimBufferType::FOAM_POSITION:
+			foamPositionBuffer = static_cast<ID3D11Buffer *>(buffer);
+			break;
+		case SimBufferType::FOAM_VELOCITY:
+			foamVelocityBuffer = static_cast<ID3D11Buffer *>(buffer);
+			break;
 		case SimBufferType::ANISOTROPY_Q1:
 			anisotropyQ1Buffer = static_cast<ID3D11Buffer *>(buffer);
 			break;
@@ -29,6 +35,10 @@ bool CD3D11CPUSimData::IsBufferLinked(SimBufferType type) {
 			return positionBuffer != nullptr;
 		case SimBufferType::VELOCITY:
 			return velocityBuffer != nullptr;
+		case SimBufferType::FOAM_POSITION:
+			return foamPositionBuffer != nullptr;
+		case SimBufferType::FOAM_VELOCITY:
+			return foamVelocityBuffer != nullptr;
 		case SimBufferType::ANISOTROPY_Q1:
 			return anisotropyQ1Buffer != nullptr;
 		case SimBufferType::ANISOTROPY_Q2:
@@ -45,6 +55,10 @@ void *CD3D11CPUSimData::GetLinkedBuffer(SimBufferType type) {
 			return positionBuffer;
 		case SimBufferType::VELOCITY:
 			return velocityBuffer;
+		case SimBufferType::FOAM_POSITION:
+			return foamPositionBuffer;
+		case SimBufferType::FOAM_VELOCITY:
+			return foamVelocityBuffer;
 		case SimBufferType::ANISOTROPY_Q1:
 			return anisotropyQ1Buffer;
 		case SimBufferType::ANISOTROPY_Q2:
@@ -68,3 +82,15 @@ void CD3D11CPUSimData::SetActiveParticles(const int activeParticles) {
 }
 
 int CD3D11CPUSimData::GetActiveParticles() { return activeParticles; }
+
+void CD3D11CPUSimData::SetMaxFoamParticles(const int maxFoamParticles) {
+	this->maxFoamParticles = maxFoamParticles;
+}
+
+int CD3D11CPUSimData::GetMaxFoamParticles() { return maxFoamParticles; }
+
+void CD3D11CPUSimData::SetActiveFoamParticles(const int activeFoamParticles) {
+	this->activeFoamParticles = activeFoamParticles;
+}
+
+int CD3D11CPUSimData::GetActiveFoamParticles() { return activeFoamParticles; }

@@ -29,6 +29,13 @@ enum class ContextRenderAPI { D3D11, D3D9Ex };
 
 enum class RasterizerFlags { NONE = 0, DISABLE_CULL = 0b1 };
 
+enum class AccumulateType {
+	NONE,
+	CLASSIC,
+	ALPHA_ACCUMULATE,
+	DEPTH_G_ONLY,
+};
+
 constexpr enum RasterizerFlags operator&(
 	const enum RasterizerFlags a, const enum RasterizerFlags b
 ) {
@@ -146,8 +153,16 @@ public:
 		GellyInterfaceRef<IManagedTexture> texture
 	) = 0;
 
+	/**
+	 * Selectively determines which channels to accumulate. (all are 1.f by
+	 * default)
+	 */
+	virtual void SetAccumulationFactors(float x, float y, float z, float a) = 0;
+
 	virtual void Draw(
-		uint32_t vertexCount, uint32_t startVertex, bool accumulate = false
+		uint32_t vertexCount,
+		uint32_t startVertex,
+		AccumulateType accumulate = AccumulateType::NONE
 	) = 0;
 
 	virtual void Dispatch(

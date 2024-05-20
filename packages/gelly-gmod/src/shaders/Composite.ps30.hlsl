@@ -12,13 +12,16 @@ sampler2D absorptionTex : register(s6);
 float3 eyePos : register(c0);
 float2 refractAndCubemapStrength : register(c1);
 
+// each takes up 3 registers
 struct CompositeLight {
     float4 LightInfo;
     float4 Position;
     float4 Enabled;
 };
 
-CompositeLight lights[2] : register(c2);
+CompositeLight lights[2] : register(c2); // next reg that can be used is c8 (2 + 6)
+float aspectRatio : register(c8);
+
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
@@ -75,7 +78,7 @@ float4 Shade(VS_INPUT input) {
         discard;
     }
 
-    float2 transmissionUV = input.Tex + normal.zx * refractAndCubemapStrength.x;
+    float2 transmissionUV = input.Tex + normal.zx * refractAndCubemapStrength.x * float2(aspectRatio, 1.0); // aspectRatio is height / width of the screen also known as vScale
     float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
     // apply inverse gamma correction
     transmission = pow(transmission, 2.2);

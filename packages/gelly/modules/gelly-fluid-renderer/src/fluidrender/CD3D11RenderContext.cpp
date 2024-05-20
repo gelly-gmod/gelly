@@ -114,6 +114,30 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 	blendDesc.RenderTarget[1].SrcBlend = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[1].SrcBlendAlpha = D3D11_BLEND_ONE;
 
+	D3D11_BLEND_DESC foamAccumulateBlendDesc = {};
+	foamAccumulateBlendDesc.AlphaToCoverageEnable = false;
+	foamAccumulateBlendDesc.IndependentBlendEnable = false;
+	// This is our thickness RT, we basically just wanna
+	// accumulate the thickness of the particles
+	foamAccumulateBlendDesc.RenderTarget[0].BlendEnable = true;
+	foamAccumulateBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	foamAccumulateBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	foamAccumulateBlendDesc.RenderTarget[0].DestBlend =
+		D3D11_BLEND_INV_SRC_ALPHA;
+	foamAccumulateBlendDesc.RenderTarget[0].DestBlendAlpha =
+		D3D11_BLEND_INV_SRC_ALPHA;
+	foamAccumulateBlendDesc.RenderTarget[0].RenderTargetWriteMask =
+		D3D11_COLOR_WRITE_ENABLE_ALL;
+	foamAccumulateBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	foamAccumulateBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+
+	D3D11_BLEND_DESC foamDepthOnlyBlendDesc = {};
+	foamDepthOnlyBlendDesc.AlphaToCoverageEnable = false;
+	foamDepthOnlyBlendDesc.IndependentBlendEnable = false;
+	foamDepthOnlyBlendDesc.RenderTarget[0].BlendEnable = false;
+	foamDepthOnlyBlendDesc.RenderTarget[0].RenderTargetWriteMask =
+		D3D11_COLOR_WRITE_ENABLE_GREEN;
+
 	DX("Failed to query for D3D11.4 (not supported?)",
 	   device->QueryInterface(
 		   __uuidof(ID3D11Device5), reinterpret_cast<void **>(&device5)
@@ -135,6 +159,16 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 
 	DX("Failed to create D3D11 blend state",
 	   device5->CreateBlendState(&blendDesc, &blendState));
+
+	DX("Failed to create D3D11 foam accumulate blend state",
+	   device5->CreateBlendState(
+		   &foamAccumulateBlendDesc, &foamAccumulateBlendState
+	   ));
+
+	DX("Failed to create D3D11 foam depth only blend state",
+	   device5->CreateBlendState(
+		   &foamDepthOnlyBlendDesc, &foamDepthOnlyBlendState
+	   ));
 }
 
 void CD3D11RenderContext::CreateAllTextures() {
@@ -401,10 +435,19 @@ void CD3D11RenderContext::UseTextureResForNextDraw(
 	overrideHeight = desc.height;
 }
 
+void CD3D11RenderContext::SetAccumulationFactors(
+	float x, float y, float z, float a
+) {
+	accumulationFactor[0] = x;
+	accumulationFactor[1] = y;
+	accumulationFactor[2] = z;
+	accumulationFactor[3] = a;
+}
+
 void CD3D11RenderContext::Draw(
 	const uint32_t vertexCount,
 	const uint32_t startVertex,
-	const bool accumulate
+	const AccumulateType accumulate
 ) {
 #ifdef TRACY_ENABLE
 	ZoneScoped;
@@ -425,9 +468,25 @@ void CD3D11RenderContext::Draw(
 	viewport.MinDepth = 0.0f;
 	deviceContext4->RSSetViewports(1, &viewport);
 	deviceContext4->RSSetState(rasterizerState);
-	if (accumulate) {
-		deviceContext4->OMSetBlendState(blendState, nullptr, 0xffffffff);
+	switch (accumulate) {
+		case AccumulateType::CLASSIC:
+			deviceContext4->OMSetBlendState(blendState, nullptr, 0xFFFFFF);
+			break;
+		case AccumulateType::ALPHA_ACCUMULATE:
+			deviceContext4->OMSetBlendState(
+				foamAccumulateBlendState, nullptr, 0xFFFFFF
+			);
+			break;
+		case AccumulateType::DEPTH_G_ONLY:
+			deviceContext4->OMSetBlendState(
+				foamDepthOnlyBlendState, nullptr, 0xFFFFFF
+			);
+			break;
+		case AccumulateType::NONE:
+			deviceContext4->OMSetBlendState(nullptr, nullptr, 0xFFFFFF);
+			break;
 	}
+
 	deviceContext4->Draw(vertexCount, startVertex);
 }
 
@@ -449,6 +508,10 @@ void CD3D11RenderContext::ResetPipeline() {
 #ifdef TRACY_ENABLE
 	ZoneScoped;
 #endif
+	accumulationFactor[0] = 1.0f;
+	accumulationFactor[1] = 1.0f;
+	accumulationFactor[2] = 1.0f;
+	accumulationFactor[3] = 1.0f;
 	deviceContext4->OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext4->ClearState();
 }

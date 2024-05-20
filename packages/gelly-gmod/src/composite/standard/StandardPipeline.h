@@ -33,6 +33,8 @@ struct CompositeConstants {
 	};
 
 	CompositeLight lights[2];
+	float aspectRatio;
+	float pad2[3];
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -52,6 +54,7 @@ private:
 	ComPtr<IDirect3DTexture9> backBuffer;
 	ComPtr<IDirect3DVertexBuffer9> ndcQuad;
 	ComPtr<IDirect3DPixelShader9> compositeShader;
+	ComPtr<IDirect3DPixelShader9> compositeFoamShader;
 	ComPtr<IDirect3DVertexShader9> quadVertexShader;
 	ComPtr<IDirect3DStateBlock9> stateBlock;
 
@@ -70,6 +73,7 @@ private:
 	void RenderGellyFrame();
 
 	void SetCompositeSamplerState(int index, D3DTEXTUREFILTERTYPE filter) const;
+	void CompositeFoam(bool withGellyRendered) const;
 
 public:
 	StandardPipeline();

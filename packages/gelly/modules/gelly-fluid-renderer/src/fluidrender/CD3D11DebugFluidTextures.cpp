@@ -41,6 +41,9 @@ void CD3D11SplattingFluidTextures::SetFeatureTexture(
 		case FluidFeatureType::THICKNESS:
 			thickness = texture;
 			break;
+		case FluidFeatureType::FOAM:
+			foam = texture;
+			break;
 		default:
 			throw std::logic_error(
 				"CD3D11DebugFluidTextures::SetFeatureTexture() encountered an "
@@ -62,6 +65,8 @@ CD3D11SplattingFluidTextures::GetFeatureTexture(FluidFeatureType feature) {
 			return positions;
 		case FluidFeatureType::THICKNESS:
 			return thickness;
+		case FluidFeatureType::FOAM:
+			return foam;
 		default:
 			throw std::logic_error(
 				"CD3D11DebugFluidTextures::GetFeatureTexture() encountered an "
@@ -72,5 +77,5 @@ CD3D11SplattingFluidTextures::GetFeatureTexture(FluidFeatureType feature) {
 
 bool CD3D11SplattingFluidTextures::IsInitialized() {
 	return depth != nullptr && normal != nullptr && albedo != nullptr &&
-		   positions != nullptr;
+		   positions != nullptr && thickness != nullptr && foam != nullptr;
 }

@@ -6,6 +6,9 @@
 #include "EstimateNormalPS.h"
 #include "FilterDepthPS.h"
 #include "FilterThicknessPS.h"
+#include "FoamGS.h"
+#include "FoamPS.h"
+#include "FoamVS.h"
 #include "ScreenQuadVS.h"
 #include "SplattingGS.h"
 #include "SplattingPS.h"
@@ -65,6 +68,24 @@ void CD3D11SplattingFluidRenderer::CreateShaders() {
 		ShaderType::Vertex
 	);
 
+	shaders.foamGS = context->CreateShader(
+		gsc::FoamGS::GetBytecode(),
+		gsc::FoamGS::GetBytecodeSize(),
+		ShaderType::Geometry
+	);
+
+	shaders.foamPS = context->CreateShader(
+		gsc::FoamPS::GetBytecode(),
+		gsc::FoamPS::GetBytecodeSize(),
+		ShaderType::Pixel
+	);
+
+	shaders.foamVS = context->CreateShader(
+		gsc::FoamVS::GetBytecode(),
+		gsc::FoamVS::GetBytecodeSize(),
+		ShaderType::Vertex
+	);
+
 	shaders.screenQuadVS = context->CreateShader(
 		gsc::ScreenQuadVS::GetBytecode(),
 		gsc::ScreenQuadVS::GetBytecodeSize(),
@@ -120,6 +141,19 @@ void CD3D11SplattingFluidRenderer::CreateBuffers() {
 
 	buffers.positions = context->CreateBuffer(positionBufferDesc);
 
+	BufferDesc foamPositionBufferDesc = {};
+	foamPositionBufferDesc.type = BufferType::VERTEX;
+	foamPositionBufferDesc.usage = BufferUsage::DEFAULT;
+	foamPositionBufferDesc.format = BufferFormat::R32G32B32A32_FLOAT;
+	foamPositionBufferDesc.byteWidth =
+		sizeof(SimFloat4) * simData->GetMaxFoamParticles();
+	foamPositionBufferDesc.stride = sizeof(SimFloat4);
+
+	buffers.foamPositions = context->CreateBuffer(foamPositionBufferDesc);
+
+	BufferDesc foamVelocityBufferDesc = foamPositionBufferDesc;
+	buffers.foamVelocities = context->CreateBuffer(foamVelocityBufferDesc);
+
 	BufferDesc anisotropyDesc = {};
 	anisotropyDesc.type = BufferType::VERTEX;
 	anisotropyDesc.usage = BufferUsage::DEFAULT;
@@ -161,6 +195,23 @@ void CD3D11SplattingFluidRenderer::CreateBuffers() {
 	buffers.splattingLayout->AttachBufferAtSlot(buffers.anisotropyQ1, 1);
 	buffers.splattingLayout->AttachBufferAtSlot(buffers.anisotropyQ2, 2);
 	buffers.splattingLayout->AttachBufferAtSlot(buffers.anisotropyQ3, 3);
+
+	BufferLayoutDesc foamLayoutDesc = {};
+	foamLayoutDesc.items[0] = {
+		0,
+		"SV_POSITION",
+		0,
+		BufferLayoutFormat::FLOAT4,
+	};
+
+	foamLayoutDesc.items[1] = {0, "VELOCITY", 1, BufferLayoutFormat::FLOAT4};
+	foamLayoutDesc.itemCount = 2;
+	foamLayoutDesc.vertexShader = shaders.foamVS;
+	foamLayoutDesc.topology = BufferLayoutTopology::POINTS;
+
+	buffers.foamLayout = context->CreateBufferLayout(foamLayoutDesc);
+	buffers.foamLayout->AttachBufferAtSlot(buffers.foamPositions, 0);
+	buffers.foamLayout->AttachBufferAtSlot(buffers.foamVelocities, 1);
 
 	BufferDesc particleAbsorptionBufferDesc = {};
 	particleAbsorptionBufferDesc.type = BufferType::SHADER_RESOURCE;
@@ -260,6 +311,13 @@ void CD3D11SplattingFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData
 	CreateBuffers();
 	simData->LinkBuffer(
 		SimBufferType::POSITION, buffers.positions->GetBufferResource()
+	);
+	simData->LinkBuffer(
+		SimBufferType::FOAM_POSITION, buffers.foamPositions->GetBufferResource()
+	);
+	simData->LinkBuffer(
+		SimBufferType::FOAM_VELOCITY,
+		buffers.foamVelocities->GetBufferResource()
 	);
 	simData->LinkBuffer(
 		SimBufferType::ANISOTROPY_Q1, buffers.anisotropyQ1->GetBufferResource()
@@ -447,8 +505,42 @@ void CD3D11SplattingFluidRenderer::RenderThickness() {
 	buffers.particleAbsorption->BindToPipeline(ShaderType::Vertex, 0);
 
 	context->UseTextureResForNextDraw(thicknessTexture);
-	context->Draw(simData->GetActiveParticles(), 0, true);
+	context->Draw(simData->GetActiveParticles(), 0, AccumulateType::CLASSIC);
 	// we're not using a swapchain, so we need to queue up work manually
+	context->ResetPipeline();
+}
+
+void CD3D11SplattingFluidRenderer::RenderFoam(bool depthOnly) {
+	auto *foamTexture =
+		outputTextures.GetFeatureTexture(FluidFeatureType::FOAM);
+
+	// We need to output non-accumulated depth, and accumulated thickness--so we
+	// split it into 2 passes.
+	if (!depthOnly) {
+		foamTexture->Clear(depthClearColor);
+	}
+
+	foamTexture->BindToPipeline(
+		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+	);
+
+	buffers.foamLayout->BindAsVertexBuffer();
+
+	shaders.foamVS->Bind();
+	shaders.foamGS->Bind();
+	shaders.foamPS->Bind();
+
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
+	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+
+	// We don't accumulate depth, only the foam.
+	context->Draw(
+		simData->GetActiveFoamParticles(),
+		0,
+		depthOnly ? AccumulateType::DEPTH_G_ONLY
+				  : AccumulateType::ALPHA_ACCUMULATE
+	);
 	context->ResetPipeline();
 }
 
@@ -548,6 +640,7 @@ void CD3D11SplattingFluidRenderer::Render() {
 	if (simData->GetActiveParticles() <= 0) {
 		// Just clear the textures and return.
 		outputTextures.GetFeatureTexture(DEPTH)->Clear(depthClearColor);
+		outputTextures.GetFeatureTexture(FOAM)->Clear(depthClearColor);
 		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS)
 			->Clear(genericClearColor);
 
@@ -570,6 +663,8 @@ void CD3D11SplattingFluidRenderer::Render() {
 	RenderFilteredDepth();
 	RenderNormals();
 	RenderThickness();
+	RenderFoam(false);
+	RenderFoam(true);
 	RenderGenericBlur(
 		internalTextures.unfilteredThickness,
 		outputTextures.GetFeatureTexture(FluidFeatureType::THICKNESS)

@@ -28,10 +28,16 @@ private:
 
 	struct {
 		GellyInterfaceVal<IManagedBuffer> positions;
+		GellyInterfaceVal<IManagedBuffer> foamPositions;
+		GellyInterfaceVal<IManagedBuffer> foamVelocities;
+
 		GellyInterfaceVal<IManagedBuffer> anisotropyQ1;
 		GellyInterfaceVal<IManagedBuffer> anisotropyQ2;
 		GellyInterfaceVal<IManagedBuffer> anisotropyQ3;
+
 		GellyInterfaceVal<IManagedBufferLayout> splattingLayout;
+		GellyInterfaceVal<IManagedBufferLayout> foamLayout;
+
 		GellyInterfaceVal<IManagedBuffer> fluidRenderCBuffer;
 		GellyInterfaceVal<IManagedDepthBuffer> depthBuffer;
 
@@ -49,7 +55,6 @@ private:
 		GellyInterfaceVal<IManagedTexture> unfilteredDepth;
 		GellyInterfaceVal<IManagedTexture> unfilteredThickness;
 		GellyInterfaceVal<IManagedTexture> unfilteredAlbedo;
-
 		/**
 		 * \brief When in low-bit mode, this texture is the one in the filter
 		 * flipping instead of the output texture. This is so that all of our
@@ -67,6 +72,10 @@ private:
 		GellyInterfaceVal<IManagedShader> thicknessPS;
 		GellyInterfaceVal<IManagedShader> thicknessVS;
 		GellyInterfaceVal<IManagedShader> thicknessGS;
+
+		GellyInterfaceVal<IManagedShader> foamPS;
+		GellyInterfaceVal<IManagedShader> foamVS;
+		GellyInterfaceVal<IManagedShader> foamGS;
 
 		GellyInterfaceVal<IManagedShader> screenQuadVS;
 
@@ -87,6 +96,7 @@ private:
 	void RenderFilteredDepth();
 	void RenderNormals();
 	void RenderThickness();
+	void RenderFoam(bool depthOnly);
 	void RenderGenericBlur(
 		GellyInterfaceVal<IManagedTexture> texA,
 		GellyInterfaceVal<IManagedTexture> texB

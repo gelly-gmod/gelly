@@ -55,6 +55,9 @@ void StandardTextures::CreateFeatureTextures() {
 
 	std::tie(gmodTextures.thickness, gellyTextures.thickness) =
 		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F);
+
+	std::tie(gmodTextures.foam, gellyTextures.foam) =
+		CreateTexture("gelly-gmod/foam", D3DFMT_A32B32G32R32F);
 }
 
 void StandardTextures::LinkFeatureTextures() const {
@@ -67,6 +70,7 @@ void StandardTextures::LinkFeatureTextures() const {
 	gellyResources.textures->SetFeatureTexture(
 		THICKNESS, gellyTextures.thickness
 	);
+	gellyResources.textures->SetFeatureTexture(FOAM, gellyTextures.foam);
 }
 
 StandardTextures::StandardTextures(

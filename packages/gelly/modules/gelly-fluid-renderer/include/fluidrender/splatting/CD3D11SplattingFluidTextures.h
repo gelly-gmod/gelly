@@ -10,6 +10,7 @@ private:
 	GellyObserverPtr<IManagedTexture> depth;
 	GellyObserverPtr<IManagedTexture> positions;
 	GellyObserverPtr<IManagedTexture> thickness;
+	GellyObserverPtr<IManagedTexture> foam;
 
 public:
 	CD3D11SplattingFluidTextures();

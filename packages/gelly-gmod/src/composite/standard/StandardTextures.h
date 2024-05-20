@@ -33,6 +33,7 @@ public:
 		GellyInterfaceVal<IManagedTexture> depth;
 		GellyInterfaceVal<IManagedTexture> position;
 		GellyInterfaceVal<IManagedTexture> thickness;
+		GellyInterfaceVal<IManagedTexture> foam;
 	} gellyTextures{};
 
 	struct {
@@ -41,6 +42,7 @@ public:
 		ComPtr<IDirect3DTexture9> depth;
 		ComPtr<IDirect3DTexture9> position;
 		ComPtr<IDirect3DTexture9> thickness;
+		ComPtr<IDirect3DTexture9> foam;
 	} gmodTextures;
 
 	StandardTextures(const GellyResources &gelly, const UnownedResources &gmod);

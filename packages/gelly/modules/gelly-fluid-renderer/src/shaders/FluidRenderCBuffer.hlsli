@@ -11,6 +11,8 @@ cbuffer fluidRender : register(b0) {
 
     float g_NearPlane;
     float g_FarPlane;
+    float2 padding;
+    
     float3 g_CameraPosition;
-    float3 pad;
+    float g_DiffuseScale;
 };

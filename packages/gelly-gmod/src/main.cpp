@@ -361,6 +361,19 @@ LUA_FUNCTION(gelly_SetRenderSettings) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetDiffuseScale) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
+
+	auto scale = static_cast<float>(LUA->GetNumber(1));
+	auto config = compositor->GetConfig();
+	config.diffuseScale = scale;
+	compositor->SetConfig(config);
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem();
@@ -375,6 +388,8 @@ GMOD_MODULE_OPEN() {
 		);
 		return 0;
 	}
+
+	START_GELLY_EXCEPTIONS()
 
 	LOG_INFO("Hello, world!");
 	LOG_INFO("Grabbing initial information...");
@@ -450,8 +465,11 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
 	DEFINE_LUA_FUNC(gelly, SetRenderSettings);
+	DEFINE_LUA_FUNC(gelly, SetDiffuseScale);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
+
+	CATCH_GELLY_EXCEPTIONS();
 
 	return 0;
 }
