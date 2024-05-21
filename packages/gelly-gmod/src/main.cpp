@@ -374,6 +374,20 @@ LUA_FUNCTION(gelly_SetDiffuseScale) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetDiffuseMotionBlur) {
+	START_GELLY_EXCEPTIONS();
+
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
+
+	auto blur = static_cast<float>(LUA->GetNumber(1));
+	auto config = compositor->GetConfig();
+	config.diffuseMotionBlur = blur;
+	compositor->SetConfig(config);
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem();
@@ -466,6 +480,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
 	DEFINE_LUA_FUNC(gelly, SetRenderSettings);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseScale);
+	DEFINE_LUA_FUNC(gelly, SetDiffuseMotionBlur);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

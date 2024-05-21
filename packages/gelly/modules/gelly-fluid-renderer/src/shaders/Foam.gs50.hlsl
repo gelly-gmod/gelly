@@ -12,43 +12,8 @@ void CullParticle(float2 ndcPos) {
     }
 }
 
-float3x3 CreateQuadRotationMatrix(float3 worldPos, float3 viewVelocity) {
-    // for a screen-facing quad, we can define a few constraints
-    // 1. the quad should be parallel to the screen, aka
-    //    an axis is facing the camera
-    // 2. one of the axes should be aligned with the view velocity
-    // 3. the third axis is the cross product of the other two
-
-    float velocityLength = length(viewVelocity);
-    if (velocityLength < 0.0001f) {
-        return float3x3(1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f);
-    }
-
-    float3 y = viewVelocity / velocityLength;
-    float3 z = normalize(mul(g_View, float4(normalize(worldPos - g_CameraPosition), 0.f)).xyz);
-    float3 x = cross(z, y);
-
-    // Remap to source engine coordinate system
-    // x: forward, y: right, z: up
-    // our camera-facing axis is the z axis
-    // the velocity is the y axis
-    // the x axis is the cross product of the other two
-    // so we need to swap x and z
-    return float3x3(x, y, z);
-}
-
-void PushVertex(VS_OUTPUT output, float2 corner, inout TriangleStream<GS_OUTPUT> triStream) {
-    GS_OUTPUT vertex = (GS_OUTPUT)0;
-    float3x3 rotation = CreateQuadRotationMatrix(output.WorldPos.xyz, output.ViewVelocity.xyz);
-
-    vertex.Pos = output.Pos;
-    float3 alignedCorner = float3(corner.x - 0.5, corner.y - 0.5, 0.0);
-    vertex.Pos.xyz += mul(rotation, alignedCorner) * g_DiffuseScale * 2.f;
-
-    vertex.Pos = mul(g_Projection, vertex.Pos);
-    vertex.Tex = float2(corner.x, 1.0 - corner.y);
-    vertex.ViewVelocity = float4(output.ViewVelocity.xyz, output.FrustrumLifetime.w);
-    triStream.Append(vertex);
+float sqr(float x) {
+    return x * x;
 }
 
 [maxvertexcount(4)]
@@ -56,8 +21,45 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     GS_OUTPUT output = (GS_OUTPUT)0;
     CullParticle(input[0].FrustrumLifetime.xy);
 
-    PushVertex(input[0], corners[0], triStream);
-    PushVertex(input[0], corners[1], triStream);
-    PushVertex(input[0], corners[2], triStream);
-    PushVertex(input[0], corners[3], triStream);
+    float3 viewOrigin = input[0].Pos.xyz; // VS multiplied by g_View
+    float3 viewVelocity = input[0].ViewVelocity.xyz;
+
+    float3 heightAxis = float3(0.f, g_DiffuseScale, 0.f);
+    float3 widthAxis = float3(g_DiffuseScale, 0.f, 0.f);
+
+    float particleLifetime = input[0].FrustrumLifetime.w;
+    float spriteFade = lerp(1.f - 0.794, 1.f, min(1.f, particleLifetime * 0.25f));
+
+    heightAxis *= spriteFade;
+    widthAxis *= spriteFade;
+
+    float velocityFade = 1.f / sqr(spriteFade);
+    float viewVelLength = length(viewVelocity) * g_DiffuseMotionBlur;
+
+    if (viewVelLength > 0.5f) {
+        float newPointLength = max(g_DiffuseScale, viewVelLength * 0.016f); // todo: pass dt
+        velocityFade = min(1.f, 2.f / (newPointLength / g_DiffuseScale));
+
+        heightAxis = normalize(viewVelocity.xyz) * newPointLength;
+        widthAxis = normalize(cross(heightAxis, float3(0.f, 0.f, -1.f))) * g_DiffuseScale;
+    }
+
+    output.ViewVelocity = float4(viewVelocity, velocityFade);
+    output.LifeTime = particleLifetime;
+    
+    output.Pos = mul(g_Projection, float4(viewOrigin + heightAxis - widthAxis, 1.f));
+    output.Tex = corners[0];
+    triStream.Append(output);
+
+    output.Pos = mul(g_Projection, float4(viewOrigin - heightAxis - widthAxis, 1.f));
+    output.Tex = corners[1];
+    triStream.Append(output);
+
+    output.Pos = mul(g_Projection, float4(viewOrigin + heightAxis + widthAxis, 1.f));
+    output.Tex = corners[2];
+    triStream.Append(output);
+
+    output.Pos = mul(g_Projection, float4(viewOrigin - heightAxis + widthAxis, 1.f));
+    output.Tex = corners[3];
+    triStream.Append(output);
 }

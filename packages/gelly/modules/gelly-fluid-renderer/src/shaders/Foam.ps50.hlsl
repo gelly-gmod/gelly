@@ -10,7 +10,11 @@ void ClipQuadCorners(float magnitude) {
 void CalculateNormal(float2 tex, out float3 normal, out float magnitude) {
     normal.xy = tex * float2(2.0, -2.0) + float2(-1.0, 1.0);
     magnitude = dot(normal.xy, normal.xy);
-    normal.z = sqrt(1.0 - magnitude);
+    normal.z = 1.0 - magnitude;
+}
+
+float sqr(float x) {
+    return x * x;
 }
 
 PS_OUTPUT main(GS_OUTPUT input) {
@@ -22,9 +26,11 @@ PS_OUTPUT main(GS_OUTPUT input) {
     CalculateNormal(input.Tex, normal, magnitude);
     ClipQuadCorners(magnitude);
 
-    float lifetime = input.ViewVelocity.w;
-    float lifeTimeFade = lifetime / 2.f;
-    float foamThickness = lifeTimeFade * normal.z * 0.15f;
+    float lifetime = input.LifeTime;
+    float lifeTimeFade = min(1.f, lifetime * 0.125f);
+    float velocityFade = input.ViewVelocity.w;
+
+    float foamThickness = lifeTimeFade * velocityFade * sqr(normal.z);
 
     output.FoamEncoding = float4(0.f, input.Pos.z, 0.0, foamThickness);
     return output;

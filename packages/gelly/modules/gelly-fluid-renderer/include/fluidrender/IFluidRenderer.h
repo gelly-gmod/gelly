@@ -61,6 +61,9 @@ struct FluidRenderParams {
 
 	XMFLOAT3 cameraPos;
 	float diffuseScale;
+
+	float diffuseMotionBlur;
+	float pad[3] = {};
 };
 }  // namespace Gelly
 

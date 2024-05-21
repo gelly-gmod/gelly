@@ -9,6 +9,7 @@ struct VS_OUTPUT {
 struct GS_OUTPUT {
     float4 Pos : SV_POSITION;
     // W replaced with lifetime
+    float LifeTime : LIFETIME;
     float4 ViewVelocity : VELOCITY;
     float2 Tex : TEXCOORD0;
 };

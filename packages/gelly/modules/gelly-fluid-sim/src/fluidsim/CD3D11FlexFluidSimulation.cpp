@@ -333,12 +333,6 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 	copyDesc.elementCount = simData->GetActiveParticles();
 
 	NvFlexSetParams(solver, &solverParams);
-	NvFlexSetDiffuseParticles(
-		solver,
-		sharedBuffers.foamPositions,
-		sharedBuffers.foamVelocities,
-		simData->GetActiveFoamParticles()
-	);
 	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
 
 	NvFlexUpdateSolver(solver, deltaTime, substeps, false);
@@ -374,7 +368,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.f;
-	solverParams.gravity[2] = -4.f;
+	solverParams.gravity[2] = -95.25f;
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;

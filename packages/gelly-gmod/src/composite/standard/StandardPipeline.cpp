@@ -211,6 +211,7 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	renderParams.particleRadius = config.particleRadius;
 	renderParams.thresholdRatio = config.thresholdRatio;
 	renderParams.diffuseScale = config.diffuseScale;
+	renderParams.diffuseMotionBlur = config.diffuseMotionBlur;
 
 	renderParams.width = static_cast<float>(viewSetup.width);
 	renderParams.height = static_cast<float>(viewSetup.height);
