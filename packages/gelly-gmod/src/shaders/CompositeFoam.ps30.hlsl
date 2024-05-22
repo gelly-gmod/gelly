@@ -15,7 +15,7 @@ PS_OUTPUT main(VS_INPUT input) {
     }
     
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Color = float4(foam.a, foam.a, foam.a, foam.a); // We do want it to blend with the background
+    output.Color = float4(1.f, 1.f, 1.f, foam.a); // We do want it to blend with the background
     output.Depth = foam.g;
     return output;
 }

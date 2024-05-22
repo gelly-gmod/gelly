@@ -56,6 +56,7 @@ private:
 	float particleInverseMass = 1.f;
 	uint maxContactsPerParticle = 6;
 	uint substeps = 3;
+	float timeStepMultiplier = 1.f;
 
 	void SetupParams();
 	void DebugDumpParams();
@@ -78,6 +79,7 @@ public:
 	void ExecuteCommandList(ISimCommandList *commandList) override;
 
 	void Update(float deltaTime) override;
+	void SetTimeStepMultiplier(float timeStepMultiplier) override;
 
 	const char *GetComputeDeviceName() override;
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;

@@ -65,6 +65,10 @@ public:
 		sim->Update(dt);
 		sim->GetScene()->Update();
 	}
+
+	void SetTimeStepMultiplier(float timeStepMultiplier) {
+		sim->SetTimeStepMultiplier(timeStepMultiplier);
+	}
 };
 
 #endif	// SCENE_H

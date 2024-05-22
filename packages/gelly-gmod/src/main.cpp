@@ -388,6 +388,16 @@ LUA_FUNCTION(gelly_SetDiffuseMotionBlur) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetTimeStepMultiplier) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
+
+	auto multiplier = static_cast<float>(LUA->GetNumber(1));
+	scene->SetTimeStepMultiplier(multiplier);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 	InjectConsoleWindow();
 	if (const auto status = FileSystem::LoadFileSystem();
@@ -481,6 +491,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetRenderSettings);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseScale);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseMotionBlur);
+	DEFINE_LUA_FUNC(gelly, SetTimeStepMultiplier);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 

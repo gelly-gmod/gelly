@@ -46,11 +46,11 @@ public:
 	void AttachToContext(GellyObserverPtr<ISimContext> context) override;
 
 	void Update(float deltaTime) override;
-
-	const char* GetComputeDeviceName() override;
+	void SetTimeStepMultiplier(float timeStepMultiplier) override{};
+	const char *GetComputeDeviceName() override;
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
 
-	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override {};
+	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override{};
 };
 
 #endif	// CD3D11RTFRFLUIDSIMULATION_H

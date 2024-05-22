@@ -61,9 +61,22 @@ public:
 
 	/**
 	 * \brief Will throw if the simulation data buffers are not linked.
-	 * \param deltaTime Time since last update in seconds.
+	 * \param deltaTime Time since last update in seconds. It's highly
+	 * preferable to keep this constant. Most simulations will require a
+	 * constant delta time to function properly. It's also known as the "fixed
+	 * time step".
 	 */
 	virtual void Update(float deltaTime) = 0;
+
+	/**
+	 * \brief Sets the time step multiplier for the simulation, which may or may
+	 * not invoke a recompile of the simulation's parameters. (could mean a gpu
+	 * sync, etc.)
+	 * @param timeStepMultiplier Multiplier for the time step. This is useful
+	 * for slowing/spedding up the simulation according to the game's time
+	 * scale.
+	 */
+	virtual void SetTimeStepMultiplier(float timeStepMultiplier) = 0;
 
 	virtual const char *GetComputeDeviceName() = 0;
 

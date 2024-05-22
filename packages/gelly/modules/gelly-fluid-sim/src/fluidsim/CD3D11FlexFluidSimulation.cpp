@@ -64,7 +64,7 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 void CD3D11FlexFluidSimulation::SetMaxParticles(const int maxParticles) {
 	this->maxParticles = maxParticles;
 	simData->SetMaxParticles(maxParticles);
-	simData->SetMaxFoamParticles(15000);
+	simData->SetMaxFoamParticles(maxParticles);
 }
 
 void CD3D11FlexFluidSimulation::Initialize() {
@@ -335,7 +335,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 	NvFlexSetParams(solver, &solverParams);
 	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
 
-	NvFlexUpdateSolver(solver, deltaTime, substeps, false);
+	NvFlexUpdateSolver(solver, deltaTime * timeStepMultiplier, substeps, false);
 	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, &copyDesc);
 	NvFlexGetAnisotropy(
 		solver,
@@ -361,6 +361,13 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 	NvFlexUnmap(buffers.diffuseParticleCount);
 }
 
+void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier
+) {
+	this->timeStepMultiplier = timeStepMultiplier;
+
+	solverParams.diffuseLifetime = 2.f * timeStepMultiplier;
+}
+
 void CD3D11FlexFluidSimulation::SetupParams() {
 	DebugDumpParams();
 	// Rule of thumb is to use proportional values to the particle radius, as
@@ -368,7 +375,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.f;
-	solverParams.gravity[2] = -95.25f;
+	solverParams.gravity[2] = -4.f;
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
@@ -409,11 +416,11 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.vorticityConfinement = 1.0f;
 	solverParams.buoyancy = 1.0f;
 
-	solverParams.diffuseBallistic = 16;
+	solverParams.diffuseBallistic = 0;
 	solverParams.diffuseThreshold = 100.f;
 	solverParams.diffuseBuoyancy = 1.f;
-	solverParams.diffuseDrag = 0.8f;
-	solverParams.diffuseLifetime = 2.f;
+	solverParams.diffuseDrag = 0.2f;
+	solverParams.diffuseLifetime = 2.f * timeStepMultiplier;
 	printf("== NEW PARAMS ==\n");
 	DebugDumpParams();
 }

@@ -335,8 +335,8 @@ void StandardPipeline::CompositeFoam(bool withGellyRendered) const {
 
 	// We do actually want to use an alpha blend here
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR);
-	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);
+	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
