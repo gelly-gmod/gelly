@@ -8,8 +8,8 @@ struct PipelineConfig {
 	float particleRadius;
 	float thresholdRatio = 0.07f;
 
-	float diffuseMotionBlur = 1.f;
-	float diffuseScale = 2.f;
+	float diffuseMotionBlur = 25.f;
+	float diffuseScale = 0.23f;
 
 	float filterIterations = 2.f;
 	float thicknessIterations = 13.f;
