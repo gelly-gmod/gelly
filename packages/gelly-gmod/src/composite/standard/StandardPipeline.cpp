@@ -227,6 +227,7 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.eyePos[2] = viewSetup.origin.z;
 
 	compositeConstants.cubemapStrength = config.cubemapStrength;
+	compositeConstants.refractionStrength = config.refractionStrength;
 
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
@@ -254,6 +255,14 @@ void StandardPipeline::UpdateGellyRenderParams() {
 		renderParams.width / renderParams.height;  // viewport aspect ratio
 
 	renderer->SetPerFrameParams(renderParams);
+
+	std::memcpy(
+		&compositeConstants.ambientLightCube,
+		GetAmbientLightCube(),
+		sizeof(AmbientLightCube)
+	);
+
+	compositeConstants.material = fluidMaterial;
 }
 
 void StandardPipeline::RenderGellyFrame() {
@@ -289,6 +298,8 @@ StandardPipeline::StandardPipeline()
 	  compositeShader(),
 	  quadVertexShader() {}
 
+StandardPipeline::~StandardPipeline() { RemoveAmbientLightCubeHooks(); }
+
 void StandardPipeline::CreatePipelineLocalResources(
 	const GellyResources &gelly, const UnownedResources &gmod
 ) {
@@ -310,7 +321,7 @@ void StandardPipeline::SetConfig(const PipelineConfig &config) {
 PipelineConfig StandardPipeline::GetConfig() const { return config; }
 
 void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
-	compositeConstants.refractionStrength = material.refractionStrength;
+	fluidMaterial = material;
 }
 
 void StandardPipeline::CompositeFoam(bool withGellyRendered) const {

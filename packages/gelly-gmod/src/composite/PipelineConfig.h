@@ -15,6 +15,7 @@ struct PipelineConfig {
 	float thicknessIterations = 13.f;
 
 	float cubemapStrength = 1.f;
+	float refractionStrength = 0.03f;
 };
 
 #endif	// PIPELINECONFIG_H

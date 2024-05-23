@@ -1,5 +1,9 @@
 #include "NDCQuadStages.hlsli"
 #include "util/ReconstructHighBits.hlsli"
+#include "material/FluidMaterial.hlsli"
+#include "material/Absorption.hlsli"
+#include "material/Schlicks.hlsli"
+#include "source-engine/AmbientCube.hlsli"
 
 sampler2D depthTex : register(s0);
 sampler2D normalTex : register(s1);
@@ -9,8 +13,8 @@ sampler2D thicknessTex : register(s4);
 samplerCUBE cubemapTex : register(s5);
 sampler2D absorptionTex : register(s6);
 
-float3 eyePos : register(c0);
-float2 refractAndCubemapStrength : register(c1);
+float4 eyePos : register(c0);
+float4 refractAndCubemapStrength : register(c1);
 
 // each takes up 3 registers
 struct CompositeLight {
@@ -20,30 +24,14 @@ struct CompositeLight {
 };
 
 CompositeLight lights[2] : register(c2); // next reg that can be used is c8 (2 + 6)
-float aspectRatio : register(c8);
-
+float4 aspectRatio : register(c8);
+float4 ambientCube[6] : register(c9);
+FluidMaterial material : register(c15);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
     float Depth : SV_DEPTH;
 };
-
-float3 ComputeAbsorption(float3 absorptionCoefficients, float distance) {
-    return exp(-absorptionCoefficients * distance);
-}
-
-float Schlicks(float cosTheta, float refractionIndex) {
-    float r0 = (1.0 - refractionIndex) / (1.0 + refractionIndex);
-    r0 = r0 * r0;
-    return r0 + (1.0 - r0) * pow(1.0 - cosTheta, 5.0);
-}
-
-float3 NormalizeAbsorption(float3 absorption, float thickness) {
-    // cool technique here: since absorption will get darker as thickness increases, we can
-    // normalize it so that from the top it looks the same as from the side
-
-    return absorption / thickness;
-}
 
 float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 eyePos) {
     float3 radiance = float3(0.0, 0.0, 0.0);
@@ -61,31 +49,42 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
     return radiance;
 }
 
-float4 Shade(VS_INPUT input) {
-    float thickness = tex2D(thicknessTex, input.Tex).x;
+float2 ApplyRefractionToUV(in float2 tex, in float3 normal) {
+    return tex + normal.zx * refractAndCubemapStrength.x * float2(aspectRatio.x, 1.0);
+}
 
-    float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
-
-    float3 position = tex2D(positionTex, input.Tex).xyz;
-    float3 normal = tex2D(normalTex, input.Tex).xyz;
-    
-    float3 eyeDir = normalize(eyePos - position);
-    float3 reflectionDir = reflect(-eyeDir, normal);
-    float3 specular = texCUBE(cubemapTex, reflectionDir).xyz * refractAndCubemapStrength.y + ComputeSpecularRadianceFromLights(position, normal, eyePos);
-    
-    float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), 1.33);
-    if (fresnel > 0.89f) {
-        discard;
-    }
-
-    float2 transmissionUV = input.Tex + normal.zx * refractAndCubemapStrength.x * float2(aspectRatio, 1.0); // aspectRatio is height / width of the screen also known as vScale
-    float3 transmission = tex2D(backbufferTex, transmissionUV).xyz;
+float3 SampleTransmission(in float2 tex, in float3 normal, in float3 absorption) {
+    float3 transmission = tex2D(backbufferTex, ApplyRefractionToUV(tex, normal)).xyz;
     // apply inverse gamma correction
     transmission = pow(transmission, 2.2);
     transmission *= absorption;
+    return transmission;
+}
 
-    float3 weight = (1.f - fresnel) * transmission + fresnel * specular;
-    return float4(weight, 1.0);
+float4 Shade(VS_INPUT input) {
+    float thickness = tex2D(thicknessTex, input.Tex).x;
+    float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
+    float3 position = tex2D(positionTex, input.Tex).xyz;
+    float3 normal = tex2D(normalTex, input.Tex).xyz;
+    
+    float3 eyeDir = normalize(eyePos.xyz - position);
+    float3 reflectionDir = reflect(-eyeDir, normal);
+
+    float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), material.r_st_ior.z);
+
+    float3 specular = texCUBE(cubemapTex, reflectionDir).xyz * refractAndCubemapStrength.y + ComputeSpecularRadianceFromLights(position, normal, eyePos.xyz);
+    float3 diffuseIrradiance = SampleAmbientCube(ambientCube, normal);
+
+    float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, normal, absorption) + fresnel * specular;
+    float3 diffuseSpecularLobe = (1.f - fresnel) * diffuseIrradiance + fresnel * specular;
+    float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuseIrradiance;
+
+    specularTransmissionLobe *= material.r_st_ior.y;
+    roughLobe *= (1.f - material.r_st_ior.y);
+
+    float3 weight = specularTransmissionLobe + roughLobe;
+
+    return float4(weight, 1.f);
 }
 
 PS_OUTPUT main(VS_INPUT input) {

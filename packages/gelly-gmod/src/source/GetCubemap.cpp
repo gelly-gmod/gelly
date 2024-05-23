@@ -5,6 +5,8 @@
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "GellyDataTypes.h"
 #include "Interface.h"
+#include "LoggingMacros.h"
+#include "MinHook.h"
 #include "hooking/Library.h"
 
 using CShaderAPIDX8 = void *;
@@ -23,6 +25,8 @@ using GetTextureHandle_t =
 using GetLight_t = uintptr_t (*__thiscall)(CShaderAPIDX8 *, int);
 using GetMaxLights_t = int (*__thiscall)(CShaderAPIDX8 *);
 using AllowThreading_t = bool (*__thiscall)(CMaterialSystem *, bool, int);
+using SetAmbientLightCube_t =
+	void (*__thiscall)(CShaderAPIDX8 *, AmbientLightCube &);
 
 static Library g_shaderAPI;
 static Library g_materialSystem;
@@ -34,8 +38,45 @@ static AllowThreading_t g_allowThreading = nullptr;
 static GetLight_t g_getLight = nullptr;
 static GetMaxLights_t g_getMaxLights = nullptr;
 
+static SetAmbientLightCube_t g_setAmbientLightCube = nullptr;
+static SetAmbientLightCube_t g_setAmbientLightCubeHk = nullptr;
+
 static CMaterialSystem *g_matSys = nullptr;
 static CShaderAPIDX8 *g_shaderAPIDX9 = nullptr;
+
+static AmbientLightCube g_ambientLightCube;
+
+// We don't have to worry about half-sized registers, like EDX--as of writing
+// the compiler has fit a reference to the cube into RDX
+void __thiscall SetAmbientLightCubeHook(
+	CShaderAPIDX8 *shaderAPI, AmbientLightCube &cube
+) {
+	std::memcpy(g_ambientLightCube, cube, sizeof(AmbientLightCube));
+	g_setAmbientLightCubeHk(shaderAPI, cube);
+}
+
+void SetupAmbientLightCubeHook() {
+	if (!g_setAmbientLightCube) {
+		return;
+	}
+
+	if (MH_CreateHook(
+			g_setAmbientLightCube,
+			SetAmbientLightCubeHook,
+			reinterpret_cast<LPVOID *>(&g_setAmbientLightCubeHk)
+		) != MH_OK) {
+		throw std::runtime_error("Failed to hook SetAmbientLightCube!");
+	}
+
+	MH_EnableHook(g_setAmbientLightCube);
+}
+
+void RemoveAmbientLightCubeHooks() {
+	if (g_setAmbientLightCubeHk) {
+		MH_RemoveHook(g_setAmbientLightCube);
+		g_setAmbientLightCubeHk = nullptr;
+	}
+}
 
 void EnsureAllHandlesInitialized() {
 	if (!g_shaderAPI.IsInitialized()) {
@@ -74,8 +115,12 @@ void EnsureAllHandlesInitialized() {
 		sigs::CShaderAPIDX8_GetMaxLights
 	);
 
+	g_setAmbientLightCube = g_shaderAPI.FindFunction<SetAmbientLightCube_t>(
+		sigs::CShaderAPIDX8_SetAmbientLightCube
+	);
+
 	if (!g_getLocalCubemap || !g_getD3DTexture || !g_getTextureHandle ||
-		!g_getLight || !g_getMaxLights) {
+		!g_getLight || !g_getMaxLights || !g_setAmbientLightCube) {
 		throw std::runtime_error("Failed to resolve all GetCubemap functions!");
 	}
 
@@ -86,8 +131,11 @@ void EnsureAllHandlesInitialized() {
 	g_matSys = GetInterface<CMaterialSystem>(
 		"materialsystem.dll", "VMaterialSystem080"
 	);
+
 	g_shaderAPIDX9 =
 		GetInterface<CShaderAPIDX8>("shaderapidx9.dll", "ShaderApi030");
+
+	SetupAmbientLightCubeHook();
 }
 
 CTexture *GetLocalCubeMap() {
@@ -152,4 +200,10 @@ int GetMaxLights() {
 	return g_getMaxLights(g_shaderAPIDX9) -
 		   1;  // I have no idea why it's -1, but it's reflected in the original
 			   // decompiled code
+}
+
+AmbientLightCube *GetAmbientLightCube() {
+	EnsureAllHandlesInitialized();
+	// we can't be confident that the ambient light cube has been set yet
+	return &g_ambientLightCube;
 }

@@ -6,6 +6,8 @@
 #include "../Pipeline.h"
 #include "StandardTextures.h"
 #include "fluidrender/IRenderContext.h"
+#include "source/GetCubemap.h"
+#include "source/MathTypes.h"
 
 using namespace DirectX;
 
@@ -35,6 +37,9 @@ struct CompositeConstants {
 	CompositeLight lights[2];
 	float aspectRatio;
 	float pad2[3];
+
+	AmbientLightCube ambientLightCube;
+	PipelineFluidMaterial material;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -59,6 +64,7 @@ private:
 	ComPtr<IDirect3DStateBlock9> stateBlock;
 
 	PipelineConfig config;
+	PipelineFluidMaterial fluidMaterial;
 
 	void CreateCompositeShader();
 	void CreateQuadVertexShader();
@@ -77,7 +83,7 @@ private:
 
 public:
 	StandardPipeline();
-	~StandardPipeline() override = default;
+	~StandardPipeline() override;
 
 	void CreatePipelineLocalResources(
 		const GellyResources &gelly, const UnownedResources &gmod

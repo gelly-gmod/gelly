@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "GarrysMod/Lua/SourceCompat.h"
+#include "MathTypes.h"
 #include "Signatures.h"
 #include "detail/d3d9/Texture.h"
 
@@ -45,6 +46,8 @@ protected:
 	float m_RangeSquared;
 };
 
+using AmbientLightCube = Vector4D[6];
+
 /**
  * \brief Since it's not localized to where ever you are rendering, this
  * function will return the currently active cubemap in the game at the camera's
@@ -61,5 +64,8 @@ void DisableMaterialSystemThreading();
 std::optional<LightDesc_t> GetLightDesc(int index);
 
 int GetMaxLights();
+
+AmbientLightCube *GetAmbientLightCube();
+void RemoveAmbientLightCubeHooks();
 
 #endif	// GETCUBEMAP_H

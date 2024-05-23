@@ -23,6 +23,10 @@ constexpr const char *const CShaderAPIDX8_GetD3DTexture =
 	"48 85 d2 75 03 33 c0 c3 80 7a 1a 01 48 8b 42 58 74 08 0f b6 4a 1b 48 8b "
 	"04 c8";
 
+constexpr const char *const CShaderAPIDX8_SetAmbientLightCube =
+	"48 89 5c 24 08 48 89 74 24 10 57 48 83 ec 20 48 8d b9 80 12 00 00 48 8b "
+	"f1 48 8b cf 41 b8 60 00 00 00 48 8b da e8 f6 bb 02 00";
+
 constexpr const char *const CShaderAPIDX8_GetLight =
 	"48 63 c2 48 6b d0 58 48 8d 81 1c 11 00 00 48 03 c2 c3";
 

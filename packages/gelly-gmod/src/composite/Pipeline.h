@@ -7,8 +7,22 @@
 #include "fluidrender/IFluidTextures.h"
 
 struct PipelineFluidMaterial {
-	float refractionStrength;
+	// The current material system is physically based for the most part,
+	// with the trade-off of physically inaccurate lobe shapes for faster
+	// and simpler evaluation on the GPU. For example, roughness is implemented
+	// as a linear interpolation of the diffuse and delta specular lobes.
+
+	float roughness = 0.f;
+	// should be either zero or one, no in-between
+	float specularTransmission = 0.f;
+	float refractiveIndex = 1.5f;
+	float padding = 0.f;
 };
+
+static_assert(
+	sizeof(PipelineFluidMaterial) % 16 == 0,
+	"PipelineFluidMaterial must be 16-byte aligned"
+);
 
 /**
  * A D3D9 pipeline interface responsible for creating a state block to

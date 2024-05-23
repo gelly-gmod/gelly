@@ -247,13 +247,21 @@ LUA_FUNCTION(gelly_GetStatus) {
 	name##_v = LUA->GetVector(-1); \
 	LUA->Pop();
 
-#define GET_LUA_TABLE_MEMBER(type, name)          \
-	float name;                                   \
-	Vector name##_v;                              \
-	if constexpr (std::is_same_v<type, Vector>) { \
-		GET_LUA_TABLE_VECTOR(name);               \
-	} else {                                      \
-		GET_LUA_TABLE_NUMBER(name);               \
+#define GET_LUA_TABLE_BOOL(name) \
+	LUA->GetField(-1, #name);    \
+	name##_b = LUA->GetBool(-1); \
+	LUA->Pop();
+
+#define GET_LUA_TABLE_MEMBER(type, name)               \
+	bool name##_b;                                     \
+	float name;                                        \
+	Vector name##_v;                                   \
+	if constexpr (std::is_same_v<type, Vector>) {      \
+		GET_LUA_TABLE_VECTOR(name);                    \
+	} else if constexpr (std::is_same_v<type, bool>) { \
+		GET_LUA_TABLE_BOOL(name);                      \
+	} else {                                           \
+		GET_LUA_TABLE_NUMBER(name);                    \
 	}
 
 LUA_FUNCTION(gelly_SetFluidProperties) {
@@ -281,16 +289,24 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_SetFluidVisualParams) {
+LUA_FUNCTION(gelly_SetFluidMaterial) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
 
-	GET_LUA_TABLE_MEMBER(float, Shininess);
-	GET_LUA_TABLE_MEMBER(Vector, Absorption);
-	GET_LUA_TABLE_MEMBER(float, RefractionStrength);
+	GET_LUA_TABLE_MEMBER(float, Roughness);
+	GET_LUA_TABLE_MEMBER(bool, IsSpecularTransmission);
+	GET_LUA_TABLE_MEMBER(float, RefractiveIndex);
 
 	PipelineFluidMaterial material = {};
-	material.refractionStrength = RefractionStrength;
+	material.roughness = Roughness;
+	material.specularTransmission =
+		IsSpecularTransmission_b
+			? 1.f
+			: 0.f;	// generally easier on the GPU-side
+					// to use a float as a boolean (bool registers have issues)
+	material.refractiveIndex = RefractiveIndex;
+
+	LOG_INFO("Specular transmission: %f", material.specularTransmission);
 
 	compositor->SetFluidMaterial(material);
 	CATCH_GELLY_EXCEPTIONS();
@@ -352,9 +368,11 @@ LUA_FUNCTION(gelly_SetRenderSettings) {
 
 	GET_LUA_TABLE_MEMBER(int, SmoothingIterations);
 	GET_LUA_TABLE_MEMBER(int, ThicknessIterations);
+	GET_LUA_TABLE_MEMBER(float, RefractionStrength);
 
 	config.filterIterations = SmoothingIterations;
 	config.thicknessIterations = ThicknessIterations;
+	config.refractionStrength = RefractionStrength;
 
 	compositor->SetConfig(config);
 	CATCH_GELLY_EXCEPTIONS();
@@ -483,7 +501,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
-	DEFINE_LUA_FUNC(gelly, SetFluidVisualParams);
+	DEFINE_LUA_FUNC(gelly, SetFluidMaterial);
 	DEFINE_LUA_FUNC(gelly, SetCubemapStrength);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
