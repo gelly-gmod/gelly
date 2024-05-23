@@ -9,10 +9,10 @@ return {
 		VorticityConfinement = 10,
 		DynamicFriction = 0.1,
 	},
-	VisualParams = {
-		-- phong shininess
-		Shininess = 200,
+	Material = {
+		Roughness = 0,
+		IsSpecularTransmission = true,
+		RefractiveIndex = 1.333,
 		Absorption = Vector(0.0001, 0.0001, 0),
-		RefractionStrength = 0.015,
 	},
 }

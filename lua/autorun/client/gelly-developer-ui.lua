@@ -188,4 +188,40 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		local suffix = SIMULATE_GELLY and "(Y)" or "(N)"
 		toggleSimulationButton:SetText(("Toggle Simulation %s"):format(suffix))
 	end
+
+	local cubemapStrengthSlider = vgui.Create("DNumSlider")
+	cubemapStrengthSlider:SetPos(ScrW() - 200, 650)
+	cubemapStrengthSlider:SetSize(200, 50)
+	cubemapStrengthSlider:SetText("Cubemap Strength")
+	cubemapStrengthSlider:SetMin(1)
+	cubemapStrengthSlider:SetMax(10)
+	cubemapStrengthSlider:SetDecimals(2)
+	cubemapStrengthSlider:SetValue(1)
+	cubemapStrengthSlider.OnValueChanged = function(_, value)
+		gelly.SetCubemapStrength(value)
+	end
+
+	local diffuseScaleSlider = vgui.Create("DNumSlider")
+	diffuseScaleSlider:SetPos(ScrW() - 200, 700)
+	diffuseScaleSlider:SetSize(200, 50)
+	diffuseScaleSlider:SetText("Diffuse Scale")
+	diffuseScaleSlider:SetMin(0)
+	diffuseScaleSlider:SetMax(4)
+	diffuseScaleSlider:SetDecimals(2)
+	diffuseScaleSlider:SetValue(1)
+	diffuseScaleSlider.OnValueChanged = function(_, value)
+		gelly.SetDiffuseScale(value)
+	end
+
+	local diffuseMotionBlurSlider = vgui.Create("DNumSlider")
+	diffuseMotionBlurSlider:SetPos(ScrW() - 400, 700)
+	diffuseMotionBlurSlider:SetSize(200, 50)
+	diffuseMotionBlurSlider:SetText("Diffuse Motion Blur")
+	diffuseMotionBlurSlider:SetMin(0)
+	diffuseMotionBlurSlider:SetMax(25)
+	diffuseMotionBlurSlider:SetDecimals(2)
+	diffuseMotionBlurSlider:SetValue(1)
+	diffuseMotionBlurSlider.OnValueChanged = function(_, value)
+		gelly.SetDiffuseMotionBlur(value)
+	end
 end)

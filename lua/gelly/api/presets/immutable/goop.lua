@@ -9,10 +9,10 @@ return {
 		VorticityConfinement = 0,
 		DynamicFriction = 0.1,
 	},
-	VisualParams = {
-		-- phong shininess
-		Shininess = 4000,
-		Absorption = Vector(0, 0.01, 0),
-		RefractionStrength = 0.03,
+	Material = {
+		Roughness = 0, -- Goop is shiny
+		IsSpecularTransmission = true, -- Goop is translucent (although we definitely could make it diffuse, but slime is usually translucent)
+		RefractiveIndex = 1.333, -- Goop has a refractive index similar to water
+		Absorption = Vector(0, 0.005, 0),
 	},
 }

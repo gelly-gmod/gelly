@@ -7,29 +7,16 @@ GELLY_KILL_PLAYER_ON_CONTACT = false
 
 SIMULATE_GELLY = true
 
-local function calculateThrottledDeltaTime()
-	return 1
-		/ math.floor(
-			(FPS_AT_MAX_PARTICLES - START_SIM_FPS)
-					* (gelly.GetStatus().ActiveParticles / gelly.GetStatus().MaxParticles)
-				+ START_SIM_FPS
-		)
-end
-
 hook.Add("GellyLoaded", "gelly.update-loop", function()
 	hook.Add("RenderScene", "gelly.render", function()
+		if SIMULATE_GELLY then
+			gelly.SetTimeStepMultiplier(GELLY_SIM_TIMESCALE)
+			gelly.Simulate(1 / 60) -- flex is programmed to assume a fixed timestep, normally 60hz
+		end
 		gelly.Render()
 	end)
 
 	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function(depth, skybox)
 		gelly.Composite()
-	end)
-
-	timer.Create("gelly.update", 1 / START_SIM_FPS, 0, function()
-		local dt = calculateThrottledDeltaTime()
-		if SIMULATE_GELLY then
-			gelly.Simulate(dt * GELLY_SIM_TIMESCALE)
-		end
-		timer.Adjust("gelly.update", dt, nil, nil)
 	end)
 end)

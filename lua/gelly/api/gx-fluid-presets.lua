@@ -43,7 +43,7 @@ function gellyx.presets.select(name)
 
 	gelly.ChangeParticleRadius(preset.Radius)
 	gelly.SetFluidProperties(preset.SolverParams)
-	gelly.SetFluidVisualParams(preset.VisualParams)
+	gelly.SetFluidMaterial(preset.Material)
 	GELLY_ACTIVE_PRESET = preset
 	logging.info("Selected preset %s", name)
 end
