@@ -89,6 +89,8 @@ public:
 		const DepthBufferDesc &desc
 	) override;
 
+	GellyOwnedInterface<IPerfMarker> CreatePerfMarker() override;
+
 	void DestroyTexture(const char *name) override;
 
 	void BindMultipleTexturesAsOutput(

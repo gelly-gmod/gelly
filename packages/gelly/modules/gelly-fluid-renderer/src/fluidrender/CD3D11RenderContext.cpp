@@ -10,6 +10,7 @@
 #include "fluidrender/CD3D11ManagedDepthBuffer.h"
 #include "fluidrender/CD3D11ManagedShader.h"
 #include "fluidrender/CD3D11MappedBufferView.h"
+#include "fluidrender/CD3D11PerfMarker.h"
 #include "fluidrender/CD3D11to11SharedTexture.h"
 #include "fluidrender/CD3D9to11SharedTexture.h"
 #include "fluidrender/IRenderContext.h"
@@ -318,6 +319,11 @@ GellyInterfaceVal<IManagedDepthBuffer> CD3D11RenderContext::CreateDepthBuffer(
 	depthBuffer->AttachToContext(this);
 	depthBuffer->Create();
 	return depthBuffer;
+}
+
+GellyOwnedInterface<IPerfMarker> CD3D11RenderContext::CreatePerfMarker() {
+	auto marker = std::make_unique<CD3D11PerfMarker>(this);
+	return std::move(marker);
 }
 
 void CD3D11RenderContext::DestroyTexture(const char *name) {

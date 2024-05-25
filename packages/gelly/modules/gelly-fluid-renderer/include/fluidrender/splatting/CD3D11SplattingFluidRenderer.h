@@ -17,6 +17,7 @@ private:
 	 * The particle data comes from here, but the renderer does not own it.
 	 */
 	GellyInterfaceVal<ISimData> simData;
+	GellyOwnedInterface<IPerfMarker> perfMarker;
 	CD3D11SplattingFluidTextures outputTextures;
 
 	Gelly::FluidRenderSettings settings = {};

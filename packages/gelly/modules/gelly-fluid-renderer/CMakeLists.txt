@@ -33,7 +33,10 @@ add_library(
         src/fluidrender/util/Kernel.cpp
         include/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.h
         src/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.cpp
-        include/fluidrender/util/Exceptions.h)
+        include/fluidrender/util/Exceptions.h
+        include/fluidrender/IPerfMarker.h
+        include/fluidrender/CD3D11PerfMarker.h
+        src/fluidrender/CD3D11PerfMarker.cpp)
 
 target_include_directories(
         gelly_fluid_renderer

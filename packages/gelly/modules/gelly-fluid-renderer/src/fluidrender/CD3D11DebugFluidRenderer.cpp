@@ -356,6 +356,8 @@ void CD3D11SplattingFluidRenderer::AttachToContext(
 
 	cbufferData.width = static_cast<float>(width);
 	cbufferData.height = static_cast<float>(height);
+
+	perfMarker = context->CreatePerfMarker();
 }
 
 GellyObserverPtr<IFluidTextures> CD3D11SplattingFluidRenderer::GetFluidTextures(
@@ -370,6 +372,7 @@ void CD3D11SplattingFluidRenderer::RenderUnfilteredDepth() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Unfiltered depth render");
 #endif
+	perfMarker->BeginEvent("Splatting ellipsoid depth");
 	buffers.depthBuffer->Clear(1.0f);
 	auto *depthTexture = internalTextures.unfilteredDepth;
 	depthTexture->Clear(depthClearColor);
@@ -391,6 +394,7 @@ void CD3D11SplattingFluidRenderer::RenderUnfilteredDepth() {
 	context->Draw(simData->GetActiveParticles(), 0);
 	// we're not using a swapchain, so we need to queue up work manually
 	context->ResetPipeline();
+	perfMarker->EndEvent();
 }
 
 void CD3D11SplattingFluidRenderer::RenderFilteredDepth() {
@@ -403,7 +407,9 @@ void CD3D11SplattingFluidRenderer::RenderFilteredDepth() {
 
 	depthTextureB->Clear(depthClearColor);
 
+	perfMarker->BeginEvent("Filtering depth");
 	for (int i = 0; i < settings.filterIterations; i++) {
+		perfMarker->BeginEvent("Depth filter iteration");
 #ifdef TRACY_ENABLE
 		ZoneScopedN("Depth filter iteration");
 #endif
@@ -428,9 +434,11 @@ void CD3D11SplattingFluidRenderer::RenderFilteredDepth() {
 
 		// Swap the textures.
 		std::swap(depthTextureA, depthTextureB);
+		perfMarker->EndEvent();
 	}
 
 	if (settings.filterIterations == 0) {
+		perfMarker->BeginEvent("Depth copy (dummy filter)");
 		// Just copy the unfiltered depth to the filtered depth without any
 		// filtering.
 		auto *depthTexture =
@@ -439,13 +447,16 @@ void CD3D11SplattingFluidRenderer::RenderFilteredDepth() {
 		internalTextures.unfilteredDepth->CopyToTexture(depthTexture);
 		context->SubmitWork();
 		context->ResetPipeline();
+		perfMarker->EndEvent();
 	}
+	perfMarker->EndEvent();
 }
 
 void CD3D11SplattingFluidRenderer::RenderNormals() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Normal estimation render");
 #endif
+	perfMarker->BeginEvent("Estimating normals");
 	auto *normalsTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::NORMALS);
 
@@ -474,12 +485,14 @@ void CD3D11SplattingFluidRenderer::RenderNormals() {
 
 	context->Draw(4, 0);
 	context->ResetPipeline();
+	perfMarker->EndEvent();
 }
 
 void CD3D11SplattingFluidRenderer::RenderThickness() {
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Thickness render");
 #endif
+	perfMarker->BeginEvent("Splatting isotropic thickness");
 	auto *thicknessTexture = internalTextures.unfilteredThickness;
 	auto *albedoTexture = internalTextures.unfilteredAlbedo;
 
@@ -508,9 +521,16 @@ void CD3D11SplattingFluidRenderer::RenderThickness() {
 	context->Draw(simData->GetActiveParticles(), 0, AccumulateType::CLASSIC);
 	// we're not using a swapchain, so we need to queue up work manually
 	context->ResetPipeline();
+	perfMarker->EndEvent();
 }
 
 void CD3D11SplattingFluidRenderer::RenderFoam(bool depthOnly) {
+	std::string eventName = "Rendering foam";
+	if (depthOnly) {
+		eventName += " (depth only)";
+	}
+
+	perfMarker->BeginEvent(eventName.c_str());
 	auto *foamTexture =
 		outputTextures.GetFeatureTexture(FluidFeatureType::FOAM);
 
@@ -542,6 +562,7 @@ void CD3D11SplattingFluidRenderer::RenderFoam(bool depthOnly) {
 				  : AccumulateType::ALPHA_ACCUMULATE
 	);
 	context->ResetPipeline();
+	perfMarker->EndEvent();
 }
 
 void CD3D11SplattingFluidRenderer::RenderGenericBlur(
@@ -551,10 +572,12 @@ void CD3D11SplattingFluidRenderer::RenderGenericBlur(
 #ifdef TRACY_ENABLE
 	ZoneScopedN("Generic blur render");
 #endif
+	perfMarker->BeginEvent("Generic blur filter");
 	auto *textureA = texA;
 	auto *textureB = texB;
 
 	for (int i = 0; i < settings.thicknessFilterIterations; i++) {
+		perfMarker->BeginEvent("Generic blur filter iteration");
 #ifdef TRACY_ENABLE
 		ZoneScopedN("Generic blur filter iteration");
 #endif
@@ -582,7 +605,9 @@ void CD3D11SplattingFluidRenderer::RenderGenericBlur(
 
 		// Swap
 		std::swap(textureA, textureB);
+		perfMarker->EndEvent();
 	}
+	perfMarker->EndEvent();
 }
 
 void CD3D11SplattingFluidRenderer::EncodeDepth() {

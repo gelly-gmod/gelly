@@ -14,6 +14,7 @@
 #include "IManagedShader.h"
 #include "IManagedTexture.h"
 #include "IMappedBufferView.h"
+#include "IPerfMarker.h"
 
 // Distinction between handles and resources since this context will abstract
 // away rendering resources.
@@ -114,6 +115,8 @@ public:
 	virtual GellyObserverPtr<IManagedDepthBuffer> CreateDepthBuffer(
 		const DepthBufferDesc &desc
 	) = 0;
+
+	virtual GellyOwnedInterface<IPerfMarker> CreatePerfMarker() = 0;
 
 	virtual void BindMultipleTexturesAsOutput(
 		GellyInterfaceVal<IManagedTexture> * textures,
