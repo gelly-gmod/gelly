@@ -5,6 +5,8 @@ option(GELLY_BUILD_TESTBED "Build testbed" ON)
 option(GELLY_BUILD_GMOD "Build GMod binary module" OFF)
 option(GELLY_BUILD_CPUVISUALIZER "Build CPU Visualizer" OFF)
 
+set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 if (GELLY_BUILD_TESTBED)
     add_subdirectory(packages/testbed)
 endif ()

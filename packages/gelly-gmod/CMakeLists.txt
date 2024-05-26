@@ -1,5 +1,9 @@
 project(gelly-gmod CXX)
+
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_MODULE_PATH "${GELLY_ROOT_DIR}/cmake")
+
+include(CreateShaderGlueTarget)
 
 add_subdirectory(vendor/gmod-module-base)
 add_subdirectory(vendor/minhook)
@@ -15,15 +19,12 @@ set(TRACY_MANUAL_LIFETIME ON CACHE BOOL "Don't use tracy's lifetime feature" FOR
 set(TRACY_DELAYED_INIT ON CACHE BOOL "Don't use tracy's delayed init feature" FORCE)
 add_subdirectory(vendor/tracy)
 
-add_subdirectory(../gelly "${CMAKE_CURRENT_BINARY_DIR}/gelly ")
+add_subdirectory(../gelly "gelly")
 
-file(GLOB_RECURSE SHADER_GLUE_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.h
-)
-
+create_shader_glue_targets(GellyGModShaderCompile "Compiling the GMod module's shaders")
 add_library(
         gelly-gmod SHARED
+        ${SHADER_OUTPUT_FILES}
         src/main.cpp
         src/LoggingMacros.h
         src/source/Interface.h
@@ -37,7 +38,6 @@ add_library(
         src/source/D3DDeviceWrapper.cpp
         src/hooking/Library.h
         src/hooking/Library.cpp
-        ${SHADER_GLUE_FILES}
         src/source/CBaseEntity.h
         src/source/CBaseEntity.cpp
         src/source/IServerGameEnts.h
@@ -109,11 +109,4 @@ else ()
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll ")
 endif ()
 
-add_custom_target(
-        GellyGModShaders
-        COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DGSC_PATH=${GSC_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT " Compiling gelly-gmod shaders "
-)
-
-add_dependencies(gelly-gmod gsc GellyGModShaders)
+add_dependencies(gelly-gmod gsc GellyGModShaderCompile)

@@ -1,15 +1,12 @@
 # We automatically compile any auto-generated shader glue code
-file(GLOB_RECURSE SHADER_GLUE_CODE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/isosurface/out/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/isosurface/out/*.h"
-)
 
+include(CreateShaderGlueTarget)
+
+create_shader_glue_targets(GellyShaderCompile "Compiling the fluid renderer's shaders")
 add_library(
         gelly_fluid_renderer
         STATIC
-        ${SHADER_GLUE_CODE}
+        ${SHADER_OUTPUT_FILES}
         include/GellyFluidRender.h
         src/GellyFluidRender.cpp
         include/fluidrender/IRenderContext.h include/fluidrender/IManagedTexture.h include/fluidrender/CD3D11RenderContext.h src/fluidrender/CD3D11RenderContext.cpp include/fluidrender/CD3D11ManagedTexture.h src/fluidrender/CD3D11ManagedTexture.cpp include/fluidrender/IManagedBuffer.h include/fluidrender/CD3D11ManagedBuffer.h src/fluidrender/CD3D11ManagedBuffer.cpp include/fluidrender/IFluidRenderer.h src/fluidrender/CD3D11to11SharedTexture.cpp include/fluidrender/CD3D11to11SharedTexture.h include/fluidrender/IFluidTextures.h include/fluidrender/splatting/CD3D11SplattingFluidTextures.h src/fluidrender/CD3D11DebugFluidTextures.cpp include/fluidrender/splatting/CD3D11SplattingFluidRenderer.h src/fluidrender/CD3D11DebugFluidRenderer.cpp
@@ -79,12 +76,6 @@ endif ()
 if (GELLY_ENABLE_RENDERDOC_CAPTURES)
     add_compile_definitions("GELLY_ENABLE_RENDERDOC_CAPTURES")
 endif ()
-
-add_custom_target(
-        GellyShaderCompile
-        COMMAND ${CMAKE_COMMAND} -DSHADERS_DIR=${CMAKE_CURRENT_SOURCE_DIR}/src/shaders -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} -DGSC_PATH=${GSC_PATH} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CompileShaders.cmake
-        COMMENT "Compiling all Gelly shaders"
-)
 
 add_dependencies(
         gelly_fluid_renderer

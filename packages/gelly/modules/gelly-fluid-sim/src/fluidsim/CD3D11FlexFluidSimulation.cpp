@@ -303,8 +303,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 			phases[i] =
 				NvFlexMakePhase(0, eNvFlexPhaseSelfCollide | eNvFlexPhaseFluid);
 
-			actives[i] = i;	 // Literally just the particle index as we dont do
-							 // any special active stuff yet.
+			actives[i] = i;
 		}
 
 		NvFlexUnmap(buffers.positions);

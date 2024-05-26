@@ -247,7 +247,7 @@ void CD3D11SplattingFluidRenderer::CreateTextures() {
 	unfilteredDepthDesc.height = height;
 	unfilteredDepthDesc.access = TextureAccess::READ | TextureAccess::WRITE;
 	unfilteredDepthDesc.format = TextureFormat::R32G32_FLOAT;
-
+	unfilteredDepthDesc.filter = TextureFilter::LINEAR;
 	internalTextures.unfilteredDepth = context->CreateTexture(
 		"splatrenderer/unfilteredDepth", unfilteredDepthDesc
 	);

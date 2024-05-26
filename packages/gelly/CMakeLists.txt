@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.25)
 project(gelly CXX)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+set(CMAKE_MODULE_PATH "${GELLY_ROOT_DIR}/cmake")
 
-add_subdirectory(../gsc "${CMAKE_CURRENT_BINARY_DIR}/gsc")
+add_subdirectory(../gsc "gsc")
 set(GSC_PATH "${GSC_PATH}" PARENT_SCOPE)
 
 add_subdirectory(modules/gelly-d3d)
