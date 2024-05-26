@@ -17,8 +17,8 @@ function(create_shader_glue_targets name comment)
         string(REGEX REPLACE "([a-zA-Z]+)\\.gs([0-9]+)" "\\1GS" SHADER_NAME ${SHADER_NAME})
         add_custom_command(
                 OUTPUT
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/${SHADER_NAME}.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/out/${SHADER_NAME}.h
+                ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.cpp
+                ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.h
                 COMMAND ${GSC_PATH} ${SHADER_FILE}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders # critical so that our glue code is generated in the correct directory
                 DEPENDS ${SHADER_FILE}
