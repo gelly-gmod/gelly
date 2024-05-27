@@ -17,8 +17,8 @@ set(TRACY_ON_DEMAND OFF CACHE BOOL "Enable tracy on demand" FORCE)
 # Incredibly important as we use tracy in a dll
 set(TRACY_MANUAL_LIFETIME ON CACHE BOOL "Don't use tracy's lifetime feature" FORCE)
 set(TRACY_DELAYED_INIT ON CACHE BOOL "Don't use tracy's delayed init feature" FORCE)
-add_subdirectory(vendor/tracy)
 
+add_subdirectory(vendor/tracy)
 add_subdirectory(../gelly "gelly")
 
 create_shader_glue_targets(GellyGModShaderCompile "Compiling the GMod module's shaders")

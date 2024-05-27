@@ -7,6 +7,8 @@ option(GELLY_BUILD_CPUVISUALIZER "Build CPU Visualizer" OFF)
 
 set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+message(STATUS "Configuring Gelly with CMake version ${CMAKE_VERSION}")
+
 if (GELLY_BUILD_TESTBED)
     add_subdirectory(packages/testbed)
 endif ()
