@@ -21,7 +21,7 @@ function(create_shader_glue_targets name comment)
                 ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.h
                 COMMAND ${GSC_PATH} ${SHADER_FILE}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders # critical so that our glue code is generated in the correct directory
-                DEPENDS ${SHADER_FILE}
+                DEPENDS ${SHADER_FILE} ${GSC_PATH}
                 COMMENT "Compiling shader ${SHADER_NAME}.cpp and ${SHADER_NAME}.h"
         )
 
