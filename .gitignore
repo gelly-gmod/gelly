@@ -11,3 +11,6 @@ generated
 
 # For gsc output
 out
+
+# For the python virtual environment
+venv

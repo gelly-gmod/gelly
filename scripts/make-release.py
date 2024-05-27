@@ -1,0 +1,151 @@
+import logging
+import os
+import shutil
+import stat
+import subprocess
+import time
+
+logger = logging.getLogger("make-release")
+
+GELLY_BINARY_DIRECTORY = "bin/gelly-gmod-relwithdebinfo/packages/gelly-gmod/"
+GELLY_DLL_NAME = "gmcl_gelly-gmod_win64.dll"
+GELLY_PDB_NAME = "gmcl_gelly-gmod.pdb"
+GELLY_RELEASE_ZIP_NAME = "gelly-production-release-" + time.strftime("%m%d%Y%H%M%S")
+GELLY_FLEX_DIRECTORY = "packages/gelly/modules/gelly-fluid-sim/vendor/FleX/bin/win64/"
+GELLY_FLEX_DEPENDENCIES = [
+    "nvToolsExt64_1.dll",
+    "amd_ags_x64.dll",  # both critical for gpu extension support
+
+    "NvFlexDeviceRelease_x64.dll",
+    "NvFlexExtReleaseD3D_x64.dll",
+    "NvFlexReleaseD3D_x64.dll"
+]
+
+RELEASE_README = """
+MANUAL INSTALLATION STEPS:
+1. Select all files from inside this directory
+2. Drag and drop to your GMod folder (the one in steamapps/common, the one that has a "garrysmod" folder)
+    a. You can alternatively copy the files and go into the GMod folder and then paste
+3. You Are Done!
+"""
+
+logging.basicConfig()
+logging.root.setLevel(logging.NOTSET)
+
+
+def bail_if_not_in_dev_cmd():
+    if "VSCMD_VER" not in os.environ:
+        logger.error("rerun this script in a VS command line")
+        exit(1)
+
+
+def make_release_dir():
+    logger.info("creating release directory")
+    os.makedirs("release", exist_ok=True)
+    os.makedirs("release/garrysmod/addons/", exist_ok=True)
+    os.makedirs("release/garrysmod/lua/bin/", exist_ok=True)
+
+
+def configure_gelly():
+    logger.info("configuring gelly")
+
+    try:
+        subprocess.run(
+            ['cmake', '--fresh', '--preset gelly-gmod-relwithdebinfo', '-S .', '-B bin/gelly-gmod-relwithdebinfo'],
+            check=True,
+            stdout=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"cmake configuration failed! (error code: {e.returncode})")
+
+
+def build_gelly():
+    logger.info("building gelly (may take some time)")
+
+    try:
+        subprocess.run(
+            ['cmake', '--build', '--target gelly-gmod', '--preset Gelly-GMod-RelWithDebInfo', '--clean-first'],
+            check=True,
+            stdout=subprocess.DEVNULL
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"failed to compile gelly via cmake (error code: {e.returncode})")
+
+
+def build_dll():
+    logger.info("creating relwithdebinfo binary (gmcl_gmod-gelly_win64.dll)")
+    configure_gelly()
+    build_gelly()
+
+
+def move_dll_to_release():
+    logger.info("moving dll to release directory")
+    os.replace(f"{GELLY_BINARY_DIRECTORY}{GELLY_DLL_NAME}", f"release/garrysmod/lua/bin/{GELLY_DLL_NAME}")
+    os.replace(f"{GELLY_BINARY_DIRECTORY}{GELLY_PDB_NAME}", f"release/garrysmod/lua/bin/{GELLY_PDB_NAME}")
+
+
+def insert_copy_of_gelly_addon():
+    logger.info("cloning gelly addon into release")
+    try:
+        subprocess.run(
+            "git clone --depth=1 -b sp-addon https://github.com/yogwoggf/gelly.git ./release/garrysmod/addons/gelly",
+            shell=True,
+            check=True,
+            stdout=subprocess.DEVNULL
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"failed to checkout a copy of the gelly addon (error code: {e.returncode}")
+
+
+def strip_git_dir_from_addon():
+    logger.info("stripping away .git from the addon")
+    logger.info("prepping git files for destruction...")
+    for root, _, files in os.walk("release/garrysmod/addons/gelly/.git"):
+        for file in files:
+            os.chmod(os.path.join(root, file), stat.S_IWUSR)
+    logger.info("successfully primed git files for removal")
+
+    shutil.rmtree("release/garrysmod/addons/gelly/.git")
+
+
+def copy_flex_dependencies():
+    logger.info("copying flex dependences into release archive")
+
+    for dep in GELLY_FLEX_DEPENDENCIES:
+        dependency_path = os.path.join(GELLY_FLEX_DIRECTORY, dep)
+        new_path = os.path.join("release/", dep)
+
+        logger.info(f"copying '{dep}")
+        shutil.copyfile(dependency_path, new_path)
+
+
+def make_readme_file():
+    logger.info("adding readme to release directory")
+    with open("release/README.txt", "w") as readme_file:
+        readme_file.write(RELEASE_README)
+
+
+def create_release_archive():
+    logger.info("creating release archive")
+    shutil.make_archive(GELLY_RELEASE_ZIP_NAME, "zip", "release")
+
+
+def remove_release_directory():
+    logger.info("cleaning up...")
+    shutil.rmtree("release")
+
+
+def make_release():
+    make_release_dir()
+    build_dll()
+    move_dll_to_release()
+    insert_copy_of_gelly_addon()
+    strip_git_dir_from_addon()
+    copy_flex_dependencies()
+    make_readme_file()
+    create_release_archive()
+    remove_release_directory()
+    logger.info("done!")
+
+
+bail_if_not_in_dev_cmd()
+make_release()
