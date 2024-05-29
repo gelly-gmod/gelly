@@ -23,6 +23,10 @@ local function popParticleEmitRequest()
 	return table.remove(particleEmissionQueue, 1)
 end
 
+local function isParticleRequestOverflowable(rawParticles)
+	return activeParticles() + (#rawParticles / 2) > maxParticles()
+end
+
 --- Structure representing an individual particle to be spawned.
 ---@alias gx.ParticleSpawnData {pos: Vector, vel: Vector}
 
@@ -46,7 +50,7 @@ end
 
 timer.Create("gellyx.particle.queue", PARTICLE_EMIT_DELAY, 0, function()
 	local particles = popParticleEmitRequest()
-	if particles then
+	if particles and not isParticleRequestOverflowable(particles) then
 		gelly.AddParticles(particles, GELLY_ACTIVE_PRESET.Material.Absorption)
 	end
 end)

@@ -53,7 +53,7 @@ function ENT:Think()
 			center = self:GetPos(),
 			velocity = self:GetVelocity(),
 			bounds = self.CubeSize,
-			density = 25,
+			density = 225,
 		})
 	end
 

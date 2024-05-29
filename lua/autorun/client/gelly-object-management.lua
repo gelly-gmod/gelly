@@ -73,8 +73,6 @@ local PLAYER_RADIUS = 15
 local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 	-- Add local player
-	objects[LocalPlayer()] = { LocalPlayer():EntIndex() }
-	gelly.AddPlayerObject(PLAYER_RADIUS, PLAYER_HALFHEIGHT, LocalPlayer():EntIndex())
 
 	hook.Add("OnEntityCreated", "gelly.object-add", function(entity)
 		if not IsValid(entity) or entity:GetClass() ~= "prop_physics" then

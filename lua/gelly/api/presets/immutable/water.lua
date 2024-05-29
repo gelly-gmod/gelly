@@ -1,6 +1,6 @@
 return {
 	Name = "Water",
-	Radius = 3,
+	Radius = 7,
 	SolverParams = {
 		Viscosity = 0,
 		SurfaceTension = 0,
@@ -13,6 +13,6 @@ return {
 		Roughness = 0,
 		IsSpecularTransmission = true,
 		RefractiveIndex = 1.333,
-		Absorption = Vector(0.0001, 0.0001, 0),
+		Absorption = Vector(0.02, 0.1, 0.1),
 	},
 }
