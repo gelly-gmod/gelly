@@ -10,11 +10,12 @@ struct PS_OUTPUT {
     float4 Color : SV_Target0;
 };
 
-static const float g_blurWeights[9] = {
-    0.0625f, 0.125f, 0.0625f,
-    0.125f, 0.25f, 0.125f,
-    0.0625f, 0.125f, 0.0625f
-};
+// We do 2x2 gaussian blur
+// Every pixel is 1/4 of the total weight
+static const float4 weights = float4(
+    0.25f, 0.25f, 0.25f, 0.25f
+);
+
 
 float4 SampleThickness(float2 tex, float4 original) {
     float4 frag = InputThickness.Sample(InputThicknessSampler, tex);
@@ -24,19 +25,18 @@ float4 SampleThickness(float2 tex, float4 original) {
 
 float4 FilterThickness(float2 tex) {
     float4 filteredThickness = float4(0.f, 0.f, 0.f, 0.f);
-    float2 texelSize = 1.0f / float2(g_ViewportWidth, g_ViewportHeight);
-    
-    float4 original = InputThickness.Sample(InputThicknessSampler, tex) * g_blurWeights[4];
 
-    filteredThickness += original;
-    filteredThickness += SampleThickness(tex + float2(-1, 0) * texelSize, original) * g_blurWeights[3];
-    filteredThickness += SampleThickness(tex + float2(1, 0) * texelSize, original) * g_blurWeights[5];
-    filteredThickness += SampleThickness(tex + float2(0, -1) * texelSize, original) * g_blurWeights[7];
-    filteredThickness += SampleThickness(tex + float2(0, 1) * texelSize, original) * g_blurWeights[1];
-    filteredThickness += SampleThickness(tex + float2(-1, -1) * texelSize, original) * g_blurWeights[6];
-    filteredThickness += SampleThickness(tex + float2(1, -1) * texelSize, original) * g_blurWeights[8];
-    filteredThickness += SampleThickness(tex + float2(-1, 1) * texelSize, original) * g_blurWeights[0];
-    filteredThickness += SampleThickness(tex + float2(1, 1) * texelSize, original) * g_blurWeights[2];
+    // To sample a 2x2 we can just perform a texture gather
+    float4 redPixels = InputThickness.GatherRed(InputThicknessSampler, tex);
+    float4 greenPixels = InputThickness.GatherGreen(InputThicknessSampler, tex);
+    float4 bluePixels = InputThickness.GatherBlue(InputThicknessSampler, tex);
+
+    filteredThickness = float4(
+        dot(redPixels, weights),
+        dot(greenPixels, weights),
+        dot(bluePixels, weights),
+        1.f
+    );
 
     return filteredThickness;
 }

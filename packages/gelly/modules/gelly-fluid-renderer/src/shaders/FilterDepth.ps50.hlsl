@@ -33,7 +33,7 @@ float CreateIsosurfaceDepth(float2 tex) {
     float blurDepthFalloff = g_ThresholdRatio;
     float maxBlurRadius = 5.0;
 
-    float radius = min(maxBlurRadius, blurScale * (blurRadiusWorld / -depth));
+    float radius = 5.f; //min(maxBlurRadius, blurScale * (blurRadiusWorld / -depth));
     float radiusInv = 1.0 / radius;
     float taps = ceil(radius);
     float frac = taps - radius;
@@ -42,8 +42,8 @@ float CreateIsosurfaceDepth(float2 tex) {
     float wsum = 0.0;
     float count = 0.0;
 
-    for (float y = -taps; y <= taps; y += 1.0) {
-        for (float x = -taps; x <= taps; x += 1.0) {
+    for (float y = -5.f; y <= 5.f; y += 1.0) {
+        for (float x = -5.f; x <= 5.f; x += 1.0) {
             float2 offset = float2(x, y);
             float sample = FetchEyeDepth(inPosition + offset);
 

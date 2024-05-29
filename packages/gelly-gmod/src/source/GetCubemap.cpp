@@ -91,7 +91,7 @@ void EnsureAllHandlesInitialized() {
 		g_allowThreading) {
 		return;
 	}
-
+	LOG_INFO("Entering critical dbghelp section");
 	g_getLocalCubemap = g_materialSystem.FindFunction<GetLocalCubemap_t>(
 		sigs::CMaterialSystem_GetLocalCubemap
 	);
@@ -118,6 +118,7 @@ void EnsureAllHandlesInitialized() {
 	g_setAmbientLightCube = g_shaderAPI.FindFunction<SetAmbientLightCube_t>(
 		sigs::CShaderAPIDX8_SetAmbientLightCube
 	);
+	LOG_INFO("Exiting critical dbghelp section");
 
 	if (!g_getLocalCubemap || !g_getD3DTexture || !g_getTextureHandle ||
 		!g_getLight || !g_getMaxLights || !g_setAmbientLightCube) {

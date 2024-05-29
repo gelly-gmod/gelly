@@ -15,6 +15,8 @@ GELLY_FLEX_DIRECTORY = "packages/gelly/modules/gelly-fluid-sim/vendor/FleX/bin/w
 GELLY_FLEX_DEPENDENCIES = [
     "nvToolsExt64_1.dll",
     "amd_ags_x64.dll",  # both critical for gpu extension support
+    "GFSDK_Aftermath_Lib.x64.dll",
+    # FleX masks all D3D calls with Aftermath, so it's critical to include--even if the GPU is not Nvidia
 
     "NvFlexDeviceRelease_x64.dll",
     "NvFlexExtReleaseD3D_x64.dll",
