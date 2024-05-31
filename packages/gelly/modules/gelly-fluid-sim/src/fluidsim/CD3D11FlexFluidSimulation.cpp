@@ -253,7 +253,6 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 						arg.vorticityConfinement;
 					solverParams.viscosity = arg.viscosity;
 					solverParams.dynamicFriction = arg.dynamicFriction;
-					DebugDumpParams();
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();
@@ -368,7 +367,6 @@ void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
-	DebugDumpParams();
 	// Rule of thumb is to use proportional values to the particle radius, as
 	// the radius is really what determines the properties of the fluid.
 	solverParams.radius = particleRadius;
@@ -420,8 +418,6 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.diffuseBuoyancy = 1.f;
 	solverParams.diffuseDrag = 0.2f;
 	solverParams.diffuseLifetime = 2.f * timeStepMultiplier;
-	printf("== NEW PARAMS ==\n");
-	DebugDumpParams();
 }
 
 void CD3D11FlexFluidSimulation::DebugDumpParams() {

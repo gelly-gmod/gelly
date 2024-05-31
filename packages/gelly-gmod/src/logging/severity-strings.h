@@ -5,8 +5,10 @@
 
 #include "log-entry.h"
 
+#undef ERROR
+
 namespace logging {
-constexpr auto SeverityToWString(const Severity &severity) -> std::wstring {
+constexpr auto SeverityToString(const Severity &severity) -> std::wstring {
 	switch (severity) {
 		case Severity::INFO:
 			return L"INFO";

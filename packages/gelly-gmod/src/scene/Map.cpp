@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "LoggingMacros.h"
+#include "../logging/global-macros.h"
 
 void Map::CheckMapPath(const std::string &mapPath) {
 	if (mapPath.empty()) {

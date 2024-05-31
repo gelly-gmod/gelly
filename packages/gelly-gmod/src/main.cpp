@@ -5,7 +5,7 @@
 
 #include <cstdio>
 
-#include "LoggingMacros.h"
+#include "logging/global-macros.h"
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <GMFS.h>
@@ -13,6 +13,7 @@
 #include <Windows.h>
 
 #include "composite/GModCompositor.h"
+#include "logging/helpers/dev-console-logging.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
@@ -41,6 +42,71 @@ static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 512000;
+
+static PVOID emergencyHandler = nullptr;
+LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
+	// Pass if the exception is continuable
+	if (exceptionInfo->ExceptionRecord->ExceptionFlags &
+		EXCEPTION_SOFTWARE_ORIGINATE) {
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
+
+	// We want to log the exception code
+	switch (exceptionInfo->ExceptionRecord->ExceptionCode) {
+		case EXCEPTION_ACCESS_VIOLATION:
+			LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Access violation detected!"
+			);
+			break;
+		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+			LOG_ERROR(
+				"EMERGENCY EXCEPTION HANDLER: Array bounds exceeded detected!"
+			);
+			break;
+		case DBG_CONTROL_C:
+		case EXCEPTION_BREAKPOINT:
+			return EXCEPTION_CONTINUE_EXECUTION;
+		case EXCEPTION_DATATYPE_MISALIGNMENT:
+			LOG_ERROR(
+				"EMERGENCY EXCEPTION HANDLER: Data type misalignment detected!"
+			);
+			break;
+		case EXCEPTION_STACK_INVALID:
+			LOG_ERROR(
+				"EMERGENCY EXCEPTION HANDLER: Stack smash/corruption detected!"
+			);
+			break;
+		default:
+			LOG_ERROR(
+				"EMERGENCY EXCEPTION HANDLER: Unknown exception detected! "
+				"(Code: %lu)",
+				exceptionInfo->ExceptionRecord->ExceptionCode
+			);
+			break;
+	}
+
+	// Now we can also log some more information about the exception
+	LOG_ERROR(
+		"EMERGENCY EXCEPTION HANDLER: Exception address: 0x%p",
+		exceptionInfo->ExceptionRecord->ExceptionAddress
+	);
+
+	LOG_ERROR(
+		"EMERGENCY EXCEPTION HANDLER: Exception flags: 0x%08X",
+		exceptionInfo->ExceptionRecord->ExceptionFlags
+	);
+
+	for (DWORD i = 0; i < exceptionInfo->ExceptionRecord->NumberParameters;
+		 i++) {
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Parameter %d: 0x%p",
+			i,
+			exceptionInfo->ExceptionRecord->ExceptionInformation[i]
+		);
+	}
+
+	LOG_SAVE_TO_FILE();
+	return EXCEPTION_EXECUTE_HANDLER;
+}
 
 void InjectConsoleWindow() {
 	AllocConsole();
@@ -415,7 +481,11 @@ LUA_FUNCTION(gelly_SetTimeStepMultiplier) {
 }
 
 GMOD_MODULE_OPEN() {
-	InjectConsoleWindow();
+#ifndef PRODUCTION_BUILD
+	logging::StartDevConsoleLogging();
+#endif
+	// Set up the emergency exception handler
+	emergencyHandler = AddVectoredExceptionHandler(1, SaveLogInEmergency);
 	if (const auto status = FileSystem::LoadFileSystem();
 		status != FILESYSTEM_STATUS::OK) {
 		LOG_ERROR("Failed to load file system: %d", status);
@@ -531,6 +601,11 @@ GMOD_MODULE_CLOSE() {
 	context.reset();
 	sim.reset();
 	simContext.reset();
-	RemoveConsoleWindow();
+
+	LOG_SAVE_TO_FILE();
+	RemoveVectoredExceptionHandler(emergencyHandler);
+#ifndef PRODUCTION_BUILD
+	logging::StopDevConsoleLogging();
+#endif
 	return 0;
 }

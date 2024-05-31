@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "log-entry.h"
+#include "log-events.h"
 
 namespace logging {
 constexpr auto RESERVE_ENTRIES_AMOUNT = 100;
@@ -18,10 +19,12 @@ public:
 	void AddEntry(const LogEntry &entry);
 	[[nodiscard]] auto GetEntries() const -> Entries;
 	[[nodiscard]] auto GetCreationTime() const -> time_t;
+	[[nodiscard]] auto GetEvents() -> LogEvents &;
 
 private:
 	std::vector<LogEntry> entries;
 	time_t creationTime;
+	LogEvents events;
 };
 };	// namespace logging
 

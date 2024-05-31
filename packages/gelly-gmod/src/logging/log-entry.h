@@ -1,8 +1,11 @@
 #ifndef LOG_ENTRY_H
 #define LOG_ENTRY_H
 
-#define LOGGING_USE_CSTRING
 #include <string>
+
+#undef INFO
+#undef WARNING
+#undef ERROR
 
 namespace logging {
 enum class Severity { INFO, WARNING, ERROR };

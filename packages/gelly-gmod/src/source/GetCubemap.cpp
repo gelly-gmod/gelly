@@ -2,10 +2,10 @@
 
 #include <stdexcept>
 
+#include "../logging/global-macros.h"
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "GellyDataTypes.h"
 #include "Interface.h"
-#include "LoggingMacros.h"
 #include "MinHook.h"
 #include "hooking/Library.h"
 

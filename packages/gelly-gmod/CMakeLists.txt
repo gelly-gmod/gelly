@@ -26,7 +26,7 @@ add_library(
         gelly-gmod SHARED
         ${SHADER_OUTPUT_FILES}
         src/main.cpp
-        src/LoggingMacros.h
+        src/logging/global-macros.h
         src/source/Interface.h
         src/source/IBaseClientDLL.h
         src/source/MathTypes.h
@@ -80,6 +80,11 @@ add_library(
         src/logging/log.h
         src/logging/helpers/save-log-to-file.cpp
         src/logging/helpers/save-log-to-file.h
+        src/logging/log-events.cpp
+        src/logging/log-events.h
+        src/logging/global-macros.cpp
+        src/logging/helpers/dev-console-logging.cpp
+        src/logging/helpers/dev-console-logging.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions

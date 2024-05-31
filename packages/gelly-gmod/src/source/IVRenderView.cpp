@@ -4,8 +4,8 @@
 
 #include <stdexcept>
 
+#include "../logging/global-macros.h"
 #include "Interface.h"
-#include "LoggingMacros.h"
 
 static IVRenderView *renderView = nullptr;
 

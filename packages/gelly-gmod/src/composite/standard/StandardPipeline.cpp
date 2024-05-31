@@ -2,7 +2,7 @@
 
 #include <d3d9.h>
 
-#include "LoggingMacros.h"
+#include "../../logging/global-macros.h"
 #include "shaders/out/CompositeFoamPS.h"
 #include "shaders/out/CompositePS.h"
 #include "shaders/out/NDCQuadVS.h"

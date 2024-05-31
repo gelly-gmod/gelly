@@ -52,6 +52,10 @@ void SaveLogToFile(const Log &log) {
 		log.GetEntries().end(),
 		[&logFile](const auto &entry) { logFile << FormatLogEntry(entry); }
 	);
+
+	// ensure that the log file is closed
+	logFile.flush();
+	logFile.close();
 }
 
 }  // namespace logging

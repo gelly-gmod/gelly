@@ -1,6 +1,6 @@
 #include "GModCompositor.h"
 
-#include "LoggingMacros.h"
+#include "../logging/global-macros.h"
 #include "Pipeline.h"
 #include "standard/StandardPipeline.h"
 
