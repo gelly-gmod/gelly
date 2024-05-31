@@ -1,9 +1,6 @@
 #ifndef LOGGINGMACROS_H
 #define LOGGINGMACROS_H
 
-// Our binary module really only needs have primitive logging since the addon
-// will convey information to the user.
-
 #define LOG_INFO(...)                                               \
 	printf("[gelly-gmod == INFO @ " __FUNCTION__ "] " __VA_ARGS__); \
 	printf("\n");

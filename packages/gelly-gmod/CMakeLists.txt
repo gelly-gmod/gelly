@@ -72,6 +72,14 @@ add_library(
         src/composite/Resources.h
         src/composite/PipelineType.h
         src/util/GellySharedPtrs.h
+        src/logging/format-log-entry.h
+        src/logging/log-entry.h
+        src/logging/severity-strings.h
+        src/logging/format-log-entry.cpp
+        src/logging/log.cpp
+        src/logging/log.h
+        src/logging/helpers/save-log-to-file.cpp
+        src/logging/helpers/save-log-to-file.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions

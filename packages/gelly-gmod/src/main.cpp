@@ -306,8 +306,6 @@ LUA_FUNCTION(gelly_SetFluidMaterial) {
 					// to use a float as a boolean (bool registers have issues)
 	material.refractiveIndex = RefractiveIndex;
 
-	LOG_INFO("Specular transmission: %f", material.specularTransmission);
-
 	compositor->SetFluidMaterial(material);
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
