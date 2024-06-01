@@ -1,0 +1,31 @@
+name: Create Production Release
+run-name: Create Production Release
+on:
+  push:
+    branches:
+      - master
+jobs:
+  create-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout latest Gelly
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Set up Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.0'
+      - name: Set up x64 Developer Command Prompt for VS 2022
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64 # once this is run, gelly-production-release.zip will be created in the root of the repository, and we can just ignore the rest
+        run: |
+          python scripts/make_release.py
+      - name: Upload Release
+        uses: actions/upload-release-asset@v1
+        if: startsWith(github.ref, 'refs/tags/v') # We still want to create a release, but not upload the asset if it's not a tagged release
+        with:
+          files: gelly-production-release.zip

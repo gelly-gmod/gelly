@@ -10,7 +10,7 @@ logger = logging.getLogger("make-release")
 GELLY_BINARY_DIRECTORY = "bin/gelly-gmod-relwithdebinfo/packages/gelly-gmod/"
 GELLY_DLL_NAME = "gmcl_gelly-gmod_win64.dll"
 GELLY_PDB_NAME = "gmcl_gelly-gmod.pdb"
-GELLY_RELEASE_ZIP_NAME = "gelly-production-release-" + time.strftime("%m%d%Y%H%M%S")
+GELLY_RELEASE_ZIP_NAME = "gelly-production-release"
 GELLY_FLEX_DIRECTORY = "packages/gelly/modules/gelly-fluid-sim/vendor/FleX/bin/win64/"
 GELLY_FLEX_DEPENDENCIES = [
     "nvToolsExt64_1.dll",
