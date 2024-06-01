@@ -2,9 +2,9 @@ return {
 	Name = "Blood",
 	Radius = 2.50,
 	SolverParams = {
-		Viscosity = 25,
-		SurfaceTension = 0.00,
-		Adhesion = 0.3,
+		Viscosity = 0,
+		SurfaceTension = 0,
+		Adhesion = 0.01,
 		Cohesion = 0.01,
 		VorticityConfinement = 0,
 		DynamicFriction = 0.1,

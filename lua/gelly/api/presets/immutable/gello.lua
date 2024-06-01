@@ -1,18 +1,18 @@
 return {
-	Name = "Water",
+	Name = "Gell-O",
 	Radius = 3,
 	SolverParams = {
-		Viscosity = 0,
-		SurfaceTension = 0,
+		Viscosity = 20,
+		SurfaceTension = 0.001,
 		Adhesion = 0,
-		Cohesion = 0.01,
-		VorticityConfinement = 10,
+		Cohesion = 0.2,
+		VorticityConfinement = 0,
 		DynamicFriction = 0.1,
 	},
 	Material = {
 		Roughness = 0,
 		IsSpecularTransmission = true,
 		RefractiveIndex = 1.333,
-		Absorption = Vector(0.01, 0.01, 0.005),
+		Absorption = Vector(0, 0.01, 0.01),
 	},
 }

@@ -51,3 +51,7 @@ end
 function gellyx.presets.getActivePreset()
 	return GELLY_ACTIVE_PRESET
 end
+
+function gellyx.presets.getAllPresets()
+	return GELLY_PRESETS
+end
