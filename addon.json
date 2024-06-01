@@ -12,7 +12,7 @@
 		".idea/*",
 		".gitignore",
 		".git/**/*",
-		".jpg",
+		"*.jpg",
 		"lua/**/*.md"
 	]
 }
