@@ -7,9 +7,9 @@
 		"stylua.toml",
 		"LICENSE",
 		"README.md",
-		".vscode",
-		".idea",
+		".vscode/**/*",
+		".idea/**/*",
 		".gitignore",
-		".git"
+		".git/**/*"
 	]
 }
