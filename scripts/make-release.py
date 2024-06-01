@@ -28,7 +28,7 @@ MANUAL INSTALLATION STEPS:
 1. Select all files from inside this directory
 2. Drag and drop to your GMod folder (the one in steamapps/common, the one that has a "garrysmod" folder)
     a. You can alternatively copy the files and go into the GMod folder and then paste
-3. You Are Done!
+3. You Are Done! Yay!!!!!
 """
 
 logging.basicConfig()
@@ -109,6 +109,23 @@ def strip_git_dir_from_addon():
     shutil.rmtree("release/garrysmod/addons/gelly/.git")
 
 
+def bundle_addon_to_gma():
+    logger.info("bundling addon into gma file")
+    try:
+        subprocess.run(
+            "scripts\\gmad.exe create -folder \"release\\garrysmod\\addons\\gelly\" -out \"release\\garrysmod\\addons\\gelly_production_addon.gma\" -icon \"release\\garrysmod\\addon\\gelly\\logo.jpg\"",
+            shell=True,
+            check=True
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"failed to bundle gelly (error code: {e.returncode})")
+
+
+def destroy_addon_directory():
+    logger.info("destroying addon tree")
+    shutil.rmtree("release/garrysmod/addons/gelly")
+
+
 def copy_flex_dependencies():
     logger.info("copying flex dependences into release archive")
 
@@ -142,6 +159,8 @@ def make_release():
     move_dll_to_release()
     insert_copy_of_gelly_addon()
     strip_git_dir_from_addon()
+    bundle_addon_to_gma()
+    destroy_addon_directory()
     copy_flex_dependencies()
     make_readme_file()
     create_release_archive()

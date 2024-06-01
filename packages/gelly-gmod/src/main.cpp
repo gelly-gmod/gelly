@@ -104,7 +104,70 @@ LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
 		);
 	}
 
+	LOG_ERROR(
+		"EMERGENCY EXCEPTION HANDLER: RIP: 0x%p",
+		exceptionInfo->ContextRecord->Rip
+	);
+
+	// log some gelly info if we can
+	if (scene) {
+		LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Scene is still uncorrupted!");
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Active particles: %d",
+			scene->GetActiveParticles()
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Max particles: %d",
+			scene->GetMaxParticles()
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Compute device at time of crash: %s",
+			scene->GetComputeDevice()
+		);
+	}
+
+	if (compositor) {
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Compositor is still uncorrupted!"
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Cubemap strength: %f",
+			compositor->GetConfig().cubemapStrength
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Particle radius: %f",
+			compositor->GetConfig().particleRadius
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Threshold ratio: %f",
+			compositor->GetConfig().thresholdRatio
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Diffuse motion blur: %f",
+			compositor->GetConfig().diffuseMotionBlur
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Diffuse scale: %f",
+			compositor->GetConfig().diffuseScale
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Filter iterations: %f",
+			compositor->GetConfig().filterIterations
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Thickness iterations: %f",
+			compositor->GetConfig().thicknessIterations
+		);
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Refraction strength: %f",
+			compositor->GetConfig().refractionStrength
+		);
+	}
+
+	LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Saving log to file...");
 	LOG_SAVE_TO_FILE();
+	LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Log saved to file!");
+	LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Crashing now!");
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 
@@ -128,6 +191,7 @@ LUA_FUNCTION(gelly_Render) {
 }
 LUA_FUNCTION(gelly_Composite) {
 	START_GELLY_EXCEPTIONS()
+	*((int *)0x0) = 0;
 	compositor->Composite();
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
