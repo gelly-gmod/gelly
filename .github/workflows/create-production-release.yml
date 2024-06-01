@@ -19,9 +19,9 @@ jobs:
         with:
           python-version: '3.11.0'
       - uses: ilammy/msvc-dev-cmd@v1
-      - name: Set up x64 Developer Command Prompt for VS 2022
         with:
           arch: amd64 # once this is run, gelly-production-release.zip will be created in the root of the repository, and we can just ignore the rest
+      - name: Set up x64 Developer Command Prompt for VS 2022
         run: |
           python scripts/make_release.py
       - name: Upload Release
