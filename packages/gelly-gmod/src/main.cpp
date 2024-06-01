@@ -191,7 +191,6 @@ LUA_FUNCTION(gelly_Render) {
 }
 LUA_FUNCTION(gelly_Composite) {
 	START_GELLY_EXCEPTIONS()
-	*((int *)0x0) = 0;
 	compositor->Composite();
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
