@@ -11,6 +11,7 @@ jobs:
       - name: Checkout latest Gelly
         uses: actions/checkout@v2
         with:
+          submodules: 'recursive'
           ref: master
       - name: Set up Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
