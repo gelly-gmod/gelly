@@ -23,7 +23,7 @@ jobs:
           arch: amd64 # once this is run, gelly-production-release.zip will be created in the root of the repository, and we can just ignore the rest
       - name: Set up x64 Developer Command Prompt for VS 2022
         run: |
-          python scripts/make_release.py
+          python scripts/make-release.py
       - name: Upload Release
         uses: actions/upload-release-asset@v1
         if: startsWith(github.ref, 'refs/tags/v') # We still want to create a release, but not upload the asset if it's not a tagged release
