@@ -53,7 +53,7 @@ def configure_gelly():
 
     try:
         subprocess.run(
-            ['cmake', '--fresh', '--preset gelly-gmod-relwithdebinfo', '-S .', '-B bin/gelly-gmod-relwithdebinfo'],
+            ['cmake', '-DPRODUCTION_BUILD=ON', '--fresh', '--preset gelly-gmod-relwithdebinfo', '-S .', '-B bin/gelly-gmod-relwithdebinfo'],
             check=True,
             stdout=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
