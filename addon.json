@@ -1,0 +1,15 @@
+{
+	"title": "Gelly",
+	"type": "tool",
+	"tags": ["water"],
+	"ignore": [
+		".editorconfig",
+		"stylua.toml",
+		"LICENSE",
+		"README.md",
+		".vscode",
+		".idea",
+		".gitignore",
+		".git"
+	]
+}

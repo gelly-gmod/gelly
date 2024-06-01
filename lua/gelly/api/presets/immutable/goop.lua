@@ -1,10 +1,10 @@
 return {
 	Name = "Goop",
-	Radius = 5,
+	Radius = 3,
 	SolverParams = {
 		Viscosity = 20,
-		SurfaceTension = 0.0001,
-		Adhesion = 0.2,
+		SurfaceTension = 0.001,
+		Adhesion = 0,
 		Cohesion = 0.2,
 		VorticityConfinement = 0,
 		DynamicFriction = 0.1,
