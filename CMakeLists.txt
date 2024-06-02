@@ -4,13 +4,6 @@ project(gelly-monorepo)
 option(GELLY_BUILD_TESTBED "Build testbed" ON)
 option(GELLY_BUILD_GMOD "Build GMod binary module" OFF)
 option(GELLY_BUILD_CPUVISUALIZER "Build CPU Visualizer" OFF)
-option(GELLY_PRODUCTION_BUILD "Build as a production build" OFF)
-
-if (GELLY_PRODUCTION_BUILD)
-    # we need to add PRODUCTION_BUILD to the compiler flags, which turns off some debug features that are useful for development
-    add_compile_definitions(PRODUCTION_BUILD)
-    message(STATUS "Configuring in production mode")
-endif ()
 
 set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 

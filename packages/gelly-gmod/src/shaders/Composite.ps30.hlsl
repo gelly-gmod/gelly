@@ -50,11 +50,18 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
 }
 
 float2 ApplyRefractionToUV(in float2 tex, in float3 normal) {
-    return tex + normal.zx * refractAndCubemapStrength.x * float2(aspectRatio.x, 1.0);
+    return tex + normal.xy * TexRefractFromMaterial(material);
 }
 
-float3 SampleTransmission(in float2 tex, in float3 normal, in float3 absorption) {
-    float3 transmission = tex2D(backbufferTex, ApplyRefractionToUV(tex, normal)).xyz;
+float3 SampleTransmission(in float2 tex, in float3 pos, in float3 eyeDir, in float3 normal, in float3 absorption) {
+    float3 refractedDir = refract(eyeDir, normal, material.r_st_ior.z);
+    // if it is total internal reflection, we can just do a normal sample
+    if (!any(refractedDir)) {
+        refractedDir = reflect(eyeDir, normal);
+    }
+
+    float2 uv = ApplyRefractionToUV(tex, refractedDir);
+    float3 transmission = tex2D(backbufferTex, uv).xyz;
     // apply inverse gamma correction
     transmission = pow(transmission, 2.2);
     transmission *= absorption;
@@ -75,7 +82,7 @@ float4 Shade(VS_INPUT input) {
     float3 specular = texCUBE(cubemapTex, reflectionDir).xyz * refractAndCubemapStrength.y + ComputeSpecularRadianceFromLights(position, normal, eyePos.xyz);
     float3 diffuseIrradiance = SampleAmbientCube(ambientCube, normal);
 
-    float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, normal, absorption) + fresnel * specular;
+    float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, position, eyeDir, normal, absorption) + fresnel * specular;
     float3 diffuseSpecularLobe = (1.f - fresnel) * diffuseIrradiance + fresnel * specular;
     float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuseIrradiance;
 

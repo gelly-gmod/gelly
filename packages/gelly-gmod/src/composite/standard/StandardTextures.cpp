@@ -42,10 +42,10 @@ StandardTextures::CreateTexture(const char *name, D3DFORMAT format) const {
 
 void StandardTextures::CreateFeatureTextures() {
 	std::tie(gmodTextures.albedo, gellyTextures.albedo) =
-		CreateTexture("gelly-gmod/albedo", D3DFMT_A32B32G32R32F);
+		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F);
 
 	std::tie(gmodTextures.normal, gellyTextures.normal) =
-		CreateTexture("gelly-gmod/normal", D3DFMT_A32B32G32R32F);
+		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F);
 
 	std::tie(gmodTextures.depth, gellyTextures.depth) =
 		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F);
@@ -57,7 +57,7 @@ void StandardTextures::CreateFeatureTextures() {
 		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F);
 
 	std::tie(gmodTextures.foam, gellyTextures.foam) =
-		CreateTexture("gelly-gmod/foam", D3DFMT_A32B32G32R32F);
+		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);
 }
 
 void StandardTextures::LinkFeatureTextures() const {

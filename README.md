@@ -67,6 +67,9 @@ A few of the notable features of Gelly include:
 > something
 > that can be fixed easily.
 
+> [!NOTE]
+> As of writing, custom presets are not supported. This is a planned feature, but it is not implemented yet.
+
 # Installation
 
 It's simple, just go over to the releases page and download the latest version of Gelly. Extract the contents of the
