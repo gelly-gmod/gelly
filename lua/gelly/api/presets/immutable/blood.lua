@@ -1,6 +1,7 @@
 return {
 	Name = "Blood",
 	Radius = 2.50,
+	DiffuseScale = 0,
 	SolverParams = {
 		Viscosity = 0,
 		SurfaceTension = 0,

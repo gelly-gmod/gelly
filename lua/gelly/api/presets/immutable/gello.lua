@@ -1,6 +1,7 @@
 return {
 	Name = "Gell-O",
 	Radius = 3,
+	DiffuseScale = 0,
 	SolverParams = {
 		Viscosity = 20,
 		SurfaceTension = 0.001,

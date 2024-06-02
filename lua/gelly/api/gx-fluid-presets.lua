@@ -44,6 +44,7 @@ function gellyx.presets.select(name)
 	gelly.ChangeParticleRadius(preset.Radius)
 	gelly.SetFluidProperties(preset.SolverParams)
 	gelly.SetFluidMaterial(preset.Material)
+	gelly.SetDiffuseScale(preset.DiffuseScale)
 	GELLY_ACTIVE_PRESET = preset
 	logging.info("Selected preset %s", name)
 end

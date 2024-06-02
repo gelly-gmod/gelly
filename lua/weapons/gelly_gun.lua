@@ -22,7 +22,6 @@ SWEP.ParticleDensity = 300
 SWEP.FireRate = 40 -- bursts per second
 SWEP.RapidFireBoost = 2 -- how much proportional quantity of particles to emit when rapid firing
 
-local CROSSHAIR_COLOR = Color(100, 100, 255)
 local CROSSHAIR_RADIUS = 10
 
 local INDICATOR_WIDTH_HU = 1
@@ -153,7 +152,7 @@ function SWEP:ViewModelDrawn(vm)
 	)
 
 	draw.SimpleText(
-		"Press R for the menu",
+		"Press R for the menu or E to adjust time scale",
 		"DermaLarge",
 		0,
 		25,
@@ -164,6 +163,10 @@ function SWEP:ViewModelDrawn(vm)
 
 	if input.IsKeyDown(KEY_R) then
 		self:CreateMenu()
+	end
+
+	if input.IsKeyDown(KEY_E) then
+		self:CreateTimeSlider()
 	end
 
 	if self:IsParticleLimitNear() then
@@ -196,6 +199,14 @@ function SWEP:CreateMenu()
 	end
 
 	GELLY_GUN_MENU = vgui.Create("GellyGunMenu")
+end
+
+function SWEP:CreateTimeSlider()
+	if GELLY_GUN_TIME_SLIDER then
+		return
+	end
+
+	GELLY_GUN_TIME_SLIDER = vgui.Create("GellyGunTimeSlider")
 end
 
 local function createMenuPanel()
@@ -250,6 +261,7 @@ local function createMenuPanel()
 		if not input.IsKeyDown(KEY_R) then
 			if self.ActiveOption then
 				self.ActiveOption.OnSelect()
+				surface.PlaySound("garrysmod/ui_click.wav")
 			end
 
 			self:Remove()
@@ -341,6 +353,7 @@ local function createMenuPanel()
 				if self.LastSelectedOption ~= i then
 					self.LastSelectedOption = i
 					self.LastSelectedOptionTime = CurTime()
+					surface.PlaySound("buttons/lightswitch2.wav")
 				end
 			end
 
@@ -373,9 +386,173 @@ local function createMenuPanel()
 	vgui.Register("GellyGunMenu", PANEL, "DFrame")
 end
 
+local function createTimeSliderPanel()
+	local PANEL = {}
+	PANEL.SliderWidthOfScreen = 0.8
+	PANEL.SliderHeightOfScreen = 0.05
+	PANEL.BlurIterations = 4
+	PANEL.Min = 0.0001
+	PANEL.Max = 20
+	PANEL.Value = 1
+
+	function PANEL:Init()
+		self:SetSize(ScrW(), ScrH())
+		self:Center()
+		self:MakePopup()
+		self:SetTitle("Gelly Gun Time Slider")
+		self:ShowCloseButton(true)
+		self:SetDraggable(true)
+	end
+
+	function PANEL:Paint(w, h)
+		-- draw a blurred background
+		local x, y = self:LocalToScreen(0, 0)
+
+		surface.SetDrawColor(255, 255, 255)
+		surface.SetMaterial(Material("pp/blurscreen"))
+		for i = 1, self.BlurIterations do
+			Material("pp/blurscreen"):SetFloat("$blur", (i / self.BlurIterations) * 6)
+			Material("pp/blurscreen"):Recompute()
+			render.UpdateScreenEffectTexture()
+			render.SetScissorRect(x, y, x + w, y + h, true)
+			surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
+			render.SetScissorRect(0, 0, 0, 0, false)
+		end
+
+		if not input.IsKeyDown(KEY_E) then
+			GELLY_SIM_TIMESCALE = self.Value
+			self:Remove()
+			GELLY_GUN_TIME_SLIDER = nil
+			return
+		end
+
+		-- darken the background
+		surface.SetDrawColor(0, 0, 0, 200)
+		surface.DrawRect(0, 0, w, h)
+
+		-- draw the slider
+		local sliderWidth = w * self.SliderWidthOfScreen
+		local sliderHeight = h * self.SliderHeightOfScreen
+
+		local sliderX = w / 2 - sliderWidth / 2
+		local sliderY = h / 2 - sliderHeight / 2
+
+		draw.RoundedBox(8, sliderX, sliderY, sliderWidth, sliderHeight, Color(50, 50, 50))
+
+		-- draw helpful arrows
+		local slowerArrowX = sliderX + 120
+		local slowerArrowY = sliderY - sliderHeight * 2
+
+		local fasterArrowX = sliderX + sliderWidth - 120
+		local fasterArrowY = sliderY - sliderHeight * 2
+
+		draw.SimpleText(
+			"← Slower",
+			"DermaLarge",
+			slowerArrowX,
+			slowerArrowY,
+			Color(255, 255, 255),
+			TEXT_ALIGN_CENTER,
+			TEXT_ALIGN_CENTER
+		)
+
+		draw.SimpleText(
+			"Faster →",
+			"DermaLarge",
+			fasterArrowX,
+			fasterArrowY,
+			Color(255, 255, 255),
+			TEXT_ALIGN_CENTER,
+			TEXT_ALIGN_CENTER
+		)
+
+		-- draw min + max labels
+		surface.SetDrawColor(255, 255, 255)
+		local minX = sliderX
+		local minY = sliderY + sliderHeight + 40
+		surface.DrawLine(sliderX, sliderY + sliderHeight + 10, minX, minY)
+
+		local maxX = sliderX + sliderWidth
+		local maxY = sliderY + sliderHeight + 40
+		surface.DrawLine(sliderX + sliderWidth, sliderY + sliderHeight + 10, maxX, maxY)
+
+		local minText = ("%d%%"):format(self.Min * 100)
+		local maxText = ("%d%%"):format(self.Max * 100)
+
+		local _, minTextSizeY = surface.GetTextSize(minText)
+		local _, maxTextSizeY = surface.GetTextSize(maxText)
+
+		draw.SimpleText(
+			minText,
+			"DermaLarge",
+			minX,
+			minY + minTextSizeY,
+			Color(255, 255, 255),
+			TEXT_ALIGN_CENTER,
+			TEXT_ALIGN_CENTER
+		)
+
+		draw.SimpleText(
+			maxText,
+			"DermaLarge",
+			maxX,
+			maxY + maxTextSizeY,
+			Color(255, 255, 255),
+			TEXT_ALIGN_CENTER,
+			TEXT_ALIGN_CENTER
+		)
+
+		local sliderProgress = (self.Value - self.Min) / (self.Max - self.Min)
+
+		draw.RoundedBox(
+			8,
+			sliderX,
+			sliderY,
+			sliderWidth * sliderProgress,
+			sliderHeight,
+			Color(100, 100, 255)
+		)
+
+		-- Update the slider by mouse position
+
+		local mouseX = math.max(sliderX, math.min(sliderX + sliderWidth, gui.MouseX()))
+
+		self.Value =
+			math.Remap(mouseX, sliderX, sliderX + sliderWidth, self.Min, self.Max)
+
+		-- draw the value
+		local valueText = ("%d%%"):format(self.Value * 100)
+		local _, valueTextSizeY = surface.GetTextSize(valueText)
+
+		local valueTextX = mouseX
+		local valueTextY = sliderY - valueTextSizeY - 10
+
+		surface.DrawLine(mouseX, sliderY + sliderHeight, mouseX, valueTextY)
+
+		draw.SimpleText(
+			valueText,
+			"DermaLarge",
+			valueTextX,
+			valueTextY,
+			Color(255, 255, 255),
+			TEXT_ALIGN_CENTER,
+			TEXT_ALIGN_CENTER
+		)
+
+		-- Update the time scale, for instant feedback
+		GELLY_SIM_TIMESCALE = self.Value
+	end
+
+	vgui.Register("GellyGunTimeSlider", PANEL, "DFrame")
+end
+
 -- autorefresh support
 if gellyx and CLIENT then
 	createMenuPanel()
+	createTimeSliderPanel()
 end
 
-hook.Add("GellyLoaded", "gellygun.make-menu-panel", createMenuPanel)
+hook.Add("GellyLoaded", "gellygun.make-menu-panel", function()
+	createMenuPanel()
+	createTimeSliderPanel()
+end)
