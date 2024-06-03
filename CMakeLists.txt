@@ -4,10 +4,16 @@ project(gelly-monorepo)
 option(GELLY_BUILD_TESTBED "Build testbed" ON)
 option(GELLY_BUILD_GMOD "Build GMod binary module" OFF)
 option(GELLY_BUILD_CPUVISUALIZER "Build CPU Visualizer" OFF)
+option(GELLY_PRODUCTION_BUILD "Build in production mode" OFF)
 
 set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 message(STATUS "Configuring Gelly with CMake version ${CMAKE_VERSION}")
+
+if (GELLY_PRODUCTION_BUILD)
+    message(STATUS "Building in production mode")
+    add_compile_definitions(PRODUCTION_BUILD)
+endif ()
 
 if (GELLY_BUILD_TESTBED)
     add_subdirectory(packages/testbed)

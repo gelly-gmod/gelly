@@ -393,7 +393,8 @@ void StandardPipeline::Composite() {
 	// composite
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-
+	// and multisanple antialiasing
+	device->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	stateBlock->Apply();

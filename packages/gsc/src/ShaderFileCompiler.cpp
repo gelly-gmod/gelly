@@ -41,9 +41,9 @@ void ShaderFileCompiler::CompileToBytecode() {
 	fxcCommand += fxcProfile;
 	if (isDebugEnabled) {
 		// tell our shaders that AOVs are enabled
-		fxcCommand += " /D AOV_ENABLED ";
+		fxcCommand += " /D AOV_ENABLED";
 	}
-	fxcCommand += "/E main /Fo ";
+	fxcCommand += " /E main /Fo ";
 
 	auto tempPath = fs::temp_directory_path();
 	tempPath /= shaderFile.GetFriendlyName() + ".dxbc";

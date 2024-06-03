@@ -71,7 +71,8 @@
       },
       "cacheVariables": {
         "GELLY_BUILD_GMOD": "ON",
-        "GELLY_BUILD_TESTBED": "OFF"
+        "GELLY_BUILD_TESTBED": "OFF",
+        "GELLY_PRODUCTION_BUILD": "ON"
       },
       "binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo",
       "inherits": [
@@ -84,7 +85,8 @@
       "displayName": "Gelly GMod + RenderDoc",
       "description": "Same as the other Gelly GMod config except with RenderDoc enabled",
       "cacheVariables": {
-        "GELLY_ENABLE_RENDERDOC_CAPTURES": "ON"
+        "GELLY_ENABLE_RENDERDOC_CAPTURES": "ON",
+        "GELLY_PRODUCTION_BUILD": "OFF"
       },
       "binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo-renderdoc",
       "inherits": [

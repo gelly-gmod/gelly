@@ -29,9 +29,9 @@ float FetchProjDepth(float2 pixel) {
     return InputDepth.Load(int3(pixel, 0)).g;
 }
 
-float CreateIsosurfaceDepth(float2 tex,
+float CreateIsosurfaceDepth(float2 tex
     #ifdef AOV_ENABLED
-    out float4 aov : SV_Target1
+    , out float4 aov : SV_Target1
     #endif
 ) {
     float2 inPosition = tex * float2(g_ViewportWidth, g_ViewportHeight);
@@ -83,8 +83,9 @@ float CreateIsosurfaceDepth(float2 tex,
         sum /= wsum;
     }
 
+#ifdef AOV_ENABLED
     aov = float4(sum, wsum, count, 1.0);
-
+#endif
     float blend = count / sqr(2.0 * radius + 1.0);
     return lerp(depth, sum, blend);
 }
@@ -97,9 +98,9 @@ PS_OUTPUT main(VS_OUTPUT input) {
         discard;
     }
 
-    float eyeDepth = CreateIsosurfaceDepth(input.Tex,
+    float eyeDepth = CreateIsosurfaceDepth(input.Tex
         #ifdef AOV_ENABLED
-        output.AOV
+        , output.AOV
         #endif
     );
 

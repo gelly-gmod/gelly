@@ -11,7 +11,6 @@ add_subdirectory(vendor/GMFS)
 add_subdirectory(vendor/BSPParser)
 
 option(GELLY_ENABLE_RENDERDOC_CAPTURES "Enable RenderDoc capture functionality" OFF)
-option(GELLY_PRODUCTION_BUILD "Build in production mode" OFF)
 
 set(TRACY_ENABLE OFF CACHE BOOL " Enable tracy" FORCE)
 set(TRACY_ON_DEMAND OFF CACHE BOOL "Enable tracy on demand" FORCE)
@@ -94,10 +93,6 @@ if (GELLY_ENABLE_RENDERDOC_CAPTURES)
     add_compile_definitions("GELLY_ENABLE_RENDERDOC_CAPTURES")
 endif ()
 
-if (GELLY_PRODUCTION_BUILD)
-    message(STATUS "Building in production mode")
-    add_compile_definitions(PRODUCTION_BUILD)
-endif ()
 
 target_link_libraries(gelly-gmod
         PUBLIC

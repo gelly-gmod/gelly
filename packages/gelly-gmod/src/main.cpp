@@ -41,7 +41,7 @@ static std::shared_ptr<IRenderContext> context = nullptr;
 static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 
-constexpr int DEFAULT_MAX_PARTICLES = 512000;
+constexpr int DEFAULT_MAX_PARTICLES = 100000;
 
 static PVOID emergencyHandler = nullptr;
 LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
