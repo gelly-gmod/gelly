@@ -6,7 +6,7 @@ return {
 		Viscosity = 20,
 		SurfaceTension = 0.001,
 		Adhesion = 0,
-		Cohesion = 0.2,
+		Cohesion = 0.8,
 		VorticityConfinement = 0,
 		DynamicFriction = 0.1,
 	},

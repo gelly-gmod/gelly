@@ -54,10 +54,8 @@ local function renderGraph(timingHistory, originX, originY, height, width)
 		surface.DrawLine(x1, y1, x2, y2)
 	end
 end
-
 hook.Add("GellyLoaded", "gelly.update-loop", function()
-	hook.Add("RenderScene", "gelly.render", function()
-		frameTimingMs = (SysTime() - lastFrameTime) * 1000
+	timer.Create("gelly.flex-update-timer", 1 / 60, 0, function()
 		if SIMULATE_GELLY then
 			if lastTimescale ~= GELLY_SIM_TIMESCALE then
 				lastTimescale = GELLY_SIM_TIMESCALE
@@ -66,6 +64,10 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 
 			gelly.Simulate(1 / 60) -- flex is programmed to assume a fixed timestep, normally 60hz
 		end
+	end)
+
+	hook.Add("RenderScene", "gelly.render", function()
+		frameTimingMs = (SysTime() - lastFrameTime) * 1000
 		gelly.Render()
 		addTimingHistory(timingHistory1, frameTimingMs)
 	end)

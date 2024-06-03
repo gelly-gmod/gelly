@@ -451,7 +451,7 @@ end
 local function createTimeSliderPanel()
 	local PANEL = {}
 	PANEL.SliderWidthOfScreen = 0.8
-	PANEL.SliderHeightOfScreen = 0.05
+	PANEL.SliderHeightOfScreen = 0.02
 	PANEL.BlurIterations = 4
 	PANEL.Min = 0.0001
 	PANEL.Max = 20
