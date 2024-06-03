@@ -230,15 +230,11 @@ local function createMenuPanel()
 		end,
 	})
 
-	table.insert(PANEL.MenuOptions, {
-		Name = "Close menu",
-		OnSelect = function() end,
-	})
-
-	PANEL.ArcSegments = 16
+	PANEL.ArcSegments = 32
 	PANEL.ArcAngleBias = 0 -- This makes it so menu options start out at left and right instead of top and bottom
 	PANEL.LastSelectedOption = 1
 	PANEL.LastSelectedOptionTime = CurTime()
+	PANEL.NeutralZoneRadius = 120 -- neutral zone cancels selection
 
 	function PANEL:Init()
 		self:SetSize(ScrW(), ScrH())
@@ -287,8 +283,16 @@ local function createMenuPanel()
 		surface.SetDrawColor(0, 0, 0, 200)
 		surface.DrawRect(0, 0, w, h)
 
+		local normalizedMouseX = gui.MouseX() / ScrW()
+		local normalizedMouseY = gui.MouseY() / ScrH()
+
 		local userCursorAngle =
 			math.atan2(gui.MouseY() / ScrH() - 0.5, gui.MouseX() / ScrW() - 0.5)
+
+		-- we just take the sum of the squares of the normalized mouse vector to the center to get the distance
+		local isCursorInNeutralZone = math.sqrt(
+			(normalizedMouseX - 0.5) ^ 2 + (normalizedMouseY - 0.5) ^ 2
+		) < self.NeutralZoneRadius / ScrW()
 
 		if userCursorAngle < 0 then
 			userCursorAngle = userCursorAngle + 2 * math.pi
@@ -303,23 +307,80 @@ local function createMenuPanel()
 			local centerX = w / 2
 			local centerY = h / 2
 
-			local points = {
-				{ x = centerX, y = centerY },
-			}
-
-			-- discretize the arc into segments
+			local points = {}
+			-- in order to have a circle in the middle, we need to render every outer arc point connected to their neighbors,
+			-- then a reversed version of the inner arc points, then the outer arc points again in reverse order so that
+			-- the GMod triangulation doesn't mess up the inner arc
 			for arcSegment = 0, self.ArcSegments do
 				local arcX = centerX
 					+ math.cos(
 							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
 						)
-						* radius
+						* self.NeutralZoneRadius
 				local arcY = centerY
 					+ math.sin(
 							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
 						)
-						* radius
+						* self.NeutralZoneRadius
 
+				-- start the actual arc from the neutral zone
+				local extendedArcX = arcX
+					+ math.cos(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* (radius - self.NeutralZoneRadius)
+
+				local extendedArcY = arcY
+					+ math.sin(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* (radius - self.NeutralZoneRadius)
+
+				table.insert(points, { x = extendedArcX, y = extendedArcY })
+			end
+
+			-- revert the points so we can draw the inner arc
+			for arcSegment = self.ArcSegments, 0, -1 do
+				local arcX = centerX
+					+ math.cos(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* self.NeutralZoneRadius
+				local arcY = centerY
+					+ math.sin(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* self.NeutralZoneRadius
+
+				table.insert(points, { x = arcX, y = arcY })
+			end
+
+			-- and revert the points again so we can draw the outer arc
+			for arcSegment = self.ArcSegments, 0, -1 do
+				local arcX = centerX
+					+ math.cos(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* self.NeutralZoneRadius
+				local arcY = centerY
+					+ math.sin(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* self.NeutralZoneRadius
+
+				local extendedArcX = arcX
+					+ math.cos(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* (radius - self.NeutralZoneRadius)
+
+				local extendedArcY = arcY
+					+ math.sin(
+							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+						)
+						* (radius - self.NeutralZoneRadius)
+
+				table.insert(points, { x = extendedArcX, y = extendedArcY })
 				table.insert(points, { x = arcX, y = arcY })
 			end
 
@@ -346,6 +407,7 @@ local function createMenuPanel()
 
 			local isSelected = userCursorAngle > wrappedAngle
 				and userCursorAngle < wrappedAngleWithPadding
+				and not isCursorInNeutralZone
 
 			if isSelected then
 				self.ActiveOption = option
@@ -367,9 +429,9 @@ local function createMenuPanel()
 			surface.DrawPoly(points)
 
 			local arcCenterX = centerX
-				+ math.cos(angle + arcAnglePadding / 2) * radius / 2
+				+ math.cos(angle + arcAnglePadding / 2) * self.NeutralZoneRadius * 1.5
 			local arcCenterY = centerY
-				+ math.sin(angle + arcAnglePadding / 2) * radius / 2
+				+ math.sin(angle + arcAnglePadding / 2) * self.NeutralZoneRadius * 1.5
 
 			draw.SimpleText(
 				option.Name,
