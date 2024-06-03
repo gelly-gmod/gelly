@@ -1,9 +1,14 @@
 include(GetAllShaders)
 
-function(create_shader_glue_targets name comment)
+function(create_shader_glue_targets name comment is_production)
     find_hlsl_files(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders SHADER_FILES)
     # keep track of our output files so we can add them as dependencies
     set(SHADER_OUTPUT_FILES "")
+    set(DEBUG_GSC_FLAG -debug false)
+
+    if (NOT ${is_production})
+        set(DEBUG_GSC_FLAG -debug true)
+    endif ()
 
     foreach (SHADER_FILE ${SHADER_FILES})
         get_filename_component(SHADER_NAME ${SHADER_FILE} NAME_WLE)
@@ -19,10 +24,10 @@ function(create_shader_glue_targets name comment)
                 OUTPUT
                 ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.cpp
                 ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.h
-                COMMAND ${GSC_PATH} ${SHADER_FILE}
+                COMMAND ${GSC_PATH} ${SHADER_FILE} ${DEBUG_GSC_FLAG}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders # critical so that our glue code is generated in the correct directory
                 DEPENDS ${SHADER_FILE} ${GSC_PATH}
-                COMMENT "Compiling shader ${SHADER_NAME}.cpp and ${SHADER_NAME}.h"
+                COMMENT " Compiling shader ${SHADER_NAME}.cpp and ${SHADER_NAME}.h"
         )
 
         list(APPEND SHADER_OUTPUT_FILES ${SHADER_PARENT_DIR}/out/${SHADER_NAME}.cpp)

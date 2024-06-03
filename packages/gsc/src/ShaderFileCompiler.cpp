@@ -39,7 +39,11 @@ void ShaderFileCompiler::CompileToBytecode() {
 	}
 
 	fxcCommand += fxcProfile;
-	fxcCommand += " /E main /Fo ";
+	if (isDebugEnabled) {
+		// tell our shaders that AOVs are enabled
+		fxcCommand += " /D AOV_ENABLED ";
+	}
+	fxcCommand += "/E main /Fo ";
 
 	auto tempPath = fs::temp_directory_path();
 	tempPath /= shaderFile.GetFriendlyName() + ".dxbc";
@@ -94,8 +98,10 @@ void ShaderFileCompiler::CompileToBytecode() {
 	// The user's operating system should clean up the temporary file.
 }
 
-ShaderFileCompiler::ShaderFileCompiler(ShaderFile shaderFile)
-	: shaderFile{std::move(shaderFile)} {
+ShaderFileCompiler::ShaderFileCompiler(
+	ShaderFile shaderFile, bool isDebugEnabled
+)
+	: shaderFile{std::move(shaderFile)}, isDebugEnabled(isDebugEnabled) {
 	CompileToBytecode();
 }
 

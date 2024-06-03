@@ -2,7 +2,7 @@
 
 include(CreateShaderGlueTarget)
 
-create_shader_glue_targets(GellyShaderCompile "Compiling the fluid renderer's shaders")
+create_shader_glue_targets(GellyShaderCompile "Compiling the fluid renderer's shaders" , ${GELLY_PRODUCTION_BUILD})
 add_library(
         gelly_fluid_renderer
         STATIC

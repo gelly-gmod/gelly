@@ -7,7 +7,17 @@ SamplerState InputDepthSampler : register(s0);
 
 float SampleNoDiscontinuity(float2 tex, float4 zc) {
     float4 frag = InputDepth.Sample(InputDepthSampler, tex);
-    return frag.r;
+    if (frag.g >= 1.f) {
+        return zc.r;
+    }
+
+    // We can use a gaussian to drive a blend between the two depths
+    float depthDiff = (frag.r - zc.r) * g_ThresholdRatio;
+    // We use a much smaller sigma to get a sharper blend,
+    // if we don't then we still get depth discontinuities
+    float weight = exp((-depthDiff * depthDiff) / 0.2f);
+
+    return lerp(zc.r, frag.r, weight);
 }
 
 float3 WorldPosFromDepth(float2 tex, float4 zc) {
@@ -71,27 +81,37 @@ PS_OUTPUT main(VS_OUTPUT input) {
     return normalize(cross(dpdx,dpdy));
     */
 
-    float l2 = SampleNoDiscontinuity(input.Tex - float2(2, 0) * texelSize, zc);
-    float l1 = SampleNoDiscontinuity(input.Tex - float2(1, 0) * texelSize, zc);
-    float r1 = SampleNoDiscontinuity(input.Tex + float2(1, 0) * texelSize, zc);
-    float r2 = SampleNoDiscontinuity(input.Tex + float2(2, 0) * texelSize, zc);
-    float b2 = SampleNoDiscontinuity(input.Tex - float2(0, 2) * texelSize, zc);
-    float b1 = SampleNoDiscontinuity(input.Tex - float2(0, 1) * texelSize, zc);
-    float t1 = SampleNoDiscontinuity(input.Tex + float2(0, 1) * texelSize, zc);
-    float t2 = SampleNoDiscontinuity(input.Tex + float2(0, 2) * texelSize, zc);
+    // float l2 = SampleNoDiscontinuity(input.Tex - float2(2, 0) * texelSize, zc);
+    // float l1 = SampleNoDiscontinuity(input.Tex - float2(1, 0) * texelSize, zc);
+    // float r1 = SampleNoDiscontinuity(input.Tex + float2(1, 0) * texelSize, zc);
+    // float r2 = SampleNoDiscontinuity(input.Tex + float2(2, 0) * texelSize, zc);
+    // float b2 = SampleNoDiscontinuity(input.Tex - float2(0, 2) * texelSize, zc);
+    // float b1 = SampleNoDiscontinuity(input.Tex - float2(0, 1) * texelSize, zc);
+    // float t1 = SampleNoDiscontinuity(input.Tex + float2(0, 1) * texelSize, zc);
+    // float t2 = SampleNoDiscontinuity(input.Tex + float2(0, 2) * texelSize, zc);
 
-    float dl = abs(l1 * l2 / (2.0 * l2 - l1) - zc.r);
-    float dr = abs(r1 * r2 / (2.0 * r2 - r1) - zc.r);
-    float db = abs(b1 * b2 / (2.0 * b2 - b1) - zc.r);
-    float dt = abs(t1 * t2 / (2.0 * t2 - t1) - zc.r);
+    // float dl = abs(l1 * l2 / (2.0 * l2 - l1) - zc.r);
+    // float dr = abs(r1 * r2 / (2.0 * r2 - r1) - zc.r);
+    // float db = abs(b1 * b2 / (2.0 * b2 - b1) - zc.r);
+    // float dt = abs(t1 * t2 / (2.0 * t2 - t1) - zc.r);
 
-    float3 ce = WorldPosFromDepthF(input.Tex, zc.r);
+    // float3 ce = WorldPosFromDepthF(input.Tex, zc.r);
 
-    float3 dpdx = (dl < dr) ? ce - WorldPosFromDepthF(input.Tex - float2(1, 0) * texelSize, l1) :
-        -ce + WorldPosFromDepthF(input.Tex + float2(1, 0) * texelSize, r1);
-    float3 dpdy = (db < dt) ? ce - WorldPosFromDepthF(input.Tex - float2(0, 1) * texelSize, b1) :
-        -ce + WorldPosFromDepthF(input.Tex + float2(0, 1) * texelSize, t1);
+    // float3 dpdx = (dl < dr) ? ce - WorldPosFromDepthF(input.Tex - float2(1, 0) * texelSize, l1) :
+    //     -ce + WorldPosFromDepthF(input.Tex + float2(1, 0) * texelSize, r1);
+    // float3 dpdy = (db < dt) ? ce - WorldPosFromDepthF(input.Tex - float2(0, 1) * texelSize, b1) :
+    //     -ce + WorldPosFromDepthF(input.Tex + float2(0, 1) * texelSize, t1);
     
+    // float3 normal = -normalize(cross(dpdx, dpdy));
+
+    float3 l1 = WorldPosFromDepth(input.Tex - float2(1, 0) * texelSize, zc);
+    float3 r1 = WorldPosFromDepth(input.Tex + float2(1, 0) * texelSize, zc);
+    float3 t1 = WorldPosFromDepth(input.Tex + float2(0, 1) * texelSize, zc);
+    float3 b1 = WorldPosFromDepth(input.Tex - float2(0, 1) * texelSize, zc);
+
+    float3 dpdx = r1 - l1;
+    float3 dpdy = t1 - b1;
+
     float3 normal = -normalize(cross(dpdx, dpdy));
 
     output.PositiveNormal = float4(normal, 1.f);

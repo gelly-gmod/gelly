@@ -11,6 +11,7 @@ public:
 private:
 	ShaderFile shaderFile;
 	ShaderBytecodePtr bytecode;
+	bool isDebugEnabled;
 
 	void CompileToBytecode();
 
@@ -19,7 +20,9 @@ public:
 	 * \brief May throw if the shader file could not be compiled.
 	 * \note The shader file is moved into the compiler.
 	 */
-	explicit ShaderFileCompiler(ShaderFile shaderFile);
+	explicit ShaderFileCompiler(
+		ShaderFile shaderFile, bool isDebugEnabled = false
+	);
 
 	[[nodiscard]] ShaderBytecodePtr GetBytecode() const;
 	[[nodiscard]] const ShaderFile &GetShaderFile() const;

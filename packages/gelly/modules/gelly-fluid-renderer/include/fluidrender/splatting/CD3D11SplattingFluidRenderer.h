@@ -4,6 +4,8 @@
 #include <GellyFluidSim.h>
 #include <GellyInterfaceRef.h>
 
+#include <array>
+
 #include "CD3D11SplattingFluidTextures.h"
 #include "fluidrender/CD3D11ManagedBuffer.h"
 #include "fluidrender/IFluidRenderer.h"
@@ -64,6 +66,14 @@ private:
 		 */
 		GellyInterfaceVal<IManagedTexture> untransformedDepth;
 	} internalTextures{};
+
+#ifndef PRODUCTION_BUILD
+	/*
+	 * \brief Random access AOVs for debugging GPU algorithms, each are random
+	 * access four-channel textures that are 32-bit floats.
+	 */
+	std::array<GellyInterfaceVal<IManagedTexture>, 4> randomAccessAOVs;
+#endif
 
 	struct {
 		GellyInterfaceVal<IManagedShader> splattingPS;

@@ -287,6 +287,22 @@ void CD3D11SplattingFluidRenderer::CreateTextures() {
 	constexpr float clearColor[4] = {1.0f, 1.0f, 0.0f, 1.0f};
 	internalTextures.unfilteredDepth->Clear(clearColor);
 	internalTextures.unfilteredThickness->Clear(clearColor);
+
+#ifndef PRODUCTION_BUILD
+	TextureDesc aovDesc = {};
+	aovDesc.filter =
+		TextureFilter::LINEAR;	// doesn't really matter, they're write-only
+	aovDesc.width = width;
+	aovDesc.height = height;
+	aovDesc.access = TextureAccess::READ | TextureAccess::WRITE;
+	aovDesc.format = TextureFormat::R32G32B32A32_FLOAT;
+
+	for (int aovIndex = 0; aovIndex < randomAccessAOVs.size(); aovIndex++) {
+		std::string name = "splatrenderer/aov" + std::to_string(aovIndex);
+		randomAccessAOVs[aovIndex] =
+			context->CreateTexture(name.c_str(), aovDesc);
+	}
+#endif
 }
 
 void CD3D11SplattingFluidRenderer::SetSimData(GellyObserverPtr<ISimData> simData
@@ -407,6 +423,10 @@ void CD3D11SplattingFluidRenderer::RenderFilteredDepth() {
 
 	depthTextureB->Clear(depthClearColor);
 
+#ifndef PRODUCTION_BUILD
+	randomAccessAOVs[0]->Clear(genericClearColor);
+#endif
+
 	perfMarker->BeginEvent("Filtering depth");
 	for (int i = 0; i < settings.filterIterations; i++) {
 		perfMarker->BeginEvent("Depth filter iteration");
@@ -421,9 +441,19 @@ void CD3D11SplattingFluidRenderer::RenderFilteredDepth() {
 		buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
 		buffers.screenQuadLayout->BindAsVertexBuffer();
 
+#ifdef PRODUCTION_BUILD
 		depthTextureB->BindToPipeline(
 			TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
 		);
+#else
+		GellyInterfaceVal<IManagedTexture> renderTargets[] = {
+			depthTextureB, randomAccessAOVs[0]
+		};
+
+		context->BindMultipleTexturesAsOutput(
+			renderTargets, ARRAYSIZE(renderTargets), std::nullopt
+		);
+#endif
 
 		depthTextureA->BindToPipeline(
 			TextureBindStage::PIXEL_SHADER_READ, 0, std::nullopt
