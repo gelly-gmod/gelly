@@ -15,9 +15,9 @@
 #include "fluidrender/IFluidRenderer.h"
 
 class Scene {
-private:
-	constexpr float DEFAULT_TIMESTEP_MULTIPLIER = 10.0f;
+	const float DEFAULT_TIMESTEP_MULTIPLIER = 10.0f;
 
+private:
 	std::shared_ptr<ISimContext> simContext;
 	std::shared_ptr<IFluidSimulation> sim;
 	std::shared_ptr<IFluidRenderer> connectedRenderer;
@@ -69,7 +69,7 @@ public:
 	}
 
 	void SetTimeStepMultiplier(float timeStepMultiplier) {
-		sim->SetTimeStepMultiplier(fminf(timeStepMultiplier, 0.0001f));
+		sim->SetTimeStepMultiplier(fmaxf(timeStepMultiplier, 0.0001f));
 	}
 };
 
