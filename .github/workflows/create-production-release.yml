@@ -2,8 +2,8 @@ name: Create Production Release
 run-name: Create Production Release (x64, Windows)
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
 jobs:
   create-release:
     runs-on: windows-latest
