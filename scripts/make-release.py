@@ -31,6 +31,8 @@ MANUAL INSTALLATION STEPS:
 3. You Are Done! Yay!!!!!
 """
 
+LOADER_LUA_SCRIPT = """game.MountGMA("data/gelly.gma")"""
+
 logging.basicConfig()
 logging.root.setLevel(logging.NOTSET)
 
@@ -53,7 +55,8 @@ def configure_gelly():
 
     try:
         subprocess.run(
-            ['cmake', '-DGELLY_PRODUCTION_BUILD=ON', '--fresh', '--preset gelly-gmod-relwithdebinfo', '-S .', '-B bin/gelly-gmod-relwithdebinfo'],
+            ['cmake', '-DGELLY_PRODUCTION_BUILD=ON', '--fresh', '--preset gelly-gmod-relwithdebinfo', '-S .',
+             '-B bin/gelly-gmod-relwithdebinfo'],
             check=True,
             stdout=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
@@ -111,9 +114,12 @@ def strip_git_dir_from_addon():
 
 def bundle_addon_to_gma():
     logger.info("bundling addon into gma file")
+    # create the data dir tree first
+    os.makedirs("release/garrysmod/data", exist_ok=True)
+
     try:
         subprocess.run(
-            "scripts\\gmad.exe create -folder \"release\\garrysmod\\addons\\gelly\" -out \"release\\garrysmod\\addons\\gelly_production_addon.gma\" -icon \"release\\garrysmod\\addon\\gelly\\logo.jpg\"",
+            "scripts\\gmad.exe create -folder \"release\\garrysmod\\addons\\gelly\" -out \"release\\garrysmod\\data\\gelly.gma\" -icon \"release\\garrysmod\\addon\\gelly\\logo.jpg\"",
             shell=True,
             check=True
         )
@@ -124,6 +130,13 @@ def bundle_addon_to_gma():
 def destroy_addon_directory():
     logger.info("destroying addon tree")
     shutil.rmtree("release/garrysmod/addons/gelly")
+
+
+def create_loader_addon():
+    logger.info("adding bootstrap addon")
+    os.makedirs("release/garrysmod/addons/gelly_bootstrap/lua/autorun")
+    with open("release/garrysmod/addons/gelly_bootstrap/lua/autorun/load_gelly.lua", "w+") as file:
+        file.write(LOADER_LUA_SCRIPT)
 
 
 def copy_flex_dependencies():
@@ -161,6 +174,7 @@ def make_release():
     strip_git_dir_from_addon()
     bundle_addon_to_gma()
     destroy_addon_directory()
+    create_loader_addon()
     copy_flex_dependencies()
     make_readme_file()
     create_release_archive()
