@@ -24,7 +24,7 @@ local function popParticleEmitRequest()
 end
 
 local function isParticleRequestOverflowable(rawParticles)
-	return activeParticles() + (#rawParticles / 2) > maxParticles()
+	return activeParticles() + (#rawParticles / 2) >= maxParticles()
 end
 
 --- Structure representing an individual particle to be spawned.
