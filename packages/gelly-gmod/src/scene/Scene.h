@@ -67,7 +67,7 @@ public:
 	}
 
 	void SetTimeStepMultiplier(float timeStepMultiplier) {
-		sim->SetTimeStepMultiplier(timeStepMultiplier);
+		sim->SetTimeStepMultiplier(fminf(timeStepMultiplier, 0.0001f));
 	}
 };
 
