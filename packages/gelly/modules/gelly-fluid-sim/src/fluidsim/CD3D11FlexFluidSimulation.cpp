@@ -376,7 +376,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
-	solverParams.staticFriction = 0.1f;
+	solverParams.staticFriction = 1.f;
 	solverParams.particleFriction = 0.1f;
 	solverParams.freeSurfaceDrag = 0.0f;
 	solverParams.drag = 0.0f;

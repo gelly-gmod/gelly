@@ -3,6 +3,7 @@
 #include <GellyD3D.h>
 
 #include <stdexcept>
+#include <string>
 
 CD3D11ManagedTexture::CD3D11ManagedTexture()
 	: context(nullptr),
@@ -281,9 +282,31 @@ void CD3D11ManagedTexture::BindToPipeline(
 			break;
 		case TextureBindStage::RENDER_TARGET_OUTPUT: {
 			if (rtv == nullptr) {
-				throw std::logic_error(
-					"CD3D11ManagedTexture::BindToPipeline: RTV is null."
-				);
+				// We're noticing some frequent crashes here, so we're adding
+				// some extra logging to help diagnose the issue.
+				std::string errorMessage =
+					"CD3D11ManagedTexture::BindToPipeline: RTV is null.\n";
+				errorMessage += "Texture description:\n";
+				errorMessage += "Width: " + std::to_string(desc.width) + "\n";
+				errorMessage += "Height: " + std::to_string(desc.height) + "\n";
+				errorMessage += "Depth: " + std::to_string(desc.depth) + "\n";
+				errorMessage +=
+					"Format: " + std::to_string(static_cast<int>(desc.format)) +
+					"\n";
+				errorMessage +=
+					"Access: " + std::to_string(static_cast<int>(desc.access)) +
+					"\n";
+				errorMessage +=
+					"Is Fullscreen: " + std::to_string(desc.isFullscreen) +
+					"\n";
+				errorMessage +=
+					"Filter: " + std::to_string(static_cast<int>(desc.filter)) +
+					"\n";
+				errorMessage +=
+					"Address Mode: " +
+					std::to_string(static_cast<int>(desc.addressMode)) + "\n";
+
+				throw std::logic_error(errorMessage);
 			}
 
 			ID3D11DepthStencilView *dsv = nullptr;
