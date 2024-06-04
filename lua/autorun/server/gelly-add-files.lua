@@ -16,6 +16,10 @@ local function traverseFileTree(startingDirectory, visitFunction)
 end
 
 traverseFileTree("lua/gelly", function(path)
+	if not string.EndsWith(path, ".lua") then
+		return
+	end
+
 	logging.info("Adding file %s to download list", path)
 	AddCSLuaFile(path)
 end)

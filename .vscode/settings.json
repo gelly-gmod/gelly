@@ -15,7 +15,8 @@
 	},
 	"Lua.diagnostics.disable": [
 		"undefined-global",
-		"duplicate-set-field"
+		"duplicate-set-field",
+		"unused-function"
 	],
 	"stylua.targetReleaseVersion": "latest",
 	"Lua.workspace.library": [

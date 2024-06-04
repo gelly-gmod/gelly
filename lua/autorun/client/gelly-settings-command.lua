@@ -6,9 +6,9 @@ local function toggleSettings()
 	end
 end
 
-local function changeMaxParticles(ply, cmd, args)
+local function changeMaxParticles(_, _, args)
 	if #args ~= 1 then
-		print("Usage: gelly_max_particles <number>")
+		print("Usage: gelly_change_max_particles <number>")
 		return
 	end
 

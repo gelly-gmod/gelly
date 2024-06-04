@@ -2,8 +2,6 @@
 local declareElements = include("util/declare-elements.lua")
 local E = declareElements.Elements
 
-include("components/line-switcher.lua")
-
 local PANEL = {}
 PANEL.TopBarColor = Color(100, 100, 100)
 PANEL.TopBarFont = "ChatFont"
@@ -12,7 +10,7 @@ PANEL.ContentFont = "ChatFont"
 PANEL.ButtonOKString = "OK"
 PANEL.ButtonBGColor = Color(100, 100, 100)
 PANEL.Roundness = 4 -- px of roundness
-PANEL.WidthProportion = 0.4 -- % of the screen width
+PANEL.WidthProportion = 0.5 -- % of the screen width
 PANEL.HeightProportion = 0.2 -- % of the screen height
 PANEL.Padding = 10 -- px of padding
 
