@@ -31,6 +31,7 @@
 	catch (const std::exception &e) {   \
 		std::string error = e.what();   \
 		error += "\n";                  \
+		LOG_ERROR(error.c_str());       \
 		LUA->ThrowError(error.c_str()); \
 	}
 
@@ -42,6 +43,7 @@ static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
+constexpr int MAXIMUM_PARTICLES = 1000000;
 
 static PVOID emergencyHandler = nullptr;
 LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
@@ -543,6 +545,38 @@ LUA_FUNCTION(gelly_SetTimeStepMultiplier) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_ChangeMaxParticles) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
+
+	const auto newMax = static_cast<int>(LUA->GetNumber(1));
+	if (newMax > MAXIMUM_PARTICLES) {
+		LUA->ThrowError("Cannot set max particles above 1,000,000!");
+	}
+
+	// we'll have to reset the scene to change the max particles
+	scene.reset();
+	scene = std::make_shared<Scene>(renderer, simContext, sim, newMax);
+
+	LUA->Pop();
+
+	// then restore the map
+	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+	LUA->GetField(-1, "game");
+	LUA->GetField(-1, "GetMap");
+	LUA->Call(0, 1);
+
+	const auto *map = LUA->GetString(-1);
+	const std::string fileName = "maps/" + std::string(map) + ".bsp";
+
+	scene->LoadMap(fileName);
+
+	// then pop off the special table and the game table
+	LUA->Pop(2);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 GMOD_MODULE_OPEN() {
 #ifndef PRODUCTION_BUILD
 	logging::StartDevConsoleLogging();
@@ -641,6 +675,7 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetDiffuseScale);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseMotionBlur);
 	DEFINE_LUA_FUNC(gelly, SetTimeStepMultiplier);
+	DEFINE_LUA_FUNC(gelly, ChangeMaxParticles);
 	LUA->SetField(-2, "gelly");
 	LUA->Pop();
 
