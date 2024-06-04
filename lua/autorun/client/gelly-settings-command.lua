@@ -26,6 +26,5 @@ local function changeMaxParticles(ply, cmd, args)
 end
 
 hook.Add("GellyLoaded", "gelly.add-settings-command", function()
-	concommand.Add("gelly_settings", toggleSettings)
 	concommand.Add("gelly_change_max_particles", changeMaxParticles)
 end)
