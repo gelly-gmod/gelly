@@ -604,9 +604,6 @@ GMOD_MODULE_OPEN() {
 	CViewSetup currentView = {};
 	GetClientViewSetup(currentView);
 
-	// If we didnt get an Ex version, bail--there really isnt a point to running
-	// 16-bit Gelly. Its awful, theres so many limitations, and it just doesnt
-	// work well.
 	if (!GetD3DDevice()) {
 		LUA->ThrowError(
 			"Gelly has detected that the current GMod instance is running in "
