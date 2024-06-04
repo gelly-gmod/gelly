@@ -21,7 +21,7 @@ local function changeMaxParticles(_, _, args)
 	gelly.ChangeMaxParticles(maxParticles)
 	-- then reload the settings
 	gellyx.presets.select(gellyx.presets.getActivePreset().Name)
-
+	hook.Run("GellyRestarted")
 	print("Max particles set to " .. maxParticles .. "!")
 end
 

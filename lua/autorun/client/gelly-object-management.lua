@@ -96,3 +96,15 @@ hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 		end
 	end)
 end)
+
+hook.Add("GellyRestarted", "gelly.object-management-recreate-entities", function()
+	local entities = {}
+	for entity, _ in pairs(objects) do
+		table.insert(entities, entity)
+	end
+
+	objects = {}
+	for _, entity in ipairs(entities) do
+		addObject(entity)
+	end
+end)

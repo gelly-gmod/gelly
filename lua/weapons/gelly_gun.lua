@@ -245,8 +245,8 @@ local function createMenuPanel()
 		self:Center()
 		self:MakePopup()
 		self:SetTitle("Gelly Gun Menu")
-		self:ShowCloseButton(true)
-		self:SetDraggable(true)
+		self:ShowCloseButton(false)
+		self:SetDraggable(false)
 	end
 
 	function PANEL:CalculateFadeIn()
@@ -466,8 +466,8 @@ local function createTimeSliderPanel()
 		self:Center()
 		self:MakePopup()
 		self:SetTitle("Gelly Gun Time Slider")
-		self:ShowCloseButton(true)
-		self:SetDraggable(true)
+		self:ShowCloseButton(false)
+		self:SetDraggable(false)
 	end
 
 	function PANEL:Paint(w, h)
