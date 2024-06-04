@@ -27,11 +27,11 @@ body:
       required: true
   - type: checkboxes
     attributes:
-      label: Is this specific to performance? (e.g. low FPS)
+      label: Is this specific to performance?
       description: Check this box if the issue is related to performance, but NOT if it is distinctly low FPS with no fluid spawned.
       options:
-        - label: Yes
-        - label: No
+        - label: "Yes"
+        - label: "No"
   - type: dropdown
     id: issue-type
     attributes:
