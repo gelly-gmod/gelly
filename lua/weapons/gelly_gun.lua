@@ -116,6 +116,10 @@ function SWEP:IsParticleLimitNear()
 		>= gelly.GetStatus().MaxParticles * PARTICLE_LIMIT_WARNING_PERCENT
 end
 
+function SWEP:IsInputBlocked()
+	return vgui.GetKeyboardFocus() or gui.IsConsoleVisible() or gui.IsGameUIVisible()
+end
+
 function SWEP:ViewModelDrawn(vm)
 	-- draw some 3D status indicators on the viewmodel
 
@@ -161,11 +165,11 @@ function SWEP:ViewModelDrawn(vm)
 		TEXT_ALIGN_CENTER
 	)
 
-	if input.IsKeyDown(KEY_R) then
+	if input.IsKeyDown(KEY_R) and not self:IsInputBlocked() then
 		self:CreateMenu()
 	end
 
-	if input.IsKeyDown(KEY_E) then
+	if input.IsKeyDown(KEY_E) and not self:IsInputBlocked() then
 		self:CreateTimeSlider()
 	end
 
