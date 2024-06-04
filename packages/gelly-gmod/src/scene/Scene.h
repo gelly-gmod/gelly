@@ -16,6 +16,8 @@
 
 class Scene {
 private:
+	constexpr float DEFAULT_TIMESTEP_MULTIPLIER = 10.0f;
+
 	std::shared_ptr<ISimContext> simContext;
 	std::shared_ptr<IFluidSimulation> sim;
 	std::shared_ptr<IFluidRenderer> connectedRenderer;

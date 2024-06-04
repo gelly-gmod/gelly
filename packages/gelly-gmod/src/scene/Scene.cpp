@@ -18,6 +18,8 @@ Scene::Scene(
 	sim->Initialize();
 
 	ents.emplace(sim->GetScene());
+
+	SetTimeStepMultiplier(DEFAULT_TIMESTEP_MULTIPLIER);
 }
 
 void Scene::AddEntity(EntIndex entIndex, std::vector<Vector> vertices) {
