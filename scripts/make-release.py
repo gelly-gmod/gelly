@@ -7,7 +7,8 @@ import time
 
 logger = logging.getLogger("make-release")
 
-GELLY_BINARY_DIRECTORY = "bin/gelly-gmod-relwithdebinfo/packages/gelly-gmod/"
+GELLY_PRESET = "Gelly-GMod-Release"
+GELLY_BINARY_DIRECTORY = "bin/" + GELLY_PRESET.lower() + "/packages/gelly-gmod/"
 GELLY_DLL_NAME = "gmcl_gelly-gmod_win64.dll"
 GELLY_PDB_NAME = "gmcl_gelly-gmod.pdb"
 GELLY_RELEASE_ZIP_NAME = "gelly-production-release"
@@ -55,8 +56,8 @@ def configure_gelly():
 
     try:
         subprocess.run(
-            ['cmake', '-DGELLY_PRODUCTION_BUILD=ON', '--fresh', '--preset gelly-gmod-relwithdebinfo', '-S .',
-             '-B bin/gelly-gmod-relwithdebinfo'],
+            ['cmake', '-DGELLY_PRODUCTION_BUILD=ON', '--fresh', '--preset ' + GELLY_PRESET.lower(), '-S .',
+             '-B bin/' + GELLY_PRESET.lower()],
             check=True,
             stdout=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
@@ -68,7 +69,7 @@ def build_gelly():
 
     try:
         subprocess.run(
-            ['cmake', '--build', '--target gelly-gmod', '--preset Gelly-GMod-RelWithDebInfo', '--clean-first'],
+            ['cmake', '--build', '--target gelly-gmod', '--preset ' + GELLY_PRESET, '--clean-first'],
             check=True,
             stdout=subprocess.DEVNULL
         )
@@ -77,7 +78,7 @@ def build_gelly():
 
 
 def build_dll():
-    logger.info("creating relwithdebinfo binary (gmcl_gmod-gelly_win64.dll)")
+    logger.info("creating " + GELLY_PRESET + " binary (gmcl_gmod-gelly_win64.dll)")
     configure_gelly()
     build_gelly()
 
@@ -85,7 +86,8 @@ def build_dll():
 def move_dll_to_release():
     logger.info("moving dll to release directory")
     os.replace(f"{GELLY_BINARY_DIRECTORY}{GELLY_DLL_NAME}", f"release/garrysmod/lua/bin/{GELLY_DLL_NAME}")
-    os.replace(f"{GELLY_BINARY_DIRECTORY}{GELLY_PDB_NAME}", f"release/garrysmod/lua/bin/{GELLY_PDB_NAME}")
+    if GELLY_PRESET != "Gelly-GMod-Release":
+        os.replace(f"{GELLY_BINARY_DIRECTORY}{GELLY_PDB_NAME}", f"release/garrysmod/lua/bin/{GELLY_PDB_NAME}")
 
 
 def insert_copy_of_gelly_addon():
