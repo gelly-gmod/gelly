@@ -46,6 +46,11 @@ static CShaderAPIDX8 *g_shaderAPIDX9 = nullptr;
 
 static AmbientLightCube g_ambientLightCube;
 
+#define LOG_IF_NULL(variable)               \
+	if (!variable) {                        \
+		LOG_WARNING(#variable " is null!"); \
+	}
+
 // We don't have to worry about half-sized registers, like EDX--as of writing
 // the compiler has fit a reference to the cube into RDX
 void __thiscall SetAmbientLightCubeHook(
@@ -122,6 +127,12 @@ void EnsureAllHandlesInitialized() {
 
 	if (!g_getLocalCubemap || !g_getD3DTexture || !g_getTextureHandle ||
 		!g_getLight || !g_getMaxLights || !g_setAmbientLightCube) {
+		LOG_IF_NULL(g_getLocalCubemap);
+		LOG_IF_NULL(g_getD3DTexture);
+		LOG_IF_NULL(g_getTextureHandle);
+		LOG_IF_NULL(g_getLight);
+		LOG_IF_NULL(g_getMaxLights);
+		LOG_IF_NULL(g_setAmbientLightCube);
 		throw std::runtime_error("Failed to resolve all GetCubemap functions!");
 	}
 
