@@ -5,14 +5,20 @@ option(GELLY_BUILD_TESTBED "Build testbed" ON)
 option(GELLY_BUILD_GMOD "Build GMod binary module" OFF)
 option(GELLY_BUILD_CPUVISUALIZER "Build CPU Visualizer" OFF)
 option(GELLY_PRODUCTION_BUILD "Build in production mode" OFF)
+option(GELLY_USE_DEBUG_LAYER "Build Gelly with D3D11 Debug Layer enabled" OFF)
 
 set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-message(STATUS "Configuring Gelly with CMake version ${CMAKE_VERSION}")
+message(STATUS " Configuring Gelly with CMake version ${CMAKE_VERSION}")
 
 if (GELLY_PRODUCTION_BUILD)
     message(STATUS "Building in production mode")
     add_compile_definitions(PRODUCTION_BUILD)
+endif ()
+
+if (GELLY_USE_DEBUG_LAYER)
+    message(STATUS "Building with D3D11 Debug Layer enabled")
+    add_compile_definitions(GELLY_USE_DEBUG_LAYER)
 endif ()
 
 if (GELLY_BUILD_TESTBED)

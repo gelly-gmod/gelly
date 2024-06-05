@@ -86,6 +86,8 @@ add_library(
         src/logging/global-macros.cpp
         src/logging/helpers/dev-console-logging.cpp
         src/logging/helpers/dev-console-logging.h
+        src/exceptions/generate-stack-trace.cpp
+        src/exceptions/generate-stack-trace.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
@@ -102,6 +104,7 @@ target_link_libraries(gelly-gmod
         GMFS
         BSPParser
         Tracy::TracyClient
+        DbgHelp.lib
 )
 
 target_include_directories(gelly-gmod

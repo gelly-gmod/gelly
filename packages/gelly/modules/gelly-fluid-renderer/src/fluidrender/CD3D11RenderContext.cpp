@@ -51,7 +51,7 @@ CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 void CD3D11RenderContext::CreateDeviceAndContext() {
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 	UINT deviceFlags = 0;
-#ifdef _DEBUG
+#ifdef GELLY_USE_DEBUG_LAYER
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 	DX("Failed to create D3D11.1 device",
@@ -68,7 +68,7 @@ void CD3D11RenderContext::CreateDeviceAndContext() {
 		   &deviceContext
 	   ));
 
-#ifdef _DEBUG
+#ifdef GELLY_USE_DEBUG_LAYER
 	DX("Failed to get D3D11 debug interface",
 	   device->QueryInterface(
 		   __uuidof(ID3D11Debug), reinterpret_cast<void **>(&debug)
@@ -590,7 +590,7 @@ void CD3D11RenderContext::ReleaseDevice() {
 	}
 }
 
-#ifdef _DEBUG
+#ifdef GELLY_USE_DEBUG_LAYER
 void CD3D11RenderContext::PrintDebugInfo() {
 	if (infoQueue == nullptr) {
 		return;

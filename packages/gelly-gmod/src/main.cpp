@@ -8,11 +8,13 @@
 #include "logging/global-macros.h"
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
+#include <DbgHelp.h>
 #include <GMFS.h>
 #include <MinHook.h>
 #include <Windows.h>
 
 #include "composite/GModCompositor.h"
+#include "exceptions/generate-stack-trace.h"
 #include "logging/helpers/dev-console-logging.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/GetCubemap.h"
@@ -44,6 +46,7 @@ static std::shared_ptr<IFluidSimulation> sim = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
 constexpr int MAXIMUM_PARTICLES = 1000000;
+constexpr DWORD LUAJIT_UNHANDLED_PCALL = 0xE24C4A02;
 
 static PVOID emergencyHandler = nullptr;
 LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
@@ -64,6 +67,7 @@ LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
 				"EMERGENCY EXCEPTION HANDLER: Array bounds exceeded detected!"
 			);
 			break;
+		case LUAJIT_UNHANDLED_PCALL:
 		case DBG_CONTROL_C:
 		case EXCEPTION_BREAKPOINT:
 			return EXCEPTION_CONTINUE_EXECUTION;
@@ -166,6 +170,44 @@ LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
 		);
 	}
 
+	if (SymInitialize(GetCurrentProcess(), nullptr, TRUE)) {
+		DWORD symOptions = SymGetOptions();
+		symOptions |= SYMOPT_LOAD_LINES;
+		symOptions |= SYMOPT_UNDNAME;
+		symOptions |= SYMOPT_FAIL_CRITICAL_ERRORS;
+		SymSetOptions(symOptions);
+
+		// we need to add the lua/bin path to the symbol path
+		char workingDir[MAX_PATH];
+		GetCurrentDirectoryA(MAX_PATH, workingDir);
+
+		std::string symbolPath = workingDir;
+		symbolPath += R"(\garrysmod\lua\bin)";
+
+		LOG_INFO(
+			"EMERGENCY EXCEPTION HANDLER: Symbol path: %s", symbolPath.c_str()
+		);
+
+		if (!SymSetSearchPath(GetCurrentProcess(), symbolPath.c_str())) {
+			LOG_ERROR(
+				"EMERGENCY EXCEPTION HANDLER: Failed to set symbol search "
+				"path! "
+				"Stack trace will be incomplete."
+			);
+		} else {
+			const auto stackTrace = logging::exceptions::GetFormattedStackTrace(
+				exceptionInfo->ContextRecord
+			);
+
+			LOG_INFO("Stack trace: \n%s", stackTrace.c_str());
+		}
+	} else {
+		LOG_ERROR(
+			"EMERGENCY EXCEPTION HANDLER: Failed to initialize symbol handler! "
+			"Stack trace will be incomplete."
+		);
+	}
+
 	LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Saving log to file...");
 	LOG_SAVE_TO_FILE();
 	LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Log saved to file!");
@@ -194,6 +236,7 @@ LUA_FUNCTION(gelly_Render) {
 LUA_FUNCTION(gelly_Composite) {
 	START_GELLY_EXCEPTIONS()
 	compositor->Composite();
+	*((int *)(0x0)) = 0;
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }

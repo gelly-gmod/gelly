@@ -3,6 +3,7 @@
 #include <d3d9.h>
 
 #include "../../logging/global-macros.h"
+#include "fluidrender/CD3D11RenderContext.h"
 #include "shaders/out/CompositeFoamPS.h"
 #include "shaders/out/CompositePS.h"
 #include "shaders/out/NDCQuadVS.h"
@@ -274,6 +275,12 @@ void StandardPipeline::RenderGellyFrame() {
 
 	renderer->SetSettings(settings);
 	renderer->Render();
+
+#ifdef GELLY_USE_DEBUG_LAYER
+	auto *d3d11Context =
+		reinterpret_cast<CD3D11RenderContext *>(gellyResources.context.get());
+	d3d11Context->PrintDebugInfo();
+#endif
 }
 
 void StandardPipeline::SetCompositeSamplerState(

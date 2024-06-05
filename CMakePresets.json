@@ -86,12 +86,33 @@
       "description": "Same as the other Gelly GMod config except with RenderDoc enabled",
       "cacheVariables": {
         "GELLY_ENABLE_RENDERDOC_CAPTURES": "ON",
-        "GELLY_PRODUCTION_BUILD": "OFF"
+        "GELLY_PRODUCTION_BUILD": "OFF",
+        "GELLY_USE_DEBUG_LAYER": "ON"
       },
       "binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo-renderdoc",
       "inherits": [
         "gelly-gmod-relwithdebinfo"
       ]
+    },
+    {
+      "name": "gelly-gmod-release",
+      "displayName": "Gelly GMod",
+      "description": "Release Gelly GMod configuration, also should not be used directly",
+      "environment": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "cacheVariables": {
+        "GELLY_BUILD_GMOD": "ON",
+        "GELLY_BUILD_TESTBED": "OFF",
+        "GELLY_PRODUCTION_BUILD": "ON",
+        "GELLY_ENABLE_RENDERDOC_CAPTURES": "OFF",
+        "GELLY_USE_DEBUG_LAYER": "OFF"
+      },
+      "binaryDir": "${sourceDir}/bin/gelly-gmod-release",
+      "inherits": [
+        "base"
+      ],
+      "hidden": false
     },
     {
       "name": "gelly-cpu-ref-debug",
@@ -165,6 +186,14 @@
       "name": "Gelly-GMod-RWDI+RenderDoc",
       "jobs": 8,
       "configurePreset": "gelly-gmod-relwithdebinfo+renderdoc",
+      "targets": [
+        "gelly-gmod"
+      ]
+    },
+    {
+      "name": "Gelly-GMod-Release",
+      "jobs": 8,
+      "configurePreset": "gelly-gmod-release",
       "targets": [
         "gelly-gmod"
       ]

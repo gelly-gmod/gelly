@@ -19,7 +19,7 @@ private:
 	ID3D11DeviceContext *deviceContext;
 	ID3D11DeviceContext4 *deviceContext4;
 
-#ifdef _DEBUG
+#ifdef GELLY_USE_DEBUG_LAYER
 	ID3D11Debug *debug = nullptr;
 	ID3D11InfoQueue *infoQueue = nullptr;
 #endif
@@ -123,8 +123,8 @@ public:
 
 	void SetRasterizerFlags(RasterizerFlags flags) override;
 
-#ifdef _DEBUG
-	void PrintDebugInfo() override;
+#ifdef GELLY_USE_DEBUG_LAYER
+	void PrintDebugInfo();
 #endif
 };
 
