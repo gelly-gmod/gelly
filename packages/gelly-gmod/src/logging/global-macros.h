@@ -15,14 +15,21 @@ void AddLogEntryFromMacro(
 #undef WARNING
 #undef ERROR
 
-#define LOG_INFO(...) \
-	AddLogEntryFromMacro(logging::Severity::INFO, __FUNCTION__, __VA_ARGS__);
+#define LOG_INFO(...)                                                         \
+	AddLogEntryFromMacro(logging::Severity::INFO, __FUNCTION__, __VA_ARGS__); \
+	logging::SaveLogToFile(g_macroLog);
 
-#define LOG_WARNING(...) \
-	AddLogEntryFromMacro(logging::Severity::WARNING, __FUNCTION__, __VA_ARGS__);
+#define LOG_WARNING(...)                                      \
+	AddLogEntryFromMacro(                                     \
+		logging::Severity::WARNING, __FUNCTION__, __VA_ARGS__ \
+	);                                                        \
+	logging::SaveLogToFile(g_macroLog);
 
-#define LOG_ERROR(...) \
-	AddLogEntryFromMacro(logging::Severity::ER##ROR, __FUNCTION__, __VA_ARGS__);
+#define LOG_ERROR(...)                                        \
+	AddLogEntryFromMacro(                                     \
+		logging::Severity::ER##ROR, __FUNCTION__, __VA_ARGS__ \
+	);                                                        \
+	logging::SaveLogToFile(g_macroLog);
 
 #define LOG_DX_CALL(info, call)                       \
 	if (const auto status = call; status != D3D_OK) { \

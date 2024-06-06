@@ -624,6 +624,31 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	return 0;
 }
 
+void DumpLuaStack(const std::string &caption, GarrysMod::Lua::ILuaBase *LUA) {
+	LOG_INFO("Stack dump (%s):", caption.c_str());
+	const auto stackSize = LUA->Top();
+	LOG_INFO("Stack size: %d", stackSize);
+
+	for (int i = 1; i <= stackSize; i++) {
+		std::string value = "<unknown>";
+		if (LUA->GetType(i) == GarrysMod::Lua::Type::Number) {
+			value = std::to_string(LUA->GetNumber(i));
+		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::String) {
+			value = LUA->GetString(i);
+		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::Bool) {
+			value = LUA->GetBool(i) ? "true" : "false";
+		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::Table) {
+			value = "table#" + std::to_string(LUA->ObjLen(i));
+		}
+		LOG_INFO(
+			"Stack[%d]: %s (%s)",
+			i,
+			LUA->GetTypeName(LUA->GetType(i)),
+			value.c_str()
+		);
+	}
+}
+
 GMOD_MODULE_OPEN() {
 #ifndef PRODUCTION_BUILD
 	logging::StartDevConsoleLogging();
@@ -682,11 +707,14 @@ GMOD_MODULE_OPEN() {
 		renderer, simContext, sim, DEFAULT_MAX_PARTICLES
 	);
 
+	DumpLuaStack("Getting global table", LUA);
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 	// lets check sig version and this version first
 	LUA->GetField(-1, "VERSION");
+	DumpLuaStack("Getting version", LUA);
 	int version = static_cast<int>(LUA->GetNumber(-1));
 	LUA->Pop();
+	DumpLuaStack("Popping version", LUA);
 
 	if (version != sigs::VERSION) {
 		LOG_WARNING(
@@ -697,7 +725,9 @@ GMOD_MODULE_OPEN() {
 	LOG_INFO("Disabling the queued material system...");
 	DisableMaterialSystemThreading();
 
+	DumpLuaStack("Preparing gelly table", LUA);
 	LUA->CreateTable();
+	DumpLuaStack("Creating gelly table", LUA);
 	DEFINE_LUA_FUNC(gelly, Render);
 	DEFINE_LUA_FUNC(gelly, Composite);
 	DEFINE_LUA_FUNC(gelly, Simulate);
@@ -720,8 +750,11 @@ GMOD_MODULE_OPEN() {
 	DEFINE_LUA_FUNC(gelly, SetDiffuseMotionBlur);
 	DEFINE_LUA_FUNC(gelly, SetTimeStepMultiplier);
 	DEFINE_LUA_FUNC(gelly, ChangeMaxParticles);
+	DumpLuaStack("After defining functions", LUA);
 	LUA->SetField(-2, "gelly");
+	DumpLuaStack("Setting gelly table", LUA);
 	LUA->Pop();
+	DumpLuaStack("Popping global table", LUA);
 
 	CATCH_GELLY_EXCEPTIONS();
 
