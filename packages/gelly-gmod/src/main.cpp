@@ -29,7 +29,10 @@
 	LUA->PushCFunction(namespace##_##name); \
 	LUA->SetField(-2, #name);
 
-#define START_GELLY_EXCEPTIONS() try {
+#define START_GELLY_EXCEPTIONS()           \
+	LOG_INFO("Starting %s", __FUNCTION__); \
+	DumpLuaStack(__FUNCTION__, LUA);       \
+	try {
 #define CATCH_GELLY_EXCEPTIONS()        \
 	}                                   \
 	catch (const std::exception &e) {   \
@@ -217,16 +220,29 @@ LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 
-void InjectConsoleWindow() {
-	AllocConsole();
-	freopen_s((FILE **)stdout, "CONOUT$", "w", stdout);
-	freopen_s((FILE **)stdin, "CONIN$", "r", stdin);
-}
+void DumpLuaStack(const std::string &caption, GarrysMod::Lua::ILuaBase *LUA) {
+	LOG_INFO("Stack dump (%s):", caption.c_str());
+	const auto stackSize = LUA->Top();
+	LOG_INFO("Stack size: %d", stackSize);
 
-void RemoveConsoleWindow() {
-	fclose((FILE *)stdout);
-	fclose((FILE *)stdin);
-	FreeConsole();
+	for (int i = 1; i <= stackSize; i++) {
+		std::string value = "<unknown>";
+		if (LUA->GetType(i) == GarrysMod::Lua::Type::Number) {
+			value = std::to_string(LUA->GetNumber(i));
+		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::String) {
+			value = LUA->GetString(i);
+		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::Bool) {
+			value = LUA->GetBool(i) ? "true" : "false";
+		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::Table) {
+			value = "table#" + std::to_string(LUA->ObjLen(i));
+		}
+		LOG_INFO(
+			"Stack[%d]: %s (%s)",
+			i,
+			LUA->GetTypeName(LUA->GetType(i)),
+			value.c_str()
+		);
+	}
 }
 
 LUA_FUNCTION(gelly_Render) {
@@ -622,31 +638,6 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	LUA->Pop(2);
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
-}
-
-void DumpLuaStack(const std::string &caption, GarrysMod::Lua::ILuaBase *LUA) {
-	LOG_INFO("Stack dump (%s):", caption.c_str());
-	const auto stackSize = LUA->Top();
-	LOG_INFO("Stack size: %d", stackSize);
-
-	for (int i = 1; i <= stackSize; i++) {
-		std::string value = "<unknown>";
-		if (LUA->GetType(i) == GarrysMod::Lua::Type::Number) {
-			value = std::to_string(LUA->GetNumber(i));
-		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::String) {
-			value = LUA->GetString(i);
-		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::Bool) {
-			value = LUA->GetBool(i) ? "true" : "false";
-		} else if (LUA->GetType(i) == GarrysMod::Lua::Type::Table) {
-			value = "table#" + std::to_string(LUA->ObjLen(i));
-		}
-		LOG_INFO(
-			"Stack[%d]: %s (%s)",
-			i,
-			LUA->GetTypeName(LUA->GetType(i)),
-			value.c_str()
-		);
-	}
 }
 
 GMOD_MODULE_OPEN() {
