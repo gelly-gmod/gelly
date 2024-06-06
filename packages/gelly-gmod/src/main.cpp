@@ -45,7 +45,7 @@ static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
-constexpr int MAXIMUM_PARTICLES = 1000000;
+constexpr int MAXIMUM_PARTICLES = 10000000;
 constexpr DWORD LUAJIT_UNHANDLED_PCALL = 0xE24C4A02;
 
 static PVOID emergencyHandler = nullptr;
