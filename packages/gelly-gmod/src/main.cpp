@@ -653,8 +653,12 @@ GMOD_MODULE_OPEN() {
 #ifndef PRODUCTION_BUILD
 	logging::StartDevConsoleLogging();
 #endif
+	LOG_INFO("Starting!");
+
 	// Set up the emergency exception handler
 	emergencyHandler = AddVectoredExceptionHandler(1, SaveLogInEmergency);
+	LOG_INFO("Added vectored exception handler");
+
 	if (const auto status = FileSystem::LoadFileSystem();
 		status != FILESYSTEM_STATUS::OK) {
 		LOG_ERROR("Failed to load file system: %d", status);
