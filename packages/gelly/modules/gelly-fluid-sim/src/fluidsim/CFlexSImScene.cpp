@@ -126,6 +126,15 @@ void CFlexSimScene::SetObjectPosition(
 	ObjectHandle handle, float x, float y, float z
 ) {
 	auto &object = objects.at(handle);
+	if (object.position[0] == x && object.position[1] == y &&
+		object.position[2] == z) {
+		return;
+	}
+
+	if (isnan(x) || isnan(y) || isnan(z)) {
+		return;
+	}
+
 	object.position[0] = x;
 	object.position[1] = y;
 	object.position[2] = z;
@@ -137,6 +146,15 @@ void CFlexSimScene::SetObjectQuaternion(
 	ObjectHandle handle, float x, float y, float z, float w
 ) {
 	auto &object = objects.at(handle);
+	if (object.rotation[0] == x && object.rotation[1] == y &&
+		object.rotation[2] == z && object.rotation[3] == w) {
+		return;
+	}
+
+	if (isnan(x) || isnan(y) || isnan(z) || isnan(w)) {
+		return;
+	}
+
 	object.rotation[0] = x;
 	object.rotation[1] = y;
 	object.rotation[2] = z;

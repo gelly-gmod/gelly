@@ -598,7 +598,10 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 		LUA->ThrowError("Cannot set max particles above 1,000,000!");
 	}
 
-	// we'll have to reset the scene to change the max particles
+	// For safe measure we'll honestly just need to remove the sim and scene,
+	// although the sim context should be fine
+	sim.reset();
+	sim = MakeFluidSimulation(simContext.get());
 	scene.reset();
 	scene = std::make_shared<Scene>(renderer, simContext, sim, newMax);
 

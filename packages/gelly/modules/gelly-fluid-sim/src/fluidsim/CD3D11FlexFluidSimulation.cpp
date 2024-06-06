@@ -195,6 +195,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		sizeof(FlexFloat4)
 	);
 
+	delete scene;
 	scene = new CFlexSimScene(library, solver);
 }
 
