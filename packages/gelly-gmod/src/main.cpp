@@ -8,6 +8,8 @@
 #include "logging/global-macros.h"
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
+// According to MSDN, this means we're targeting Windows 10 and above
+#define _WIN32_WINNT 0x0A00
 #include <DbgHelp.h>
 #include <GMFS.h>
 #include <MinHook.h>
