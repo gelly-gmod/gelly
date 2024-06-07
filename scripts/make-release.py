@@ -32,7 +32,7 @@ MANUAL INSTALLATION STEPS:
 3. You Are Done! Yay!!!!!
 """
 
-LOADER_LUA_SCRIPT = """if CLIENT then game.MountGMA("data/gelly.gma") end"""
+LOADER_LUA_SCRIPT = """game.MountGMA("data/gelly.gma")"""
 
 logging.basicConfig()
 logging.root.setLevel(logging.NOTSET)
