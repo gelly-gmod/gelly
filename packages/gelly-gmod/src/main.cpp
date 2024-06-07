@@ -651,10 +651,6 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		logging::stack::GetCurrentStackSize()
 	);
 
-	// Set up the emergency exception handler
-	emergencyHandler = AddVectoredExceptionHandler(1, SaveLogInEmergency);
-	LOG_INFO("Added vectored exception handler");
-
 	if (const auto status = FileSystem::LoadFileSystem();
 		status != FILESYSTEM_STATUS::OK) {
 		LOG_ERROR("Failed to load file system: %d", status);
