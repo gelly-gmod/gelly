@@ -1,6 +1,7 @@
 #include "generate-stack-trace.h"
 
 #include <DbgHelp.h>
+#include <psapi.h>
 
 #include <optional>
 #include <ranges>
@@ -43,7 +44,7 @@ auto GetModuleNameFromAddress(DWORD64 address) -> std::string {
 			&module
 		)) {
 		char moduleName[MAX_PATH];
-		GetModuleFileNameA(module, moduleName, MAX_PATH);
+		GetModuleBaseNameA(GetCurrentProcess(), module, moduleName, MAX_PATH);
 		return moduleName;
 	}
 
@@ -107,6 +108,9 @@ auto GetFrameSummary(LPSTACKFRAME64 frame) {
 		line.has_value()) {
 		frameSummary += " at " + line.value();
 	}
+
+	frameSummary += " - " + GetFormattedAddress(frame->AddrPC.Offset) + " in " +
+					GetModuleNameFromAddress(frame->AddrPC.Offset);
 
 	return frameSummary;
 }
