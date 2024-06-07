@@ -7,7 +7,7 @@ import time
 
 logger = logging.getLogger("make-release")
 
-GELLY_PRESET = "Gelly-GMod-Release"
+GELLY_PRESET = "Gelly-GMod-RelWithDebInfo"
 GELLY_BINARY_DIRECTORY = "bin/" + GELLY_PRESET.lower() + "/packages/gelly-gmod/"
 GELLY_DLL_NAME = "gmcl_gelly-gmod_win64.dll"
 GELLY_PDB_NAME = "gmcl_gelly-gmod.pdb"
