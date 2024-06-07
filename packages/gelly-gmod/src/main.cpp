@@ -33,13 +33,15 @@
 	LOG_INFO("Starting %s", __FUNCTION__); \
 	DumpLuaStack(__FUNCTION__, LUA);       \
 	try {
-#define CATCH_GELLY_EXCEPTIONS()        \
-	}                                   \
-	catch (const std::exception &e) {   \
-		std::string error = e.what();   \
-		error += "\n";                  \
-		LOG_ERROR(error.c_str());       \
-		LUA->ThrowError(error.c_str()); \
+#define CATCH_GELLY_EXCEPTIONS()            \
+	LOG_INFO("Ending %s", __FUNCTION__);    \
+	DumpLuaStack(__FUNCTION__ " end", LUA); \
+	}                                       \
+	catch (const std::exception &e) {       \
+		std::string error = e.what();       \
+		error += "\n";                      \
+		LOG_ERROR(error.c_str());           \
+		LUA->ThrowError(error.c_str());     \
 	}
 
 static std::shared_ptr<GModCompositor> compositor = nullptr;
