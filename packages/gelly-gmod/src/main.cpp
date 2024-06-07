@@ -17,7 +17,10 @@
 
 #include "composite/GModCompositor.h"
 #include "exceptions/generate-stack-trace.h"
+#include "exceptions/get-stack-size.h"
 #include "logging/helpers/dev-console-logging.h"
+#include "luajit/raw-lua-access.h"
+#include "luajit/setup-atpanic-handler.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
@@ -43,6 +46,7 @@ static std::shared_ptr<IFluidRenderer> renderer = nullptr;
 static std::shared_ptr<IRenderContext> context = nullptr;
 static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
+static std::shared_ptr<luajit::LuaShared> luaShared = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
 constexpr int MAXIMUM_PARTICLES = 10000000;
@@ -635,11 +639,17 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	return 0;
 }
 
-GMOD_MODULE_OPEN() {
+extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
+	GarrysMod::Lua::ILuaBase *LUA = L->luabase;
 #ifndef PRODUCTION_BUILD
 	logging::StartDevConsoleLogging();
 #endif
 	LOG_INFO("Starting!");
+	// stack size is a uintptr_t, so we can just use %zu
+	LOG_INFO(
+		"Thread stack size: %llu bytes (NT-TIB style)",
+		logging::stack::GetCurrentStackSize()
+	);
 
 	// Set up the emergency exception handler
 	emergencyHandler = AddVectoredExceptionHandler(1, SaveLogInEmergency);
@@ -658,6 +668,12 @@ GMOD_MODULE_OPEN() {
 		return 0;
 	}
 
+	LOG_INFO("Creating LuaShared");
+	luaShared = std::make_shared<luajit::LuaShared>();
+	LOG_INFO("LuaShared created!");
+	LOG_INFO("Setting up atpanic handler...");
+	SetupAtPanicHandler(L, luaShared.get());
+
 	START_GELLY_EXCEPTIONS()
 
 	LOG_INFO("Hello, world!");
@@ -668,9 +684,12 @@ GMOD_MODULE_OPEN() {
 
 	if (!GetD3DDevice()) {
 		LUA->ThrowError(
-			"Gelly has detected that the current GMod instance is running in "
-			"DirectX 9 mode. Gelly requires Direct3D9Ex to function. Check if "
-			"you have any launch options that force DirectX 9 mode--such as "
+			"Gelly has detected that the current GMod instance is running "
+			"in "
+			"DirectX 9 mode. Gelly requires Direct3D9Ex to function. Check "
+			"if "
+			"you have any launch options that force DirectX 9 mode--such "
+			"as "
 			"'-nod3d9ex' "
 			"Certain optimization configs/mods might also force DirectX 9 "
 			"mode. "

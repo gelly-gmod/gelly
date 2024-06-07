@@ -13,6 +13,7 @@
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "ParticleManager.h"
 #include "fluidrender/IFluidRenderer.h"
+#include "logging/global-macros.h"
 
 class Scene {
 	const float DEFAULT_TIMESTEP_MULTIPLIER = 10.0f;
@@ -35,7 +36,7 @@ public:
 		int maxParticles
 	);
 
-	~Scene() = default;
+	~Scene(){LOG_INFO("Scene destructor called")};
 
 	void AddEntity(EntIndex entIndex, std::vector<Vector> vertices);
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);

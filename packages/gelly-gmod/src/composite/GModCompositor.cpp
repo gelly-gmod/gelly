@@ -28,7 +28,7 @@ GModCompositor::GModCompositor(
 #endif
 
 	if (type == PipelineType::STANDARD) {
-		pipeline = new StandardPipeline();
+		pipeline = std::make_unique<StandardPipeline>();
 		pipeline->CreatePipelineLocalResources(
 			gellyResources, Resources::FindGModResources()
 		);

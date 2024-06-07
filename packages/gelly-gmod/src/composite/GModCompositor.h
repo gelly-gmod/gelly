@@ -3,10 +3,11 @@
 #include "Pipeline.h"
 #include "PipelineType.h"
 #include "Resources.h"
+#include "logging/global-macros.h"
 
 class GModCompositor {
 private:
-	Pipeline *pipeline;
+	std::unique_ptr<Pipeline> pipeline;
 	GellyResources gellyResources;
 
 public:
@@ -15,6 +16,11 @@ public:
 		std::shared_ptr<IFluidRenderer> renderer,
 		std::shared_ptr<IRenderContext> context
 	);
+
+	~GModCompositor() {
+		LOG_INFO("GModCompositor destructor called");
+		// we dont need to delete pipeline because it is a unique_ptr
+	}
 
 	void SetConfig(PipelineConfig config);
 	[[nodiscard]] PipelineConfig GetConfig() const;

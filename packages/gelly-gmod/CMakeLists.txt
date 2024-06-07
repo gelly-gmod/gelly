@@ -88,6 +88,12 @@ add_library(
         src/logging/helpers/dev-console-logging.h
         src/exceptions/generate-stack-trace.cpp
         src/exceptions/generate-stack-trace.h
+        src/luajit/raw-lua-access.cpp
+        src/luajit/raw-lua-access.h
+        src/luajit/setup-atpanic-handler.cpp
+        src/luajit/setup-atpanic-handler.h
+        src/exceptions/get-stack-size.cpp
+        src/exceptions/get-stack-size.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
