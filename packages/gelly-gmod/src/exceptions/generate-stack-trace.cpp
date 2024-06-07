@@ -9,14 +9,6 @@
 
 #include "logging/global-macros.h"
 
-auto GetIndentation(int frame) {
-	std::string indentation;
-	for (int i = 0; i < frame; i++) {
-		indentation += "    ";
-	}
-	return indentation;
-}
-
 auto StackWalk64GMod(PCONTEXT context, LPSTACKFRAME64 frame) {
 	const auto process = GetCurrentProcess();
 	const auto thread = GetCurrentThread();
@@ -34,7 +26,7 @@ auto StackWalk64GMod(PCONTEXT context, LPSTACKFRAME64 frame) {
 	);
 }
 
-constexpr const char *DEFAULT_MODULE_NAME = "Unknown Module";
+constexpr const char *DEFAULT_MODULE_NAME = "<no module found>";
 
 auto GetModuleNameFromAddress(DWORD64 address) -> std::string {
 	HMODULE module;
@@ -76,7 +68,7 @@ auto GetSymbolName(DWORD64 address) -> std::string {
 	if (!SymGetSymFromAddr64(
 			GetCurrentProcess(), address, &displacement, symbol
 		)) {
-		return "Unknown Symbol";
+		return "<no symbol found>";
 	}
 
 	return symbol->Name;
