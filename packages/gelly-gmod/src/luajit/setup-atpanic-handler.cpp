@@ -33,10 +33,8 @@ int atpanic_handler(lua_State *L) {
 
 	// Apparently we get 1 error message on the top of the stack, so we'll fetch
 	// that and let it terminate the program
-	const char *error =
-		luaShared->CallRawFunction<const char *, lua_State *, int>(
-			"lua_tostring", L, -1
-		);
+	const auto *error =
+		luaShared->CallRawFunction<const char *>("lua_tostring", L, -1);
 
 	MessageBoxA(
 		nullptr, error, "Gelly caught a LuaJIT panic", MB_OK | MB_ICONERROR
@@ -79,13 +77,16 @@ void debug_hook(lua_State *L, lua_Debug *debug) {
 namespace luajit {
 void SetupAtPanicHandler(lua_State *L, LuaShared *luaSharedPtr) {
 	luaShared = luaSharedPtr;
+	LOG_INFO("Setting up atpanic handler");
 	luaShared->CallRawFunction<lua_CFunction>(
-		"lua_atpanic", L, atpanic_handler
+		"lua_atpanic", L, &atpanic_handler
 	);
+	LOG_INFO("Set atpanic handler: %p", &atpanic_handler);
 
 	// turn off jit
 	// idx 0 = entire state
 	luaShared->CallRawFunction<void>("luaJIT_setmode", L, 0, 0x000);
+	LOG_INFO("Turned off JIT compilation");
 }
 
 }  // namespace luajit

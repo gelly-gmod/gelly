@@ -15,13 +15,13 @@ public:
 	~LuaShared() = default;
 
 	template <typename ReturnType, typename... Args>
-	ReturnType CallRawFunction(const char *function, Args... args) {
+	ReturnType CallRawFunction(const char *function, Args &&...args) {
 		using LuaFunctionType = ReturnType (*)(Args...);
 		const auto functionPointer = reinterpret_cast<LuaFunctionType>(
 			GetProcAddress(luaSharedHandle, function)
 		);
 
-		return functionPointer(args...);
+		return functionPointer(std::forward<Args>(args)...);
 	}
 
 private:
