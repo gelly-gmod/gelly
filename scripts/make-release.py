@@ -32,7 +32,7 @@ MANUAL INSTALLATION STEPS:
 3. You Are Done! Yay!!!!!
 """
 
-LOADER_LUA_SCRIPT = """if CLIENT then hook.Add("PostRender", "gelly.dummy-load", function() require("gelly-gmod") hook.Remove("PostRender", "gelly.dummy-load") end) end"""
+LOADER_LUA_SCRIPT = """if CLIENT then game.MountGMA("data/gelly.gma") end"""
 
 logging.basicConfig()
 logging.root.setLevel(logging.NOTSET)
@@ -172,10 +172,10 @@ def make_release():
     make_release_dir()
     build_dll()
     move_dll_to_release()
-    # insert_copy_of_gelly_addon()
-    # strip_git_dir_from_addon()
-    # bundle_addon_to_gma()
-    # destroy_addon_directory()
+    insert_copy_of_gelly_addon()
+    strip_git_dir_from_addon()
+    bundle_addon_to_gma()
+    destroy_addon_directory()
     create_loader_addon()
     copy_flex_dependencies()
     make_readme_file()
