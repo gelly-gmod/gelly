@@ -20,6 +20,13 @@ public:
 	using ContactPlaneVisitor = std::function<
 		bool(const XMFLOAT3 &velocity, const uint32_t &shapeIndex)>;
 
+	IFluidSimulation() = default;
+
+	IFluidSimulation(const IFluidSimulation &) = delete;
+	IFluidSimulation &operator=(const IFluidSimulation &) = delete;
+	IFluidSimulation(IFluidSimulation &&) = delete;
+	IFluidSimulation &operator=(IFluidSimulation &&) = delete;
+
 	virtual ~IFluidSimulation() = default;
 
 	virtual void SetMaxParticles(int maxParticles) = 0;

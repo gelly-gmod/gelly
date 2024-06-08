@@ -490,6 +490,7 @@ LUA_FUNCTION(gelly_SetFluidMaterial) {
 	GET_LUA_TABLE_MEMBER(float, Roughness);
 	GET_LUA_TABLE_MEMBER(bool, IsSpecularTransmission);
 	GET_LUA_TABLE_MEMBER(float, RefractiveIndex);
+	GET_LUA_TABLE_MEMBER(Vector, DiffuseColor);
 
 	PipelineFluidMaterial material = {};
 	material.roughness = Roughness;
@@ -499,6 +500,10 @@ LUA_FUNCTION(gelly_SetFluidMaterial) {
 			: 0.f;	// generally easier on the GPU-side
 					// to use a float as a boolean (bool registers have issues)
 	material.refractiveIndex = RefractiveIndex;
+
+	material.diffuseColor[0] = DiffuseColor_v.x;
+	material.diffuseColor[1] = DiffuseColor_v.y;
+	material.diffuseColor[2] = DiffuseColor_v.z;
 
 	compositor->SetFluidMaterial(material);
 	CATCH_GELLY_EXCEPTIONS();

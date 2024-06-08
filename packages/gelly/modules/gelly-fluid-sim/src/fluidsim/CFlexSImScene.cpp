@@ -4,6 +4,10 @@
 
 #include <stdexcept>
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#undef min
+#undef max
 // Would use XMVECTOR but we need to be able to pass this to NvFlex without
 // having alignment issues
 struct FlexFloat3 {
@@ -165,6 +169,7 @@ void CFlexSimScene::SetObjectQuaternion(
 
 void CFlexSimScene::Update() {
 	if (dirty) {
+		OutputDebugStringA("CFlexSimScene::Update: Dirty\n");
 		auto *info = static_cast<NvFlexCollisionGeometry *>(
 			NvFlexMap(geometry.info, eNvFlexMapWait)
 		);

@@ -231,6 +231,10 @@ void CD3D11SplattingFluidRenderer::CreateBuffers() {
 
 	buffers.depthBuffer = context->CreateDepthBuffer(depthBufferDesc);
 
+	DepthBufferDesc foamDepthBufferDesc = depthBufferDesc;
+
+	buffers.foamDepthBuffer = context->CreateDepthBuffer(foamDepthBufferDesc);
+
 	std::tie(buffers.screenQuad, buffers.screenQuadLayout) =
 		util::GenerateScreenQuad(context, shaders.screenQuadVS);
 }
@@ -568,10 +572,14 @@ void CD3D11SplattingFluidRenderer::RenderFoam(bool depthOnly) {
 	// split it into 2 passes.
 	if (!depthOnly) {
 		foamTexture->Clear(depthClearColor);
+	} else {
+		buffers.foamDepthBuffer->Clear(1.0f);
 	}
 
 	foamTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, std::nullopt
+		TextureBindStage::RENDER_TARGET_OUTPUT,
+		0,
+		depthOnly ? std::optional(buffers.foamDepthBuffer) : std::nullopt
 	);
 
 	buffers.foamLayout->BindAsVertexBuffer();

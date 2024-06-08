@@ -17,6 +17,11 @@ public:
 		std::shared_ptr<IRenderContext> context
 	);
 
+	GModCompositor(const GModCompositor &) = delete;
+	GModCompositor &operator=(const GModCompositor &) = delete;
+	GModCompositor(GModCompositor &&) = delete;
+	GModCompositor &operator=(GModCompositor &&) = delete;
+
 	~GModCompositor() {
 		LOG_INFO("GModCompositor destructor called");
 		// we dont need to delete pipeline because it is a unique_ptr

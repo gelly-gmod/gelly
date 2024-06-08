@@ -284,7 +284,7 @@ void StandardPipeline::RenderGellyFrame() {
 }
 
 void StandardPipeline::SetCompositeSamplerState(
-	int index, D3DTEXTUREFILTERTYPE filter
+	int index, D3DTEXTUREFILTERTYPE filter, bool srgb = false
 ) const {
 	auto &device = gmodResources.device;
 	device->SetSamplerState(index, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
@@ -293,6 +293,9 @@ void StandardPipeline::SetCompositeSamplerState(
 	device->SetSamplerState(index, D3DSAMP_MINFILTER, filter);
 	device->SetSamplerState(index, D3DSAMP_MAGFILTER, filter);
 	device->SetSamplerState(index, D3DSAMP_MIPFILTER, filter);
+
+	// we also need to make sure to convert sRGB to linear
+	device->SetSamplerState(index, D3DSAMP_SRGBTEXTURE, srgb);
 }
 
 StandardPipeline::StandardPipeline()
@@ -377,7 +380,7 @@ void StandardPipeline::Composite() {
 	SetCompositeSamplerState(0, D3DTEXF_POINT);
 	SetCompositeSamplerState(1, D3DTEXF_POINT);
 	SetCompositeSamplerState(2, D3DTEXF_POINT);
-	SetCompositeSamplerState(3, D3DTEXF_POINT);
+	SetCompositeSamplerState(3, D3DTEXF_POINT, true);
 	SetCompositeSamplerState(4, D3DTEXF_LINEAR);
 	SetCompositeSamplerState(5, D3DTEXF_LINEAR);
 	SetCompositeSamplerState(6, D3DTEXF_LINEAR);

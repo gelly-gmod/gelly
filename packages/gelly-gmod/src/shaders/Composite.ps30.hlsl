@@ -4,6 +4,7 @@
 #include "material/Absorption.hlsli"
 #include "material/Schlicks.hlsli"
 #include "source-engine/AmbientCube.hlsli"
+#include "material/Diffuse.hlsli"
 
 sampler2D depthTex : register(s0);
 sampler2D normalTex : register(s1);
@@ -16,7 +17,6 @@ sampler2D absorptionTex : register(s6);
 float4 eyePos : register(c0);
 float4 refractAndCubemapStrength : register(c1);
 
-// each takes up 3 registers
 struct CompositeLight {
     float4 LightInfo;
     float4 Position;
@@ -62,8 +62,6 @@ float3 SampleTransmission(in float2 tex, in float3 pos, in float3 eyeDir, in flo
 
     float2 uv = ApplyRefractionToUV(tex, refractedDir);
     float3 transmission = tex2D(backbufferTex, uv).xyz;
-    // apply inverse gamma correction
-    transmission = pow(transmission, 2.2);
     transmission *= absorption;
     return transmission;
 }
@@ -81,10 +79,17 @@ float4 Shade(VS_INPUT input) {
 
     float3 specular = texCUBE(cubemapTex, reflectionDir).xyz * refractAndCubemapStrength.y + ComputeSpecularRadianceFromLights(position, normal, eyePos.xyz);
     float3 diffuseIrradiance = SampleAmbientCube(ambientCube, normal);
+    float3 diffuse = Fr_DisneyDiffuse(
+        GetNdotV(normal, eyeDir),
+        GetNdotL(normal, normal), // ambient light is coming from everywhere
+        GetLdotH(normal, GetHalfwayDir(eyeDir, normal)),
+        material.r_st_ior.x * material.r_st_ior.x
+    ) * diffuseIrradiance * material.diffuseAlbedo;
 
     float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, position, eyeDir, normal, absorption) + fresnel * specular;
-    float3 diffuseSpecularLobe = (1.f - fresnel) * diffuseIrradiance + fresnel * specular;
-    float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuseIrradiance;
+    // inverse fresnel is already applied to the diffuse lobe
+    float3 diffuseSpecularLobe = diffuse + fresnel * specular;
+    float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
 
     specularTransmissionLobe *= material.r_st_ior.y;
     roughLobe *= (1.f - material.r_st_ior.y);

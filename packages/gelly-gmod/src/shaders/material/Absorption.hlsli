@@ -1,5 +1,6 @@
 float3 ComputeAbsorption(float3 absorptionCoefficients, float distance) {
-    return exp(-absorptionCoefficients * distance);
+    // We don't exactly want light to be created so we saturate the result
+    return saturate(exp(-absorptionCoefficients * distance));
 }
 
 float3 NormalizeAbsorption(float3 absorption, float thickness) {

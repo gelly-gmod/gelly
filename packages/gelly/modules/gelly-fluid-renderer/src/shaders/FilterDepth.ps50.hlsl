@@ -68,8 +68,8 @@ float CreateIsosurfaceDepth(float2 tex
             // 'g' is a Gaussian, but it can have some artifacts.
             // To remedy it, we use a wider Gaussian, which is
             // derived from the parametric Gaussian, then
-            // simplified to exp(-(r^2/2))
-            float g = exp(-(r2 * r2) / 4);
+            // simplified to exp(-(r^2/4))
+            float g = exp(-(r2 * r2) / 8);
             float wBoundary = step(radius, max(abs(x), abs(y)));
             float wFrac = 1.0 - wBoundary * frac;
 

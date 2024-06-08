@@ -30,8 +30,9 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float lifeTimeFade = min(1.f, lifetime * 0.125f);
     float velocityFade = input.ViewVelocity.w;
 
-    float foamThickness = lifeTimeFade * velocityFade * sqr(normal.z);
+    float foamThickness = lifeTimeFade * velocityFade * sqr(normal.z) * 0.01f;
 
     output.FoamEncoding = float4(0.f, input.Pos.z, 0.0, foamThickness);
+    output.Depth = input.Pos.z;
     return output;
 }

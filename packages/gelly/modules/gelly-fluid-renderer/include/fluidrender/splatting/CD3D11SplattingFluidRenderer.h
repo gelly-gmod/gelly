@@ -43,6 +43,7 @@ private:
 
 		GellyInterfaceVal<IManagedBuffer> fluidRenderCBuffer;
 		GellyInterfaceVal<IManagedDepthBuffer> depthBuffer;
+		GellyInterfaceVal<IManagedDepthBuffer> foamDepthBuffer;
 
 		GellyInterfaceVal<IManagedBuffer> screenQuad;
 		GellyInterfaceVal<IManagedBufferLayout> screenQuadLayout;

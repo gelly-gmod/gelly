@@ -6,6 +6,8 @@ struct FluidMaterial {
     // specularTransmission - y
     // refractiveIndex - z
     float4 r_st_ior;
+    float3 diffuseAlbedo;
+    float padding;
 };
 
 float TexRefractFromMaterial(in FluidMaterial material) {

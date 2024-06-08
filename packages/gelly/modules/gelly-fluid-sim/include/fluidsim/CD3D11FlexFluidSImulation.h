@@ -63,6 +63,12 @@ private:
 
 public:
 	CD3D11FlexFluidSimulation();
+	CD3D11FlexFluidSimulation(const CD3D11FlexFluidSimulation &) = delete;
+	CD3D11FlexFluidSimulation &operator=(const CD3D11FlexFluidSimulation &) =
+		delete;
+	CD3D11FlexFluidSimulation(CD3D11FlexFluidSimulation &&) = delete;
+	CD3D11FlexFluidSimulation &operator=(CD3D11FlexFluidSimulation &&) = delete;
+
 	~CD3D11FlexFluidSimulation() override;
 
 	void SetMaxParticles(int maxParticles) override;

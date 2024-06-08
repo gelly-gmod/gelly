@@ -36,6 +36,11 @@ public:
 		int maxParticles
 	);
 
+	Scene(const Scene &) = delete;
+	Scene &operator=(const Scene &) = delete;
+	Scene(Scene &&) = delete;
+	Scene &operator=(Scene &&) = delete;
+
 	~Scene(){LOG_INFO("Scene destructor called")};
 
 	void AddEntity(EntIndex entIndex, std::vector<Vector> vertices);

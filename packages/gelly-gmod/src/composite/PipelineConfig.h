@@ -16,6 +16,8 @@ struct PipelineConfig {
 
 	float cubemapStrength = 1.f;
 	float refractionStrength = 0.03f;
+
+	float diffuseColor[3] = {0.8f, 0.8f, 0.8f};
 };
 
 #endif	// PIPELINECONFIG_H

@@ -17,6 +17,9 @@ struct PipelineFluidMaterial {
 	float specularTransmission = 0.f;
 	float refractiveIndex = 1.5f;
 	float padding = 0.f;
+
+	float diffuseColor[3] = {0.8f, 0.8f, 0.8f};
+	float padding1 = 0.f;
 };
 
 static_assert(

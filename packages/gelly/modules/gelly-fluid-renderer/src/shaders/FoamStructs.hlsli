@@ -16,4 +16,5 @@ struct GS_OUTPUT {
 
 struct PS_OUTPUT {
     float4 FoamEncoding : SV_TARGET0;
+    float Depth : SV_DEPTH;
 };

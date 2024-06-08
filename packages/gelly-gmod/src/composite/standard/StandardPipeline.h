@@ -78,7 +78,9 @@ private:
 	void UpdateGellyRenderParams();
 	void RenderGellyFrame();
 
-	void SetCompositeSamplerState(int index, D3DTEXTUREFILTERTYPE filter) const;
+	void SetCompositeSamplerState(
+		int index, D3DTEXTUREFILTERTYPE filter, bool srgb
+	) const;
 	void CompositeFoam(bool withGellyRendered) const;
 
 public:
