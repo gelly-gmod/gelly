@@ -15,5 +15,6 @@ return {
 		IsSpecularTransmission = false,
 		RefractiveIndex = 1.333, -- Goop has a refractive index similar to water
 		Absorption = Vector(0, 0.005, 0),
+		DiffuseColor = Vector(1, 1, 1),
 	},
 }

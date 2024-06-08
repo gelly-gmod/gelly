@@ -4,6 +4,7 @@ local logging = include("gelly/logging.lua")
 gellyx = gellyx or {}
 gellyx.presets = gellyx.presets or {}
 GELLY_PRESETS = GELLY_PRESETS or {}
+GELLY_CUSTOM_PRESETS = GELLY_CUSTOM_PRESETS or {}
 GELLY_ACTIVE_PRESET = GELLY_ACTIVE_PRESET or nil
 
 local function loadPreset(path)
@@ -31,6 +32,15 @@ function gellyx.presets.loadPresetFiles()
 	end
 end
 
+local function selectPreset(preset)
+	gelly.ChangeParticleRadius(preset.Radius)
+	gelly.SetFluidProperties(preset.SolverParams)
+	gelly.SetFluidMaterial(preset.Material)
+	gelly.SetDiffuseScale(preset.DiffuseScale)
+	GELLY_ACTIVE_PRESET = preset
+	logging.info("Selected preset %s", preset.Name)
+end
+
 --- Selects a loaded preset to be used for all future particles.
 --- # Warning
 --- This function will affect all the current particles beha
@@ -41,12 +51,15 @@ function gellyx.presets.select(name)
 		logging.error("Preset %s does not exist", name)
 	end
 
-	gelly.ChangeParticleRadius(preset.Radius)
-	gelly.SetFluidProperties(preset.SolverParams)
-	gelly.SetFluidMaterial(preset.Material)
-	gelly.SetDiffuseScale(preset.DiffuseScale)
-	GELLY_ACTIVE_PRESET = preset
-	logging.info("Selected preset %s", name)
+	selectPreset(preset)
+end
+
+function gellyx.presets.selectEphemeralPreset(preset)
+	if type(preset) ~= "table" then
+		logging.error("Ephemeral preset must be a table")
+	end
+
+	selectPreset(preset)
 end
 
 function gellyx.presets.getActivePreset()
@@ -55,4 +68,8 @@ end
 
 function gellyx.presets.getAllPresets()
 	return GELLY_PRESETS
+end
+
+function gellyx.presets.getCustomPresets()
+	return GELLY_CUSTOM_PRESETS
 end
