@@ -27,6 +27,7 @@
 #include "source/IVRenderView.h"
 #include "tracy/Tracy.hpp"
 #include "util/GellySharedPtrs.h"
+#include "version.h"
 
 #define DEFINE_LUA_FUNC(namespace, name)    \
 	LUA->PushCFunction(namespace##_##name); \
@@ -648,6 +649,13 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_GetVersion) {
+	START_GELLY_EXCEPTIONS();
+	LUA->PushString(GELLY_VERSION);
+	CATCH_GELLY_EXCEPTIONS();
+	return 1;
+}
+
 extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	GarrysMod::Lua::ILuaBase *LUA = L->luabase;
 #ifndef PRODUCTION_BUILD
@@ -752,6 +760,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetDiffuseMotionBlur);
 	DEFINE_LUA_FUNC(gelly, SetTimeStepMultiplier);
 	DEFINE_LUA_FUNC(gelly, ChangeMaxParticles);
+	DEFINE_LUA_FUNC(gelly, GetVersion);
 	DumpLuaStack("After defining functions", LUA);
 	LUA->SetField(-2, "gelly");
 	DumpLuaStack("Setting gelly table", LUA);

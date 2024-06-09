@@ -94,6 +94,7 @@ add_library(
         src/luajit/setup-atpanic-handler.h
         src/exceptions/get-stack-size.cpp
         src/exceptions/get-stack-size.h
+        src/version.h.in
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
@@ -132,5 +133,10 @@ else ()
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll ")
 endif ()
+
+# add our version header
+message(STATUS "Configuring gelly-gmod's version as ${GELLY_VERSION}")
+configure_file(src/version.h.in src/version.h @ONLY)
+target_include_directories(gelly-gmod PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src)
 
 add_dependencies(gelly-gmod gsc GellyGModShaderCompile)
