@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Bug Report
+    url: https://discord.gg/vmBvxvawYS
+    about: Please report bugs in the Discord, the GitHub is for engineering tickets and other contributor-only issues.
+  - name: Feature Request
+    url: https://discord.gg/vmBvxvawYS
+    about: Please request features in the Discord.
