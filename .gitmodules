@@ -72,9 +72,6 @@
 [submodule "packages/gelly-gmod/vendor/minhook"]
 	path = packages/gelly-gmod/vendor/minhook
 	url = https://github.com/TsudaKageyu/minhook.git
-[submodule "packages/gelly-gmod/vendor/BSPParser"]
-	path = packages/gelly-gmod/vendor/BSPParser
-	url = https://github.com/yogwoggf/BSPParser
 [submodule "packages/gelly-gmod/vendor/GMFS"]
 	path = packages/gelly-gmod/vendor/GMFS
 	url = https://github.com/Derpius/GMFS.git
