@@ -316,7 +316,7 @@ void StandardPipeline::CreatePipelineLocalResources(
 	gellyResources = gelly;
 	gmodResources = gmod;
 
-	textures = StandardTextures(gellyResources, gmodResources);
+	textures.emplace(gellyResources, gmodResources);
 	CreateCompositeShader();
 	CreateQuadVertexShader();
 	CreateNDCQuad();
