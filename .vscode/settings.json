@@ -1,0 +1,30 @@
+{
+	"[lua]": {
+		"editor.quickSuggestions": {
+			"comments": "inline",
+			"other": "on",
+			"strings": "on"
+		},
+		"editor.semanticHighlighting.enabled": true,
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "JohnnyMorganz.stylua"
+	},
+	"Lua.runtime.special": {
+		"include": "require",
+		"IncludeCS": "require"
+	},
+	"Lua.diagnostics.disable": [
+		"undefined-global",
+		"duplicate-set-field",
+		"unused-function"
+	],
+	"stylua.targetReleaseVersion": "latest",
+	"Lua.workspace.library": [
+		"lib",
+	],
+	"Lua.runtime.version": "Lua 5.1",
+	"Lua.runtime.nonstandardSymbol": [
+		"continue"
+	],
+	"Lua.workspace.checkThirdParty": false
+}
