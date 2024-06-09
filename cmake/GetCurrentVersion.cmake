@@ -1,0 +1,5 @@
+function(get_current_version_from_changelog changelog_file)
+    file(READ ${changelog_file} CHANGELOG)
+    string(REGEX MATCH "## ([0-9]+\.[0-9]+\.[0-9]+)" _ ${CHANGELOG})
+    set(GELLY_VERSION ${CMAKE_MATCH_1} PARENT_SCOPE)
+endfunction()

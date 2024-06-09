@@ -8,8 +8,12 @@ option(GELLY_PRODUCTION_BUILD "Build in production mode" OFF)
 option(GELLY_USE_DEBUG_LAYER "Build Gelly with D3D11 Debug Layer enabled" OFF)
 
 set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${GELLY_ROOT_DIR}/cmake")
 
-message(STATUS " Configuring Gelly with CMake version ${CMAKE_VERSION}")
+include(GetCurrentVersion)
+get_current_version_from_changelog(${GELLY_ROOT_DIR}/CHANGELOG.md)
+
+message(STATUS " Configuring Gelly with CMake version ${CMAKE_VERSION} and Gelly version ${GELLY_VERSION}")
 
 if (GELLY_PRODUCTION_BUILD)
     message(STATUS "Building in production mode")
