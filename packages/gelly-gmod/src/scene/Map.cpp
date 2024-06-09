@@ -36,7 +36,7 @@ ObjectCreationParams Map::CreateMapParams(const BSPMap &map) {
 	ObjectCreationParams params = {};
 	params.shape = ObjectShape::TRIANGLE_MESH;
 	ObjectCreationParams::TriangleMesh mesh = {};
-	mesh.vertices = map.GetVertices<const float>().data();
+	mesh.vertices = reinterpret_cast<const float *>(map.GetVertices());
 	mesh.vertexCount = map.GetNumVertices();
 
 	auto *indices = new uint32_t[mesh.vertexCount];
