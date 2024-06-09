@@ -1,0 +1,39 @@
+name: Engineering Ticket
+description: File an engineering ticket.
+title: "[TICKET]: "
+labels: [ "ticket" ]
+assignees:
+  - yogwoggf
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill out all the fields below to the best of your ability.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide any context that you think is relevant to the ticket.
+      placeholder: Write your context here.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is the scope of the ticket? Usually, you'll outline the rough steps you think need to be taken to resolve the issue.
+      placeholder: Write your scope here.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What are the criteria that need to be met for this ticket to be considered resolved?
+      placeholder: Write your acceptance criteria here.
+  - type: textarea
+    id: other
+    attributes:
+      label: Other
+      description: If there's anything else you need to add, put it here.
+      placeholder: Write your other notes here.
