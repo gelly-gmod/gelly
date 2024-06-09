@@ -105,11 +105,6 @@ def bundle_addon_to_gma():
 		logger.error(f"failed to bundle gelly (error code: {e.returncode})")
 
 
-def destroy_addon_directory():
-	logger.info("destroying addon tree")
-	shutil.rmtree("release/garrysmod/addons/gelly")
-
-
 def create_loader_addon():
 	logger.info("adding bootstrap addon")
 	os.makedirs("release/garrysmod/addons/gelly_bootstrap/lua/autorun")
@@ -149,7 +144,6 @@ def make_release():
 	build_dll()
 	move_dll_to_release()
 	bundle_addon_to_gma()
-	destroy_addon_directory()
 	create_loader_addon()
 	copy_flex_dependencies()
 	make_readme_file()
