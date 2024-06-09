@@ -358,6 +358,7 @@ void StandardPipeline::CompositeFoam(bool withGellyRendered) const {
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
@@ -405,6 +406,8 @@ void StandardPipeline::Composite() {
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
 	// and multisanple antialiasing
 	device->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	stateBlock->Apply();
