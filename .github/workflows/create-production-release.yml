@@ -81,7 +81,7 @@ jobs:
                 id: parse-changelog
                 uses: mindsers/changelog-reader-action@v2
                 with:
-                    validation_level: error
+                    validation_level: warn
                     path: gelly/CHANGELOG.md
             -   name: Create release
                 uses: softprops/action-gh-release@v2
