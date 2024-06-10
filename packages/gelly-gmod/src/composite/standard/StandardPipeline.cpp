@@ -2,6 +2,8 @@
 
 #include <d3d9.h>
 
+#include <cstring>
+
 #include "../../logging/global-macros.h"
 #include "fluidrender/CD3D11RenderContext.h"
 #include "shaders/out/CompositeFoamPS.h"

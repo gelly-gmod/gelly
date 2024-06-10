@@ -80,19 +80,19 @@ void SetupAmbientLightCubeHook() {
 	}
 
 	if (MH_CreateHook(
-			g_setAmbientLightCube,
-			SetAmbientLightCubeHook,
+			reinterpret_cast<LPVOID>(g_setAmbientLightCube),
+			reinterpret_cast<LPVOID>(&SetAmbientLightCubeHook),
 			reinterpret_cast<LPVOID *>(&g_setAmbientLightCubeHk)
 		) != MH_OK) {
 		throw std::runtime_error("Failed to hook SetAmbientLightCube!");
 	}
 
-	MH_EnableHook(g_setAmbientLightCube);
+	MH_EnableHook(reinterpret_cast<LPVOID>(g_setAmbientLightCube));
 }
 
 void RemoveAmbientLightCubeHooks() {
 	if (g_setAmbientLightCubeHk) {
-		MH_RemoveHook(g_setAmbientLightCube);
+		MH_RemoveHook(reinterpret_cast<LPVOID>(g_setAmbientLightCube));
 		g_setAmbientLightCubeHk = nullptr;
 	}
 }
