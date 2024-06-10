@@ -15,6 +15,21 @@ get_current_version_from_changelog(${GELLY_ROOT_DIR}/CHANGELOG.md)
 
 message(STATUS " Configuring Gelly with CMake version ${CMAKE_VERSION} and Gelly version ${GELLY_VERSION}")
 
+find_program(SCCACHE sccache)
+if (SCCACHE)
+    message(STATUS "Using sccache for compilation")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${SCCACHE}")
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded)
+    cmake_policy(SET CMP0141 NEW)
+endif ()
+
+# if we use clang we gotta turn off -Wattributes, it can cause an absolutely absurd amount of warnings (200+)
+message(STATUS "CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
+if (CMAKE_CXX_COMPILER MATCHES ".*clang.*")
+    add_compile_options(-Wno-attributes)
+endif ()
+
 if (GELLY_PRODUCTION_BUILD)
     message(STATUS "Building in production mode")
     add_compile_definitions(PRODUCTION_BUILD)
