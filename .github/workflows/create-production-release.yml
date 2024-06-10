@@ -35,9 +35,7 @@ jobs:
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }} --clean-first
             -   name: Zip release
                 run: |
-                    dir
                     cd gelly
-                    dir
                     Compress-Archive -Path release/* -Destination ${{ matrix.presets.configure }}-x64.zip
             -   name: Upload release
                 uses: actions/upload-artifact@v2
@@ -64,7 +62,7 @@ jobs:
                 id: parse-changelog
                 uses: ocavue/changelog-parser-action@v1
                 with:
-                    changelog_path: gelly/CHANGELOG.md
+                    filePath: gelly/CHANGELOG.md
             -   name: Create release
                 uses: softprops/action-gh-release@v2
                 with:
