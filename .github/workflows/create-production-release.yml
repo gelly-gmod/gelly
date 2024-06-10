@@ -70,6 +70,7 @@ jobs:
                 with:
                     path: gelly
                     sparse-checkout: 'CHANGELOG.md'
+                    sparse-checkout-cone-mode: false
                     ref: 63-ci-cd
             -   name: Parse changelog
                 id: parse-changelog
