@@ -25,8 +25,8 @@ if (SCCACHE)
 endif ()
 
 # if we use clang we gotta turn off -Wattributes, it can cause an absolutely absurd amount of warnings (200+)
-message(STATUS "CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
-if (CMAKE_CXX_COMPILER MATCHES ".*clang.*")
+message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-Wno-attributes)
 endif ()
 
