@@ -9,7 +9,7 @@ jobs:
     make-gelly-artifacts:
         runs-on: windows-latest
         env:
-            SCCACHE_GHA_ENABLED: "true"
+            SCCACHE_GHA_ENABLED: "on"
         strategy:
             matrix:
                 presets: [
