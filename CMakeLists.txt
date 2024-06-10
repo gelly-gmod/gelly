@@ -18,6 +18,21 @@ message(STATUS "Configuring Gelly with CMake version ${CMAKE_VERSION} and Gelly 
 
 get_flex_dependencies(${GELLY_ROOT_DIR}/packages/gelly/modules/gelly-fluid-sim/vendor/FleX)
 
+find_program(SCCACHE sccache)
+if (SCCACHE)
+    message(STATUS "Using sccache for compilation")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${SCCACHE}")
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded)
+    cmake_policy(SET CMP0141 NEW)
+endif ()
+
+# if we use clang we gotta turn off -Wattributes, it can cause an absolutely absurd amount of warnings (200+)
+message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-Wno-attributes)
+endif ()
+
 if (GELLY_PRODUCTION_BUILD)
     message(STATUS "Building in production mode")
     add_compile_definitions(PRODUCTION_BUILD)

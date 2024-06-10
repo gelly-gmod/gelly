@@ -4,6 +4,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <iomanip>
+
 #include "severity-strings.h"
 
 auto FormatDateInLocale(const auto &timeInfo) -> std::wstring {
