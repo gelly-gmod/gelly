@@ -3,7 +3,7 @@ run-name: Create Production Releases
 on:
     push:
         branches:
-            - master
+            - 63-ci-cd
 
 jobs:
     make-gelly-artifacts:
