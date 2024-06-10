@@ -1,6 +1,7 @@
 #include "global-macros.h"
 
 #include <cstdarg>
+#include <cstring>
 #include <ctime>
 #include <memory>
 

@@ -90,8 +90,8 @@ void SetupWorldRenderingHooks(
 }
 
 void TeardownWorldRenderingHooks() {
-	MH_DisableHook(hookedDrawWorldLists);
-	MH_RemoveHook(hookedDrawWorldLists);
+	MH_DisableHook(reinterpret_cast<void *>(hookedDrawWorldLists));
+	MH_RemoveHook(reinterpret_cast<void *>(hookedDrawWorldLists));
 }
 
 bool IsWorldRendering() { return isWorldRendering; }

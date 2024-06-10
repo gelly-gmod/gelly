@@ -1,6 +1,8 @@
 #include "GetCubemap.h"
 
+#include <cstring>
 #include <stdexcept>
+#include <type_traits>
 
 #include "../logging/global-macros.h"
 #include "GarrysMod/Lua/SourceCompat.h"
@@ -17,16 +19,28 @@ using namespace Gelly::DataTypes;
 
 using TextureHandle_t = ulonglong;
 
-using GetLocalCubemap_t = CTexture *(*__thiscall)(CMaterialSystem *);
-using GetD3DTexture_t =
-	IDirect3DBaseTexture9 *(*__thiscall)(CShaderAPIDX8 *, TextureHandle_t);
+using GetLocalCubemap_t = std::add_pointer_t<
+	__thiscall CTexture
+		*(CMaterialSystem *)>;	// CTexture
+								// *(*__thiscall)(CMaterialSystem
+								// *);
+using GetD3DTexture_t = std::add_pointer_t<__thiscall IDirect3DBaseTexture9 *(
+	CShaderAPIDX8 *, TextureHandle_t
+)>;	 // IDirect3DBaseTexture9 *(*__thiscall)(CShaderAPIDX8 *, TextureHandle_t);
 using GetTextureHandle_t =
-	TextureHandle_t (*__thiscall)(CTexture *, void *, uint);
-using GetLight_t = uintptr_t (*__thiscall)(CShaderAPIDX8 *, int);
-using GetMaxLights_t = int (*__thiscall)(CShaderAPIDX8 *);
-using AllowThreading_t = bool (*__thiscall)(CMaterialSystem *, bool, int);
+	std::add_pointer_t<__thiscall TextureHandle_t(CTexture *, void *, uint)>;
+// TextureHandle_t (*__thiscall)(CTexture *, void *, uint);
+using GetLight_t =
+	std::add_pointer_t<__thiscall uintptr_t(CShaderAPIDX8 *, int)>;
+// uintptr_t (*__thiscall)(CShaderAPIDX8 *, int);
+using GetMaxLights_t = std::add_pointer_t<__thiscall int(CShaderAPIDX8 *)>;
+// int (*__thiscall)(CShaderAPIDX8 *);
+using AllowThreading_t =
+	std::add_pointer_t<__thiscall bool(CMaterialSystem *, bool, int)>;
+// bool (*__thiscall)(CMaterialSystem *, bool, int);
 using SetAmbientLightCube_t =
-	void (*__thiscall)(CShaderAPIDX8 *, AmbientLightCube &);
+	std::add_pointer_t<__thiscall void(CShaderAPIDX8 *, AmbientLightCube &)>;
+// void (*__thiscall)(CShaderAPIDX8 *, AmbientLightCube &);
 
 static Library g_shaderAPI;
 static Library g_materialSystem;
