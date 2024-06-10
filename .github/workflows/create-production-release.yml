@@ -56,7 +56,7 @@ jobs:
                     cd gelly
                     Compress-Archive -Path release/* -Destination ${{ matrix.presets.configure }}-x64.zip
             -   name: Upload release
-                uses: actions/upload-artifact@v2
+                uses: actions/upload-artifact@v4
                 with:
                     name: ${{ matrix.presets.configure }}-x64
                     path: gelly/${{ matrix.presets.configure }}-x64.zip
@@ -67,7 +67,7 @@ jobs:
             contents: write
         steps:
             -   name: Download artifacts
-                uses: actions/download-artifact@v2
+                uses: actions/download-artifact@v4
                 with:
                     path: artifacts # When we don't specify a name, it'll download all artifacts we generated
             -   name: Get changelog
