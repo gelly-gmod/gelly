@@ -8,6 +8,8 @@ on:
 jobs:
     make-gelly-artifacts:
         runs-on: windows-latest
+        env:
+            SCCACHE_GHA_ENABLED: "true"
         strategy:
             matrix:
                 presets: [
@@ -32,38 +34,23 @@ jobs:
                 run: |
                     cd gelly
                     git submodule update --init --recursive
-            -   name: Try to restore CMake cache
-                id: cache-cmake-restore
-                uses: actions/cache/restore@v4
-                with:
-                    path: |
-                        gelly/bin/**/*
-                        gelly/.cmake/**/*
-                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}
             -   name: Set up Ninja
                 uses: seanmiddleditch/gha-setup-ninja@master
             -   uses: ilammy/msvc-dev-cmd@v1
                 name: Set up MSVC
                 with:
                     arch: amd64
-            -   name: Perform clean build
-                if: steps.cache-cmake-restore.outputs.cache-hit != 'true'
+            -   name: Configure sccache
+                uses: actions/github-script@v6
+                with:
+                    script: |
+                        core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+            -   name: Perform build
                 run: |
                     cd gelly
                     cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }}
-                    cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }} --clean-first
-            -   name: Perform restored build
-                if: steps.cache-cmake-restore.outputs.cache-hit == 'true'
-                run: |
-                    cd gelly
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }}
-            -   name: Save CMake cache
-                uses: actions/cache/save@v4
-                with:
-                    path: |
-                        gelly/bin/**/*
-                        gelly/.cmake/**/*
-                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}
             -   name: Add addon to release
                 run: |
                     cd gelly

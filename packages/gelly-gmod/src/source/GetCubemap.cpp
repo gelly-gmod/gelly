@@ -19,8 +19,8 @@ using namespace Gelly::DataTypes;
 
 using TextureHandle_t = ulonglong;
 
-// Clang only supports type trait function pointers
-#if defined(__clang__)
+// Clang only supports type trait function pointers, same with GCC
+#if defined(__clang__) || defined(__GNUC__)
 using GetLocalCubemap_t = std::add_pointer_t<
 	__thiscall CTexture
 		*(CMaterialSystem *)>;	// CTexture
