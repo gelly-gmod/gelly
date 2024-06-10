@@ -33,6 +33,10 @@ jobs:
                     cd gelly
                     cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }}
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }} --clean-first
+            -   name: Add addon to release
+                run: |
+                    cd gelly
+                    scripts/gmad.exe create -folder packages/addon -out release/garrysmod/addons/gelly/gelly.gma
             -   name: Zip release
                 run: |
                     cd gelly
@@ -69,3 +73,4 @@ jobs:
                     files: 'artifacts/*.zip'
                     name: ${{ steps.parse-changelog.outputs.latestVersion }}
                     body: ${{ steps.parse-changelog.outputs.latestBody }}
+                    tag_name: ${{ steps.parse-changelog.outputs.latestVersion }}

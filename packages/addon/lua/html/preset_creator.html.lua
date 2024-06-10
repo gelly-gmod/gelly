@@ -3,7 +3,7 @@
 <head>
 	<title>Preset Creator</title>
 	<link rel="stylesheet" type="text/css" href="asset://garrysmod/html/preset_creator.css">
-	<script type="text/javascript" src="asset://garrysmod/html/preset_creator.js"></script>
+	<script type="text/javascript" src="asset://garrysmod/html/preset_creator.js.lua"></script>
 </head>
 <body>
 	<header>
