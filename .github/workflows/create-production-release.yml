@@ -32,16 +32,39 @@ jobs:
                 run: |
                     cd gelly
                     git submodule update --init --recursive
+            -   name: Try to restore CMake cache
+                id: cache-cmake-restore
+                uses: actions/cache/restore@v4
+                with:
+                    path: |
+                        gelly/bin/**/*
+                        gelly/.cmake/**/*
+                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}-${{ hashFiles('gelly/packages/*/CMakeLists.txt') }}
             -   name: Set up Ninja
                 uses: seanmiddleditch/gha-setup-ninja@master
             -   uses: ilammy/msvc-dev-cmd@v1
+                env:
+                    # in powershell, it won't be $false, it'll be 'false'
+                    IS_CMAKE_CACHED: ${{ steps.cache-cmake-restore.outputs.cache-hit }}
                 with:
                     arch: amd64 # once this is run, gelly-production-release.zip will be created in the root of the repository, and we can just ignore the rest
             -   name: Set up x64 Developer Command Prompt for VS 2022
                 run: |
                     cd gelly
+                    if ($env:IS_CMAKE_CACHED -eq 'true') {
+                        cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }}
+                        exit
+                    }
+                    
                     cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }}
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }} --clean-first
+            -   name: Save CMake cache
+                uses: actions/cache/save@v4
+                with:
+                    path: |
+                        gelly/bin/**/*
+                        gelly/.cmake/**/*
+                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}-${{ hashFiles('gelly/packages/*/CMakeLists.txt') }}
             -   name: Add addon to release
                 run: |
                     cd gelly
