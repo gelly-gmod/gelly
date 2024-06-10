@@ -15,12 +15,17 @@ jobs:
                     { configure: "gelly-gmod-release", build: "Gelly-GMod-Release" }
                 ]
         steps:
+            -   name: Cache Submodules
+                id: cache-submodules
+                uses: actions/cache@v4
+                with:
+                    path: 'gelly/**/vendor/**'
+                    key: gelly-submodules-${{ hashFiles('gelly/**/vendor/**') }}
             -   name: Checkout latest Gelly
-                if: steps.cache-gelly.outputs.cache-hit != 'true'
                 uses: actions/checkout@v3
                 with:
-                    path: gelly # important for when we add a cache step
-                    submodules: recursive
+                    path: gelly
+                    submodules: ${{ steps.cache-submodules.outputs.cache-hit && 'false' || 'recursive' }}
                     ref: 63-ci-cd
 
             -   name: Set up Ninja
