@@ -11,7 +11,7 @@ CD3D11RTFRFluidSimulation::CD3D11RTFRFluidSimulation()
 	  maxParticles(0),
 	  activeParticles(0),
 	  datasetInfo({}),
-	  dataset({}),
+	  dataset(),
 	  currentFrameIndex(0) {}
 
 CD3D11RTFRFluidSimulation::~CD3D11RTFRFluidSimulation() {
