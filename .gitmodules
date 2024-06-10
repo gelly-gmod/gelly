@@ -94,3 +94,6 @@
 [submodule "packages/gelly-gmod/vendor/BSPParser"]
 	path = packages/gelly-gmod/vendor/BSPParser
 	url = https://github.com/Derpius/BSPParser.git
+[submodule "packages/gelly/modules/gelly-fluid-sim/vendor/DirectXMath"]
+	path = packages/gelly/modules/gelly-fluid-sim/vendor/DirectXMath
+	url = https://github.com/microsoft/DirectXMath.git

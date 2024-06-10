@@ -4,6 +4,8 @@
 #include <GellyInterface.h>
 #include <GellyObserverPtr.h>
 
+#include <cstdint>
+
 enum class ShaderType { Vertex, Pixel, Geometry, Compute };
 
 class IRenderContext;

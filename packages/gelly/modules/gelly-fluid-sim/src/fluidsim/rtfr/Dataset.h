@@ -3,6 +3,8 @@
 
 #include <GellyDataTypes.h>
 
+#include <vector>
+
 #include "FrameParser.h"
 #include "RTFRLoader.h"
 
