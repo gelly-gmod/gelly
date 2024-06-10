@@ -39,7 +39,7 @@ jobs:
                     path: |
                         gelly/bin/**/*
                         gelly/.cmake/**/*
-                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}-${{ hashFiles('gelly/packages/*/CMakeLists.txt') }}
+                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}
             -   name: Set up Ninja
                 uses: seanmiddleditch/gha-setup-ninja@master
             -   uses: ilammy/msvc-dev-cmd@v1
@@ -64,7 +64,7 @@ jobs:
                     path: |
                         gelly/bin/**/*
                         gelly/.cmake/**/*
-                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}-${{ hashFiles('gelly/packages/*/CMakeLists.txt') }}
+                    key: gelly-cmake-${{ github.ref }}-${{ matrix.presets.configure }}
             -   name: Add addon to release
                 run: |
                     cd gelly
