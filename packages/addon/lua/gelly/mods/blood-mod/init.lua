@@ -12,7 +12,7 @@ local BLOOD_CONFIGS = {
 		DamageMultiplier = 15, -- density is added by the damage * this
     },
     {
-        damageFlags = DMG_BLAST,
+        DamageFlags = DMG_BLAST,
         MinDensity = 3200,
 		MaxDensity = 5200,
 		VelocityPower = 40,
@@ -21,7 +21,7 @@ local BLOOD_CONFIGS = {
 		DamageMultiplier = 90,
     },
 	{
-        damageFlags = bit.bor(DMG_SLASH, DMG_CLUB),
+        DamageFlags = bit.bor(DMG_SLASH, DMG_CLUB),
         MinDensity = 100,
 		MaxDensity = 200,
 		VelocityPower = 4,
@@ -29,7 +29,7 @@ local BLOOD_CONFIGS = {
 		CubeSize = 3,
     },
 	{
-        damageFlags = DMG_CRUSH,
+        DamageFlags = DMG_CRUSH,
         MinDensity = 100,
 		MaxDensity = 200,
 		VelocityPower = 4,
@@ -39,9 +39,10 @@ local BLOOD_CONFIGS = {
     },
 }
 
---[[ local OLDBLOOD_CONFIGS = { -- IMPLEMENT SPECIFIC WEAPON DAMAGE
+local BLOOD_WEAPON_CONFIGS = { -- IMPLEMENT SPECIFIC WEAPON DAMAGE
 	-- double barrel shotgun in m9k
-	[4098] = {
+	{
+		ClassName = "m9k_dbarrel",
 		MinDensity = 100,
 		MaxDensity = 200,
 		VelocityPower = 14, -- bullets usually are rotating so they can end up flinging blood
@@ -51,20 +52,32 @@ local BLOOD_CONFIGS = {
 	},
 
 	-- shotgun
-	[536870914] = {
+	{
+		ClassName = "weapon_shotgun",
 		MinDensity = 100,
 		MaxDensity = 200,
-		VelocityPower = 14,
-		Randomness = 0.1,
-		CubeSize = 5,
+		VelocityPower = 5,
+		Randomness = 0.5,
+		CubeSize = 15,
+		DamageMultiplier = 35,
 	},
-} ]]
+}
 
 local function getConfig(damageType)
 	for _, config in ipairs(BLOOD_CONFIGS) do
-        if bit.band(damageType, config.damageFlags) ~= 0 then
+        if bit.band(damageType, config.DamageFlags) ~= 0 then
             return config
         end
+	end
+	return nil
+end
+
+local function getWeaponConfig(weaponClassName)
+	for _, config in ipairs(BLOOD_WEAPON_CONFIGS) do
+		if weaponClassName == config.ClassName then
+			print(config.ClassName)
+			return config
+		end
 	end
 	return nil
 end
@@ -77,7 +90,15 @@ local function sprayBlood(damageType, attacker, position, force, damage)
 		normal = force:GetNormalized()
 	end
 
-	local config = getConfig(damageType)
+	local config = nil
+	if attacker:IsNPC() or attacker:IsPlayer() then
+		config = getWeaponConfig(attacker:GetActiveWeapon():GetClass())
+	end
+
+	if not config then
+		config = getConfig(damageType)
+	end
+
 	if not config then return end
 
 	local density = math.random(config.MinDensity, config.MaxDensity)
