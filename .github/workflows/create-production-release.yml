@@ -37,6 +37,7 @@ jobs:
                 run: |
                     dir
                     cd gelly
+                    dir
                     Compress-Archive -Path release/* -Destination ${{ matrix.presets.configure }}-x64.zip
             -   name: Upload release
                 uses: actions/upload-artifact@v2
