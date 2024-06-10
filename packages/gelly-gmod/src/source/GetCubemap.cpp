@@ -47,11 +47,13 @@ using SetAmbientLightCube_t =
 using GetLocalCubemap_t = CTexture *(__thiscall *)(CMaterialSystem *);
 using GetD3DTexture_t = IDirect3DBaseTexture9 *(__thiscall *)(CShaderAPIDX8 *,
 															  TextureHandle_t);
-using GetTextureHandle_t = TextureHandle_t(__thiscall *)(CTexture *, void *,
+using GetTextureHandle_t =
+	TextureHandle_t(__thiscall *)(CTexture *, void *, uint);
 using GetLight_t = uintptr_t(__thiscall *)(CShaderAPIDX8 *, int);
 using GetMaxLights_t = int(__thiscall *)(CShaderAPIDX8 *);
 using AllowThreading_t = bool(__thiscall *)(CMaterialSystem *, bool, int);
-using SetAmbientLightCube_t = void(__thiscall *)(CShaderAPIDX8 *, AmbientLightCube &);
+using SetAmbientLightCube_t =
+	void(__thiscall *)(CShaderAPIDX8 *, AmbientLightCube &);
 #endif
 
 static Library g_shaderAPI;
