@@ -71,7 +71,8 @@ jobs:
                 uses: softprops/action-gh-release@v2
                 with:
                     files: |
-                        artifacts/*.zip
+                        artifacts/gelly-gmod-relwithdebinfo-x64.zip
+                        artifacts/gelly-gmod-release-x64.zip
                     name: ${{ steps.parse-changelog.outputs.latestVersion }}
                     body: ${{ steps.parse-changelog.outputs.latestBody }}
                     tag_name: ${{ steps.parse-changelog.outputs.latestVersion }}
