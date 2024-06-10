@@ -21,7 +21,7 @@ jobs:
                 with:
                     path: gelly # important for when we add a cache step
                     submodules: recursive
-                    ref: master
+                    ref: 61-ci-cd
 
             -   name: Set up Ninja
                 uses: seanmiddleditch/gha-setup-ninja@master
@@ -59,7 +59,7 @@ jobs:
                 with:
                     path: gelly
                     sparse-checkout: 'CHANGELOG.md'
-                    ref: master
+                    ref: 61-ci-cd
             -   name: Parse changelog
                 id: parse-changelog
                 uses: ocavue/changelog-parser-action@v1
