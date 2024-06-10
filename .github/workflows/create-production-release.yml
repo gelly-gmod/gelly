@@ -15,18 +15,23 @@ jobs:
                     { configure: "gelly-gmod-release", build: "Gelly-GMod-Release" }
                 ]
         steps:
+            -   name: Checkout latest Gelly
+                uses: actions/checkout@v3
+                with:
+                    path: gelly
+                    submodules: false
+                    ref: 63-ci-cd
             -   name: Cache Submodules
                 id: cache-submodules
                 uses: actions/cache@v4
                 with:
                     path: 'gelly/**/vendor/**'
                     key: gelly-submodules-${{ hashFiles('gelly/.gitmodules') }}
-            -   name: Checkout latest Gelly
-                uses: actions/checkout@v3
-                with:
-                    path: gelly
-                    submodules: ${{ steps.cache-submodules.outputs.cache-hit && 'false' || 'recursive' }}
-                    ref: 63-ci-cd
+            -   name: Init all submodules if needed
+                if: steps.cache-submodules.outputs.cache-hit != 'true'
+                run: |
+                    cd gelly
+                    git submodule update --init --recursive
             -   name: Set up Ninja
                 uses: seanmiddleditch/gha-setup-ninja@master
             -   uses: ilammy/msvc-dev-cmd@v1
