@@ -47,7 +47,7 @@ jobs:
                     # in powershell, it won't be $false, it'll be 'false'
                     IS_CMAKE_CACHED: ${{ steps.cache-cmake-restore.outputs.cache-hit }}
                 with:
-                    arch: amd64 # once this is run, gelly-production-release.zip will be created in the root of the repository, and we can just ignore the rest
+                    arch: amd64
             -   name: Set up x64 Developer Command Prompt for VS 2022
                 run: |
                     cd gelly
