@@ -31,17 +31,17 @@ jobs:
             -   name: Set up x64 Developer Command Prompt for VS 2022
                 run: |
                     cd gelly
-                    cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.preset.configure }} -S . -B bin/${{ matrix.preset.configure }}
-                    cmake --build --target gelly-gmod --preset ${{ matrix.preset.build }} --clean-first
+                    cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }}
+                    cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }} --clean-first
             -   name: Zip release
                 run: |
                     cd gelly
-                    Compress-Archive -Path release/* -Destination ${{ matrix.preset.configure }}-x64.zip
+                    Compress-Archive -Path release/* -Destination ${{ matrix.presets.configure }}-x64.zip
             -   name: Upload release
                 uses: actions/upload-artifact@v2
                 with:
-                    name: ${{ matrix.preset.configure }}-x64
-                    path: gelly/${{ matrix.preset.configure }}-x64.zip
+                    name: ${{ matrix.presets.configure }}-x64
+                    path: gelly/${{ matrix.presets.configure }}-x64.zip
     make-release:
         runs-on: windows-latest
         needs: make-gelly-artifacts
