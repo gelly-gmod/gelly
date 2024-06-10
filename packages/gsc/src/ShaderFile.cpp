@@ -1,5 +1,6 @@
 #include "ShaderFile.h"
 
+#include <algorithm>
 #include <fstream>
 #include <utility>
 

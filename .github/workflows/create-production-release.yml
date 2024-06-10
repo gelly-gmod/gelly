@@ -43,6 +43,7 @@ jobs:
             -   name: Set up Ninja
                 uses: seanmiddleditch/gha-setup-ninja@master
             -   uses: ilammy/msvc-dev-cmd@v1
+                name: Set up MSVC
                 with:
                     arch: amd64
             -   name: Perform clean build
@@ -51,11 +52,8 @@ jobs:
                     cd gelly
                     cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }}
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }} --clean-first
-            -   uses: ilammy/msvc-dev-cmd@v1
-                if: steps.cache-cmake-restore.outputs.cache-hit == 'true'
-                with:
-                    arch: amd64
             -   name: Perform restored build
+                if: steps.cache-cmake-restore.outputs.cache-hit == 'true'
                 run: |
                     cd gelly
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }}

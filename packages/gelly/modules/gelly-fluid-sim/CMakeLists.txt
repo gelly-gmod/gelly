@@ -64,6 +64,7 @@ target_include_directories(
         ../gelly-interfaces/include
         ../gelly-d3d/include
         ${FLEX_PATH}/include
+        vendor/DirectXMath/Inc
 )
 
 

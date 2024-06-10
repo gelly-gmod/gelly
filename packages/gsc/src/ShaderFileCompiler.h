@@ -1,6 +1,8 @@
 #ifndef SHADERFILECOMPILER_H
 #define SHADERFILECOMPILER_H
 
+#include <vector>
+
 #include "ShaderFile.h"
 
 class ShaderFileCompiler {
