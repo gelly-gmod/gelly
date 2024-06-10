@@ -19,6 +19,8 @@ using namespace Gelly::DataTypes;
 
 using TextureHandle_t = ulonglong;
 
+// Clang only supports type trait function pointers
+#if defined(__clang__)
 using GetLocalCubemap_t = std::add_pointer_t<
 	__thiscall CTexture
 		*(CMaterialSystem *)>;	// CTexture
@@ -41,6 +43,16 @@ using AllowThreading_t =
 using SetAmbientLightCube_t =
 	std::add_pointer_t<__thiscall void(CShaderAPIDX8 *, AmbientLightCube &)>;
 // void (*__thiscall)(CShaderAPIDX8 *, AmbientLightCube &);
+#else
+using GetLocalCubemap_t = CTexture *(__thiscall *)(CMaterialSystem *);
+using GetD3DTexture_t = IDirect3DBaseTexture9 *(__thiscall *)(CShaderAPIDX8 *,
+															  TextureHandle_t);
+using GetTextureHandle_t = TextureHandle_t(__thiscall *)(CTexture *, void *,
+using GetLight_t = uintptr_t(__thiscall *)(CShaderAPIDX8 *, int);
+using GetMaxLights_t = int(__thiscall *)(CShaderAPIDX8 *);
+using AllowThreading_t = bool(__thiscall *)(CMaterialSystem *, bool, int);
+using SetAmbientLightCube_t = void(__thiscall *)(CShaderAPIDX8 *, AmbientLightCube &);
+#endif
 
 static Library g_shaderAPI;
 static Library g_materialSystem;
