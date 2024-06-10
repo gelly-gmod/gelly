@@ -3,7 +3,7 @@ run-name: Create Production Releases
 on:
     push:
         branches:
-            - 63-ci-cd
+            - master
 
 jobs:
     make-gelly-artifacts:
@@ -22,7 +22,6 @@ jobs:
                 with:
                     path: gelly
                     submodules: false
-                    ref: 63-ci-cd
             -   name: Cache Submodules
                 id: cache-submodules
                 uses: actions/cache@v4
@@ -76,7 +75,6 @@ jobs:
                     path: gelly
                     sparse-checkout: 'CHANGELOG.md'
                     sparse-checkout-cone-mode: false
-                    ref: 63-ci-cd
             -   name: Parse changelog
                 id: parse-changelog
                 uses: mindsers/changelog-reader-action@v2
