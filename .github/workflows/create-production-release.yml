@@ -35,6 +35,7 @@ jobs:
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }} --clean-first
             -   name: Zip release
                 run: |
+                    dir
                     cd gelly
                     Compress-Archive -Path release/* -Destination ${{ matrix.presets.configure }}-x64.zip
             -   name: Upload release
