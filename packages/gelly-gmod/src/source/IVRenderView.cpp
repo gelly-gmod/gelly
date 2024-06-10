@@ -78,7 +78,7 @@ void SetupWorldRenderingHooks(
 
 	if (MH_CreateHook(
 			drawWorldLists,
-			&HookedDrawWorldLists,
+			reinterpret_cast<void *>(&HookedDrawWorldLists),
 			reinterpret_cast<LPVOID *>(&originalDrawWorldLists)
 		) != MH_OK) {
 		throw std::runtime_error(
@@ -90,8 +90,8 @@ void SetupWorldRenderingHooks(
 }
 
 void TeardownWorldRenderingHooks() {
-	MH_DisableHook(hookedDrawWorldLists);
-	MH_RemoveHook(hookedDrawWorldLists);
+	MH_DisableHook(reinterpret_cast<void *>(hookedDrawWorldLists));
+	MH_RemoveHook(reinterpret_cast<void *>(hookedDrawWorldLists));
 }
 
 bool IsWorldRendering() { return isWorldRendering; }
