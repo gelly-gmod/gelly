@@ -72,7 +72,7 @@ Map::Map(ISimScene *scene, const std::string &mapPath)
 	const auto params = CreateMapParams(map);
 	mapObject = CreateMapObject(params);
 
-	LOG_INFO("Map loaded: %s | ID: %u", mapPath.c_str(), mapObject);
+	LOG_INFO("Map loaded: %s\nID: %u", mapPath.c_str(), mapObject);
 }
 
 Map::~Map() {
