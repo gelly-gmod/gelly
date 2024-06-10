@@ -14,7 +14,7 @@ include(GetCurrentVersion)
 include(GetFleXDeps)
 
 get_current_version_from_changelog(${GELLY_ROOT_DIR}/CHANGELOG.md)
-message(STATUS " Configuring Gelly with CMake version ${CMAKE_VERSION} and Gelly version ${GELLY_VERSION}")
+message(STATUS "Configuring Gelly with CMake version ${CMAKE_VERSION} and Gelly version ${GELLY_VERSION}")
 
 get_flex_dependencies(${GELLY_ROOT_DIR}/packages/gelly/modules/gelly-fluid-sim/vendor/FleX)
 

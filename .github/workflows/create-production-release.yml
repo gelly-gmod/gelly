@@ -1,34 +1,71 @@
-name: Create Production Release
-run-name: Create Production Release (x64, Windows)
+name: Create Production Releases
+run-name: Create Production Releases
 on:
-  push:
-    tags:
-      - 'v*'
+    push:
+        branches:
+            - master
+
 jobs:
-  create-release:
-    runs-on: windows-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout latest Gelly
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-          ref: master
-      - name: Set up Ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11.0'
-      - uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: amd64 # once this is run, gelly-production-release.zip will be created in the root of the repository, and we can just ignore the rest
-      - name: Set up x64 Developer Command Prompt for VS 2022
-        run: |
-          python scripts/make-release.py
-      - name: Upload Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/v') # We still want to create a release, but not upload the asset if it's not a tagged release
-        with:
-          files: gelly-production-release.zip
+    make-gelly-artifacts:
+        runs-on: windows-latest
+        strategy:
+            matrix:
+                presets: [
+                    { configure: "gelly-gmod-relwithdebinfo", build: "Gelly-GMod-RelWithDebInfo" },
+                    { configure: "gelly-gmod-release", build: "Gelly-GMod-Release" }
+                ]
+        steps:
+            -   name: Checkout latest Gelly
+                if: steps.cache-gelly.outputs.cache-hit != 'true'
+                uses: actions/checkout@v3
+                with:
+                    path: gelly # important for when we add a cache step
+                    submodules: recursive
+                    ref: master
+
+            -   name: Set up Ninja
+                uses: seanmiddleditch/gha-setup-ninja@master
+            -   uses: ilammy/msvc-dev-cmd@v1
+                with:
+                    arch: amd64 # once this is run, gelly-production-release.zip will be created in the root of the repository, and we can just ignore the rest
+            -   name: Set up x64 Developer Command Prompt for VS 2022
+                run: |
+                    cd gelly
+                    cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.preset.configure }} -S . -B bin/${{ matrix.preset.configure }}
+                    cmake --build --target gelly-gmod --preset ${{ matrix.preset.build }} --clean-first
+            -   name: Zip release
+                run: |
+                    cd gelly
+                    Compress-Archive -Path release/* -Destination ${{ matrix.preset.configure }}-x64.zip
+            -   name: Upload release
+                uses: actions/upload-artifact@v2
+                with:
+                    name: ${{ matrix.preset.configure }}-x64
+                    path: gelly/${{ matrix.preset.configure }}-x64.zip
+    make-release:
+        runs-on: windows-latest
+        needs: make-gelly-artifacts
+        permissions:
+            contents: write
+        steps:
+            -   name: Download artifacts
+                uses: actions/download-artifact@v2
+                with:
+                    path: artifacts # When we don't specify a name, it'll download all artifacts we generated
+            -   name: Get changelog
+                uses: actions/checkout@v4
+                with:
+                    path: gelly
+                    sparse-checkout: 'CHANGELOG.md'
+                    ref: master
+            -   name: Parse changelog
+                id: parse-changelog
+                uses: ocavue/changelog-parser-action@v1
+                with:
+                    changelog_path: gelly/CHANGELOG.md
+            -   name: Create release
+                uses: softprops/action-gh-release@v2
+                with:
+                    files: 'artifacts/*.zip'
+                    name: ${{ steps.parse-changelog.outputs.latestVersion }}
+                    body: ${{ steps.parse-changelog.outputs.latestBody }}
