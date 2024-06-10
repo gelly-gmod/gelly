@@ -78,7 +78,7 @@ void SetupWorldRenderingHooks(
 
 	if (MH_CreateHook(
 			drawWorldLists,
-			&HookedDrawWorldLists,
+			reinterpret_cast<void *>(&HookedDrawWorldLists),
 			reinterpret_cast<LPVOID *>(&originalDrawWorldLists)
 		) != MH_OK) {
 		throw std::runtime_error(

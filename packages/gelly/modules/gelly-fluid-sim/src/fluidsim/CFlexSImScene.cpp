@@ -6,6 +6,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <float.h>
+
+#include <algorithm>
+#include <cmath>
 #undef min
 #undef max
 // Would use XMVECTOR but we need to be able to pass this to NvFlex without
@@ -135,7 +139,7 @@ void CFlexSimScene::SetObjectPosition(
 		return;
 	}
 
-	if (isnan(x) || isnan(y) || isnan(z)) {
+	if (std::isnan(x) || std::isnan(y) || std::isnan(z)) {
 		return;
 	}
 
@@ -155,7 +159,7 @@ void CFlexSimScene::SetObjectQuaternion(
 		return;
 	}
 
-	if (isnan(x) || isnan(y) || isnan(z) || isnan(w)) {
+	if (std::isnan(x) || std::isnan(y) || std::isnan(z) || std::isnan(w)) {
 		return;
 	}
 
