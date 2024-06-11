@@ -27,7 +27,7 @@ jobs:
                 uses: actions/cache@v4
                 with:
                     path: 'gelly/**/vendor/**'
-                    key: gelly-submodules-${{ hashFiles('gelly/.gitmodules') }}
+                    key: gelly-submodules-${{ github.ref }}-${{ hashFiles('gelly/.gitmodules') }}
             -   name: Init all submodules if needed
                 if: steps.cache-submodules.outputs.cache-hit != 'true'
                 run: |
