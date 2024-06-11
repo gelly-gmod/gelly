@@ -1,6 +1,6 @@
 ---
-name: Ticket Template
-about: Use this template for creating a ticket.
+name: Engineering Ticket
+about: Use this template for creating an engineering ticket.
 title: ''
 ---
 
