@@ -1,9 +1,9 @@
 -- One of the benefits of the mod system is that it'll never be ran on the server, so most conditional realm blocks are unnecessary.
 print("Blood mod loaded")
 
-local BLOOD_CONFIGS = {
+local DAMAGE_TYPE_BLOOD_CONFIGS = {
     {
-        DamageFlags = bit.bor(DMG_BULLET, 8194),
+        DamageFlags = bit.bor(DMG_BULLET, DMG_ALWAYSGIB),
         MinDensity = 200,
 		MaxDensity = 400,
 		VelocityPower = 10, -- bullets usually are rotating so they can end up flinging blood
@@ -39,10 +39,9 @@ local BLOOD_CONFIGS = {
     },
 }
 
-local BLOOD_WEAPON_CONFIGS = { -- IMPLEMENT SPECIFIC WEAPON DAMAGE
+local WEAPON_BLOOD_CONFIGS = {
 	-- double barrel shotgun in m9k
-	{
-		ClassName = "m9k_dbarrel",
+	m9k_dbarrel = {
 		MinDensity = 100,
 		MaxDensity = 200,
 		VelocityPower = 14, -- bullets usually are rotating so they can end up flinging blood
@@ -52,8 +51,7 @@ local BLOOD_WEAPON_CONFIGS = { -- IMPLEMENT SPECIFIC WEAPON DAMAGE
 	},
 
 	-- shotgun
-	{
-		ClassName = "weapon_shotgun",
+	weapon_shotgun = {
 		MinDensity = 100,
 		MaxDensity = 200,
 		VelocityPower = 5,
@@ -61,8 +59,8 @@ local BLOOD_WEAPON_CONFIGS = { -- IMPLEMENT SPECIFIC WEAPON DAMAGE
 		CubeSize = 15,
 		DamageMultiplier = 35,
 	},
-	{
-		ClassName = "weapon_357",
+
+	weapon_357 = {
 		MinDensity = 100,
 		MaxDensity = 200,
 		VelocityPower = 5,
@@ -72,8 +70,53 @@ local BLOOD_WEAPON_CONFIGS = { -- IMPLEMENT SPECIFIC WEAPON DAMAGE
 	},
 }
 
+local BLOOD_COLOR_MATERIALS = {
+	[BLOOD_COLOR_RED] = {
+		Roughness = 0,
+		IsSpecularTransmission = true,
+		RefractiveIndex = 1.373,
+		Absorption = Vector(0.05, 0.5, 0.5),
+		DiffuseColor = Vector(0, 0, 0),
+	},
+	[BLOOD_COLOR_YELLOW] = {
+		Roughness = 0,
+		IsSpecularTransmission = true,
+		RefractiveIndex = 1.373,
+		Absorption = Vector(0.25, 0.3, 0.5),
+		DiffuseColor = Vector(0, 0, 0),
+	},
+	[BLOOD_COLOR_GREEN] = {
+		Roughness = 0,
+		IsSpecularTransmission = true,
+		RefractiveIndex = 1.373,
+		Absorption = Vector(0.3, 0.25, 0.5),
+		DiffuseColor = Vector(0, 0, 0),
+	},
+	[BLOOD_COLOR_ANTLION] = {
+		Roughness = 0,
+		IsSpecularTransmission = true,
+		RefractiveIndex = 1.373,
+		Absorption = Vector(0.45, 0.1, 0.5),
+		DiffuseColor = Vector(0, 0, 0),
+	},
+	[BLOOD_COLOR_ZOMBIE] = {
+		Roughness = 0,
+		IsSpecularTransmission = true,
+		RefractiveIndex = 1.373,
+		Absorption = Vector(0.2, 0.35, 0.5),
+		DiffuseColor = Vector(0, 0, 0),
+	},
+	[BLOOD_COLOR_ANTLION_WORKER] = {
+		Roughness = 0,
+		IsSpecularTransmission = true,
+		RefractiveIndex = 1.373,
+		Absorption = Vector(0.5, 0.05, 0.5),
+		DiffuseColor = Vector(0, 0, 0),
+	},
+}
+
 local function getConfig(damageType)
-	for _, config in ipairs(BLOOD_CONFIGS) do
+	for _, config in ipairs(DAMAGE_TYPE_BLOOD_CONFIGS) do
         if bit.band(damageType, config.DamageFlags) ~= 0 then
             return config
         end
@@ -81,32 +124,19 @@ local function getConfig(damageType)
 	return nil
 end
 
-local function getWeaponConfig(weaponClassName)
-	for _, config in ipairs(BLOOD_WEAPON_CONFIGS) do
-		if weaponClassName == config.ClassName then
-			return config
-		end
+local function getWeaponConfig(attacker)
+	if attacker:IsNPC() or attacker:IsPlayer() then
+		return WEAPON_BLOOD_CONFIGS[attacker:GetActiveWeapon():GetClass()]
 	end
 	return nil
 end
 
 local function sprayBlood(damageType, attacker, position, force, damage)
-	local normal = Vector()
-	if attacker == LocalPlayer() then
-		normal = LocalPlayer():GetAimVector()
-	else
-		normal = force:GetNormalized()
-	end
+	local normal = attacker == LocalPlayer() and 
+					attacker:GetAimVector() or 
+					force:GetNormalized()
 
-	local config = nil
-	if attacker:IsNPC() or attacker:IsPlayer() then
-		config = getWeaponConfig(attacker:GetActiveWeapon():GetClass())
-	end
-
-	if not config then
-		config = getConfig(damageType)
-	end
-
+	local config = getWeaponConfig(attacker) or getConfig(damageType)
 	if not config then return end
 
 	local density = math.random(config.MinDensity, config.MaxDensity)
@@ -131,37 +161,30 @@ hook.Add(
 	function(victim, attacker, position, force, damage, type)
 		if
 			not victim:IsValid() or
-			not victim:IsPlayer() and
+			(not victim:IsPlayer() and
 			not victim:IsNPC() and
-			not victim:IsRagdoll()
+			not victim:IsRagdoll())
 		then
 			return
 		end
 
-		local bloodcolor = 0
+		local bloodColor = BLOOD_COLOR_RED
 
-		if victim:GetBloodColor() ~= nil then
-			bloodcolor = victim:GetBloodColor()
+		if victim:GetBloodColor() ~= nil and
+			victim:GetBloodColor() ~= DONT_BLEED and
+			victim:GetBloodColor() ~= BLOOD_COLOR_MECH
+		then
+			bloodColor = victim:GetBloodColor()
 		end
 		
-		local oldabsorption = gellyx.presets.getActivePreset().Material.Absorption
-		local material = gellyx.presets.getActivePreset().Material
-
-		if bloodcolor == 0 then -- the blood is red >>> ALSO WHEN IT'S RAGDOLL SINCE THEY DON'T HAVE BLOOD COLOR <<<
-			material.Absorption = Vector(0.05, 0.5, 0.5)
-		elseif bloodcolor == 2 or bloodcolor == 4 then  -- the blood is yellow
-			material.Absorption = Vector(0.25, 0.3, 0.5)
-		else 											-- the blood is green
-			material.Absorption = Vector(0.3, 0.25, 0.5)
-		end 
+		local oldMaterial = gellyx.presets.getActivePreset().Material
+		local material = BLOOD_COLOR_MATERIALS[bloodColor]
 
 		gelly.SetFluidMaterial(material)
 
 		sprayBlood(type, attacker, position, force, damage)
 
-		material.Absorption = oldabsorption
-
-		gelly.SetFluidMaterial(material)
+		gelly.SetFluidMaterial(oldMaterial)
 	end
 )
 
