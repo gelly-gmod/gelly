@@ -70,9 +70,6 @@ jobs:
                 with:
                     path: artifacts # When we don't specify a name, it'll download all artifacts we generated
 
-            -   name: Test artifacts
-                run: |
-                    Get-ChildItem -Recurse -Path artifacts
             -   name: Get changelog
                 uses: actions/checkout@v4
                 with:
@@ -90,7 +87,7 @@ jobs:
                 uses: softprops/action-gh-release@v2
                 with:
                     files: |
-                        artifacts/*.zip
+                        artifacts/**/*
                     name: ${{ steps.parse-changelog.outputs.version }}
                     body: ${{ steps.parse-changelog.outputs.changes }}
                     tag_name: ${{ steps.parse-changelog.outputs.version }}
