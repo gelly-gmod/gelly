@@ -26,8 +26,8 @@ jobs:
                 id: cache-submodules
                 uses: actions/cache@v4
                 with:
-                    path: 'gelly/**/vendor/**'
-                    key: gelly-submodules-${{ github.ref }}-${{ hashFiles('gelly/.gitmodules') }}
+                    path: 'packages/**/vendor/**'
+                    key: gelly-submodules-${{ github.ref }}-${{ hashFiles('.gitmodules') }}
 
             -   name: Init all submodules if needed
                 if: steps.cache-submodules.outputs.cache-hit != 'true'
@@ -87,7 +87,7 @@ jobs:
                 uses: softprops/action-gh-release@v2
                 with:
                     files: |
-                        artifacts/**/*.zip
+                        artifacts/*.zip
                     name: ${{ steps.parse-changelog.outputs.version }}
                     body: ${{ steps.parse-changelog.outputs.changes }}
                     tag_name: ${{ steps.parse-changelog.outputs.version }}
