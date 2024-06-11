@@ -3,7 +3,7 @@ run-name: Create Production Releases
 on:
     push:
         branches:
-            - master
+            - NONE-fix-ci-cd-typoes
 
 jobs:
     make-gelly-artifacts:
@@ -69,6 +69,10 @@ jobs:
                 uses: actions/download-artifact@v4
                 with:
                     path: artifacts # When we don't specify a name, it'll download all artifacts we generated
+
+            -   name: Test artifacts
+                run: |
+                    dir /s /b artifacts
 
             -   name: Get changelog
                 uses: actions/checkout@v4
