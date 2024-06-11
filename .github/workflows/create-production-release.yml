@@ -58,7 +58,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: ${{ matrix.presets.configure }}-x64
-                    path: ${{ matrix.presets.configure }}-x64.zip
+                    path: release
     make-release:
         runs-on: windows-latest
         needs: make-gelly-artifacts
