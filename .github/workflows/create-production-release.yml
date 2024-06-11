@@ -20,7 +20,6 @@ jobs:
             -   name: Checkout latest Gelly
                 uses: actions/checkout@v3
                 with:
-                    path: gelly
                     submodules: false
             -   name: Cache Submodules
                 id: cache-submodules
@@ -31,7 +30,6 @@ jobs:
             -   name: Init all submodules if needed
                 if: steps.cache-submodules.outputs.cache-hit != 'true'
                 run: |
-                    cd gelly
                     git submodule update --init --recursive
             -   name: Set up Ninja
                 uses: seanmiddleditch/gha-setup-ninja@master
@@ -43,18 +41,16 @@ jobs:
                 uses: mozilla-actions/sccache-action@v0.0.3
             -   name: Perform build
                 run: |
-                    cd gelly
                     cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }}
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }}
             -   name: Add addon to release
                 run: |
-                    cd gelly
                     scripts/gmad.exe create -folder packages/addon -out release/garrysmod/addons/gelly/gelly.gma
             -   name: Upload release
                 uses: actions/upload-artifact@v4
                 with:
                     name: ${{ matrix.presets.configure }}-x64
-                    path: gelly/release
+                    path: release
     make-release:
         runs-on: windows-latest
         needs: make-gelly-artifacts
@@ -68,7 +64,6 @@ jobs:
             -   name: Get changelog
                 uses: actions/checkout@v4
                 with:
-                    path: gelly
                     sparse-checkout: 'CHANGELOG.md'
                     sparse-checkout-cone-mode: false
             -   name: Parse changelog
@@ -76,7 +71,7 @@ jobs:
                 uses: mindsers/changelog-reader-action@v2
                 with:
                     validation_level: warn
-                    path: gelly/CHANGELOG.md
+                    path: CHANGELOG.md
             -   name: Create release
                 uses: softprops/action-gh-release@v2
                 with:
