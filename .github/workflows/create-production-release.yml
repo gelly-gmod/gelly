@@ -73,7 +73,7 @@ jobs:
             -   name: Zip artifacts
                 run: |
                     New-Item -Path zips -ItemType Directory -Force
-                    Get-ChildItem -Path artifacts -Recurse -Directory | ForEach-Object {
+                    Get-ChildItem -Path artifacts -Directory | ForEach-Object {
                         Compress-Archive -Path $_.FullName -DestinationPath zips/$($_.Name).zip
                     }
 
