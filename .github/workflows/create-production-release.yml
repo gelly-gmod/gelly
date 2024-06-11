@@ -72,8 +72,7 @@ jobs:
 
             -   name: Test artifacts
                 run: |
-                    dir /s /b artifacts
-
+                    Get-ChildItem -Recurse -Path artifacts
             -   name: Get changelog
                 uses: actions/checkout@v4
                 with:
