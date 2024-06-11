@@ -93,7 +93,8 @@ jobs:
             -   name: Create release
                 uses: softprops/action-gh-release@v2
                 with:
-                    files: zips/*.zip
+                    files: |
+                        **/*.zip
                     name: ${{ steps.parse-changelog.outputs.version }}
                     body: ${{ steps.parse-changelog.outputs.changes }}
                     tag_name: ${{ steps.parse-changelog.outputs.version }}
