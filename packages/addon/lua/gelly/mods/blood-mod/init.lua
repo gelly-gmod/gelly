@@ -61,6 +61,15 @@ local BLOOD_WEAPON_CONFIGS = { -- IMPLEMENT SPECIFIC WEAPON DAMAGE
 		CubeSize = 15,
 		DamageMultiplier = 35,
 	},
+	{
+		ClassName = "weapon_357",
+		MinDensity = 100,
+		MaxDensity = 200,
+		VelocityPower = 5,
+		Randomness = 0.1,
+		CubeSize = 5,
+		DamageMultiplier = 30,
+	},
 }
 
 local function getConfig(damageType)
@@ -75,7 +84,6 @@ end
 local function getWeaponConfig(weaponClassName)
 	for _, config in ipairs(BLOOD_WEAPON_CONFIGS) do
 		if weaponClassName == config.ClassName then
-			print(config.ClassName)
 			return config
 		end
 	end
@@ -125,13 +133,13 @@ hook.Add(
 			not victim:IsValid() or
 			not victim:IsPlayer() and
 			not victim:IsNPC() and
-			victim:GetClass() ~= "prop_ragdoll"
+			not victim:IsRagdoll()
 		then
 			return
 		end
 
 		local bloodcolor = 0
-		
+
 		if victim:GetBloodColor() ~= nil then
 			bloodcolor = victim:GetBloodColor()
 		end
