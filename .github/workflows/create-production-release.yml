@@ -54,10 +54,6 @@ jobs:
                 run: |
                     scripts/gmad.exe create -folder packages/addon -out release/garrysmod/addons/gelly/gelly.gma
 
-            -   name: Zip release
-                run: |
-                    Compress-Archive -Path release -DestinationPath ${{ matrix.presets.configure }}-x64.zip
-
             -   name: Upload release
                 uses: actions/upload-artifact@v4
                 with:
@@ -73,6 +69,12 @@ jobs:
                 uses: actions/download-artifact@v4
                 with:
                     path: artifacts # When we don't specify a name, it'll download all artifacts we generated
+
+            -   name: Zip artifacts
+                run: |
+                    Get-ChildItem -Path artifacts -Recurse -Directory | ForEach-Object {
+                        Compress-Archive -Path $_.FullName -DestinationPath zips/$($_.Name).zip
+                    }
 
             -   name: Get changelog
                 uses: actions/checkout@v4
@@ -90,8 +92,7 @@ jobs:
             -   name: Create release
                 uses: softprops/action-gh-release@v2
                 with:
-                    files: |
-                        artifacts/**/*.zip
+                    files: zips/*.zip
                     name: ${{ steps.parse-changelog.outputs.version }}
                     body: ${{ steps.parse-changelog.outputs.changes }}
                     tag_name: ${{ steps.parse-changelog.outputs.version }}
