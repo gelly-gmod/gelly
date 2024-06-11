@@ -11,9 +11,12 @@ set(GELLY_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${GELLY_ROOT_DIR}/cmake")
 
 include(GetCurrentVersion)
-get_current_version_from_changelog(${GELLY_ROOT_DIR}/CHANGELOG.md)
+include(GetFleXDeps)
 
-message(STATUS " Configuring Gelly with CMake version ${CMAKE_VERSION} and Gelly version ${GELLY_VERSION}")
+get_current_version_from_changelog(${GELLY_ROOT_DIR}/CHANGELOG.md)
+message(STATUS "Configuring Gelly with CMake version ${CMAKE_VERSION} and Gelly version ${GELLY_VERSION}")
+
+get_flex_dependencies(${GELLY_ROOT_DIR}/packages/gelly/modules/gelly-fluid-sim/vendor/FleX)
 
 find_program(SCCACHE sccache)
 if (SCCACHE)
