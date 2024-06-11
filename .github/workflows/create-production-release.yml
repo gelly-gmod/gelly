@@ -76,7 +76,7 @@ jobs:
                     Get-ChildItem -Path artifacts -Directory | ForEach-Object {
                         Compress-Archive -Path $_.FullName -DestinationPath zips/$($_.Name).zip
                     }
-
+                    Get-ChildItem -Recurse
             -   name: Get changelog
                 uses: actions/checkout@v4
                 with:
