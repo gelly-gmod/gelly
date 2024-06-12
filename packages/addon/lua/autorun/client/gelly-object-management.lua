@@ -21,8 +21,7 @@ local function getVerticesOfModel(modelPath)
 	for _, mesh in ipairs(meshes) do
 		local vertsForMesh = {}
 		for _, vertex in ipairs(mesh.triangles) do
-			local newVertexPosition = rootTransform * vertex.pos
-			table.insert(vertsForMesh, newVertexPosition)
+			table.insert(vertsForMesh, rootTransform * vertex.pos)
 		end
 
 		table.insert(vertices, vertsForMesh)
