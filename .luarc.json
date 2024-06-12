@@ -1,0 +1,9 @@
+{
+	"$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+	"runtime.path": [
+		"packages/addon/lua/?.lua"
+	],
+	"runtime.special": {
+		"include": "require"
+	}
+}
