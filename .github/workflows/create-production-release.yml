@@ -77,9 +77,11 @@ jobs:
                     }
                     
                     Get-ChildItem
+
             -   name: Get changelog
                 uses: actions/checkout@v4
                 with:
+                    path: changelog
                     sparse-checkout: 'CHANGELOG.md'
                     sparse-checkout-cone-mode: false
 
@@ -88,7 +90,7 @@ jobs:
                 uses: mindsers/changelog-reader-action@v2
                 with:
                     validation_level: warn
-                    path: CHANGELOG.md
+                    path: changelog/CHANGELOG.md
 
             -   name: Create release
                 uses: softprops/action-gh-release@v2
