@@ -1,4 +1,3 @@
----@module "gelly.logging"
 local logging = include("gelly/logging.lua")
 
 local objects = {}
@@ -7,16 +6,35 @@ local objects = {}
 -- once a multi-mesh object is added.
 local MULTI_OBJECT_OFFSET = 65536
 
+local function correctBindPose(bindPose)
+	local bindAngles = bindPose:GetAngles()
+	local isBad = bindAngles ~= Angle(0, 0, 0)
+
+	if not isBad then
+		return bindPose
+	end
+
+	bindPose:SetAngles(Angle(0, 90, 0))
+	return bindPose
+end
+
 --- Returns a list of the individual meshes and their vertices of the given model.
 ---@param modelPath string
 local function getVerticesOfModel(modelPath)
-	local meshes = util.GetModelMeshes(modelPath, 1, 1)
+	local meshes, bindPoses = util.GetModelMeshes(modelPath, 1, 1)
 	local vertices = {}
+
+	-- We want to transform the vertices to the root of the model so that there's no visual mismatch
+	local rootTransform = Matrix()
+	if bindPoses then
+		rootTransform = correctBindPose(bindPoses[0].matrix)
+	end
 
 	for _, mesh in ipairs(meshes) do
 		local vertsForMesh = {}
 		for _, vertex in ipairs(mesh.triangles) do
-			table.insert(vertsForMesh, vertex.pos)
+			local newVertexPosition = rootTransform * vertex.pos
+			table.insert(vertsForMesh, newVertexPosition)
 		end
 
 		table.insert(vertices, vertsForMesh)
