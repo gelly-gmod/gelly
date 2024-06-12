@@ -14,6 +14,7 @@ local function correctBindPose(bindPose)
 		return bindPose
 	end
 
+	bindPose:SetTranslation(Vector(0, 0, 0))
 	bindPose:SetAngles(Angle(0, 90, 0))
 	return bindPose
 end
