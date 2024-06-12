@@ -6,19 +6,6 @@ local objects = {}
 -- once a multi-mesh object is added.
 local MULTI_OBJECT_OFFSET = 65536
 
-local function correctBindPose(bindPose)
-	local bindAngles = bindPose:GetAngles()
-	local isBad = bindAngles ~= Angle(0, 0, 0)
-
-	if not isBad then
-		return bindPose
-	end
-
-	bindPose:SetTranslation(Vector(0, 0, 0))
-	bindPose:SetAngles(Angle(0, 90, 0))
-	return bindPose
-end
-
 --- Returns a list of the individual meshes and their vertices of the given model.
 ---@param modelPath string
 local function getVerticesOfModel(modelPath)
@@ -28,7 +15,7 @@ local function getVerticesOfModel(modelPath)
 	-- We want to transform the vertices to the root of the model so that there's no visual mismatch
 	local rootTransform = Matrix()
 	if bindPoses then
-		rootTransform = correctBindPose(bindPoses[0].matrix)
+		rootTransform = bindPoses[0].matrix
 	end
 
 	for _, mesh in ipairs(meshes) do
@@ -82,7 +69,7 @@ local function updateObject(entity)
 			return
 		end
 
-		local transform = entity:GetWorldTransformMatrix()
+		local transform = entity:GetBoneMatrix(0)
 		gelly.SetObjectPosition(objectHandle, transform:GetTranslation())
 		gelly.SetObjectRotation(objectHandle, transform:GetAngles())
 	end
