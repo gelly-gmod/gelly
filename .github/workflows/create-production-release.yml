@@ -26,8 +26,8 @@ jobs:
                 id: cache-submodules
                 uses: actions/cache@v4
                 with:
-                    path: 'gelly/**/vendor/**'
-                    key: gelly-submodules-${{ github.ref }}-${{ hashFiles('gelly/.gitmodules') }}
+                    path: 'packages/**/vendor/**'
+                    key: gelly-submodules-${{ github.ref }}-${{ hashFiles('.gitmodules') }}
 
             -   name: Init all submodules if needed
                 if: steps.cache-submodules.outputs.cache-hit != 'true'
@@ -70,9 +70,16 @@ jobs:
                 with:
                     path: artifacts # When we don't specify a name, it'll download all artifacts we generated
 
+            -   name: Zip artifacts
+                run: |
+                    Get-ChildItem -Path artifacts -Directory | ForEach-Object {
+                        Compress-Archive -Path $_.FullName -DestinationPath "$($_.Name).zip"
+                    }
+
             -   name: Get changelog
                 uses: actions/checkout@v4
                 with:
+                    path: changelog
                     sparse-checkout: 'CHANGELOG.md'
                     sparse-checkout-cone-mode: false
 
@@ -81,13 +88,13 @@ jobs:
                 uses: mindsers/changelog-reader-action@v2
                 with:
                     validation_level: warn
-                    path: CHANGELOG.md
+                    path: changelog/CHANGELOG.md
 
             -   name: Create release
                 uses: softprops/action-gh-release@v2
                 with:
                     files: |
-                        artifacts/**/*.zip
+                        *.zip
                     name: ${{ steps.parse-changelog.outputs.version }}
                     body: ${{ steps.parse-changelog.outputs.changes }}
                     tag_name: ${{ steps.parse-changelog.outputs.version }}
