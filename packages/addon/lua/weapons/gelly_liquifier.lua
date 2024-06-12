@@ -3,7 +3,7 @@ SWEP.Spawnable = true
 SWEP.AdminOnly = false
 SWEP.PrintName = "Gelly Liquifier"
 
-SWEP.ViewModel = "models/weapons/v_pistol.mdl"
+SWEP.ViewModel = "models/weapons/c_pistol.mdl"
 SWEP.WorldModel = "models/weapons/w_pistol.mdl"
 SWEP.ViewModelFOV = 54
 SWEP.UseHands = true

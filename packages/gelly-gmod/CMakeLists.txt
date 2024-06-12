@@ -139,4 +139,23 @@ message(STATUS "Configuring gelly-gmod's version as ${GELLY_VERSION}")
 configure_file(src/version.h.in src/version.h @ONLY)
 target_include_directories(gelly-gmod PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src)
 
-add_dependencies(gelly-gmod gsc GellyGModShaderCompile)
+set_target_properties(gelly-gmod PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${GELLY_ROOT_DIR}/release/garrysmod/lua/bin
+)
+
+foreach (FLEX_DEP ${FLEX_LIBS})
+    add_custom_command(TARGET gelly-gmod POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${FLEX_DEP}
+            ${GELLY_ROOT_DIR}/release
+            VERBATIM
+            COMMENT "Copying ${FLEX_DEP} to the output directory"
+    )
+endforeach ()
+
+add_custom_target(
+        CopyFlexLibs
+        DEPENDS ${FLEX_LIBS}
+)
+
+add_dependencies(gelly-gmod gsc GellyGModShaderCompile CopyFlexLibs)

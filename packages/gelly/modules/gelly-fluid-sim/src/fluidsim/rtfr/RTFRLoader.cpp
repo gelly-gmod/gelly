@@ -1,6 +1,7 @@
 #include "RTFRLoader.h"
 
 #include <fstream>
+#include <sstream>
 
 enum VizInfoTuple {
 	// Open for extension if more information is needed. That is why an

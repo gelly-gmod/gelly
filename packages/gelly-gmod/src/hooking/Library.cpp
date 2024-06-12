@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <vector>
 
 #include "MinHook.h"
@@ -131,7 +132,8 @@ uintptr_t Library::Scan(const char *pattern) const {
 			patternBytes.push_back({true, 0});
 		} else {
 			const char byteString[3] = {nibble1, nibble2, '\0'};
-			const auto byte = static_cast<uint8_t>(strtol(byteString, nullptr, 16));
+			const auto byte =
+				static_cast<uint8_t>(strtol(byteString, nullptr, 16));
 
 			patternBytes.push_back({false, byte});
 		}
@@ -179,7 +181,7 @@ bool Library::HookFunction(
 		return false;
 	}
 
-	hookedFunction.Init(reinterpret_cast<void*>(address), hook, original);
+	hookedFunction.Init(reinterpret_cast<void *>(address), hook, original);
 
 	return true;
 }

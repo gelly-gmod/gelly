@@ -59,12 +59,6 @@ constexpr DWORD LUAJIT_UNHANDLED_PCALL = 0xE24C4A02;
 
 static PVOID emergencyHandler = nullptr;
 LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
-	// Pass if the exception is continuable
-	if (exceptionInfo->ExceptionRecord->ExceptionFlags &
-		EXCEPTION_SOFTWARE_ORIGINATE) {
-		return EXCEPTION_CONTINUE_SEARCH;
-	}
-
 	// We want to log the exception code
 	switch (exceptionInfo->ExceptionRecord->ExceptionCode) {
 		case EXCEPTION_ACCESS_VIOLATION:

@@ -1,4 +1,4 @@
----@module "gelly.api.presets.convert-color-to-absorption"
+---@module 'gelly.api.presets.convert-color-to-absorption'
 local convertColorToAbsorption =
 	include("gelly/api/presets/convert-color-to-absorption.lua")
 
@@ -7,7 +7,7 @@ local PANEL = {}
 function PANEL:Init()
 	self.HTML = self:Add("DHTML")
 	self.HTML:Dock(FILL)
-	self.HTML:OpenURL("asset://garrysmod/html/preset_creator.html")
+	self.HTML:OpenURL("asset://garrysmod/lua/html/preset_creator.html.lua")
 	self:SetVisible(false)
 	self:SetSizable(true)
 	self:SetDraggable(true)
