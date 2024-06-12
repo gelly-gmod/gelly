@@ -5,5 +5,8 @@
 	],
 	"runtime.special": {
 		"include": "require"
-	}
+	},
+	"diagnostics.disable": [
+		"undefined-global"
+	]
 }

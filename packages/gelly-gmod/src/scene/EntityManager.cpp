@@ -8,9 +8,8 @@ EntityManager::~EntityManager() {
 	}
 }
 
-std::pair<std::vector<Vector>, std::vector<uint32_t>> EntityManager::ProcessGModMesh(
-	std::vector<Vector> vertices
-) const {
+std::pair<std::vector<Vector>, std::vector<uint32_t>>
+EntityManager::ProcessGModMesh(std::vector<Vector> vertices) const {
 	std::vector<Vector> processedVertices = vertices;
 	std::vector<uint32_t> indices;
 

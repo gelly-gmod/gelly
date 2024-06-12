@@ -1,4 +1,3 @@
----@module "gelly.logging"
 local logging = include("gelly/logging.lua")
 
 local objects = {}
@@ -10,13 +9,19 @@ local MULTI_OBJECT_OFFSET = 65536
 --- Returns a list of the individual meshes and their vertices of the given model.
 ---@param modelPath string
 local function getVerticesOfModel(modelPath)
-	local meshes = util.GetModelMeshes(modelPath, 1, 1)
+	local meshes, bindPoses = util.GetModelMeshes(modelPath, 1, 1)
 	local vertices = {}
+
+	-- We want to transform the vertices to the root of the model so that there's no visual mismatch
+	local rootTransform = Matrix()
+	if bindPoses then
+		rootTransform = bindPoses[0].matrix
+	end
 
 	for _, mesh in ipairs(meshes) do
 		local vertsForMesh = {}
 		for _, vertex in ipairs(mesh.triangles) do
-			table.insert(vertsForMesh, vertex.pos)
+			table.insert(vertsForMesh, rootTransform * vertex.pos)
 		end
 
 		table.insert(vertices, vertsForMesh)
@@ -63,7 +68,7 @@ local function updateObject(entity)
 			return
 		end
 
-		local transform = entity:GetWorldTransformMatrix()
+		local transform = entity:GetBoneMatrix(0)
 		gelly.SetObjectPosition(objectHandle, transform:GetTranslation())
 		gelly.SetObjectRotation(objectHandle, transform:GetAngles())
 	end
