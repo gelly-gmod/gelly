@@ -72,11 +72,9 @@ jobs:
 
             -   name: Zip artifacts
                 run: |
-                    New-Item -Path zips -ItemType Directory -Force
                     Get-ChildItem -Path artifacts -Directory | ForEach-Object {
-                        Compress-Archive -Path $_.FullName -DestinationPath zips/$($_.Name).zip
+                        Compress-Archive -Path $_.FullName -DestinationPath $($_.Name).zip
                     }
-                    Get-ChildItem -Recurse
             -   name: Get changelog
                 uses: actions/checkout@v4
                 with:
@@ -94,7 +92,7 @@ jobs:
                 uses: softprops/action-gh-release@v2
                 with:
                     files: |
-                        **/*.zip
+                        *.zip
                     name: ${{ steps.parse-changelog.outputs.version }}
                     body: ${{ steps.parse-changelog.outputs.changes }}
                     tag_name: ${{ steps.parse-changelog.outputs.version }}
