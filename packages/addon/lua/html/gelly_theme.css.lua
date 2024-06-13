@@ -1,3 +1,9 @@
+:root {
+	--button-border-radius: 5px;
+	--button-border-size: 2px;
+	--button-press-scale: 0.95;
+}
+
 button {
 	background-color: black;
 	color: white;
@@ -6,8 +12,8 @@ button {
 	font-weight: 600;
 	width: 100px;
 
-	border: 2px solid rgb(36, 36, 36);
-	border-radius: 5px;
+	border: var(--button-border-size) solid rgb(36, 36, 36);
+	border-radius: var(--button-border-radius);
 	outline: none;
 
 	transition: background-color 0.2s, color 0.2s, transform 0.2s;
@@ -19,5 +25,5 @@ button:hover {
 }
 
 button:active {
-	transform: scale(0.75);
+	transform: scale(var(--button-press-scale));
 }

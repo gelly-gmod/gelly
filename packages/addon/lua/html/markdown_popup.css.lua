@@ -52,13 +52,18 @@ footer {
 	width: 100%;
 }
 
-ul {
+.bullet {
 	font-family: "Kanit", sans-serif;
 	font-size: 1em;
 	font-weight: 400;
 	font-style: normal;
 
 	color: white;
+	margin-left: 10px;
+}
+
+.bullet-point {
+	margin-right: 5px;
 }
 
 h3 {

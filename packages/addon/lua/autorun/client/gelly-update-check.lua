@@ -53,14 +53,14 @@ end
 ---@param release GellyParsedRelease The release to check
 ---@return boolean different True if the release is different than the current version, false otherwise
 local function isReleaseDifferentThanCurrentVersion(release)
-	return release.version ~= gelly.GetVersion()
+	return release.version == gelly.GetVersion()
 end
 
 hook.Add("GellyLoaded", "gelly.check-for-updates", function()
 	getLatestRelease(function(release)
 		if isReleaseDifferentThanCurrentVersion(release) then
 			local popup = vgui.Create("GellyNewVersionPopup")
-			popup:SetPopupTitle(("%s is available!"):format(release.version))
+			popup:SetPopupTitle(("Gelly %s is available!"):format(release.version))
 			popup:SetMarkdown(release.releaseNotes)
 			popup:SetAction("Download")
 			popup:SetOnAction(function()
