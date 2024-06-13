@@ -1,3 +1,5 @@
+include("gelly/ui/markdown-popup.lua")
+
 local GH_RELEASES_API_URL = "https://api.github.com/repos/yogwoggf/gelly/releases/latest"
 local FAVORED_RELEASE_ASSET = "gelly-gmod-release-x64.zip" -- we favor the release build than the debug build
 
@@ -57,7 +59,15 @@ end
 hook.Add("GellyLoaded", "gelly.check-for-updates", function()
 	getLatestRelease(function(release)
 		if isReleaseDifferentThanCurrentVersion(release) then
+			local popup = vgui.Create("GellyNewVersionPopup")
+			popup:SetPopupTitle(("%s is available!"):format(release.version))
+			popup:SetMarkdown(release.releaseNotes)
+			popup:SetAction("Download")
+			popup:SetOnAction(function()
+				gui.OpenURL(release.downloadURL)
+			end)
 
+			popup:Popup()
 		end
 	end)
 end)
