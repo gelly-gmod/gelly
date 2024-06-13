@@ -1,6 +1,6 @@
 include("gelly/ui/markdown-popup.lua")
 
-local GH_RELEASES_API_URL = "https://api.github.com/repos/yogwoggf/gelly/releases/latest"
+local GH_RELEASES_API_URL = "https://api.github.com/repos/yogwoggf/gelly/releases/159986941"
 local FAVORED_RELEASE_ASSET = "gelly-gmod-release-x64.zip" -- we favor the release build than the debug build
 
 ---@alias GellyParsedRelease {version: string, releaseNotes: string, downloadURL: string}
@@ -53,7 +53,7 @@ end
 ---@param release GellyParsedRelease The release to check
 ---@return boolean different True if the release is different than the current version, false otherwise
 local function isReleaseDifferentThanCurrentVersion(release)
-	return release.version == gelly.GetVersion()
+	return release.version ~= gelly.GetVersion()
 end
 
 hook.Add("GellyLoaded", "gelly.check-for-updates", function()

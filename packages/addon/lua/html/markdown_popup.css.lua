@@ -4,10 +4,10 @@ body {
 	display: flex;
 	flex-direction: column;
 
-	padding: 5px 5px 5px 5px;
+	padding: 25px;
 	margin: 0;
 
-	height: 100vh;
+	height: calc(100vh - 25px);
 
 	overflow: hidden;
 	background: rgba(0, 0, 0, 0);
@@ -15,7 +15,7 @@ body {
 
 header {
 	display: flex;
-	min-height: 64px;
+	min-height: 32px;
 }
 
 header h1 {
@@ -23,7 +23,7 @@ header h1 {
 	margin: 0;
 
 	font-family: "Kanit", sans-serif;
-	font-size: 1.5em;
+	font-size: 2em;
 	font-weight: 600;
 	font-style: normal;
 }
@@ -33,6 +33,9 @@ main {
 	flex-direction: column;
 	justify-content: flex-start;
 	height: 100%;
+
+	/* at a certain point we do not want it to push the buttons down */
+	overflow: auto;
 }
 
 footer {
@@ -60,7 +63,7 @@ ul {
 
 h3 {
 	margin-left: 3px;
-	
+
 	font-family: "Kanit", sans-serif;
 	font-size: 1.5em;
 	font-weight: 600;
