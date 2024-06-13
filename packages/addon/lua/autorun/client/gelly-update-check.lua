@@ -1,6 +1,6 @@
 include("gelly/ui/markdown-popup.lua")
 
-local GH_RELEASES_API_URL = "https://api.github.com/repos/yogwoggf/gelly/releases/159986941"
+local GH_RELEASES_API_URL = "https://api.github.com/repos/yogwoggf/gelly/releases/latest"
 local FAVORED_RELEASE_ASSET = "gelly-gmod-release-x64.zip" -- we favor the release build than the debug build
 
 ---@alias GellyParsedRelease {version: string, releaseNotes: string, downloadURL: string}

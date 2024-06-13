@@ -38,7 +38,6 @@ function PANEL:SetupJSEnvironment()
 	end)
 
 	self.HTML:AddFunction("popup", "getMarkdown", function()
-		print("Sending markdown: ", self:GetMarkdown())
 		return self:GetMarkdown()
 	end)
 
