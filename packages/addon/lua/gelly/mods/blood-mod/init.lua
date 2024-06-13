@@ -19,6 +19,7 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 		Randomness = 1,
 		CubeSize = 10,
 		DamageMultiplier = 90,
+		FromEntity = true,
     },
 	{
         DamageFlags = bit.bor(DMG_SLASH, DMG_CLUB),
@@ -96,7 +97,7 @@ local BLOOD_COLOR_MATERIALS = {
 		Roughness = 0,
 		IsSpecularTransmission = true,
 		RefractiveIndex = 1.373,
-		Absorption = Vector(0.45, 0.1, 0.5),
+		Absorption = Vector(0.4, 0.15, 0.5),
 		DiffuseColor = Vector(0, 0, 0),
 	},
 	[BLOOD_COLOR_ZOMBIE] = {
@@ -110,12 +111,12 @@ local BLOOD_COLOR_MATERIALS = {
 		Roughness = 0,
 		IsSpecularTransmission = true,
 		RefractiveIndex = 1.373,
-		Absorption = Vector(0.5, 0.05, 0.5),
+		Absorption = Vector(0.45, 0.1, 0.5),
 		DiffuseColor = Vector(0, 0, 0),
 	},
 }
 
-local function getConfig(damageType)
+local function getDamageTypeConfig(damageType)
 	for _, config in ipairs(DAMAGE_TYPE_BLOOD_CONFIGS) do
         if bit.band(damageType, config.DamageFlags) ~= 0 then
             return config
@@ -124,19 +125,26 @@ local function getConfig(damageType)
 	return nil
 end
 
-local function getWeaponConfig(attacker)
-	if attacker:IsNPC() or attacker:IsPlayer() then
-		return WEAPON_BLOOD_CONFIGS[attacker:GetActiveWeapon():GetClass()]
+local function getConfig(attacker, damageType)
+	local config = nil
+
+	if attacker:IsValid() and (attacker:IsNPC() or attacker:IsPlayer()) then
+		config = WEAPON_BLOOD_CONFIGS[attacker:GetActiveWeapon():GetClass()]
 	end
-	return nil
+
+	if damageType and not config then
+		config = getDamageTypeConfig(damageType)
+	end
+
+	return config
 end
 
-local function sprayBlood(damageType, attacker, position, force, damage)
-	local normal = attacker == LocalPlayer() and 
-					attacker:GetAimVector() or 
+local function sprayBlood(damageType, victim, attacker, position, force, damage)
+	local normal = attacker == LocalPlayer() and
+					attacker:GetAimVector() or
 					force:GetNormalized()
-
-	local config = getWeaponConfig(attacker) or getConfig(damageType)
+	
+	local config = getConfig(attacker, damageType)
 	if not config then return end
 
 	local density = math.random(config.MinDensity, config.MaxDensity)
@@ -147,12 +155,22 @@ local function sprayBlood(damageType, attacker, position, force, damage)
 	density = density + damageMultiplier * damage
 
 	gellyx.emitters.Sphere({
-		center = position,
+		center = config.FromEntity and
+				 victim:GetPos() or
+				 position,
 		velocity = velocity,
 		radius = config.CubeSize,
 		density = density,
 		randomness = config.Randomness,
 	})
+end
+
+local function changeMaterialTable(material, table) -- temporary solution until ephemeral presets
+	material.Roughness = 			  table.Roughness
+	material.IsSpecularTransmission = table.IsSpecularTransmission
+	material.RefractiveIndex = 		  table.RefractiveIndex
+	material.Absorption = 			  table.Absorption
+	material.DiffuseColor = 		  table.DiffuseColor
 end
 
 hook.Add(
@@ -168,23 +186,18 @@ hook.Add(
 			return
 		end
 
-		local bloodColor = BLOOD_COLOR_RED
+		local bloodColor = victim:GetBloodColor() or BLOOD_COLOR_RED
+		local material = gellyx.presets.getActivePreset().Material
 
-		if victim:GetBloodColor() ~= nil and
-			victim:GetBloodColor() ~= DONT_BLEED and
-			victim:GetBloodColor() ~= BLOOD_COLOR_MECH
-		then
-			bloodColor = victim:GetBloodColor()
-		end
-		
-		local oldMaterial = gellyx.presets.getActivePreset().Material
-		local material = BLOOD_COLOR_MATERIALS[bloodColor]
+		changeMaterialTable(material, BLOOD_COLOR_MATERIALS[bloodColor])
 
 		gelly.SetFluidMaterial(material)
 
-		sprayBlood(type, attacker, position, force, damage)
+		sprayBlood(type, victim, attacker, position, force, damage)
 
-		gelly.SetFluidMaterial(oldMaterial)
+		changeMaterialTable(material, BLOOD_COLOR_MATERIALS[BLOOD_COLOR_RED]) -- (this will change any preset's material into a blood material) only until ephemeral presets
+		
+		gelly.SetFluidMaterial(material)
 	end
 )
 
