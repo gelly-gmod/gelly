@@ -128,7 +128,7 @@ end
 local function getConfig(attacker, damageType)
 	local config = nil
 
-	if attacker:IsValid() and (attacker:IsNPC() or attacker:IsPlayer()) then
+	if attacker:IsValid() and attacker:GetActiveWeapon():IsValid() then
 		config = WEAPON_BLOOD_CONFIGS[attacker:GetActiveWeapon():GetClass()]
 	end
 
@@ -165,12 +165,20 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage)
 	})
 end
 
-local function changeMaterialTable(material, table) -- temporary solution until ephemeral presets
+local function convertTableToMaterial(table, material) -- temporary solution until ephemeral presets
 	material.Roughness = 			  table.Roughness
 	material.IsSpecularTransmission = table.IsSpecularTransmission
 	material.RefractiveIndex = 		  table.RefractiveIndex
 	material.Absorption = 			  table.Absorption
 	material.DiffuseColor = 		  table.DiffuseColor
+end
+
+local function convertMaterialToTable(material, table) -- temporary solution until ephemeral presets
+	table.Roughness = 			   material.Roughness
+	table.IsSpecularTransmission = material.IsSpecularTransmission
+	table.RefractiveIndex = 	   material.RefractiveIndex
+	table.Absorption = 			   material.Absorption
+	table.DiffuseColor = 		   material.DiffuseColor
 end
 
 hook.Add(
@@ -188,14 +196,17 @@ hook.Add(
 
 		local bloodColor = victim:GetBloodColor() or BLOOD_COLOR_RED
 		local material = gellyx.presets.getActivePreset().Material
+		local oldTable = {}
 
-		changeMaterialTable(material, BLOOD_COLOR_MATERIALS[bloodColor])
+		convertMaterialToTable(material, oldTable)
+
+		convertTableToMaterial(BLOOD_COLOR_MATERIALS[bloodColor], material)
 
 		gelly.SetFluidMaterial(material)
 
 		sprayBlood(type, victim, attacker, position, force, damage)
 
-		changeMaterialTable(material, BLOOD_COLOR_MATERIALS[BLOOD_COLOR_RED]) -- (this will change any preset's material into a blood material) only until ephemeral presets
+		convertTableToMaterial(oldTable, material)
 		
 		gelly.SetFluidMaterial(material)
 	end
