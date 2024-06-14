@@ -1,4 +1,4 @@
-const MARKDOWN_TO_HTML_REGEX = [
+const MARKDOWN_TO_HTML_CONVERTERS = [
 	{
 		regex: /### (.+)/g,
 		replace: "<h3>$1</h3>"
@@ -11,46 +11,19 @@ const MARKDOWN_TO_HTML_REGEX = [
 
 const getMarkdownAsHTML =
 	markdownText =>
-		MARKDOWN_TO_HTML_REGEX.reduce((markdown, converter) => markdown.replace(converter.regex, converter.replace), markdownText);
-
-function initializeTitleText() {
-	const titleElement = document.getElementById('title');
-	popup.getTitle(function (titleText) {
-		titleElement.innerText = titleText;
-	});
-}
-
-function initializeActionText() {
-	const actionButton = document.getElementById('action');
-	popup.getAction(function (actionText) {
-		actionButton.innerText = actionText;
-	});
-}
-
-function setupCloseButton() {
-	const closeButton = document.getElementById('close');
-	closeButton.addEventListener('click', function () {
-		popup.close();
-	});
-}
-
-function setupActionButton() {
-	const actionButton = document.getElementById('action');
-	actionButton.addEventListener('click', function () {
-		popup.performAction();
-	});
-}
+		MARKDOWN_TO_HTML_CONVERTERS.reduce((markdown, converter) => markdown.replace(converter.regex, converter.replace), markdownText);
 
 document.addEventListener('DOMContentLoaded', function () {
 	let markdownElement = document.getElementById('content');
+	let titleElement = document.getElementById('title');
+	let actionElement = document.getElementById('action');
+	let closeElement = document.getElementById('close');
 
-	popup.getMarkdown(function (markdownFromAddon) {
-		markdownElement.innerHTML = getMarkdownAsHTML(markdownFromAddon);
+	popup.getMarkdown(markdownFromAddon => markdownElement.innerHTML = getMarkdownAsHTML(markdownFromAddon));
+	popup.getTitle(title => titleElement.innerHTML = title);
+	popup.getAction(action => actionElement.innerHTML = action);
 
-		initializeTitleText();
-		initializeActionText();
-
-		setupCloseButton();
-		setupActionButton();
-	});
+	// We need to create wrapper functions to avoid the element being sent to GMod (and causing errors)
+	closeElement.addEventListener('click', () => popup.close());
+	actionElement.addEventListener('click', () => popup.performAction());
 });
