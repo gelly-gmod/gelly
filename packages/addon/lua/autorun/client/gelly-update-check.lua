@@ -1,4 +1,4 @@
-include("gelly/ui/markdown-popup.lua")
+include("gelly/ui/new-version-popup.lua")
 
 local GH_RELEASES_API_URL = "https://api.github.com/repos/yogwoggf/gelly/releases/latest"
 local FAVORED_RELEASE_ASSET = "gelly-gmod-release-x64.zip" -- we favor the release build than the debug build
@@ -7,27 +7,31 @@ local FAVORED_RELEASE_ASSET = "gelly-gmod-release-x64.zip" -- we favor the relea
 
 --- Parses the release API response given by GitHub
 ---@param responseJSON string The JSON response from the GitHub API
----@return GellyParsedRelease release The parsed release information
+---@return GellyParsedRelease|nil release The parsed release information. Nil if the release is not found, which may happen if someone has yanked the release
 local function parseReleaseResponse(responseJSON)
-	local parsedTable = util.JSONToTable(responseJSON)
-	if not parsedTable then
+	local response = util.JSONToTable(responseJSON)
+	if not response then
 		error("Failed to parse JSON response from GitHub API")
 	end
 
 	local release = {
-		version = parsedTable.tag_name,
-		releaseNotes = parsedTable.body,
+		version = response.tag_name,
+		releaseNotes = response.body,
 		downloadURL = nil
 	}
 
 	release.releaseNotes = string.gsub(release.releaseNotes, "\r\n", "\n") -- normalize line endings
 
-	for _, assetEntry in ipairs(parsedTable.assets) do
-		if assetEntry.name == FAVORED_RELEASE_ASSET then
+	for _, asset in ipairs(response.assets) do
+		if asset.name == FAVORED_RELEASE_ASSET then
 			-- must be the browser_download_url so that we can immediately download it
-			release.downloadURL = assetEntry.browser_download_url
+			release.downloadURL = asset.browser_download_url
 			break
 		end
+	end
+
+	if not release.downloadURL then
+		return nil
 	end
 
 	return release
@@ -43,6 +47,10 @@ local function getLatestRelease(onSuccess)
 		end
 
 		local release = parseReleaseResponse(body)
+		if not release then
+			return
+		end
+
 		onSuccess(release)
 	end, function(err)
 		error("Failed to fetch latest release information: " .. err)
@@ -53,7 +61,7 @@ end
 ---@param release GellyParsedRelease The release to check
 ---@return boolean different True if the release is different than the current version, false otherwise
 local function isReleaseDifferentThanCurrentVersion(release)
-	return release.version ~= gelly.GetVersion()
+	return release.version == gelly.GetVersion()
 end
 
 hook.Add("GellyLoaded", "gelly.check-for-updates", function()
