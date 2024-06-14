@@ -8,7 +8,7 @@ function onSettingChanged(inputElement) {
 }
 
 function registerControl(inputElement) {
-	inputElement.addEventListener('change', function() {
+	inputElement.addEventListener('change', function () {
 		onSettingChanged(inputElement);
 	});
 }
@@ -22,14 +22,14 @@ function registerControls() {
 
 function registerSaveButton() {
 	let saveButton = document.getElementById('preset-save');
-	saveButton.addEventListener('click', function() {
+	saveButton.addEventListener('click', function () {
 		gelly.savePreset();
 	});
 }
 
 function registerTestButton() {
 	let testButton = document.getElementById('preset-test');
-	testButton.addEventListener('click', function() {
+	testButton.addEventListener('click', function () {
 		gelly.testPreset();
 	});
 }
