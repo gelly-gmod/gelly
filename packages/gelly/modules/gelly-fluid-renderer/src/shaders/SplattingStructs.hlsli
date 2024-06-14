@@ -12,6 +12,7 @@ struct VS_OUTPUT {
     float4 InvQ1 : INVQ1;
     float4 InvQ2 : INVQ2;
     float4 InvQ3 : INVQ3;
+	float Variance : VARIANCE;
     float4 NDCPos : NDCPos;
 };
 

@@ -6,6 +6,9 @@ static const float2 corners[4] = {
     float2(1.0, 1.0), float2(1.0, 0.0)
 };
 
+// cuts out tiny particles that are just gonna be noise in the final image
+#define VARIANCE_THRESHOLD 0.7f
+
 void CullParticle(float2 ndcPos) {
     if (any(abs(ndcPos)) > 1.0) {
         discard;
@@ -15,6 +18,10 @@ void CullParticle(float2 ndcPos) {
 [maxvertexcount(4)]
 void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     GS_OUTPUT output = (GS_OUTPUT)0;
+	if (input[0].Variance < VARIANCE_THRESHOLD) {
+		return;
+	}
+
     CullParticle(input[0].NDCPos.xy);
 
     float4 bounds = input[0].Bounds;
