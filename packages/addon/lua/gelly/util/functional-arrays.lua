@@ -127,6 +127,26 @@ function FunctionalArray:concat(other)
 	return FunctionalArray.new(newArray)
 end
 
+-- Slices off N elements from the start of the array.
+---@param n number
+---@return FunctionalArray
+function FunctionalArray:drop(n)
+	local newArray = {}
+
+	for index = n + 1, #self.array do
+		table.insert(newArray, self.array[index])
+	end
+
+	return FunctionalArray.new(newArray)
+end
+
+-- Joins the elements of the array into a string.
+---@param separator string
+---@return string
+function FunctionalArray:join(separator)
+	return table.concat(self.array, separator)
+end
+
 --- Decomposes into a standard Lua table.
 ---@return table
 function FunctionalArray:toArray()
