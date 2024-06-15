@@ -24,7 +24,6 @@ function repository.upsertMetadataForModId(modId, metadata)
 			sql.SQLStr(metadata.enabled and "TRUE" or "FALSE"),
 			sql.SQLStr(metadata.enabled and "TRUE" or "FALSE")
 		)
-	sql.m_strError = nil -- This is required to invoke __newindex
 
 	sql.Query(query)
 end
