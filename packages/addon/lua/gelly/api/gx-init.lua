@@ -11,3 +11,6 @@ include("emitters/sphere-emitter.lua")
 
 include("mods/enums.lua")
 include("mods/manager.lua")
+
+gellyx.mods.initialize()
+gellyx.mods.runMods()

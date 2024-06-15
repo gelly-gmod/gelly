@@ -13,7 +13,7 @@ end
 
 local function info(message, ...)
 	if isLogEnabled() then
-		print("[gelly-gmod == INFO] " .. (message):format(...))
+		print(("[gelly-gmod == LOG @ %s] %s"):format(debug.getinfo(2, "n").name, (message):format(...)))
 	end
 end
 

@@ -11,7 +11,9 @@ local loadedMods = {}
 include("gelly/api/mods/enums.lua")
 
 function gellyx.mods.initialize()
+	logging.info("Initializing mods.")
 	loadedMods = findAllGellyMods()
+	logging.info(("Found %d mods."):format(#loadedMods))
 
 	array(loadedMods)
 		:map(function(mod)
@@ -65,6 +67,21 @@ local function getGlobalModConflicts()
 	return nil
 end
 
+--- Runs all enabled mods.
+---@return nil
 function gellyx.mods.runMods()
+	local globalModConflicts = getGlobalModConflicts()
 
+	if globalModConflicts then
+		logging.error(("Global mods %s are conflicting."):format(table.concat(globalModConflicts, ", ")))
+		return
+	end
+
+	array(loadedMods)
+		:filter(function(mod)
+			return repository.fetchMetadataForModId(mod.ID).enabled
+		end)
+		:forEach(function(mod)
+			include(mod.InitPath)
+		end)
 end
