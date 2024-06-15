@@ -13,8 +13,11 @@ end
 
 --- Adds the given particle data to the simulation, returning true if they could be added, false otherwise.
 ---@param particles table<number, gx.ParticleSpawnData>
+---@param material table|nil The material to use for the particles, if not provided the active preset's material will be used.
 ---@return boolean
-function gellyx.AddParticles(particles)
+function gellyx.AddParticles(particles, material)
+	material = material or GELLY_ACTIVE_PRESET.Material
+
 	local rawParticles = {}
 	if activeParticles() + #particles > maxParticles() then
 		return false
@@ -25,6 +28,6 @@ function gellyx.AddParticles(particles)
 		rawParticles[#rawParticles + 1] = spawnData.vel
 	end
 
-	gelly.AddParticles(rawParticles, GELLY_ACTIVE_PRESET.Material.Absorption)
+	gelly.AddParticles(rawParticles, material.Absorption)
 	return true
 end
