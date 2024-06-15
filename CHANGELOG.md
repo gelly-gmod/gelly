@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2024-06-15
+
+### Added
+
+- Added a material override system. Developer can now create interesting effects by overriding the material of the
+  particles, for example, it's now possible to make rainbow fluid emitters.
+
 ## [1.7.0] - 2024-06-14
 
 ### Added
