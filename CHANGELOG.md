@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2024-06-15
+
+### Added
+
+- Added a new mod manager, which allows developers to create mods for Gelly. It also allows users to easily manage their
+  installed mods.
+- Added a command line interface, gelly_mod, to manage mods through the GMod console (only way to manage mods for now)
+- Added a new mod, "Sandbox Mod," which is the default mod for Gelly. It enables the Gelly Gun and Gelly Liquifier.
+
+### Fixed
+
+- Fixed the new version dialog not showing a multi-line message correctly
+- Fixed the `.luarc.json` not resolving Gelly's modules correctly.
+
+### Changes
+
+- The blood mod is now disabled by default. It can be enabled with "gelly_mod select blood-mod" in the GMod console.
+- The Gelly Gun and Gelly Liquifier are now part of the Sandbox Mod.
+
 ## [1.8.0] - 2024-06-15
 
 ### Added
