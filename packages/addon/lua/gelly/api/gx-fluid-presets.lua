@@ -63,13 +63,26 @@ function gellyx.presets.selectEphemeralPreset(preset)
 end
 
 function gellyx.presets.getActivePreset()
-	return GELLY_ACTIVE_PRESET
+	return table.Copy(GELLY_ACTIVE_PRESET)
 end
 
 function gellyx.presets.getAllPresets()
-	return GELLY_PRESETS
+	return table.Copy(GELLY_PRESETS)
 end
 
 function gellyx.presets.getCustomPresets()
-	return GELLY_CUSTOM_PRESETS
+	return table.Copy(GELLY_CUSTOM_PRESETS)
+end
+
+--- Copies a preset's material.
+---@param name string The name of the preset to copy the material from.
+---@return table The copied material, this is an actual copy and not a reference.
+function gellyx.presets.copyPresetMaterial(name)
+	local preset = GELLY_PRESETS[name]
+	if not preset then
+		logging.error("Preset %s does not exist", name)
+	end
+
+	local material = table.Copy(preset.Material)
+	return material
 end

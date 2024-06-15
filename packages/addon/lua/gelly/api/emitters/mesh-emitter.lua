@@ -8,7 +8,7 @@ gellyx.emitters = gellyx.emitters or {}
 local MAX_MESH_PARTICLES = 16000
 
 --- Parameters for the mesh emitter, density controls how many particles are emitted per triangle of the mesh.
----@alias gx.emitters.MeshParams {entity: Entity, density: number}
+---@alias gx.emitters.MeshParams {entity: Entity, density: number, material: table|nil}
 
 --- Emits particles in the shape of the given entity, using their visual mesh.
 ---@param params gx.emitters.MeshParams Parameters for the emitter.
@@ -108,5 +108,5 @@ function gellyx.emitters.Mesh(params)
 		end
 	end
 
-	return gellyx.AddParticles(particles)
+	return gellyx.AddParticles(particles, params.material)
 end

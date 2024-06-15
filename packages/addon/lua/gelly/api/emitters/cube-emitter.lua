@@ -2,7 +2,7 @@ gellyx = gellyx or {}
 gellyx.emitters = gellyx.emitters or {}
 
 --- Parameters for a cube emitter, bounds is a local-space vector which determines the size of the cube.
----@alias gx.emitters.CubeParams {center: Vector, velocity: Vector, bounds: Vector, density: number}
+---@alias gx.emitters.CubeParams {center: Vector, velocity: Vector, bounds: Vector, density: number, material: table|nil}
 
 --- Emits particles in a cube shape.
 ---@param params gx.emitters.CubeParams Parameters for the emitter.
@@ -23,5 +23,5 @@ function gellyx.emitters.Cube(params)
 		})
 	end
 
-	return gellyx.AddParticles(particles)
+	return gellyx.AddParticles(particles, params.material)
 end
