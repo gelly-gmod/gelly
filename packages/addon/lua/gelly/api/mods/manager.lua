@@ -8,6 +8,8 @@ local logging = include("gelly/logging.lua")
 
 local loadedMods = {}
 
+local DEFAULT_MOD = "sandbox-mod"
+
 include("gelly/api/mods/enums.lua")
 
 function gellyx.mods.initialize()
@@ -26,6 +28,9 @@ function gellyx.mods.initialize()
 			logging.info(("Mod %s is missing metadata, inserting default metadata."):format(mod.mod.ID))
 			repository.upsertMetadataForModId(mod.mod.ID, { enabled = false })
 		end)
+
+	logging.info("Enabling default mod (%s).", DEFAULT_MOD)
+	gellyx.mods.setModEnabled(DEFAULT_MOD, true)
 end
 
 --- Enables/disables a mod by its ID.
@@ -79,7 +84,10 @@ function gellyx.mods.runMods()
 
 	array(loadedMods)
 		:filter(function(mod)
-			return repository.fetchMetadataForModId(mod.ID).enabled
+			logging.info("Checking mod %s", mod.ID)
+			local enabled = repository.fetchMetadataForModId(mod.ID).enabled
+			logging.info("Mod %s is %s", mod.ID, enabled and "enabled" or "disabled")
+			return enabled
 		end)
 		:forEach(function(mod)
 			include(mod.InitPath)

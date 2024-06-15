@@ -17,11 +17,14 @@ end
 ---@param metadata gellyx.mods.ModMetadata
 ---@return nil
 function repository.upsertMetadataForModId(modId, metadata)
-	local query = ("INSERT OR REPLACE INTO %s (mod_id, enabled) VALUES (%s, %s)"):format(
-		MODS_TABLE_NAME,
-		sql.SQLStr(modId),
-		sql.SQLStr(metadata.enabled)
-	)
+	local query = ("INSERT INTO %s (mod_id, enabled) VALUES (%s, %s) ON CONFLICT (mod_id) DO UPDATE SET enabled = %s")
+		:format(
+			MODS_TABLE_NAME,
+			sql.SQLStr(modId),
+			sql.SQLStr(metadata.enabled and "TRUE" or "FALSE"),
+			sql.SQLStr(metadata.enabled and "TRUE" or "FALSE")
+		)
+	sql.m_strError = nil -- This is required to invoke __newindex
 
 	sql.Query(query)
 end
@@ -37,7 +40,7 @@ function repository.fetchMetadataForModId(modId)
 		return nil
 	end
 
-	return { enabled = tobool(result.enabled) }
+	return { enabled = result == "TRUE" }
 end
 
 repository.initialize()
