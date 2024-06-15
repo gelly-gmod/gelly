@@ -8,9 +8,10 @@ local logging = include("gelly/logging.lua")
 
 local loadedMods = {}
 
-local DEFAULT_MOD = "sandbox-mod"
+local DEFAULT_MOD = "blood-mod"
 
 include("gelly/api/mods/enums.lua")
+include("gelly/api/mods/restrict-mod-additions.lua")
 
 function gellyx.mods.initialize()
 	logging.info("Initializing mods.")
@@ -46,6 +47,10 @@ function gellyx.mods.setModEnabled(modId, enabled)
 	end
 
 	repository.upsertMetadataForModId(modId, { enabled = enabled })
+	logging.info("Mod %s is now %s.", modId, enabled and "enabled" or "disabled")
+	logging.info("Updating mod restrictions.")
+
+	gellyx.mods.restrictModEntities()
 end
 
 local function getGlobalModConflicts()
@@ -55,13 +60,13 @@ local function getGlobalModConflicts()
 			return mod.Type == gellyx.mods.ModType.Global
 		end)
 		:map(function(mod)
-			return { mod = mod, metadata = repository.fetchMetadataForModId(mod.ID) }
+			return { info = mod, metadata = repository.fetchMetadataForModId(mod.ID) }
 		end)
 		:filter(function(mod)
 			return mod.metadata.enabled
 		end)
 		:map(function(mod)
-			return mod.mod.ID
+			return mod.info.ID
 		end)
 		:toArray()
 
@@ -75,6 +80,8 @@ end
 --- Runs all enabled mods.
 ---@return nil
 function gellyx.mods.runMods()
+	hook.Run("GellyModsShutdown")
+
 	local globalModConflicts = getGlobalModConflicts()
 
 	if globalModConflicts then
@@ -84,12 +91,14 @@ function gellyx.mods.runMods()
 
 	array(loadedMods)
 		:filter(function(mod)
-			logging.info("Checking mod %s", mod.ID)
 			local enabled = repository.fetchMetadataForModId(mod.ID).enabled
-			logging.info("Mod %s is %s", mod.ID, enabled and "enabled" or "disabled")
 			return enabled
 		end)
 		:forEach(function(mod)
 			include(mod.InitPath)
 		end)
+end
+
+function gellyx.mods.getLoadedMods()
+	return table.Copy(loadedMods)
 end

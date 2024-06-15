@@ -6,7 +6,8 @@ return {
 	Type = gellyx.mods.ModType.Global,
 
 	Weapons = {
-		"gelly_gun"
+		"gelly_gun",
+		"gelly_liquifier"
 	},
 	Entities = {},
 }

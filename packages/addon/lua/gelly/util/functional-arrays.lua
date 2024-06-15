@@ -109,6 +109,24 @@ function FunctionalArray:forEach(action)
 	end
 end
 
+--- Append another array to the current array.
+---@param other FunctionalArray|table
+---@return FunctionalArray
+function FunctionalArray:concat(other)
+	local newArray = {}
+	local otherArray = type(other) == "table" and other.array or other
+
+	for _, value in ipairs(self.array) do
+		table.insert(newArray, value)
+	end
+
+	for _, value in ipairs(otherArray) do
+		table.insert(newArray, value)
+	end
+
+	return FunctionalArray.new(newArray)
+end
+
 --- Decomposes into a standard Lua table.
 ---@return table
 function FunctionalArray:toArray()
