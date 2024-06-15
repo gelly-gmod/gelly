@@ -1,12 +1,13 @@
 {
 	"$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
 	"runtime.path": [
-		"packages/addon/lua/?.lua"
+		"packages/addon/lua/?"
 	],
 	"runtime.special": {
 		"include": "require"
 	},
 	"diagnostics.disable": [
 		"undefined-global"
-	]
+	],
+	"completion.requireSeparator": "/"
 }
