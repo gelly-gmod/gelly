@@ -1,6 +1,6 @@
 local array = include("gelly/util/functional-arrays.lua")
 
----@alias gellyx.mods.ModInfo {Name: string, ID: string, Author: string, Description: string, Type: number, Weapons: table, Entities: table}
+---@alias gellyx.mods.ModInfo {Name: string, ID: string, Author: string, Description: string, Type: number, Weapons: table, Entities: table, InitPath: string}
 
 ---@type table<string, type>
 local MANDATORY_MOD_KEYS = {
@@ -12,6 +12,7 @@ local MANDATORY_MOD_KEYS = {
 
 	Weapons = "table",
 	Entities = "table",
+	InitPath = "string",
 }
 
 --- Validates that a mod has all the mandatory keys and that they are of the correct type.

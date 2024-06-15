@@ -1,6 +1,7 @@
 ---@alias gelly.functional.Predicate fun(value: any, index: number, array: FunctionalArray): boolean
 ---@alias gelly.functional.Mapper fun(value: any, index: number, array: FunctionalArray): any
 ---@alias gelly.functional.Reducer fun(accumulator: any, value: any, index: number, array: FunctionalArray): any
+---@alias gelly.functional.Action fun(value: any, index: number, array: FunctionalArray)
 
 ---@class FunctionalArray
 ---@field private array table
@@ -98,6 +99,14 @@ function FunctionalArray:all(predicate)
 	end
 
 	return true
+end
+
+--- Simply iterates over the array.
+---@param action gelly.functional.Action
+function FunctionalArray:forEach(action)
+	for index, value in ipairs(self.array) do
+		action(value, index, self)
+	end
 end
 
 --- Decomposes into a standard Lua table.

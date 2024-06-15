@@ -4,6 +4,7 @@ local isModValid = include("gelly/api/mods/validate-mod.lua")
 
 local GELLY_MODS_DIR = "lua/gelly/mods"
 local GELLY_MODS_INFO_FILE = "info.lua"
+local GELLY_MODS_INIT_FILE = "init.lua"
 
 local function loadModInfo(path)
 	local info = include(GELLY_MODS_DIR .. "/" .. mod .. "/" .. GELLY_MODS_INFO_FILE)
@@ -13,6 +14,7 @@ local function loadModInfo(path)
 		return nil
 	end
 
+	info.InitPath = GELLY_MODS_DIR .. "/" .. mod .. "/" .. GELLY_MODS_INIT_FILE
 	return info
 end
 
@@ -21,9 +23,9 @@ local function getModDirectories()
 end
 
 --- Fetches all Gelly mods, returning their parsed info. If a mod is missing information or is invalid, it is skipped and a warning is printed.
----@return table<string, table>
+---@return table<number, gellyx.mods.ModInfo>
 return function()
-	array(getModDirectories())
+	return getModDirectories()
 		:map(loadModInfo)
 		:filter(isModValid)
 		:toArray()

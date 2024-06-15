@@ -28,13 +28,13 @@ end
 
 --- Fetches metadata for a mod ID.
 ---@param modId string
----@return gellyx.mods.ModMetadata metadata
+---@return gellyx.mods.ModMetadata|nil metadata
 function repository.fetchMetadataForModId(modId)
 	local query = ("SELECT * FROM %s WHERE mod_id = %s"):format(MODS_TABLE_NAME, sql.SQLStr(modId))
 	local result = sql.QueryValue(query)
 
 	if not result then
-		return { enabled = false }
+		return nil
 	end
 
 	return { enabled = tobool(result.enabled) }
