@@ -36,6 +36,8 @@ VS_OUTPUT main(VS_INPUT input) {
     quadric._m02_m12_m22_m32 = float4(q3.xyz * q3.w, 0);
     quadric._m03_m13_m23_m33 = float4(input.Pos.xyz, 1);
 
+	output.Variance = max(max(q1.w, q2.w), q3.w);
+
     float4x4 invClip = mul(mul(g_Projection, g_View), quadric);
     // Solve for boundaries
     float xMin, xMax, yMin, yMax = 0;
