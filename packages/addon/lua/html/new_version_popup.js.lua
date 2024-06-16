@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	let closeElement = document.getElementById('close');
 
 	popup.getMarkdown(markdownFromAddon => markdownElement.innerHTML = getMarkdownAsHTML(markdownFromAddon));
-
 	popup.getTitle(title => titleElement.innerHTML = title);
 	popup.getAction(action => actionElement.innerHTML = action);
 

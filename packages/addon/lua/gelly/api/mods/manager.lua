@@ -5,13 +5,13 @@ local repository = include("gelly/api/mods/mod-repository.lua")
 local findAllGellyMods = include("gelly/api/mods/find-all-gelly-mods.lua")
 local array = include("gelly/util/functional-arrays.lua")
 local logging = include("gelly/logging.lua")
+local restrictModAdditions = include("gelly/api/mods/restrict-mod-additions.lua")
 
 local loadedMods = {}
 
 local DEFAULT_MOD = "blood-mod"
 
 include("gelly/api/mods/enums.lua")
-include("gelly/api/mods/restrict-mod-additions.lua")
 
 function gellyx.mods.initialize()
 	logging.info("Initializing mods.")
@@ -20,14 +20,14 @@ function gellyx.mods.initialize()
 
 	array(loadedMods)
 		:map(function(mod)
-			return { isWithoutMetadata = repository.fetchMetadataForModId(mod.ID) == nil, mod = mod }
+			return { isWithoutMetadata = repository.fetchMetadataForModId(mod.ID) == nil, info = mod }
 		end)
 		:filter(function(mod)
 			return mod.isWithoutMetadata
 		end)
 		:forEach(function(mod)
-			logging.info(("Mod %s is missing metadata, inserting default metadata."):format(mod.mod.ID))
-			repository.upsertMetadataForModId(mod.mod.ID, { enabled = DEFAULT_MOD == mod.mod.ID and true or false })
+			logging.info(("Mod %s is missing metadata, inserting default metadata."):format(mod.info.ID))
+			repository.upsertMetadataForModId(mod.info.ID, { enabled = DEFAULT_MOD == mod.info.ID and true or false })
 		end)
 end
 
@@ -47,7 +47,7 @@ function gellyx.mods.setModEnabled(modId, enabled)
 	logging.info("Mod %s is now %s.", modId, enabled and "enabled" or "disabled")
 	logging.info("Updating mod restrictions.")
 
-	gellyx.mods.restrictModEntities()
+	restrictModAdditions()
 end
 
 local function getGlobalModConflicts()
@@ -92,10 +92,16 @@ function gellyx.mods.runMods()
 			return enabled
 		end)
 		:forEach(function(mod)
-			include(mod.InitPath)
+			local success, err = pcall(function()
+				include(mod.InitPath)
+			end)
+
+			if not success then
+				logging.error(("Failed to run mod %s: %s"):format(mod.ID, err))
+			end
 		end)
 
-	gellyx.mods.restrictModEntities()
+	restrictModAdditions()
 end
 
 function gellyx.mods.getLoadedMods()

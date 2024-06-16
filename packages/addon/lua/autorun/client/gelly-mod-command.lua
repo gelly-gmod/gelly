@@ -30,13 +30,28 @@ local SUBCOMMANDS = {
 			return
 		end
 
-		array(gellyx.mods.getLoadedMods())
-			:filter(function(mod)
-				return repository.fetchMetadataForModId(mod.ID).enabled
+		-- ensure there's only one global mod enabled
+		local requestedMod = array(gellyx.mods.getLoadedMods())
+			:find(function(mod)
+				return mod.ID == modId
 			end)
-			:forEach(function(mod)
-				gellyx.mods.setModEnabled(mod.ID, false)
-			end)
+
+		if not requestedMod then
+			logging.error("Mod %s does not exist.", modId)
+			return
+		end
+
+		local isGlobal = requestedMod and requestedMod.Type == gellyx.mods.ModType.Global
+
+		if isGlobal then
+			array(gellyx.mods.getLoadedMods())
+				:filter(function(mod)
+					return repository.fetchMetadataForModId(mod.ID).enabled and mod.Type == gellyx.mods.ModType.Global
+				end)
+				:forEach(function(mod)
+					gellyx.mods.setModEnabled(mod.ID, false)
+				end)
+		end
 
 		gellyx.mods.setModEnabled(modId, true)
 		gellyx.mods.runMods()

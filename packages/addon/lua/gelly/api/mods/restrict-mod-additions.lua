@@ -4,7 +4,8 @@ local array = include("gelly/util/functional-arrays.lua")
 local logging = include("gelly/logging.lua")
 local repository = include("gelly/api/mods/mod-repository.lua")
 
-function gellyx.mods.restrictModEntities()
+--- Restricts any entities/weapons loaded by any disabled mods at the time of calling.
+return function()
 	array(gellyx.mods.getLoadedMods())
 		:filter(function(mod)
 			return #mod.Entities > 0 or #mod.Weapons > 0
