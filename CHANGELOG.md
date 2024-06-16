@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   installed mods.
 - Added a command line interface, gelly_mod, to manage mods through the GMod console (only way to manage mods for now)
 - Added a new mod, "Sandbox Mod," which is the default mod for Gelly. It enables the Gelly Gun and Gelly Liquifier.
+- Added a clientside entity deletion function, particularly for internal use but exposed to the mod API
 
 ### Fixed
 
