@@ -23,8 +23,8 @@
 			<label for="preset-name">Preset Name</label>
 		</section>
 		<section class="setting">
-			<input type="range" id="preset-size" min="0.5" max="5" step="0.1" value="1"/>
-			<label for="preset-size">Particle Radius</label>
+			<input type="range" id="preset-radius" min="0.5" max="5" step="0.1" value="1"/>
+			<label for="preset-radius">Particle Radius</label>
 		</section>
 	</section>
 
