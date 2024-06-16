@@ -139,7 +139,7 @@ local function getConfig(attacker, damageType)
 	return config
 end
 
-local function sprayBlood(damageType, victim, attacker, position, force, damage)
+local function sprayBlood(damageType, victim, attacker, position, force, damage, material)
 	local normal = attacker == LocalPlayer() and
 					attacker:GetAimVector() or
 					force:GetNormalized()
@@ -162,23 +162,16 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage)
 		radius = config.CubeSize,
 		density = density,
 		randomness = config.Randomness,
+		material = material,
 	})
 end
 
-local function convertTableToMaterial(table, material) -- temporary solution until ephemeral presets
+local function convertTableToMaterial(table, material)
 	material.Roughness = 			  table.Roughness
 	material.IsSpecularTransmission = table.IsSpecularTransmission
 	material.RefractiveIndex = 		  table.RefractiveIndex
 	material.Absorption = 			  table.Absorption
 	material.DiffuseColor = 		  table.DiffuseColor
-end
-
-local function convertMaterialToTable(material, table) -- temporary solution until ephemeral presets
-	table.Roughness = 			   material.Roughness
-	table.IsSpecularTransmission = material.IsSpecularTransmission
-	table.RefractiveIndex = 	   material.RefractiveIndex
-	table.Absorption = 			   material.Absorption
-	table.DiffuseColor = 		   material.DiffuseColor
 end
 
 hook.Add(
@@ -195,20 +188,11 @@ hook.Add(
 		end
 
 		local bloodColor = victim:GetBloodColor() or BLOOD_COLOR_RED
-		local material = gellyx.presets.getActivePreset().Material
-		local oldTable = {}
-
-		convertMaterialToTable(material, oldTable)
+		local material = gellyx.presets.copyPresetMaterial("Blood")
 
 		convertTableToMaterial(BLOOD_COLOR_MATERIALS[bloodColor], material)
 
-		gelly.SetFluidMaterial(material)
-
-		sprayBlood(type, victim, attacker, position, force, damage)
-
-		convertTableToMaterial(oldTable, material)
-		
-		gelly.SetFluidMaterial(material)
+		sprayBlood(type, victim, attacker, position, force, damage, material)
 	end
 )
 
