@@ -93,6 +93,13 @@ local BLOOD_COLOR_MATERIALS = {
 		Absorption = Vector(0.3, 0.25, 0.5),
 		DiffuseColor = Vector(0, 0, 0),
 	},
+	[BLOOD_COLOR_MECH] = {
+		Roughness = 0,
+		IsSpecularTransmission = false,
+		RefractiveIndex = 1.360,
+		Absorption = Vector(1, 1, 1),
+		DiffuseColor = Vector(0, 0, 0),
+	},
 	[BLOOD_COLOR_ANTLION] = {
 		Roughness = 0,
 		IsSpecularTransmission = true,
@@ -166,14 +173,6 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage,
 	})
 end
 
-local function convertTableToMaterial(table, material)
-	material.Roughness = 			  table.Roughness
-	material.IsSpecularTransmission = table.IsSpecularTransmission
-	material.RefractiveIndex = 		  table.RefractiveIndex
-	material.Absorption = 			  table.Absorption
-	material.DiffuseColor = 		  table.DiffuseColor
-end
-
 hook.Add(
 	"GellyXDamage",
 	"gelly.builtin.blood-mod",
@@ -187,10 +186,8 @@ hook.Add(
 			return
 		end
 
-		local bloodColor = victim:GetBloodColor() or BLOOD_COLOR_RED
-		local material = gellyx.presets.copyPresetMaterial("Blood")
-
-		convertTableToMaterial(BLOOD_COLOR_MATERIALS[bloodColor], material)
+		local material = BLOOD_COLOR_MATERIALS[victim:GetBloodColor()]
+		if not material then return end -- Only can have blood color = DONT_BLEED so we remove it
 
 		sprayBlood(type, victim, attacker, position, force, damage, material)
 	end
