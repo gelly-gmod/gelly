@@ -115,3 +115,11 @@ hook.Add(
 )
 
 gellyx.presets.select("Blood")
+
+hook.Add("GellyModsShutdown", "gelly.builtin.blood-mod", function()
+	hook.Remove("GellyXDamage", "gelly.builtin.blood-mod")
+	-- remove any left over blood
+	gelly.Reset()
+
+	print("Blood mod unloaded")
+end)

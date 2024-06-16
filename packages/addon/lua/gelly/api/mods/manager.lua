@@ -1,86 +1,109 @@
 gellyx = gellyx or {}
 gellyx.mods = gellyx.mods or {}
-gellyx.mods.loadedMods = gellyx.mods.loadedMods or {}
 
-local INVALID_PARSE = { Valid = false }
+local repository = include("gelly/api/mods/mod-repository.lua")
+local findAllGellyMods = include("gelly/api/mods/find-all-gelly-mods.lua")
+local array = include("gelly/util/functional-arrays.lua")
+local logging = include("gelly/logging.lua")
+local restrictModAdditions = include("gelly/api/mods/restrict-mod-additions.lua")
 
-local CRUCIAL_FILES = {
-	"info.lua",
-	"init.lua",
-}
+local loadedMods = {}
 
-local function parseMod(path)
-	for _, crucialFile in ipairs(CRUCIAL_FILES) do
-		if not file.Exists(path .. "/" .. crucialFile, "LUA") then
-			return INVALID_PARSE
-		end
-	end
+local DEFAULT_MOD = "blood-mod"
 
-	local info = include(path .. "/info.lua")
+include("gelly/api/mods/enums.lua")
 
-	if not info then
-		return INVALID_PARSE
-	end
+function gellyx.mods.initialize()
+	logging.info("Initializing mods.")
+	loadedMods = findAllGellyMods()
+	logging.info(("Found %d mods."):format(#loadedMods))
 
-	if
-		info.Name == nil
-		or info.Author == nil
-		or info.Description == nil
-		or info.Type == nil
-	then
-		return INVALID_PARSE
-	end
-
-	print("[gellyx mods] - Loaded mod " .. info.Name)
-	print("\tAuthor: " .. info.Author)
-	print("\tDescription: " .. info.Description)
-	print("\tType: " .. info.Type)
-	print("\tPath: " .. path)
-
-	return {
-		Valid = true,
-		Enabled = true,
-		Info = info,
-		Path = path,
-		InitPath = path .. "/init.lua",
-	}
+	array(loadedMods)
+		:map(function(mod)
+			return { isWithoutMetadata = repository.fetchMetadataForModId(mod.ID) == nil, info = mod }
+		end)
+		:filter(function(mod)
+			return mod.isWithoutMetadata
+		end)
+		:forEach(function(mod)
+			logging.info(("Mod %s is missing metadata, inserting default metadata."):format(mod.info.ID))
+			repository.upsertMetadataForModId(mod.info.ID, { enabled = DEFAULT_MOD == mod.info.ID and true or false })
+		end)
 end
 
---- Loads a mod into the manager.
----@param path string The path to the mod.
----@return boolean If the mod was loaded successfully.
-function gellyx.mods.loadMod(path)
-	local mod = parseMod(path)
+--- Enables/disables a mod by its ID.
+---@param modId string
+---@param enabled boolean
+---@return nil
+function gellyx.mods.setModEnabled(modId, enabled)
+	local currentMetadata = repository.fetchMetadataForModId(modId)
 
-	if not mod.Valid then
-		ErrorNoHalt("[gellyx mods] - Failed to load mod at " .. path)
-		return false
+	if not currentMetadata then
+		logging.error(("Mod %s does not exist."):format(modId))
+		return
 	end
 
-	gellyx.mods.loadedMods[mod.Info.Name] = mod
+	repository.upsertMetadataForModId(modId, { enabled = enabled })
+	logging.info("Mod %s is now %s.", modId, enabled and "enabled" or "disabled")
+	logging.info("Updating mod restrictions.")
 
-	return true
+	restrictModAdditions()
 end
 
---- Loads all mods from the filesystem.
-function gellyx.mods.loadMods()
-	local _, dirs = file.Find("gelly/mods/*", "LUA")
+local function getGlobalModConflicts()
+	-- two global mods can't be enabled at the same time
+	local globalMods = array(loadedMods)
+		:filter(function(mod)
+			return mod.Type == gellyx.mods.ModType.Global
+		end)
+		:map(function(mod)
+			return { info = mod, metadata = repository.fetchMetadataForModId(mod.ID) }
+		end)
+		:filter(function(mod)
+			return mod.metadata.enabled
+		end)
+		:map(function(mod)
+			return mod.info.ID
+		end)
+		:toArray()
 
-	for _, mod in ipairs(dirs) do
-		gellyx.mods.loadMod("gelly/mods/" .. mod)
+	if #globalMods > 1 then
+		return globalMods
 	end
+
+	return nil
 end
 
---- Initializes all loaded mods.
-function gellyx.mods.initializeMods()
-	for _, mod in pairs(gellyx.mods.loadedMods) do
-		if mod.Enabled then
-			include(mod.InitPath)
-		end
+--- Runs all enabled mods.
+---@return nil
+function gellyx.mods.runMods()
+	hook.Run("GellyModsShutdown")
+
+	local globalModConflicts = getGlobalModConflicts()
+
+	if globalModConflicts then
+		logging.error(("Global mods %s are conflicting."):format(table.concat(globalModConflicts, ", ")))
+		return
 	end
+
+	array(loadedMods)
+		:filter(function(mod)
+			local enabled = repository.fetchMetadataForModId(mod.ID).enabled
+			return enabled
+		end)
+		:forEach(function(mod)
+			local success, err = pcall(function()
+				include(mod.InitPath)
+			end)
+
+			if not success then
+				logging.error(("Failed to run mod %s: %s"):format(mod.ID, err))
+			end
+		end)
+
+	restrictModAdditions()
 end
 
-hook.Add("GellyLoaded", "gellyx.mods", function()
-	gellyx.mods.loadMods()
-	gellyx.mods.initializeMods()
-end)
+function gellyx.mods.getLoadedMods()
+	return table.Copy(loadedMods)
+end
