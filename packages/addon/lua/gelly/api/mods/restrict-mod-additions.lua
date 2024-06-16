@@ -4,6 +4,13 @@ local array = include("gelly/util/functional-arrays.lua")
 local logging = include("gelly/logging.lua")
 local repository = include("gelly/api/mods/mod-repository.lua")
 
+local function removePreexistingEntities(className)
+	array(ents.FindByClass(className))
+		:forEach(function(entity)
+			gellyx.removeEntity(entity)
+		end)
+end
+
 --- Restricts any entities/weapons loaded by any disabled mods at the time of calling.
 return function()
 	array(gellyx.mods.getLoadedMods())
@@ -21,11 +28,13 @@ return function()
 			restrictInfo.weapons:forEach(function(weapon)
 				logging.info("%s weapon %s", restrictInfo.enabled and "Enabling" or "Disabling", weapon)
 				list.GetForEdit("Weapon")[weapon].Spawnable = restrictInfo.enabled
+				removePreexistingEntities(weapon)
 			end)
 
 			restrictInfo.entities:forEach(function(entity)
 				logging.info("%s entity %s", restrictInfo.enabled and "Enabling" or "Disabling", entity)
 				list.GetForEdit("SpawnableEntities")[entity].Spawnable = restrictInfo.enabled
+				removePreexistingEntities(entity)
 			end)
 
 			RunConsoleCommand("spawnmenu_reload")
