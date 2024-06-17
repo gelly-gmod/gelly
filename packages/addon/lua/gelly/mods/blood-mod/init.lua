@@ -186,10 +186,7 @@ hook.Add(
 			return
 		end
 
-		local material = BLOOD_COLOR_MATERIALS[victim:GetBloodColor()]
-		if not material then return end -- Only can have blood color = DONT_BLEED so we remove it
-
-		sprayBlood(type, victim, attacker, position, force, damage, material)
+		sprayBlood(type, victim, attacker, position, force, damage, BLOOD_COLOR_MATERIALS[victim:GetBloodColor() or BLOOD_COLOR_RED])
 	end
 )
 
