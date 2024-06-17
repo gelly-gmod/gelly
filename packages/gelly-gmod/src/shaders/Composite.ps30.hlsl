@@ -49,18 +49,12 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
     return radiance;
 }
 
-float2 ApplyRefractionToUV(in float2 tex, in float3 normal) {
-    return tex + normal.xy * TexRefractFromMaterial(material);
+float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal) {
+    return tex + normal.yx * TexRefractFromMaterial(material) * thickness * 8;
 }
 
-float3 SampleTransmission(in float2 tex, in float3 pos, in float3 eyeDir, in float3 normal, in float3 absorption) {
-    float3 refractedDir = refract(eyeDir, normal, material.r_st_ior.z);
-    // if it is total internal reflection, we can just do a normal sample
-    if (!any(refractedDir)) {
-        refractedDir = reflect(eyeDir, normal);
-    }
-
-    float2 uv = ApplyRefractionToUV(tex, refractedDir);
+float3 SampleTransmission(in float2 tex, in float thickness, in float3 pos, in float3 eyeDir, in float3 normal, in float3 absorption) {
+    float2 uv = ApplyRefractionToUV(tex, thickness, normal);
     float3 transmission = tex2D(backbufferTex, uv).xyz;
     transmission *= absorption;
     return transmission;
@@ -86,7 +80,7 @@ float4 Shade(VS_INPUT input) {
         material.r_st_ior.x * material.r_st_ior.x
     ) * diffuseIrradiance * material.diffuseAlbedo;
 
-    float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, position, eyeDir, normal, absorption) + fresnel * specular;
+    float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption) + fresnel * specular;
     // inverse fresnel is already applied to the diffuse lobe
     float3 diffuseSpecularLobe = diffuse + fresnel * specular;
     float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
