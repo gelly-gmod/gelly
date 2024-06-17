@@ -630,7 +630,7 @@ void CD3D11SplattingFluidRenderer::RenderGenericBlur(
 	auto *textureA = texA;
 	auto *textureB = texB;
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 7; i++) {
 		perfMarker->BeginEvent("Generic blur filter iteration");
 #ifdef TRACY_ENABLE
 		ZoneScopedN("Generic blur filter iteration");
