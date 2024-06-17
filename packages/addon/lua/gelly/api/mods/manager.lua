@@ -9,7 +9,7 @@ local restrictModAdditions = include("gelly/api/mods/restrict-mod-additions.lua"
 
 local loadedMods = {}
 
-local DEFAULT_MOD = "blood-mod"
+local DEFAULT_MOD = "sandbox-mod"
 
 include("gelly/api/mods/enums.lua")
 
