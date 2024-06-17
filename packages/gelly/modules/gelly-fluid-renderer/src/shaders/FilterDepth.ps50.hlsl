@@ -58,6 +58,7 @@ float CreateIsosurfaceDepth(float2 tex
             float2 offset = float2(x, y);
             float sample = FetchEyeDepth(inPosition + offset);
             if (FetchProjDepth(inPosition + offset) >= 1.f) {
+				// lower our offset to the closest valid pixel
                 continue;
             }
 
