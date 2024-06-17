@@ -55,7 +55,7 @@ private:
 	float particleRadius = 0.1f;
 	float particleInverseMass = 1.f;
 	uint maxContactsPerParticle = 6;
-	uint substeps = 3;
+	uint substeps = 2;
 	float timeStepMultiplier = 1.f;
 
 	void SetupParams();

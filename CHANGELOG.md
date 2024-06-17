@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.1] - 2024-06-16
+
+### Fixed
+
+- In FleX, props would spawn in place of another, causing some particles to shoot out of the prop. This has been fixed.
+
+### Changes
+
+- Runs FleX with less margin and substeps to improve performance
+- To account for the above change, the relaxation factor has decreased to 0.25 and now uses global relaxation to
+  encourage faster convergence.
+
 ## [1.10.0] - 2024-06-16
 
 ### Fixed

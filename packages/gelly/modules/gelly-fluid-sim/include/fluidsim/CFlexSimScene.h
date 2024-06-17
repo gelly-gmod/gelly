@@ -24,6 +24,7 @@ struct ObjectData {
 	ObjectShape shape{};
 	float position[3]{};
 	float rotation[4]{};
+	bool firstFrame = true;
 
 	std::variant<TriangleMesh, Capsule> shapeData;
 	uint currentShapeIndex{};

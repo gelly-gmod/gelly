@@ -102,6 +102,7 @@ ObjectHandle CFlexSimScene::CreateObject(const ObjectCreationParams &params) {
 			);
 	}
 
+	data.firstFrame = true;
 	objects[monotonicObjectId] = data;
 	dirty = true;
 
@@ -220,8 +221,22 @@ void CFlexSimScene::Update() {
 				}
 			}
 
-			prevPositions[valueIndex] = positions[valueIndex];
-			prevRotations[valueIndex] = rotations[valueIndex];
+			if (object.second.firstFrame) {
+				// set their previous transform to the new one
+				object.second.firstFrame = false;
+				prevPositions[valueIndex].x = object.second.position[0];
+				prevPositions[valueIndex].y = object.second.position[1];
+				prevPositions[valueIndex].z = object.second.position[2];
+				prevPositions[valueIndex].w = 1.f;
+
+				prevRotations[valueIndex].x = object.second.rotation[0];
+				prevRotations[valueIndex].y = object.second.rotation[1];
+				prevRotations[valueIndex].z = object.second.rotation[2];
+				prevRotations[valueIndex].w = object.second.rotation[3];
+			} else {
+				prevPositions[valueIndex] = positions[valueIndex];
+				prevRotations[valueIndex] = rotations[valueIndex];
+			}
 
 			positions[valueIndex].x = object.second.position[0];
 			positions[valueIndex].y = object.second.position[1];

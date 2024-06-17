@@ -395,18 +395,18 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
-	solverParams.particleCollisionMargin = 1.f;
-	solverParams.shapeCollisionMargin = 1.f;
+	solverParams.particleCollisionMargin = 0.f;
+	solverParams.shapeCollisionMargin = 0.f;
 	solverParams.collisionDistance = solverParams.fluidRestDistance * 0.7f;
-	solverParams.sleepThreshold = 0.0f;
+	solverParams.sleepThreshold = 0.01f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;
 
 	solverParams.maxSpeed = FLT_MAX;
 	solverParams.maxAcceleration = 100.0f;	// approximately 10x gravity
 
-	solverParams.relaxationMode = eNvFlexRelaxationLocal;
-	solverParams.relaxationFactor = 1.0f;
+	solverParams.relaxationMode = eNvFlexRelaxationGlobal;
+	solverParams.relaxationFactor = 0.25f;
 	solverParams.solidPressure = 5.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
