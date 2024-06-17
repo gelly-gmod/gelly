@@ -45,12 +45,14 @@ CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 	  shaders({}),
 	  rasterizerState(nullptr) {
 	CreateDeviceAndContext();
-	fenceEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
+	fenceEvent =
+		CreateEventEx(nullptr, "Gelly Fence Event", 0, EVENT_ALL_ACCESS);
 }
 
 void CD3D11RenderContext::CreateDeviceAndContext() {
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 	UINT deviceFlags = 0;
+	deviceFlags |= D3D11_CREATE_DEVICE_SINGLETHREADED;
 #ifdef GELLY_USE_DEBUG_LAYER
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
