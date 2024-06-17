@@ -268,8 +268,8 @@ void CD3D11SplattingFluidRenderer::CreateTextures() {
 
 	TextureDesc unfilteredThicknessDesc = {};
 	unfilteredThicknessDesc.filter = TextureFilter::LINEAR;	 // hides pixels
-	unfilteredThicknessDesc.width = quarterWidth;
-	unfilteredThicknessDesc.height = quarterHeight;
+	unfilteredThicknessDesc.width = width;
+	unfilteredThicknessDesc.height = height;
 	unfilteredThicknessDesc.access = TextureAccess::READ | TextureAccess::WRITE;
 	unfilteredThicknessDesc.format = TextureFormat::R16G16B16A16_FLOAT;
 
@@ -279,8 +279,8 @@ void CD3D11SplattingFluidRenderer::CreateTextures() {
 
 	TextureDesc unfilteredAlbedoDesc = {};
 	unfilteredAlbedoDesc.filter = TextureFilter::LINEAR;  // hides pixels
-	unfilteredAlbedoDesc.width = quarterWidth;
-	unfilteredAlbedoDesc.height = quarterHeight;
+	unfilteredAlbedoDesc.width = width;
+	unfilteredAlbedoDesc.height = height;
 	unfilteredAlbedoDesc.access = TextureAccess::READ | TextureAccess::WRITE;
 	unfilteredAlbedoDesc.format = TextureFormat::R32G32B32A32_FLOAT;
 
@@ -394,11 +394,25 @@ void CD3D11SplattingFluidRenderer::RenderUnfilteredDepth() {
 #endif
 	perfMarker->BeginEvent("Splatting ellipsoid depth");
 	buffers.depthBuffer->Clear(1.0f);
+	internalTextures.unfilteredThickness->Clear(genericClearColor);
+	internalTextures.unfilteredAlbedo->Clear(genericClearColor);
+
 	auto *depthTexture = internalTextures.unfilteredDepth;
 	depthTexture->Clear(depthClearColor);
 
-	depthTexture->BindToPipeline(
-		TextureBindStage::RENDER_TARGET_OUTPUT, 0, buffers.depthBuffer
+	IManagedTexture *renderTargets[] = {
+		depthTexture, internalTextures.unfilteredAlbedo
+	};
+
+	IManagedTexture *uavs[] = {internalTextures.unfilteredThickness};
+
+	context->BindMRTAndUAVs(
+		renderTargets,
+		ARRAYSIZE(renderTargets),
+		uavs,
+		ARRAYSIZE(uavs),
+		2,
+		buffers.depthBuffer
 	);
 
 	buffers.splattingLayout->BindAsVertexBuffer();
@@ -410,6 +424,8 @@ void CD3D11SplattingFluidRenderer::RenderUnfilteredDepth() {
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Pixel, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Vertex, 0);
 	buffers.fluidRenderCBuffer->BindToPipeline(ShaderType::Geometry, 0);
+
+	buffers.particleAbsorption->BindToPipeline(ShaderType::Vertex, 0);
 
 	context->Draw(simData->GetActiveParticles(), 0);
 	// we're not using a swapchain, so we need to queue up work manually
@@ -725,7 +741,7 @@ void CD3D11SplattingFluidRenderer::Render() {
 	RenderUnfilteredDepth();
 	RenderFilteredDepth();
 	RenderNormals();
-	RenderThickness();
+	// RenderThickness();
 	RenderFoam(false);
 	RenderFoam(true);
 	RenderGenericBlur(

@@ -270,6 +270,21 @@ void CD3D11ManagedTexture::BindToPipeline(
 			deviceContext->PSSetShaderResources(slot, 1, &srv);
 			deviceContext->PSSetSamplers(slot, 1, &sampler);
 			break;
+		case TextureBindStage::PIXEL_SHADER_WRITE:
+			if (uav == nullptr) {
+				throw std::logic_error(
+					"CD3D11ManagedTexture::BindToPipeline: UAV is null."
+				);
+			}
+
+			// We're using D3D11.1+, so any incompatibility with this bind stage
+			// should
+			// already be caught during device creation.
+
+			deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+				0, nullptr, nullptr, slot, 1, &uav, nullptr
+			);
+			break;
 		case TextureBindStage::COMPUTE_SHADER_READ:
 			if (srv == nullptr) {
 				throw std::logic_error(
