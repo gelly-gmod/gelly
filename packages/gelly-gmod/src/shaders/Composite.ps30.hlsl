@@ -96,7 +96,7 @@ float4 Shade(VS_INPUT input) {
 
     float3 weight = specularTransmissionLobe + roughLobe;
 
-    return float4(thickness, thickness, thickness, 1.f);
+	return float4(weight, 1.f);
 }
 
 PS_OUTPUT main(VS_INPUT input) {
