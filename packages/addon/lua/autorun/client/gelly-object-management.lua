@@ -62,6 +62,12 @@ local function updateObject(entity)
 	local objectHandles = objects[entity]
 
 	for _, objectHandle in ipairs(objectHandles) do
+		if not IsValid(entity) then
+			-- Somehow, it got pass the entity removal check
+			removeObject(entity)
+			return
+		end
+
 		if entity == LocalPlayer() then
 			gelly.SetObjectPosition(objectHandle, entity:GetPos())
 			gelly.SetObjectRotation(objectHandle, Angle(90, 0, 0))
@@ -69,6 +75,15 @@ local function updateObject(entity)
 		end
 
 		local transform = entity:GetBoneMatrix(0)
+		if not transform then
+			transform = entity:GetWorldTransformMatrix()
+			if not transform then
+				logging.warn("Transform bug for entity #%d", entity:EntIndex())
+				removeObject(entity)
+				return
+			end
+		end
+
 		gelly.SetObjectPosition(objectHandle, transform:GetTranslation())
 		gelly.SetObjectRotation(objectHandle, transform:GetAngles())
 	end
