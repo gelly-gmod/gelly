@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Props no longer bleedi when shot with the blood-mod enabled.
+- Props no longer bleed when shot with the blood mod enabled.
 
 ### Changes
 
-- The blood mod has been improved with now changing blood color based on NPC blood color and reworked damage type system.
+- The blood mod has been improved with different blood colors and a reworked bleeding system.
 
 ## [1.9.0] - 2024-06-15
 
