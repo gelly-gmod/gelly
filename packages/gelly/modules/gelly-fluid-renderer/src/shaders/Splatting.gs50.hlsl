@@ -40,6 +40,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmin, ymin, 0.5f, 1.0f);
@@ -47,6 +48,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmax, ymax, 0.5f, 1.0f);
@@ -54,6 +56,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmax, ymin, 0.5f, 1.0f);
@@ -61,5 +64,6 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 }

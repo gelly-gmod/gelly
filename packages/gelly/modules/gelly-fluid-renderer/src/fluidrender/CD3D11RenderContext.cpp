@@ -45,12 +45,14 @@ CD3D11RenderContext::CD3D11RenderContext(uint16_t width, uint16_t height)
 	  shaders({}),
 	  rasterizerState(nullptr) {
 	CreateDeviceAndContext();
-	fenceEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
+	fenceEvent =
+		CreateEventEx(nullptr, "Gelly Fence Event", 0, EVENT_ALL_ACCESS);
 }
 
 void CD3D11RenderContext::CreateDeviceAndContext() {
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
 	UINT deviceFlags = 0;
+	deviceFlags |= D3D11_CREATE_DEVICE_SINGLETHREADED;
 #ifdef GELLY_USE_DEBUG_LAYER
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -388,6 +390,78 @@ void CD3D11RenderContext::BindMultipleTexturesAsOutput(
 
 	deviceContext4->OMSetRenderTargets(
 		count, renderTargetViews, depthStencilView
+	);
+}
+
+void CD3D11RenderContext::BindMRTAndUAVs(
+	GellyInterfaceVal<IManagedTexture> *textures,
+	uint8_t texCount,
+	GellyInterfaceVal<IManagedTexture> *uavs,
+	uint8_t uavCount,
+	uint8_t startUavSlot,
+	IManagedTexture::OptionalDepthBuffer depthBuffer
+) {
+	ID3D11RenderTargetView *renderTargetViews[8] = {};
+	ID3D11UnorderedAccessView *unorderedAccessViews[8] = {};
+	ID3D11DepthStencilView *depthStencilView = nullptr;
+
+	for (uint8_t i = 0; i < texCount; i++) {
+		auto *texture = textures[i];
+		if (texture == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMRTAndUAVs encountered a null texture"
+			);
+		}
+
+		auto *rtv = texture->GetResource(TextureResource::D3D11_RTV);
+		if (rtv == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMRTAndUAVs encountered a null RTV"
+			);
+		}
+
+		renderTargetViews[i] = static_cast<ID3D11RenderTargetView *>(rtv);
+	}
+
+	for (uint8_t i = 0; i < uavCount; i++) {
+		auto *texture = uavs[i];
+		if (texture == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMRTAndUAVs encountered a null UAV"
+			);
+		}
+
+		auto *uav = texture->GetResource(TextureResource::D3D11_UAV);
+		if (uav == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMRTAndUAVs encountered a null UAV"
+			);
+		}
+
+		unorderedAccessViews[i] = static_cast<ID3D11UnorderedAccessView *>(uav);
+	}
+
+	if (depthBuffer.has_value()) {
+		auto *dsv =
+			depthBuffer.value()->RequestResource(DepthBufferResource::D3D11_DSV
+			);
+		if (dsv == nullptr) {
+			throw std::logic_error(
+				"CD3D11RenderContext::BindMRTAndUAVs encountered a null DSV"
+			);
+		}
+
+		depthStencilView = static_cast<ID3D11DepthStencilView *>(dsv);
+	}
+
+	deviceContext4->OMSetRenderTargetsAndUnorderedAccessViews(
+		texCount,
+		renderTargetViews,
+		depthStencilView,
+		startUavSlot,
+		uavCount,
+		unorderedAccessViews,
+		nullptr
 	);
 }
 

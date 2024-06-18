@@ -17,6 +17,7 @@ class IRenderContext;
 namespace Gelly {
 enum class TextureBindStage : uint8_t {
 	PIXEL_SHADER_READ,
+	PIXEL_SHADER_WRITE,
 	COMPUTE_SHADER_READ,
 	COMPUTE_SHADER_WRITE,
 	RENDER_TARGET_OUTPUT,

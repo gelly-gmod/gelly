@@ -124,6 +124,15 @@ public:
 		IManagedTexture::OptionalDepthBuffer depthBuffer
 	) = 0;
 
+	virtual void BindMRTAndUAVs(
+		GellyInterfaceVal<IManagedTexture> * textures,
+		uint8_t texCount,
+		GellyInterfaceVal<IManagedTexture> * uavs,
+		uint8_t uavCount,
+		uint8_t startUavSlot,
+		IManagedTexture::OptionalDepthBuffer depthBuffer
+	) = 0;
+
 	/**
 	 * Will throw an exception if the texture does not exist!
 	 * @param name

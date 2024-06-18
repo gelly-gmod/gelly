@@ -44,7 +44,7 @@ float4 FilterThickness(float2 tex) {
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
     float4 original = InputThickness.Sample(InputThicknessSampler, input.Tex);
-    if (original.a == 0.f) {
+    if (original.r == 0.f) {
         discard;
     }
 

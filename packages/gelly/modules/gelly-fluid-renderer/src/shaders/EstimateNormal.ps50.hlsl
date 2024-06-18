@@ -15,7 +15,7 @@ float SampleNoDiscontinuity(float2 tex, float4 zc) {
     float depthDiff = (frag.r - zc.r) * g_ThresholdRatio;
     // We use a much smaller sigma to get a sharper blend,
     // if we don't then we still get depth discontinuities
-    float weight = exp((-depthDiff * depthDiff) / 0.2f);
+    float weight = exp((-depthDiff * depthDiff) / 0.7f);
 
     return lerp(zc.r, frag.r, weight);
 }

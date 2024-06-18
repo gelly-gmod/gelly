@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2024-06-18
+
+### Added
+
+- New absorption model which is more physically accurate.
+- The new rule of thumb is to use hammer units when describing how fast each color channel is absorbed.
+
+### Fixed
+
+- Fixed the normal aliasing bug where viewing a fluid from a distance would cause it to turn black.
+
+### Changes
+
+- The renderer has been optimized, thickness should significantly be crisper.
+- All presets have been updated to reflect the new absorption model.
+- Thickness is now blurred several more times.
+
 ## [1.10.2] - 2024-06-17
 
 ### Fixed
