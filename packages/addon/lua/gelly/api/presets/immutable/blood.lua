@@ -14,7 +14,7 @@ return {
 		Roughness = 0,           -- blood isn't rough at all
 		IsSpecularTransmission = true, -- blood is translucent
 		RefractiveIndex = 1.373, -- blood has a slightly higher refractive index than water
-		Absorption = Vector(16, 32, 32),
+		Absorption = Vector(20, 42, 42),
 		DiffuseColor = Vector(0, 0, 0),
 	},
 }
