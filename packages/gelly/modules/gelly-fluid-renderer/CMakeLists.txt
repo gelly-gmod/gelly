@@ -37,7 +37,10 @@ add_library(
         src/v2/device.cpp
         src/v2/device.h
         src/v2/helpers/comptr.h
-        src/v2/helpers/throw-informative-exception.h)
+        src/v2/helpers/throw-informative-exception.h
+        src/v2/resources/texture.cpp
+        src/v2/resources/texture.h
+)
 
 target_include_directories(
         gelly_fluid_renderer
