@@ -40,6 +40,9 @@ add_library(
         src/v2/helpers/throw-informative-exception.h
         src/v2/resources/texture.cpp
         src/v2/resources/texture.h
+        src/v2/resources/buffer.cpp
+        src/v2/resources/buffer.h
+        src/v2/helpers/parse-bind-flags.h
 )
 
 target_include_directories(

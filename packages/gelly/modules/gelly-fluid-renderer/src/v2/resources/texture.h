@@ -47,10 +47,6 @@ private:
 		-> ComPtr<ID3D11RenderTargetView>;
 	auto CreateUnorderedAccessView(const ComPtr<ID3D11Texture2D> &texture)
 		-> ComPtr<ID3D11UnorderedAccessView>;
-
-	auto IsRTVRequired() -> bool;
-	auto IsSRVRequired() -> bool;
-	auto IsUAVRequired() -> bool;
 };
 
 }  // namespace renderer

@@ -11,4 +11,9 @@
 #define GELLY_RENDERER_THROW(classname, message) \
 	throw classname(GELLY_FUNCTION_NAME ": " message)
 
+#define GELLY_RENDERER_THROW_ON_FAIL(result, classname, message) \
+	if (FAILED(result)) {                                        \
+		GELLY_RENDERER_THROW(classname, message);                \
+	}
+
 #endif	// THROW_INFORMATIVE_EXCEPTION_H
