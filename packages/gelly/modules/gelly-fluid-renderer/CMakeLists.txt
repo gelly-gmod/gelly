@@ -43,6 +43,8 @@ add_library(
         src/v2/resources/buffer.cpp
         src/v2/resources/buffer.h
         src/v2/helpers/parse-bind-flags.h
+        src/v2/resources/shader.cpp
+        src/v2/resources/shader.h
 )
 
 target_include_directories(
