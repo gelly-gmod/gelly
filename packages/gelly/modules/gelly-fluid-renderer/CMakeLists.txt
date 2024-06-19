@@ -33,12 +33,17 @@ add_library(
         include/fluidrender/util/Exceptions.h
         include/fluidrender/IPerfMarker.h
         include/fluidrender/CD3D11PerfMarker.h
-        src/fluidrender/CD3D11PerfMarker.cpp)
+        src/fluidrender/CD3D11PerfMarker.cpp
+        src/v2/device.cpp
+        src/v2/device.h
+        src/v2/helpers/comptr.h
+        src/v2/helpers/throw-informative-exception.h)
 
 target_include_directories(
         gelly_fluid_renderer
         PUBLIC
         include
+        src/v2
         src/shaders/out
         src/shaders/isosurface/out
         ../gelly-interfaces/include
