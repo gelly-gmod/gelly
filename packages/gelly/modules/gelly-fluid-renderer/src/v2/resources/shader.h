@@ -14,13 +14,12 @@ namespace renderer {
 
 template <typename ShaderType>
 constexpr bool is_vertex_shader =
-	std::is_base_of_v<ID3D11VertexShader, ShaderType>;
+	std::is_same_v<ID3D11VertexShader, ShaderType>;
 template <typename ShaderType>
-constexpr bool is_pixel_shader =
-	std::is_base_of_v<ID3D11PixelShader, ShaderType>;
+constexpr bool is_pixel_shader = std::is_same_v<ID3D11PixelShader, ShaderType>;
 template <typename ShaderType>
 constexpr bool is_geometry_shader =
-	std::is_base_of_v<ID3D11GeometryShader, ShaderType>;
+	std::is_same_v<ID3D11GeometryShader, ShaderType>;
 
 template <typename ShaderType>
 class Shader {
@@ -41,6 +40,8 @@ public:
 	~Shader() = default;
 
 	auto GetRawShader() -> ComPtr<ShaderType>;
+	auto GetBlob() -> void *;
+	auto GetBlobSize() -> unsigned int;
 
 private:
 	ShaderCreateInfo createInfo;

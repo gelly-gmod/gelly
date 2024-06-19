@@ -14,24 +14,36 @@ namespace renderer {
 
 /**
  * Encapsulates a D3D11 buffer resource.
- * @tparam T The element type for the buffer. This abstracts any stride
- * calculations
  */
-template <typename T>
-class Buffer<T> {
+class Buffer {
 public:
-	constexpr static unsigned int STRIDE = sizeof(T);
-
 	struct BufferCreateInfo {
 		const std::shared_ptr<Device> device;
 		const unsigned int maxElementCount;
+		const unsigned int stride = 0;
 
-		T *initialData;
+		void *initialData;
 		D3D11_USAGE usage;
 		DXGI_FORMAT format;
 		UINT cpuAccessFlags = 0;
 		UINT miscFlags = 0;
 		UINT bindFlags;
+
+		template <typename T>
+		static auto WithAutomaticStride(const BufferCreateInfo &createInfo)
+			-> BufferCreateInfo {
+			return BufferCreateInfo{
+				createInfo.device,
+				createInfo.maxElementCount,
+				sizeof(T),
+				createInfo.initialData,
+				createInfo.usage,
+				createInfo.format,
+				createInfo.cpuAccessFlags,
+				createInfo.miscFlags,
+				createInfo.bindFlags
+			};
+		}
 	};
 
 	Buffer(const BufferCreateInfo &createInfo);

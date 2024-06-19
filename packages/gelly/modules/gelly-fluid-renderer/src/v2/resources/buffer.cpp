@@ -6,8 +6,7 @@
 
 namespace gelly {
 namespace renderer {
-template <typename T>
-Buffer<T>::Buffer(const BufferCreateInfo &createInfo) : createInfo(createInfo) {
+Buffer::Buffer(const BufferCreateInfo &createInfo) : createInfo(createInfo) {
 	buffer = CreateBuffer();
 
 	const auto parsedBindFlags = util::ParseBindFlags(createInfo.bindFlags);
@@ -21,26 +20,20 @@ Buffer<T>::Buffer(const BufferCreateInfo &createInfo) : createInfo(createInfo) {
 	}
 }
 
-template <typename T>
-auto Buffer<T>::GetRawBuffer() -> ComPtr<ID3D11Buffer> {
-	return buffer;
-}
+auto Buffer::GetRawBuffer() -> ComPtr<ID3D11Buffer> { return buffer; }
 
-template <typename T>
-auto Buffer<T>::GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView> {
+auto Buffer::GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView> {
 	return shaderResourceView;
 }
 
-template <typename T>
-auto Buffer<T>::GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView> {
+auto Buffer::GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView> {
 	return unorderedAccessView;
 }
 
-template <typename T>
-auto Buffer<T>::CreateBuffer() -> ComPtr<ID3D11Buffer> {
+auto Buffer::CreateBuffer() -> ComPtr<ID3D11Buffer> {
 	D3D11_BUFFER_DESC desc = {};
-	desc.ByteWidth = createInfo.maxElementCount * STRIDE;
-	desc.StructureByteStride = STRIDE;
+	desc.ByteWidth = createInfo.maxElementCount * createInfo.stride;
+	desc.StructureByteStride = createInfo.stride;
 	desc.Usage = createInfo.usage;
 	desc.BindFlags = createInfo.bindFlags;
 	desc.CPUAccessFlags = createInfo.cpuAccessFlags;
@@ -55,8 +48,7 @@ auto Buffer<T>::CreateBuffer() -> ComPtr<ID3D11Buffer> {
 	);
 }
 
-template <typename T>
-auto Buffer<T>::CreateShaderResourceView(const ComPtr<ID3D11Buffer> &buffer)
+auto Buffer::CreateShaderResourceView(const ComPtr<ID3D11Buffer> &buffer)
 	-> ComPtr<ID3D11ShaderResourceView> {
 	D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 	desc.Format = createInfo.format;
@@ -75,8 +67,7 @@ auto Buffer<T>::CreateShaderResourceView(const ComPtr<ID3D11Buffer> &buffer)
 	);
 }
 
-template <typename T>
-auto Buffer<T>::CreateUnorderedAccessView(const ComPtr<ID3D11Buffer> &buffer)
+auto Buffer::CreateUnorderedAccessView(const ComPtr<ID3D11Buffer> &buffer)
 	-> ComPtr<ID3D11UnorderedAccessView> {
 	D3D11_UNORDERED_ACCESS_VIEW_DESC desc = {};
 	desc.Format = createInfo.format;

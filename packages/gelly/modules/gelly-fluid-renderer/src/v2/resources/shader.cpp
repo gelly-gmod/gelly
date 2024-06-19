@@ -24,6 +24,16 @@ auto Shader<ShaderType>::GetRawShader() -> ComPtr<ShaderType> {
 }
 
 template <typename ShaderType>
+auto Shader<ShaderType>::GetBlob() -> void * {
+	return createInfo.shaderBlob;
+}
+
+template <typename ShaderType>
+auto Shader<ShaderType>::GetBlobSize() -> unsigned int {
+	return createInfo.shaderBlobSize;
+}
+
+template <typename ShaderType>
 std::enable_if_t<is_vertex_shader<ShaderType>, auto>
 Shader<ShaderType>::CreateVertexShader() -> ComPtr<ID3D11VertexShader> {
 	ComPtr<ID3D11VertexShader> vertexShader;

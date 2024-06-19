@@ -45,6 +45,8 @@ add_library(
         src/v2/helpers/parse-bind-flags.h
         src/v2/resources/shader.cpp
         src/v2/resources/shader.h
+        src/v2/resources/input-layout.cpp
+        src/v2/resources/input-layout.h
 )
 
 target_include_directories(
