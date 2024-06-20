@@ -26,6 +26,8 @@ Texture::Texture(const TextureCreateInfo &createInfo)
 	if (bindFlags.isUAVRequired) {
 		unorderedAccessView = CreateUnorderedAccessView(texture2D);
 	}
+
+	samplerState = CreateSamplerState();
 }
 
 auto Texture::GetTexture2D() -> ComPtr<ID3D11Texture2D> { return texture2D; }
@@ -113,6 +115,35 @@ auto Texture::CreateShaderResourceView(const ComPtr<ID3D11Texture2D> &texture)
 	);
 
 	return srv;
+}
+
+auto Texture::CreateSamplerState() -> ComPtr<ID3D11SamplerState> {
+	D3D11_SAMPLER_DESC desc = {};
+	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	desc.MinLOD = 0;
+	desc.MaxLOD = D3D11_FLOAT32_MAX;
+	desc.MaxAnisotropy = 1;
+	desc.BorderColor[0] = 0;
+	desc.BorderColor[1] = 0;
+	desc.BorderColor[2] = 0;
+	desc.BorderColor[3] = 0;
+
+	ComPtr<ID3D11SamplerState> sampler;
+
+	const auto result =
+		createInfo.device->GetRawDevice()->CreateSamplerState(&desc, &sampler);
+
+	GELLY_RENDERER_THROW_ON_FAIL(
+		result,
+		std::invalid_argument,
+		"Failed to create a texture sampler with the supplied creation info."
+	);
+
+	return sampler;
 }
 
 }  // namespace renderer

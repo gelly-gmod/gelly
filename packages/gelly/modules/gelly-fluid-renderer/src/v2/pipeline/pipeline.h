@@ -47,9 +47,15 @@ public:
 private:
 	PipelineCreateInfo createInfo;
 
+	auto SetupRenderPass() -> void;
 	auto SetupInputAssembler() -> void;
 	auto SetupOutputMerger() -> void;
 	auto SetupShaderStages() -> void;
+
+	auto BindInputTexture(
+		const ComPtr<ID3D11DeviceContext> &deviceContext,
+		const InputTexture &texture
+	) -> void;
 };
 
 }  // namespace renderer

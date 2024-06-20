@@ -31,6 +31,7 @@ public:
 	auto GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView>;
 	auto GetRenderTargetView() -> ComPtr<ID3D11RenderTargetView>;
 	auto GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView>;
+	auto GetSamplerState() -> ComPtr<ID3D11SamplerState>;
 
 private:
 	TextureCreateInfo createInfo;
@@ -39,6 +40,7 @@ private:
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 	ComPtr<ID3D11RenderTargetView> renderTargetView;
 	ComPtr<ID3D11UnorderedAccessView> unorderedAccessView;
+	ComPtr<ID3D11SamplerState> samplerState;
 
 	auto CreateTexture2D() -> ComPtr<ID3D11Texture2D>;
 	auto CreateShaderResourceView(const ComPtr<ID3D11Texture2D> &texture)
@@ -47,6 +49,7 @@ private:
 		-> ComPtr<ID3D11RenderTargetView>;
 	auto CreateUnorderedAccessView(const ComPtr<ID3D11Texture2D> &texture)
 		-> ComPtr<ID3D11UnorderedAccessView>;
+	auto CreateSamplerState() -> ComPtr<ID3D11SamplerState>;
 };
 
 }  // namespace renderer

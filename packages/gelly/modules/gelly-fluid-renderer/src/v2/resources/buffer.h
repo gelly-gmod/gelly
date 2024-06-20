@@ -53,6 +53,7 @@ public:
 	auto GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView>;
 	auto GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView>;
 	auto GetBufferBindFlags() -> UINT;
+	auto GetBufferStride() -> UINT;
 
 private:
 	BufferCreateInfo createInfo;
