@@ -34,6 +34,8 @@ auto Buffer::GetBufferBindFlags() -> UINT { return createInfo.bindFlags; }
 
 auto Buffer::GetBufferStride() -> UINT { return createInfo.stride; }
 
+auto Buffer::GetCPUAccessFlags() -> UINT { return createInfo.cpuAccessFlags; }
+
 auto Buffer::CreateBuffer() -> ComPtr<ID3D11Buffer> {
 	D3D11_BUFFER_DESC desc = {};
 	desc.ByteWidth = createInfo.maxElementCount * createInfo.stride;

@@ -54,6 +54,7 @@ public:
 	auto GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView>;
 	auto GetBufferBindFlags() -> UINT;
 	auto GetBufferStride() -> UINT;
+	auto GetCPUAccessFlags() -> UINT;
 
 private:
 	BufferCreateInfo createInfo;

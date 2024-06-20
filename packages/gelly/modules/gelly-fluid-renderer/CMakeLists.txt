@@ -57,6 +57,8 @@ add_library(
         src/v2/pipeline/validate-pipeline.h
         src/v2/resources/depth-buffer.cpp
         src/v2/resources/depth-buffer.h
+        src/v2/resources/buffer-view.cpp
+        src/v2/resources/buffer-view.h
 )
 
 target_include_directories(
