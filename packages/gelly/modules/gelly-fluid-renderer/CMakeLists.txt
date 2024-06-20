@@ -49,6 +49,8 @@ add_library(
         src/v2/resources/input-layout.h
         src/v2/pipeline/render-pass.cpp
         src/v2/pipeline/render-pass.h
+        src/v2/pipeline/binding/Input.h
+        src/v2/pipeline/binding/output.h
 )
 
 target_include_directories(
