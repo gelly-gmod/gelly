@@ -39,7 +39,7 @@ public:
 		const std::optional<std::shared_ptr<DepthBuffer>> depthBuffer;
 	};
 
-	Pipeline(const PipelineCreateInfo &createInfo);
+	explicit Pipeline(const PipelineCreateInfo &createInfo);
 	~Pipeline() = default;
 
 	auto Run(int vertexCount) -> void;
@@ -52,7 +52,7 @@ private:
 	auto SetupOutputMerger() -> void;
 	auto SetupShaderStages() -> void;
 
-	auto BindInputTexture(
+	static auto BindInputTexture(
 		const ComPtr<ID3D11DeviceContext> &deviceContext,
 		const InputTexture &texture
 	) -> void;

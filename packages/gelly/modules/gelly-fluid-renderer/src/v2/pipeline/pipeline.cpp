@@ -135,6 +135,13 @@ auto Pipeline::SetupShaderStages() -> void {
 			);
 		}
 	}
+
+	for (const auto &input : createInfo.inputs) {
+		const auto *inputTexture = std::get_if<InputTexture>(&input);
+		if (inputTexture) {
+			BindInputTexture(deviceContext, *inputTexture);
+		}
+	}
 }
 
 auto Pipeline::BindInputTexture(
@@ -153,12 +160,16 @@ auto Pipeline::BindInputTexture(
 				1,
 				texture.texture->GetSamplerState().GetAddressOf()
 			);
-			break;
-		case D3D11_BIND_RENDER_TARGET:
-			deviceContext->OMSetRenderTargets(
+
+			deviceContext->VSSetShaderResources(
+				texture.slot,
 				1,
-				texture.texture->GetRenderTargetView().GetAddressOf(),
-				nullptr
+				texture.texture->GetShaderResourceView().GetAddressOf()
+			);
+			deviceContext->VSSetSamplers(
+				texture.slot,
+				1,
+				texture.texture->GetSamplerState().GetAddressOf()
 			);
 			break;
 		default:
