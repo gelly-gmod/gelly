@@ -3,6 +3,7 @@
 #include <device.h>
 
 #include <optional>
+#include <string>
 #include <vector>
 
 #include "binding/input.h"
@@ -31,6 +32,11 @@ public:
 	};
 
 	struct PipelineCreateInfo {
+		/**
+		 * Used for performance markers, this will appear in your rendering
+		 * debugger of choice if supported.
+		 */
+		const char *name;
 		const std::shared_ptr<Device> device;
 		const std::shared_ptr<RenderPass> renderPass;
 		const std::vector<Input> inputs;
@@ -46,6 +52,7 @@ public:
 
 private:
 	PipelineCreateInfo createInfo;
+	std::wstring name;
 
 	auto SetupRenderPass() -> void;
 	auto SetupInputAssembler() -> void;

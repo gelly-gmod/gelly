@@ -10,10 +10,12 @@ overloaded(Ts...) -> overloaded<Ts...>;
 namespace gelly {
 namespace renderer {
 Pipeline::Pipeline(const PipelineCreateInfo &createInfo)
-	: createInfo(createInfo) {}
+	: createInfo(createInfo),
+	  name(createInfo.name, createInfo.name + strlen(createInfo.name)) {}
 
 auto Pipeline::Run(int vertexCount) -> void {
 	auto *deviceContext = createInfo.device->GetRawDeviceContext().Get();
+	createInfo.device->GetPerformanceMarker()->BeginEvent(name.c_str());
 
 	// none of these are in any particular order
 	SetupRenderPass();
@@ -24,6 +26,7 @@ auto Pipeline::Run(int vertexCount) -> void {
 	deviceContext->Draw(vertexCount, 0);
 	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext->ClearState();
+	createInfo.device->GetPerformanceMarker()->EndEvent();
 }
 
 auto Pipeline::SetupRenderPass() -> void { createInfo.renderPass->Apply(); }
