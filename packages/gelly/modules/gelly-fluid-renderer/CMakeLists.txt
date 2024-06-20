@@ -47,6 +47,8 @@ add_library(
         src/v2/resources/shader.h
         src/v2/resources/input-layout.cpp
         src/v2/resources/input-layout.h
+        src/v2/pipeline/render-pass.cpp
+        src/v2/pipeline/render-pass.h
 )
 
 target_include_directories(
