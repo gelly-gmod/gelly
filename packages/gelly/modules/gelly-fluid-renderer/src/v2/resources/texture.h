@@ -32,6 +32,7 @@ public:
 	auto GetRenderTargetView() -> ComPtr<ID3D11RenderTargetView>;
 	auto GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView>;
 	auto GetSamplerState() -> ComPtr<ID3D11SamplerState>;
+	auto GetFormat() -> DXGI_FORMAT;
 
 private:
 	TextureCreateInfo createInfo;

@@ -12,7 +12,7 @@ namespace renderer {
 Pipeline::Pipeline(const PipelineCreateInfo &createInfo)
 	: createInfo(createInfo) {}
 
-auto Pipeline::Run() -> void {
+auto Pipeline::Run(int vertexCount) -> void {
 	auto *deviceContext = createInfo.device->GetRawDeviceContext().Get();
 
 	// none of these are in any particular order
@@ -21,7 +21,7 @@ auto Pipeline::Run() -> void {
 	SetupOutputMerger();
 	SetupShaderStages();
 
-	deviceContext->Draw(createInfo.vertexCount, 0);
+	deviceContext->Draw(vertexCount, 0);
 	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext->ClearState();
 }
@@ -70,10 +70,23 @@ auto Pipeline::SetupOutputMerger() -> void {
 			renderTargetViews[outputTexture->slot] =
 				outputTexture->texture->GetRenderTargetView().Get();
 			viewCount++;
+
+			deviceContext->ClearRenderTargetView(
+				outputTexture->texture->GetRenderTargetView().Get(),
+				outputTexture->clearColor
+			);
 		}
 	}
 
-	deviceContext->OMSetRenderTargets(viewCount, renderTargetViews, nullptr);
+	const std::shared_ptr<DepthBuffer> depthBuffer =
+		createInfo.depthBuffer.value_or(nullptr);
+
+	ID3D11DepthStencilView *depthStencilView =
+		depthBuffer ? depthBuffer->GetDepthStencilView().Get() : nullptr;
+
+	deviceContext->OMSetRenderTargets(
+		viewCount, renderTargetViews, depthStencilView
+	);
 }
 
 auto Pipeline::SetupShaderStages() -> void {

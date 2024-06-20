@@ -36,13 +36,13 @@ public:
 		const std::vector<Input> inputs;
 		const std::vector<Output> outputs;
 		const ShaderGroup shaderGroup;
-		const unsigned int vertexCount;
+		const std::optional<std::shared_ptr<DepthBuffer>> depthBuffer;
 	};
 
 	Pipeline(const PipelineCreateInfo &createInfo);
 	~Pipeline() = default;
 
-	auto Run() -> void;
+	auto Run(int vertexCount) -> void;
 
 private:
 	PipelineCreateInfo createInfo;

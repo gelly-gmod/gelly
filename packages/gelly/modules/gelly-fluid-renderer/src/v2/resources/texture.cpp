@@ -44,6 +44,12 @@ auto Texture::GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView> {
 	return unorderedAccessView;
 }
 
+auto Texture::GetSamplerState() -> ComPtr<ID3D11SamplerState> {
+	return samplerState;
+}
+
+auto Texture::GetFormat() -> DXGI_FORMAT { return createInfo.format; }
+
 auto Texture::CreateTexture2D() -> ComPtr<ID3D11Texture2D> {
 	D3D11_TEXTURE2D_DESC desc = {};
 	desc.Width = createInfo.width;

@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "device.h"
+#include "resources/depth-buffer.h"
 
 namespace gelly {
 namespace renderer {
