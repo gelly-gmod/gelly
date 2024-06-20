@@ -51,6 +51,10 @@ add_library(
         src/v2/pipeline/render-pass.h
         src/v2/pipeline/binding/Input.h
         src/v2/pipeline/binding/output.h
+        src/v2/pipeline/pipeline.cpp
+        src/v2/pipeline/pipeline.h
+        src/v2/pipeline/validate-pipeline.cpp
+        src/v2/pipeline/validate-pipeline.h
 )
 
 target_include_directories(

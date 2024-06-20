@@ -30,6 +30,8 @@ auto Buffer::GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView> {
 	return unorderedAccessView;
 }
 
+auto Buffer::GetBufferBindFlags() -> UINT { return createInfo.bindFlags; }
+
 auto Buffer::CreateBuffer() -> ComPtr<ID3D11Buffer> {
 	D3D11_BUFFER_DESC desc = {};
 	desc.ByteWidth = createInfo.maxElementCount * createInfo.stride;

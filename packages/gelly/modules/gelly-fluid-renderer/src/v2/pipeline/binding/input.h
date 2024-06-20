@@ -10,8 +10,13 @@
 namespace gelly::renderer {
 struct InputBuffer {
 	const std::shared_ptr<Buffer> buffer;
-	const std::shared_ptr<InputLayout> inputLayout;
 	D3D11_BIND_FLAG bindFlag;
+	unsigned int slot;
+};
+
+struct InputVertexBuffer {
+	const std::shared_ptr<Buffer> vertexBuffer;
+	const std::shared_ptr<InputLayout> vertexLayout;
 	unsigned int slot;
 };
 
