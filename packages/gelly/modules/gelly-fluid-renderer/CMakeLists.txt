@@ -59,6 +59,10 @@ add_library(
         src/v2/resources/depth-buffer.h
         src/v2/resources/buffer-view.cpp
         src/v2/resources/buffer-view.h
+        src/v2/renderers/splatting/pipelines/ellipsoid-splatting.h
+        src/v2/renderers/splatting/pipelines/pipeline-info.h
+        src/v2/renderers/splatting/texture-registry.cpp
+        src/v2/renderers/splatting/texture-registry.h
 )
 
 target_include_directories(

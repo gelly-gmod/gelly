@@ -18,6 +18,15 @@ auto Pipeline::Run(int vertexCount) -> void {
 	createInfo.device->GetPerformanceMarker()->BeginEvent(name.c_str());
 
 	// none of these are in any particular order
+	if (createInfo.depthBuffer.has_value()) {
+		deviceContext->ClearDepthStencilView(
+			(*createInfo.depthBuffer)->GetDepthStencilView().Get(),
+			D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+			1.0f,
+			0
+		);
+	}
+
 	SetupRenderPass();
 	SetupInputAssembler();
 	SetupOutputMerger();

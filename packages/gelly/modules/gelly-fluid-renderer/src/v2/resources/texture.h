@@ -22,10 +22,14 @@ public:
 		const UINT miscFlags = 0;
 		const UINT arraySize = 1;
 		const UINT mipLevels = 1;
+		const char *name;
 	};
 
 	Texture(const TextureCreateInfo &createInfo);
 	~Texture() = default;
+
+	static auto CreateTexture(const TextureCreateInfo &&createInfo)
+		-> std::shared_ptr<Texture>;
 
 	auto GetTexture2D() -> ComPtr<ID3D11Texture2D>;
 	auto GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView>;

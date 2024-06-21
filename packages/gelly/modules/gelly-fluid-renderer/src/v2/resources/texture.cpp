@@ -30,6 +30,11 @@ Texture::Texture(const TextureCreateInfo &createInfo)
 	samplerState = CreateSamplerState();
 }
 
+auto Texture::CreateTexture(const TextureCreateInfo &&createInfo)
+	-> std::shared_ptr<Texture> {
+	return std::make_shared<Texture>(createInfo);
+}
+
 auto Texture::GetTexture2D() -> ComPtr<ID3D11Texture2D> { return texture2D; }
 
 auto Texture::GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView> {
