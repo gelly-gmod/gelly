@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "device.h"
+#include "image.h"
 
 namespace gelly {
 namespace renderer {
@@ -13,19 +14,11 @@ class Texture {
 public:
 	struct TextureCreateInfo {
 		const std::shared_ptr<Device> device;
-		const unsigned int width;
-		const unsigned int height;
-		const DXGI_FORMAT format;
-		const D3D11_USAGE usage;
-		const UINT bindFlags;
-		const UINT cpuAccessFlags = 0;
-		const UINT miscFlags = 0;
-		const UINT arraySize = 1;
-		const UINT mipLevels = 1;
-		const char *name;
+		const std::shared_ptr<Image> image;
+		const D3D11_BIND_FLAG bindFlags;
 	};
 
-	Texture(const TextureCreateInfo &createInfo);
+	explicit Texture(const TextureCreateInfo &createInfo);
 	~Texture() = default;
 
 	static auto CreateTexture(const TextureCreateInfo &&createInfo)
@@ -41,13 +34,11 @@ public:
 private:
 	TextureCreateInfo createInfo;
 
-	ComPtr<ID3D11Texture2D> texture2D;
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 	ComPtr<ID3D11RenderTargetView> renderTargetView;
 	ComPtr<ID3D11UnorderedAccessView> unorderedAccessView;
 	ComPtr<ID3D11SamplerState> samplerState;
 
-	auto CreateTexture2D() -> ComPtr<ID3D11Texture2D>;
 	auto CreateShaderResourceView(const ComPtr<ID3D11Texture2D> &texture)
 		-> ComPtr<ID3D11ShaderResourceView>;
 	auto CreateRenderTargetView(const ComPtr<ID3D11Texture2D> &texture)

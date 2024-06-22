@@ -9,10 +9,8 @@
 namespace gelly {
 namespace renderer {
 
-Texture::Texture(const TextureCreateInfo &createInfo)
-	: createInfo(std::move(createInfo)) {
-	texture2D = CreateTexture2D();
-
+Texture::Texture(const TextureCreateInfo &createInfo) : createInfo(createInfo) {
+	const auto texture2D = createInfo.image->GetTexture2D();
 	const auto bindFlags = util::ParseBindFlags(this->createInfo.bindFlags);
 
 	if (bindFlags.isRTVRequired) {
@@ -35,7 +33,9 @@ auto Texture::CreateTexture(const TextureCreateInfo &&createInfo)
 	return std::make_shared<Texture>(createInfo);
 }
 
-auto Texture::GetTexture2D() -> ComPtr<ID3D11Texture2D> { return texture2D; }
+auto Texture::GetTexture2D() -> ComPtr<ID3D11Texture2D> {
+	return createInfo.image->GetTexture2D();
+}
 
 auto Texture::GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView> {
 	return shaderResourceView;
@@ -53,40 +53,14 @@ auto Texture::GetSamplerState() -> ComPtr<ID3D11SamplerState> {
 	return samplerState;
 }
 
-auto Texture::GetFormat() -> DXGI_FORMAT { return createInfo.format; }
-
-auto Texture::CreateTexture2D() -> ComPtr<ID3D11Texture2D> {
-	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = createInfo.width;
-	desc.Height = createInfo.height;
-	desc.MipLevels = createInfo.mipLevels;
-	desc.ArraySize = createInfo.arraySize;
-	desc.Format = createInfo.format;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = createInfo.usage;
-	desc.BindFlags = createInfo.bindFlags;
-	desc.CPUAccessFlags = createInfo.cpuAccessFlags;
-	desc.MiscFlags = createInfo.miscFlags;
-
-	ComPtr<ID3D11Texture2D> texture;
-	const auto result = createInfo.device->GetRawDevice()->CreateTexture2D(
-		&desc, nullptr, &texture
-	);
-
-	GELLY_RENDERER_THROW_ON_FAIL(
-		result,
-		std::invalid_argument,
-		"Failed to create Texture2D with the supplied creation info."
-	);
-
-	return texture;
+auto Texture::GetFormat() -> DXGI_FORMAT {
+	return createInfo.image->GetFormat();
 }
 
 auto Texture::CreateRenderTargetView(const ComPtr<ID3D11Texture2D> &texture)
 	-> ComPtr<ID3D11RenderTargetView> {
 	D3D11_RENDER_TARGET_VIEW_DESC desc = {};
-	desc.Format = createInfo.format;
+	desc.Format = GetFormat();
 	desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	desc.Texture2D.MipSlice = 0;
 
@@ -108,10 +82,10 @@ auto Texture::CreateRenderTargetView(const ComPtr<ID3D11Texture2D> &texture)
 auto Texture::CreateShaderResourceView(const ComPtr<ID3D11Texture2D> &texture)
 	-> ComPtr<ID3D11ShaderResourceView> {
 	D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
-	desc.Format = createInfo.format;
+	desc.Format = GetFormat();
 	desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	desc.Texture2D.MostDetailedMip = 0;
-	desc.Texture2D.MipLevels = createInfo.mipLevels;
+	desc.Texture2D.MipLevels = createInfo.image->GetMipLevels();
 
 	ComPtr<ID3D11ShaderResourceView> srv;
 	const auto result =
@@ -122,7 +96,8 @@ auto Texture::CreateShaderResourceView(const ComPtr<ID3D11Texture2D> &texture)
 	GELLY_RENDERER_THROW_ON_FAIL(
 		result,
 		std::invalid_argument,
-		"Failed to create ShaderResourceView with the supplied creation info."
+		"Failed to create ShaderResourceView with the supplied creation "
+		"info."
 	);
 
 	return srv;
@@ -151,7 +126,8 @@ auto Texture::CreateSamplerState() -> ComPtr<ID3D11SamplerState> {
 	GELLY_RENDERER_THROW_ON_FAIL(
 		result,
 		std::invalid_argument,
-		"Failed to create a texture sampler with the supplied creation info."
+		"Failed to create a texture sampler with the supplied creation "
+		"info."
 	);
 
 	return sampler;
