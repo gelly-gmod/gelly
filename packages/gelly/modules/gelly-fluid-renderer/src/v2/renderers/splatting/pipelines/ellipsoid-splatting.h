@@ -2,6 +2,7 @@
 #define ELLIPSOID_SPLATTING_H
 
 #include <device.h>
+#include <helpers/create-gsc-shader.h>
 #include <pipeline/pipeline.h>
 
 #include <memory>
@@ -40,41 +41,92 @@ auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 			}
 	});
 
-	// copy elision will make it so this doesn't expire immediately after the
-	// return
-	return std::make_shared<Pipeline>(Pipeline::PipelineCreateInfo{
-		.name = "Splat ellipsoid depth",
-		.device = info.device,
-		.renderPass = renderPass,
-		.inputs = {},
-		.outputs = {OutputTexture{
-			.texture = info.internalTextures->unfilteredEllipsoidDepth,
-			.bindFlag = D3D11_BIND_RENDER_TARGET,
-			.slot = 0,
-			.clearColor = {1.f, 0.f, 0.f, 0.f},
-		}},
-		.shaderGroup =
-			{.pixelShader =
-				 std::make_shared<PixelShader>(PixelShader::ShaderCreateInfo{
-					 .device = info.device,
-					 .shaderBlob = gsc::SplattingPS::GetBytecode(),
-					 .shaderBlobSize = gsc::SplattingPS::GetBytecodeSize()
-				 }),
-			 .vertexShader =
-				 std::make_shared<VertexShader>(VertexShader::ShaderCreateInfo{
-					 .device = info.device,
-					 .shaderBlob = gsc::SplattingVS::GetBytecode(),
-					 .shaderBlobSize = gsc::SplattingVS::GetBytecodeSize()
-				 }),
-			 .geometryShader = {std::make_shared<GeometryShader>(
-				 GeometryShader::ShaderCreateInfo{
-					 .device = info.device,
-					 .shaderBlob = gsc::SplattingGS::GetBytecode(),
-					 .shaderBlobSize = gsc::SplattingGS::GetBytecodeSize()
-				 }
-			 )}},
-		.depthBuffer = {}
-	});
+	auto vertexShader = VS_FROM_GSC(SplattingVS, info.device);
+
+	auto inputLayout =
+		std::make_shared<InputLayout>(InputLayout::InputLayoutCreateInfo{
+			.device = info.device,
+			.vertexShader = vertexShader,
+			.inputElements =
+				{
+					D3D11_INPUT_ELEMENT_DESC{
+						.SemanticName = "SV_POSITION",
+						.SemanticIndex = 0,
+						.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+						.InputSlot = 0,
+						.AlignedByteOffset = 0,
+						.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+						.InstanceDataStepRate = 0
+					},
+					D3D11_INPUT_ELEMENT_DESC{
+						.SemanticName = "ANISOSTROPY",
+						.SemanticIndex = 0,
+						.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+						.InputSlot = 1,
+						.AlignedByteOffset = 0,
+						.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+						.InstanceDataStepRate = 0
+					},
+					D3D11_INPUT_ELEMENT_DESC{
+						.SemanticName = "ANISOSTROPY",
+						.SemanticIndex = 1,
+						.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+						.InputSlot = 2,
+						.AlignedByteOffset = 0,
+						.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+						.InstanceDataStepRate = 0
+					},
+					D3D11_INPUT_ELEMENT_DESC{
+						.SemanticName = "ANISOSTROPY",
+						.SemanticIndex = 2,
+						.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+						.InputSlot = 3,
+						.AlignedByteOffset = 0,
+						.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+						.InstanceDataStepRate = 0
+					},
+				},
+		});
+
+	// copy elision will make it so this doesn't expire immediately
+	// after the return
+	return Pipeline::CreatePipeline(
+		{.name = "Splat ellipsoid depth",
+		 .device = info.device,
+		 .renderPass = renderPass,
+		 .inputLayout = inputLayout,
+		 .primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
+		 .inputs =
+			 {
+				 InputVertexBuffer{
+					 .vertexBuffer = info.internalBuffers->particlePositions,
+					 .slot = 0
+				 },
+				 InputVertexBuffer{
+					 .vertexBuffer = info.internalBuffers->anisotropyQ1,
+					 .slot = 1
+				 },
+				 InputVertexBuffer{
+					 .vertexBuffer = info.internalBuffers->anisotropyQ2,
+					 .slot = 2
+				 },
+				 InputVertexBuffer{
+					 .vertexBuffer = info.internalBuffers->anisotropyQ3,
+					 .slot = 3
+				 },
+			 },
+		 .outputs = {OutputTexture{
+			 .texture = info.internalTextures->unfilteredEllipsoidDepth,
+			 .bindFlag = D3D11_BIND_RENDER_TARGET,
+			 .slot = 0,
+			 .clearColor = {1.f, 0.f, 0.f, 0.f},
+		 }},
+		 .shaderGroup =
+			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),
+			  .vertexShader = vertexShader,
+			  .geometryShader = {GS_FROM_GSC(SplattingGS, info.device)}},
+		 .depthBuffer = {info.internalTextures->ellipsoidDepthBuffer}}
+	);
 }
 
 }  // namespace splatting

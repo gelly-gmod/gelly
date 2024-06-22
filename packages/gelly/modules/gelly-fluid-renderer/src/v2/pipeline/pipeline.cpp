@@ -9,9 +9,14 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 namespace gelly {
 namespace renderer {
-Pipeline::Pipeline(const PipelineCreateInfo &createInfo)
-	: createInfo(createInfo),
-	  name(createInfo.name, createInfo.name + strlen(createInfo.name)) {}
+Pipeline::Pipeline(const PipelineCreateInfo &createInfo) :
+	createInfo(createInfo),
+	name(createInfo.name, createInfo.name + strlen(createInfo.name)) {}
+
+auto Pipeline::CreatePipeline(const PipelineCreateInfo &&createInfo)
+	-> std::shared_ptr<Pipeline> {
+	return std::make_shared<Pipeline>(createInfo);
+}
 
 auto Pipeline::Run(int vertexCount) -> void {
 	auto *deviceContext = createInfo.device->GetRawDeviceContext().Get();
@@ -41,11 +46,10 @@ auto Pipeline::Run(int vertexCount) -> void {
 auto Pipeline::SetupRenderPass() -> void { createInfo.renderPass->Apply(); }
 
 auto Pipeline::SetupInputAssembler() -> void {
-	auto deviceContext = createInfo.device->GetRawDeviceContext();
+	const auto deviceContext = createInfo.device->GetRawDeviceContext();
 	std::vector<ID3D11Buffer *> vertexBuffers = {};
 	std::vector<UINT> strides = {};
 	std::vector<UINT> offsets = {};
-	std::shared_ptr<InputLayout> vertexLayout = nullptr;
 
 	for (const auto &input : createInfo.inputs) {
 		const auto *inputVertexBuffer = std::get_if<InputVertexBuffer>(&input);
@@ -56,7 +60,6 @@ auto Pipeline::SetupInputAssembler() -> void {
 			strides.push_back(inputVertexBuffer->vertexBuffer->GetBufferStride()
 			);
 			offsets.push_back(0);
-			vertexLayout = inputVertexBuffer->vertexLayout;
 		}
 	}
 
@@ -68,7 +71,11 @@ auto Pipeline::SetupInputAssembler() -> void {
 		offsets.data()
 	);
 
-	deviceContext->IASetInputLayout(vertexLayout->GetInputLayout().Get());
+	deviceContext->IASetInputLayout(
+		createInfo.inputLayout->GetInputLayout().Get()
+	);
+
+	deviceContext->IASetPrimitiveTopology(createInfo.primitiveTopology);
 }
 
 auto Pipeline::SetupOutputMerger() -> void {

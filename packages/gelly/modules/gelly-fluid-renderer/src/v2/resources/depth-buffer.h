@@ -23,6 +23,9 @@ public:
 	DepthBuffer(const DepthBufferCreateInfo &createInfo);
 	~DepthBuffer() = default;
 
+	static auto CreateDepthBuffer(const DepthBufferCreateInfo &&createInfo)
+		-> std::shared_ptr<DepthBuffer>;
+
 	auto GetDepthStencilView() -> ComPtr<ID3D11DepthStencilView>;
 
 private:

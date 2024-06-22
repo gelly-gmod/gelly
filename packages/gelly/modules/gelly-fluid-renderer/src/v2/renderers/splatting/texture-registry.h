@@ -69,6 +69,7 @@ struct InternalTextures {
 	std::shared_ptr<Texture> unfilteredEllipsoidDepth = nullptr;
 	std::shared_ptr<Texture> unfilteredThickness = nullptr;
 	std::shared_ptr<Texture> unfilteredAlbedo = nullptr;
+	std::shared_ptr<DepthBuffer> ellipsoidDepthBuffer = nullptr;
 
 	InternalTextures(
 		const std::shared_ptr<Device> &device,
@@ -128,9 +129,26 @@ struct InternalTextures {
 				  .name = "Unfiltered Albedo"}
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		))
-
-			{};
+		)),
+		ellipsoidDepthBuffer(DepthBuffer::CreateDepthBuffer(
+			{.device = device,
+			 .depthTexture = Texture::CreateTexture(
+				 {.device = device,
+				  .image = NativeImage::CreateNativeImage(
+					  {.device = device,
+					   .width = width,
+					   .height = height,
+					   .format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+					   .usage = D3D11_USAGE_DEFAULT,
+					   .bindFlags = D3D11_BIND_DEPTH_STENCIL,
+					   .cpuAccessFlags = 0,
+					   .miscFlags = 0,
+					   .arraySize = 1,
+					   .mipLevels = 1,
+					   .name = "Ellipsoid depth buffer"}
+				  )}
+			 )}
+		)){};
 };
 
 }  // namespace splatting

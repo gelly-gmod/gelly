@@ -3,6 +3,7 @@
 #include <helpers/comptr.h>
 
 #include <memory>
+#include <vector>
 
 #include "buffer.h"
 #include "shader.h"
@@ -15,7 +16,7 @@ public:
 	struct InputLayoutCreateInfo {
 		const std::shared_ptr<Device> device;
 		const std::shared_ptr<VertexShader> vertexShader;
-		D3D11_INPUT_ELEMENT_DESC inputElementDescs[8];
+		const std::vector<D3D11_INPUT_ELEMENT_DESC> inputElements;
 	};
 
 	InputLayout(const InputLayoutCreateInfo &createInfo);

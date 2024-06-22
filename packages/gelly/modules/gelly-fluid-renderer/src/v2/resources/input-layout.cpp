@@ -6,8 +6,8 @@
 
 namespace gelly {
 namespace renderer {
-InputLayout::InputLayout(const InputLayoutCreateInfo &createInfo)
-	: createInfo(createInfo) {
+InputLayout::InputLayout(const InputLayoutCreateInfo &createInfo) :
+	createInfo(createInfo) {
 	inputLayout = CreateInputLayout();
 }
 
@@ -22,8 +22,8 @@ auto InputLayout::GetVertexShader() -> std::shared_ptr<VertexShader> {
 auto InputLayout::CreateInputLayout() -> ComPtr<ID3D11InputLayout> {
 	ComPtr<ID3D11InputLayout> inputLayout;
 	const auto result = createInfo.device->GetRawDevice()->CreateInputLayout(
-		createInfo.inputElementDescs,
-		ARRAYSIZE(createInfo.inputElementDescs),
+		createInfo.inputElements.data(),
+		static_cast<UINT>(createInfo.inputElements.size()),
 		createInfo.vertexShader->GetBlob(),
 		createInfo.vertexShader->GetBlobSize(),
 		inputLayout.GetAddressOf()

@@ -7,7 +7,7 @@
 namespace gelly {
 namespace renderer {
 Buffer::Buffer(const BufferCreateInfo &createInfo) : createInfo(createInfo) {
-	buffer = CreateBuffer();
+	buffer = CreateBufferResource();
 
 	const auto parsedBindFlags = util::ParseBindFlags(createInfo.bindFlags);
 
@@ -18,6 +18,11 @@ Buffer::Buffer(const BufferCreateInfo &createInfo) : createInfo(createInfo) {
 	if (parsedBindFlags.isUAVRequired) {
 		unorderedAccessView = CreateUnorderedAccessView(buffer);
 	}
+}
+
+auto Buffer::CreateBuffer(const BufferCreateInfo &&createInfo)
+	-> std::shared_ptr<Buffer> {
+	return std::make_shared<Buffer>(createInfo);
 }
 
 auto Buffer::GetRawBuffer() -> ComPtr<ID3D11Buffer> { return buffer; }
@@ -36,7 +41,7 @@ auto Buffer::GetBufferStride() -> UINT { return createInfo.stride; }
 
 auto Buffer::GetCPUAccessFlags() -> UINT { return createInfo.cpuAccessFlags; }
 
-auto Buffer::CreateBuffer() -> ComPtr<ID3D11Buffer> {
+auto Buffer::CreateBufferResource() -> ComPtr<ID3D11Buffer> {
 	D3D11_BUFFER_DESC desc = {};
 	desc.ByteWidth = createInfo.maxElementCount * createInfo.stride;
 	desc.StructureByteStride = createInfo.stride;

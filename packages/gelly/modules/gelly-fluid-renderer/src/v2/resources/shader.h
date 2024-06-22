@@ -32,7 +32,7 @@ class Shader {
 public:
 	struct ShaderCreateInfo {
 		const std::shared_ptr<Device> device;
-		void *shaderBlob;
+		const void *shaderBlob;
 		unsigned int shaderBlobSize;
 	};
 

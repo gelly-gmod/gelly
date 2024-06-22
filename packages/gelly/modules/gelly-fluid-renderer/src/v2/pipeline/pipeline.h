@@ -39,6 +39,8 @@ public:
 		const char *name;
 		const std::shared_ptr<Device> device;
 		const std::shared_ptr<RenderPass> renderPass;
+		const std::shared_ptr<InputLayout> inputLayout;
+		const D3D11_PRIMITIVE_TOPOLOGY primitiveTopology;
 		const std::vector<Input> inputs;
 		const std::vector<Output> outputs;
 		const ShaderGroup shaderGroup;
@@ -47,6 +49,9 @@ public:
 
 	explicit Pipeline(const PipelineCreateInfo &createInfo);
 	~Pipeline() = default;
+
+	static auto CreatePipeline(const PipelineCreateInfo &&createInfo)
+		-> std::shared_ptr<Pipeline>;
 
 	auto Run(int vertexCount) -> void;
 

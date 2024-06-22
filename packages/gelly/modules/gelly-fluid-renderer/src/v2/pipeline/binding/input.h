@@ -16,7 +16,6 @@ struct InputBuffer {
 
 struct InputVertexBuffer {
 	const std::shared_ptr<Buffer> vertexBuffer;
-	const std::shared_ptr<InputLayout> vertexLayout;
 	unsigned int slot;
 };
 
@@ -26,7 +25,7 @@ struct InputTexture {
 	unsigned int slot;
 };
 
-using Input = std::variant<InputBuffer, InputTexture>;
+using Input = std::variant<InputBuffer, InputVertexBuffer, InputTexture>;
 }  // namespace gelly::renderer
 
 #endif	// INPUT_H

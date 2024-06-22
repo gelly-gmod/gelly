@@ -30,8 +30,9 @@ public:
 		UINT bindFlags;
 
 		template <typename T>
-		static auto WithAutomaticStride(const BufferCreateInfo &createInfo)
-			-> BufferCreateInfo {
+		static constexpr auto WithAutomaticStride(
+			const BufferCreateInfo &createInfo
+		) -> BufferCreateInfo {
 			return BufferCreateInfo{
 				createInfo.device,
 				createInfo.maxElementCount,
@@ -49,6 +50,9 @@ public:
 	Buffer(const BufferCreateInfo &createInfo);
 	~Buffer() = default;
 
+	static auto CreateBuffer(const BufferCreateInfo &&createInfo)
+		-> std::shared_ptr<Buffer>;
+
 	auto GetRawBuffer() -> ComPtr<ID3D11Buffer>;
 	auto GetShaderResourceView() -> ComPtr<ID3D11ShaderResourceView>;
 	auto GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView>;
@@ -63,7 +67,7 @@ private:
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 	ComPtr<ID3D11UnorderedAccessView> unorderedAccessView;
 
-	auto CreateBuffer() -> ComPtr<ID3D11Buffer>;
+	auto CreateBufferResource() -> ComPtr<ID3D11Buffer>;
 	auto CreateShaderResourceView(const ComPtr<ID3D11Buffer> &buffer)
 		-> ComPtr<ID3D11ShaderResourceView>;
 	auto CreateUnorderedAccessView(const ComPtr<ID3D11Buffer> &buffer)

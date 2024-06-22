@@ -7,9 +7,14 @@
 
 namespace gelly {
 namespace renderer {
-DepthBuffer::DepthBuffer(const DepthBufferCreateInfo &createInfo)
-	: createInfo(createInfo) {
+DepthBuffer::DepthBuffer(const DepthBufferCreateInfo &createInfo) :
+	createInfo(createInfo) {
 	depthStencilView = CreateDepthStencilView();
+}
+
+auto DepthBuffer::CreateDepthBuffer(const DepthBufferCreateInfo &&createInfo)
+	-> std::shared_ptr<DepthBuffer> {
+	return std::make_shared<DepthBuffer>(createInfo);
 }
 
 auto DepthBuffer::GetDepthStencilView() -> ComPtr<ID3D11DepthStencilView> {
