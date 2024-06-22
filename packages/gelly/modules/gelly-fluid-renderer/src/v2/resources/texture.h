@@ -15,7 +15,7 @@ public:
 	struct TextureCreateInfo {
 		const std::shared_ptr<Device> device;
 		const std::shared_ptr<Image> image;
-		const D3D11_BIND_FLAG bindFlags;
+		const UINT bindFlags;
 	};
 
 	explicit Texture(const TextureCreateInfo &createInfo);

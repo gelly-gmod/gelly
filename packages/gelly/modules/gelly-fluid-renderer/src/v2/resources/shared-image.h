@@ -19,7 +19,7 @@ public:
 	~SharedImage() override = default;
 
 	static auto CreateSharedImage(const SharedImageCreateInfo &&createInfo)
-		-> std::shared_ptr<SharedImage>;
+		-> std::shared_ptr<Image>;
 
 	auto GetTexture2D() -> ComPtr<ID3D11Texture2D> override;
 

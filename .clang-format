@@ -11,3 +11,14 @@ BinPackArguments: false
 BinPackParameters: false
 IndentAccessModifiers: false
 AccessModifierOffset: -4
+# since we tend to have lots of braced initializers in the renderer, we want to make sure they look like:
+# {
+#     .field = value,
+#     .field2 = value2,
+# }
+# and not:
+# {.field = value,
+#   .field2 = value2,
+#}
+BreakConstructorInitializers: AfterColon
+Cpp11BracedListStyle: true

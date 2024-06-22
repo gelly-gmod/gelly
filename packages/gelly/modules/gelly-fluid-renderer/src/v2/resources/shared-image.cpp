@@ -15,7 +15,7 @@ SharedImage::SharedImage(const SharedImageCreateInfo &createInfo)
 }
 
 auto SharedImage::CreateSharedImage(const SharedImageCreateInfo &&createInfo)
-	-> std::shared_ptr<SharedImage> {
+	-> std::shared_ptr<Image> {
 	return std::make_shared<SharedImage>(createInfo);
 }
 

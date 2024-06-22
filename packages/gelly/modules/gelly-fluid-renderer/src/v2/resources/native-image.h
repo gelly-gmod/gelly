@@ -29,7 +29,7 @@ public:
 	~NativeImage() override = default;
 
 	static auto CreateNativeImage(const NativeImageCreateInfo &&createInfo)
-		-> std::shared_ptr<NativeImage>;
+		-> std::shared_ptr<Image>;
 
 	auto GetTexture2D() -> ComPtr<ID3D11Texture2D> override;
 

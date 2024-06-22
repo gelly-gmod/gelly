@@ -12,7 +12,7 @@ NativeImage::NativeImage(const NativeImageCreateInfo &createInfo)
 }
 
 auto NativeImage::CreateNativeImage(const NativeImageCreateInfo &&createInfo)
-	-> std::shared_ptr<NativeImage> {
+	-> std::shared_ptr<Image> {
 	return std::make_shared<NativeImage>(createInfo);
 }
 
