@@ -120,7 +120,8 @@ auto ValidateInputVertexBuffer(const InputVertexBuffer &vertexBuffer)
 	return std::nullopt;
 }
 
-auto ValidateConstantBuffer(const std::shared_ptr<Buffer> constantBuffer) {
+auto ValidateConstantBuffer(const std::shared_ptr<Buffer> constantBuffer)
+	-> std::optional<PipelineValidationError> {
 	const auto underlyingBufferBindFlags = constantBuffer->GetBufferBindFlags();
 
 	const auto primaryBindType =
@@ -139,6 +140,8 @@ auto ValidateConstantBuffer(const std::shared_ptr<Buffer> constantBuffer) {
 			"CONSTANT_BUFFER."
 		};
 	}
+
+	return std::nullopt;
 }
 
 auto ValidatePipeline(const Pipeline::PipelineCreateInfo &createInfo)

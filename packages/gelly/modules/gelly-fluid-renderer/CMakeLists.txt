@@ -69,6 +69,9 @@ add_library(
         src/v2/resources/image.h
         src/v2/helpers/create-gsc-shader.h
         src/v2/renderers/splatting/buffers.h
+        src/v2/helpers/rendering/constant-buffer.cpp
+        src/v2/helpers/rendering/constant-buffer.h
+        src/v2/renderers/splatting/cbuffers.h
 )
 
 target_include_directories(
@@ -78,6 +81,7 @@ target_include_directories(
         src/v2
         src/shaders/out
         src/shaders/isosurface/out
+        src
         ../gelly-interfaces/include
         ../gelly-d3d/include
         ../gelly-fluid-sim/include

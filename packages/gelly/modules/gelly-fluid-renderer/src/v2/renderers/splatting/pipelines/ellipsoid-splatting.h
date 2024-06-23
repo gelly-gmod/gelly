@@ -19,7 +19,7 @@ namespace splatting {
 
 auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 	-> std::shared_ptr<Pipeline> {
-	auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
+	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
 		.depthStencilState =
 			{.depthTestEnabled = true,
@@ -41,9 +41,9 @@ auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 			}
 	});
 
-	auto vertexShader = VS_FROM_GSC(SplattingVS, info.device);
+	const auto vertexShader = VS_FROM_GSC(SplattingVS, info.device);
 
-	auto inputLayout =
+	const auto inputLayout =
 		std::make_shared<InputLayout>(InputLayout::InputLayoutCreateInfo{
 			.device = info.device,
 			.vertexShader = vertexShader,
@@ -59,7 +59,7 @@ auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 						.InstanceDataStepRate = 0
 					},
 					D3D11_INPUT_ELEMENT_DESC{
-						.SemanticName = "ANISOSTROPY",
+						.SemanticName = "ANISOTROPY",
 						.SemanticIndex = 0,
 						.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
 						.InputSlot = 1,
@@ -68,7 +68,7 @@ auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 						.InstanceDataStepRate = 0
 					},
 					D3D11_INPUT_ELEMENT_DESC{
-						.SemanticName = "ANISOSTROPY",
+						.SemanticName = "ANISOTROPY",
 						.SemanticIndex = 1,
 						.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
 						.InputSlot = 2,
@@ -77,7 +77,7 @@ auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 						.InstanceDataStepRate = 0
 					},
 					D3D11_INPUT_ELEMENT_DESC{
-						.SemanticName = "ANISOSTROPY",
+						.SemanticName = "ANISOTROPY",
 						.SemanticIndex = 2,
 						.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
 						.InputSlot = 3,
