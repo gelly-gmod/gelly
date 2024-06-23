@@ -1,5 +1,5 @@
-#ifndef DEPTH_FILTERING_H
-#define DEPTH_FILTERING_H
+#ifndef NORMAL_ESTIMATION_H
+#define NORMAL_ESTIMATION_H
 
 #include <device.h>
 #include <helpers/create-gsc-shader.h>
@@ -8,7 +8,7 @@
 #include <memory>
 #include <optional>
 
-#include "FilterDepthPS.h"
+#include "EstimateNormalPS.h"
 #include "helpers/rendering/screen-quad.h"
 #include "pipeline-info.h"
 
@@ -17,11 +17,8 @@ namespace renderer {
 namespace splatting {
 // we take in the input/output depth separately so that we are able
 // to create ping pong pipelines for filter iterations
-inline auto CreateDepthFilteringPipeline(
-	const PipelineInfo &info,
-	const std::shared_ptr<Texture> &inputDepth,
-	const std::shared_ptr<Texture> &outputDepth
-) -> std::shared_ptr<Pipeline> {
+inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
+	-> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
 		.depthStencilState =
@@ -42,7 +39,7 @@ inline auto CreateDepthFilteringPipeline(
 	const util::ScreenQuad screenQuad = {.device = info.device};
 
 	return Pipeline::CreatePipeline(
-		{.name = "Filtering depth",
+		{.name = "Estimating normals",
 		 .device = info.device,
 		 .renderPass = renderPass,
 		 .inputLayout = screenQuad.GetInputLayout(),
@@ -50,18 +47,18 @@ inline auto CreateDepthFilteringPipeline(
 		 .inputs =
 			 {screenQuad.GetVertexBuffer(),
 			  InputTexture{
-				  .texture = inputDepth,
+				  .texture = info.internalTextures->unfilteredEllipsoidDepth,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
 			  }},
 		 .outputs = {OutputTexture{
-			 .texture = outputDepth,
+			 .texture = info.outputTextures->normals,
 			 .bindFlag = D3D11_BIND_RENDER_TARGET,
 			 .slot = 0,
-			 .clearColor = {0.f, 1.f, 0.f, 0.f}
+			 .clearColor = {0.f, 0.f, 0.f, 0.f}
 		 }},
 		 .shaderGroup =
-			 {.pixelShader = PS_FROM_GSC(FilterDepthPS, info.device),
+			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
 			  .vertexShader = screenQuad.GetVertexShader()},
 		 .depthBuffer = std::nullopt}
 	);
@@ -70,4 +67,4 @@ inline auto CreateDepthFilteringPipeline(
 }  // namespace renderer
 }  // namespace gelly
 
-#endif	// DEPTH_FILTERING_H
+#endif	// NORMAL_ESTIMATION_H

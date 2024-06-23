@@ -29,8 +29,8 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 			{
 				.topLeftX = 0.0f,
 				.topLeftY = 0.0f,
-				.width = info.width,
-				.height = info.height,
+				.width = static_cast<float>(info.width),
+				.height = static_cast<float>(info.height),
 				.minDepth = 0.0f,
 				.maxDepth = 1.0f,
 			},
