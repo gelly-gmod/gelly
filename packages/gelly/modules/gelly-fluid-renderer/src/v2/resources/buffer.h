@@ -22,7 +22,7 @@ public:
 		const unsigned int maxElementCount;
 		const unsigned int stride = 0;
 
-		void *initialData;
+		const void *initialData;
 		D3D11_USAGE usage;
 		DXGI_FORMAT format;
 		UINT cpuAccessFlags = 0;

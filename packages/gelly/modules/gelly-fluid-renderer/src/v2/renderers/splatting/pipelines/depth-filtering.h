@@ -1,0 +1,73 @@
+#ifndef DEPTH_FILTERING_H
+#define DEPTH_FILTERING_H
+
+#include <device.h>
+#include <helpers/create-gsc-shader.h>
+#include <pipeline/pipeline.h>
+
+#include <memory>
+#include <optional>
+
+#include "FilterDepthPS.h"
+#include "helpers/rendering/screen-quad.h"
+#include "pipeline-info.h"
+
+namespace gelly {
+namespace renderer {
+namespace splatting {
+// we take in the input/output depth separately so that we are able
+// to create ping pong pipelines for filter iterations
+inline auto CreateDepthFilteringPipeline(
+	const PipelineInfo &info,
+	const std::shared_ptr<Texture> &inputDepth,
+	const std::shared_ptr<Texture> &outputDepth
+) -> std::shared_ptr<Pipeline> {
+	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
+		.device = info.device,
+		.depthStencilState =
+			{.depthTestEnabled = false,
+			 .depthWriteEnabled = false,
+			 .depthComparisonFunc = D3D11_COMPARISON_ALWAYS},
+		.viewportState =
+			{.topLeftX = 0.f,
+			 .topLeftY = 0.f,
+			 .width = info.width,
+			 .height = info.height,
+			 .minDepth = 0.f,
+			 .maxDepth = 1.f},
+		.rasterizerState =
+			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE}
+	});
+
+	const util::ScreenQuad screenQuad = {.device = info.device};
+
+	return Pipeline::CreatePipeline(
+		{.name = "Filtering depth",
+		 .device = info.device,
+		 .renderPass = renderPass,
+		 .inputLayout = screenQuad.GetInputLayout(),
+		 .primitiveTopology = util::ScreenQuad::GetPrimitiveTopology(),
+		 .inputs =
+			 {screenQuad.GetVertexBuffer(),
+			  InputTexture{
+				  .texture = inputDepth,
+				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				  .slot = 0
+			  }},
+		 .outputs = {OutputTexture{
+			 .texture = outputDepth,
+			 .bindFlag = D3D11_BIND_RENDER_TARGET,
+			 .slot = 0,
+			 .clearColor = {0.f, 1.f, 0.f, 0.f}
+		 }},
+		 .shaderGroup =
+			 {.pixelShader = PS_FROM_GSC(FilterDepthPS, info.device),
+			  .vertexShader = screenQuad.GetVertexShader()},
+		 .depthBuffer = std::nullopt}
+	);
+}
+}  // namespace splatting
+}  // namespace renderer
+}  // namespace gelly
+
+#endif	// DEPTH_FILTERING_H

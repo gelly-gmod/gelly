@@ -50,8 +50,13 @@ auto Buffer::CreateBufferResource() -> ComPtr<ID3D11Buffer> {
 	desc.CPUAccessFlags = createInfo.cpuAccessFlags;
 	desc.MiscFlags = createInfo.miscFlags;
 
+	D3D11_SUBRESOURCE_DATA initialData = {};
+	initialData.pSysMem = createInfo.initialData;
+
 	const auto result = createInfo.device->GetRawDevice()->CreateBuffer(
-		&desc, nullptr, buffer.GetAddressOf()
+		&desc,
+		createInfo.initialData ? &initialData : nullptr,
+		buffer.GetAddressOf()
 	);
 
 	GELLY_RENDERER_THROW_ON_FAIL(

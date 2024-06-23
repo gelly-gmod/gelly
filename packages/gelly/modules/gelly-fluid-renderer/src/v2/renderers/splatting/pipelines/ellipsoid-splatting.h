@@ -17,7 +17,7 @@ namespace gelly {
 namespace renderer {
 namespace splatting {
 
-auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
+inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 	-> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,

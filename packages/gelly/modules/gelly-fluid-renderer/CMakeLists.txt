@@ -69,9 +69,11 @@ add_library(
         src/v2/resources/image.h
         src/v2/helpers/create-gsc-shader.h
         src/v2/renderers/splatting/buffers.h
-        src/v2/helpers/rendering/constant-buffer.cpp
         src/v2/helpers/rendering/constant-buffer.h
         src/v2/renderers/splatting/cbuffers.h
+        src/v2/helpers/rendering/screen-quad.cpp
+        src/v2/helpers/rendering/screen-quad.h
+        src/v2/renderers/splatting/pipelines/depth-filtering.h
 )
 
 target_include_directories(
