@@ -2,6 +2,7 @@
 #define BUFFERS_H
 #include <memory>
 
+#include "cbuffers.h"
 #include "resources/buffer.h"
 
 namespace gelly {
@@ -36,6 +37,8 @@ struct InternalBuffers {
 
 	std::shared_ptr<Buffer> foamPositions = nullptr;
 	std::shared_ptr<Buffer> foamVelocities = nullptr;
+
+	cbuffer::FluidRenderCBuffer fluidRenderCBuffer;
 
 	InternalBuffers(
 		const std::shared_ptr<Device> &device, const unsigned int maxParticles
@@ -95,7 +98,8 @@ struct InternalBuffers {
 			 .usage = D3D11_USAGE_DEFAULT,
 			 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
 			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))){};
+		))),
+		fluidRenderCBuffer({.device = device}){};
 };
 
 }  // namespace splatting
