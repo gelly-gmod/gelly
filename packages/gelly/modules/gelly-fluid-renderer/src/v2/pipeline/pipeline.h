@@ -45,6 +45,7 @@ public:
 		const std::vector<Output> outputs;
 		const ShaderGroup shaderGroup;
 		const std::optional<std::shared_ptr<DepthBuffer>> depthBuffer;
+		const int defaultVertexCount;
 	};
 
 	explicit Pipeline(const PipelineCreateInfo &createInfo);
@@ -53,7 +54,7 @@ public:
 	static auto CreatePipeline(const PipelineCreateInfo &&createInfo)
 		-> std::shared_ptr<Pipeline>;
 
-	auto Run(int vertexCount) -> void;
+	auto Run(std::optional<int> vertexCount = std::nullopt) -> void;
 
 private:
 	PipelineCreateInfo createInfo;

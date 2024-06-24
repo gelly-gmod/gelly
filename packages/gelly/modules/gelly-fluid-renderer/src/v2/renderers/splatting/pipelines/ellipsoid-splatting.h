@@ -127,7 +127,8 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 			  .geometryShader = {GS_FROM_GSC(SplattingGS, info.device)},
 			  .constantBuffers =
 				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
-		 .depthBuffer = {info.internalTextures->ellipsoidDepthBuffer}}
+		 .depthBuffer = {info.internalTextures->ellipsoidDepthBuffer},
+		 .defaultVertexCount = 0}
 	);
 }
 

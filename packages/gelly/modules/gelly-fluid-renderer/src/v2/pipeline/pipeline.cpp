@@ -18,7 +18,7 @@ auto Pipeline::CreatePipeline(const PipelineCreateInfo &&createInfo)
 	return std::make_shared<Pipeline>(createInfo);
 }
 
-auto Pipeline::Run(int vertexCount) -> void {
+auto Pipeline::Run(const std::optional<int> vertexCount) -> void {
 	auto *deviceContext = createInfo.device->GetRawDeviceContext().Get();
 	createInfo.device->GetPerformanceMarker()->BeginEvent(name.c_str());
 
@@ -37,7 +37,7 @@ auto Pipeline::Run(int vertexCount) -> void {
 	SetupOutputMerger();
 	SetupShaderStages();
 
-	deviceContext->Draw(vertexCount, 0);
+	deviceContext->Draw(vertexCount.value_or(createInfo.defaultVertexCount), 0);
 	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext->ClearState();
 	createInfo.device->GetPerformanceMarker()->EndEvent();

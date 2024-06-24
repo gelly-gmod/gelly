@@ -41,30 +41,31 @@ inline auto CreateDepthFilteringPipeline(
 
 	const util::ScreenQuad screenQuad = {.device = info.device};
 
-	return Pipeline::CreatePipeline(
-		{.name = "Filtering depth",
-		 .device = info.device,
-		 .renderPass = renderPass,
-		 .inputLayout = screenQuad.GetInputLayout(),
-		 .primitiveTopology = util::ScreenQuad::GetPrimitiveTopology(),
-		 .inputs =
-			 {screenQuad.GetVertexBuffer(),
-			  InputTexture{
-				  .texture = inputDepth,
-				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
-				  .slot = 0
-			  }},
-		 .outputs = {OutputTexture{
-			 .texture = outputDepth,
-			 .bindFlag = D3D11_BIND_RENDER_TARGET,
-			 .slot = 0,
-			 .clearColor = {0.f, 1.f, 0.f, 0.f}
-		 }},
-		 .shaderGroup =
-			 {.pixelShader = PS_FROM_GSC(FilterDepthPS, info.device),
-			  .vertexShader = screenQuad.GetVertexShader()},
-		 .depthBuffer = std::nullopt}
-	);
+	return Pipeline::CreatePipeline({
+		.name = "Filtering depth",
+		.device = info.device,
+		.renderPass = renderPass,
+		.inputLayout = screenQuad.GetInputLayout(),
+		.primitiveTopology = util::ScreenQuad::GetPrimitiveTopology(),
+		.inputs =
+			{screenQuad.GetVertexBuffer(),
+			 InputTexture{
+				 .texture = inputDepth,
+				 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				 .slot = 0
+			 }},
+		.outputs = {OutputTexture{
+			.texture = outputDepth,
+			.bindFlag = D3D11_BIND_RENDER_TARGET,
+			.slot = 0,
+			.clearColor = {0.f, 1.f, 0.f, 0.f}
+		}},
+		.shaderGroup =
+			{.pixelShader = PS_FROM_GSC(FilterDepthPS, info.device),
+			 .vertexShader = screenQuad.GetVertexShader()},
+		.depthBuffer = std::nullopt,
+		.defaultVertexCount = 4,
+	});
 }
 }  // namespace splatting
 }  // namespace renderer

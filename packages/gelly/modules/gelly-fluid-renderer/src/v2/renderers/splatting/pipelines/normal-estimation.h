@@ -60,7 +60,8 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
 			  .vertexShader = screenQuad.GetVertexShader()},
-		 .depthBuffer = std::nullopt}
+		 .depthBuffer = std::nullopt,
+		 .defaultVertexCount = 4}
 	);
 }
 }  // namespace splatting
