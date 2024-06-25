@@ -1,6 +1,7 @@
 #ifndef CONSTANT_BUFFER_H
 #define CONSTANT_BUFFER_H
 #include <memory>
+#include <stdexcept>
 #include <type_traits>
 
 #include "device.h"
@@ -25,17 +26,25 @@ public:
 	};
 
 	explicit ConstantBuffer(const ConstantBufferCreateInfo &createInfo) :
-		createInfo(createInfo()), buffer(CreateBuffer()) {}
+		createInfo(createInfo), buffer(CreateBuffer()) {
+		const auto queryResult = buffer->GetRawBuffer().As(&bufferResource);
+
+		GELLY_RENDERER_THROW_ON_FAIL(
+			queryResult,
+			std::invalid_argument,
+			"Failed to query buffer resource"
+		);
+	}
 
 	~ConstantBuffer() = default;
 
 	auto GetBuffer() -> std::shared_ptr<Buffer> { return buffer; }
 
-	auto UpdateBuffer(const T &data) -> void {
+	auto UpdateBuffer(T &data) -> void {
 		// constant buffers never support actual subresource updates, so
 		// we use the nullptr which just does a smart copy.
 		createInfo.device->GetRawDeviceContext()->UpdateSubresource(
-			buffer->GetRawBuffer().Get(),
+			bufferResource.Get(),
 			0,
 			nullptr,
 			reinterpret_cast<void *>(&data),
@@ -47,6 +56,7 @@ public:
 private:
 	ConstantBufferCreateInfo createInfo;
 	std::shared_ptr<Buffer> buffer;
+	ComPtr<ID3D11Resource> bufferResource;
 
 	auto CreateBuffer() -> std::shared_ptr<Buffer> {
 		const auto bufferCreateInfo =

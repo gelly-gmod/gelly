@@ -32,29 +32,24 @@ class Shader {
 public:
 	struct ShaderCreateInfo {
 		const std::shared_ptr<Device> device;
-		const void *shaderBlob;
-		unsigned int shaderBlobSize;
+		const void *shaderBlob{};
+		unsigned int shaderBlobSize{};
 	};
 
-	Shader(const ShaderCreateInfo &createInfo);
+	explicit Shader(const ShaderCreateInfo &createInfo);
 	~Shader() = default;
 
 	auto GetRawShader() -> ComPtr<ShaderType>;
-	auto GetBlob() -> void *;
+	auto GetBlob() -> const void *;
 	auto GetBlobSize() -> unsigned int;
 
 private:
 	ShaderCreateInfo createInfo;
 	ComPtr<ShaderType> shader;
 
-	std::enable_if_t<is_vertex_shader<ShaderType>, auto> CreateVertexShader()
-		-> ComPtr<ID3D11VertexShader>;
-
-	std::enable_if_t<is_pixel_shader<ShaderType>, auto> CreatePixelShader()
-		-> ComPtr<ID3D11PixelShader>;
-
-	std::enable_if_t<is_geometry_shader<ShaderType>, auto> CreateGeometryShader(
-	) -> ComPtr<ID3D11GeometryShader>;
+	auto CreateVertexShader() -> ComPtr<ID3D11VertexShader>;
+	auto CreatePixelShader() -> ComPtr<ID3D11PixelShader>;
+	auto CreateGeometryShader() -> ComPtr<ID3D11GeometryShader>;
 };
 
 using PixelShader = Shader<ID3D11PixelShader>;

@@ -45,10 +45,9 @@
 		LUA->ThrowError("Unknown exception caught!");            \
 	}
 
+static std::shared_ptr<gelly::renderer::Device> rendererDevice = nullptr;
 static std::shared_ptr<GModCompositor> compositor = nullptr;
 static std::shared_ptr<Scene> scene = nullptr;
-static std::shared_ptr<IFluidRenderer> renderer = nullptr;
-static std::shared_ptr<IRenderContext> context = nullptr;
 static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 static std::shared_ptr<luajit::LuaShared> luaShared = nullptr;
@@ -619,10 +618,24 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 
 	// For safe measure we'll honestly just need to remove the sim and scene,
 	// although the sim context should be fine
+	unsigned int originalWidth = compositor->GetWidth();
+	unsigned int originalHeight = compositor->GetHeight();
+
 	sim.reset();
 	sim = MakeFluidSimulation(simContext.get());
 	scene.reset();
-	scene = std::make_shared<Scene>(renderer, simContext, sim, newMax);
+	compositor.reset();
+	scene = std::make_shared<Scene>(simContext, sim, newMax);
+	compositor = std::make_shared<GModCompositor>(
+		PipelineType::STANDARD,
+		scene->GetSimData(),
+		rendererDevice,
+		originalWidth,
+		originalHeight,
+		newMax
+	);
+
+	scene->Initialize();
 
 	LUA->Pop();
 
@@ -691,25 +704,27 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		);
 	}
 
-	context = MakeRenderContext(currentView.width, currentView.height);
-	renderer = MakeFluidRenderer(context.get());
+	rendererDevice = std::make_shared<gelly::renderer::Device>();
+
 	simContext = MakeSimContext(
-		static_cast<ID3D11Device *>(
-			context->GetRenderAPIResource(RenderAPIResource::D3D11Device)
-		),
-		static_cast<ID3D11DeviceContext *>(
-			context->GetRenderAPIResource(RenderAPIResource::D3D11DeviceContext)
-		)
+		rendererDevice->GetRawDevice().Get(),
+		rendererDevice->GetRawDeviceContext().Get()
 	);
+
 	sim = MakeFluidSimulation(simContext.get());
 
+	scene = std::make_shared<Scene>(simContext, sim, DEFAULT_MAX_PARTICLES);
+
 	compositor = std::make_shared<GModCompositor>(
-		PipelineType::STANDARD, renderer, context
+		PipelineType::STANDARD,
+		scene->GetSimData(),
+		rendererDevice,
+		currentView.width,
+		currentView.height,
+		DEFAULT_MAX_PARTICLES
 	);
 
-	scene = std::make_shared<Scene>(
-		renderer, simContext, sim, DEFAULT_MAX_PARTICLES
-	);
+	scene->Initialize();
 
 	DumpLuaStack("Getting global table", LUA);
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
@@ -777,9 +792,8 @@ GMOD_MODULE_CLOSE() {
 
 	compositor.reset();
 	scene.reset();
-	renderer.reset();
-	context.reset();
 	sim.reset();
+	rendererDevice.reset();
 	simContext.reset();
 
 	LOG_SAVE_TO_FILE();

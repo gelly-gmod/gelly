@@ -36,7 +36,7 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE}
 	});
 
-	const util::ScreenQuad screenQuad = {.device = info.device};
+	const util::ScreenQuad screenQuad({.device = info.device});
 
 	return Pipeline::CreatePipeline(
 		{.name = "Estimating normals",
@@ -59,7 +59,9 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 		 }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
-			  .vertexShader = screenQuad.GetVertexShader()},
+			  .vertexShader = screenQuad.GetVertexShader(),
+			  .constantBuffers =
+				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
 		 .depthBuffer = std::nullopt,
 		 .defaultVertexCount = 4}
 	);

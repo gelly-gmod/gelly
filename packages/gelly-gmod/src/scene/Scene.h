@@ -21,7 +21,6 @@ class Scene {
 private:
 	std::shared_ptr<ISimContext> simContext;
 	std::shared_ptr<IFluidSimulation> sim;
-	std::shared_ptr<IFluidRenderer> connectedRenderer;
 
 	std::optional<EntityManager> ents;
 	std::optional<Map> map;
@@ -30,7 +29,6 @@ private:
 
 public:
 	Scene(
-		const std::shared_ptr<IFluidRenderer> &connectedRenderer,
 		const std::shared_ptr<ISimContext> &simContext,
 		const std::shared_ptr<IFluidSimulation> &sim,
 		int maxParticles
@@ -77,6 +75,12 @@ public:
 	void SetTimeStepMultiplier(float timeStepMultiplier) {
 		sim->SetTimeStepMultiplier(fmaxf(timeStepMultiplier, 0.0001f));
 	}
+
+	[[nodiscard]] GellyInterfaceVal<ISimData> GetSimData() const {
+		return sim->GetSimulationData();
+	}
+
+	void Initialize();
 };
 
 #endif	// SCENE_H

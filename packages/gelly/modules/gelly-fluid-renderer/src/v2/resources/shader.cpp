@@ -7,8 +7,8 @@
 namespace gelly {
 namespace renderer {
 template <typename ShaderType>
-Shader<ShaderType>::Shader(const ShaderCreateInfo &createInfo)
-	: createInfo(createInfo) {
+Shader<ShaderType>::Shader(const ShaderCreateInfo &createInfo) :
+	createInfo(createInfo) {
 	if constexpr (is_vertex_shader<ShaderType>) {
 		shader = CreateVertexShader();
 	} else if constexpr (is_pixel_shader<ShaderType>) {
@@ -24,7 +24,7 @@ auto Shader<ShaderType>::GetRawShader() -> ComPtr<ShaderType> {
 }
 
 template <typename ShaderType>
-auto Shader<ShaderType>::GetBlob() -> void * {
+auto Shader<ShaderType>::GetBlob() -> const void * {
 	return createInfo.shaderBlob;
 }
 
@@ -34,8 +34,7 @@ auto Shader<ShaderType>::GetBlobSize() -> unsigned int {
 }
 
 template <typename ShaderType>
-std::enable_if_t<is_vertex_shader<ShaderType>, auto>
-Shader<ShaderType>::CreateVertexShader() -> ComPtr<ID3D11VertexShader> {
+auto Shader<ShaderType>::CreateVertexShader() -> ComPtr<ID3D11VertexShader> {
 	ComPtr<ID3D11VertexShader> vertexShader;
 	const auto result = createInfo.device->GetRawDevice()->CreateVertexShader(
 		createInfo.shaderBlob,
@@ -52,8 +51,7 @@ Shader<ShaderType>::CreateVertexShader() -> ComPtr<ID3D11VertexShader> {
 }
 
 template <typename ShaderType>
-std::enable_if_t<is_pixel_shader<ShaderType>, auto>
-Shader<ShaderType>::CreatePixelShader() -> ComPtr<ID3D11PixelShader> {
+auto Shader<ShaderType>::CreatePixelShader() -> ComPtr<ID3D11PixelShader> {
 	ComPtr<ID3D11PixelShader> pixelShader;
 	const auto result = createInfo.device->GetRawDevice()->CreatePixelShader(
 		createInfo.shaderBlob,
@@ -70,8 +68,8 @@ Shader<ShaderType>::CreatePixelShader() -> ComPtr<ID3D11PixelShader> {
 }
 
 template <typename ShaderType>
-std::enable_if_t<is_geometry_shader<ShaderType>, auto>
-Shader<ShaderType>::CreateGeometryShader() -> ComPtr<ID3D11GeometryShader> {
+auto Shader<ShaderType>::CreateGeometryShader()
+	-> ComPtr<ID3D11GeometryShader> {
 	ComPtr<ID3D11GeometryShader> geometryShader;
 	const auto result = createInfo.device->GetRawDevice()->CreateGeometryShader(
 		createInfo.shaderBlob,
@@ -86,5 +84,11 @@ Shader<ShaderType>::CreateGeometryShader() -> ComPtr<ID3D11GeometryShader> {
 
 	return geometryShader;
 }
+
+// explicit template instantiation
+template class Shader<ID3D11PixelShader>;
+template class Shader<ID3D11VertexShader>;
+template class Shader<ID3D11GeometryShader>;
+
 }  // namespace renderer
 }  // namespace gelly

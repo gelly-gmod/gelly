@@ -16,6 +16,11 @@ public:
 		std::shared_ptr<Device> device;
 	};
 
+	struct Vertex {
+		float x, y, z, w;
+		float u, v;
+	};
+
 	explicit ScreenQuad(const ScreenQuadCreateInfo &createInfo);
 	~ScreenQuad() = default;
 
@@ -28,18 +33,6 @@ public:
 	}
 
 private:
-	struct Vertex {
-		float x, y, z, w;
-		float u, v;
-	};
-
-	constexpr Vertex screenQuadVertices[4] = {
-		{-1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f},
-		{-1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f},
-		{1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f},
-		{1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f},
-	};
-
 	ScreenQuadCreateInfo createInfo;
 
 	std::shared_ptr<Buffer> vertexBuffer;

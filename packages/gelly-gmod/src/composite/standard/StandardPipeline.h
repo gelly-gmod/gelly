@@ -94,6 +94,8 @@ public:
 		const GellyResources &gelly, const UnownedResources &gmod
 	) override;
 
+	void UpdateGellyResources(const GellyResources &newResources) override;
+
 	void SetConfig(const PipelineConfig &config) override;
 	[[nodiscard]] PipelineConfig GetConfig() const override;
 

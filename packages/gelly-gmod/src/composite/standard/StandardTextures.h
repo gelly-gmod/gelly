@@ -9,13 +9,12 @@
 #include "fluidrender/IManagedTexture.h"
 
 using namespace Microsoft::WRL;
+using gelly::renderer::splatting::InputSharedHandles;
 
 /**
  * Textures for the standard pipeline
  */
 class StandardTextures {
-	using gelly::renderer::splatting::InputSharedHandles;
-
 private:
 	UnownedResources gmodResources;
 	InputSharedHandles sharedHandles;

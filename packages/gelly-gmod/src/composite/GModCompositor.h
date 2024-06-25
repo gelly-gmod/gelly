@@ -10,8 +10,18 @@ private:
 	std::unique_ptr<Pipeline> pipeline;
 	GellyResources gellyResources;
 
+	unsigned int width;
+	unsigned int height;
+
 public:
-	GModCompositor(PipelineType type, const std::shared_ptr<ISimData> &simData);
+	GModCompositor(
+		PipelineType type,
+		GellyInterfaceVal<ISimData> simData,
+		const std::shared_ptr<gelly::renderer::Device> &device,
+		unsigned int width,
+		unsigned int height,
+		unsigned int maxParticles
+	);
 
 	GModCompositor(const GModCompositor &) = delete;
 	GModCompositor &operator=(const GModCompositor &) = delete;
@@ -29,6 +39,15 @@ public:
 
 	void Composite();
 	void Render();
+
+	[[nodiscard]] unsigned int GetWidth() const { return width; }
+
+	[[nodiscard]] unsigned int GetHeight() const { return height; }
+
+	// any non-const access to the GellyResources should be avoided
+	[[nodiscard]] const GellyResources &GetGellyResources() const {
+		return gellyResources;
+	}
 };
 
 #endif	// COMPOSITE_H

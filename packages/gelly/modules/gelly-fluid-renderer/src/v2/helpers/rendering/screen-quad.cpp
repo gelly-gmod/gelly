@@ -6,11 +6,23 @@
 namespace gelly {
 namespace renderer {
 namespace util {
+
+static ScreenQuad::Vertex screenQuadVertices[4] = {
+	{-1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f},
+	{-1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f},
+	{1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f},
+	{1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f},
+};
+
 ScreenQuad::ScreenQuad(const ScreenQuadCreateInfo &createInfo) :
 	createInfo(createInfo),
 	vertexBuffer(CreateVertexBuffer()),
 	vertexShader(CreateVertexShader()),
-	inputLayout(CreateInputLayout(vertexShader)) {}
+	inputLayout(nullptr) {
+	// it's imperative that we actually have a vertex shader, construction order
+	// is not guaranteed
+	inputLayout = CreateInputLayout(vertexShader);
+}
 
 auto ScreenQuad::GetVertexBuffer() const -> InputVertexBuffer {
 	return InputVertexBuffer{
@@ -49,15 +61,25 @@ auto ScreenQuad::CreateInputLayout(const std::shared_ptr<VertexShader> &shader)
 	return std::make_shared<InputLayout>(InputLayout::InputLayoutCreateInfo{
 		.device = createInfo.device,
 		.vertexShader = shader,
-		.inputElements = {D3D11_INPUT_ELEMENT_DESC{
-			.SemanticName = "SV_POSITION",
-			.SemanticIndex = 0,
-			.Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-			.InputSlot = 0,
-			.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT,
-			.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-			.InstanceDataStepRate = 0,
-		}}
+		.inputElements =
+			{D3D11_INPUT_ELEMENT_DESC{
+				 .SemanticName = "SV_POSITION",
+				 .SemanticIndex = 0,
+				 .Format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .InputSlot = 0,
+				 .AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT,
+				 .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+				 .InstanceDataStepRate = 0,
+			 },
+			 D3D11_INPUT_ELEMENT_DESC{
+				 .SemanticName = "TEXCOORD",
+				 .SemanticIndex = 0,
+				 .Format = DXGI_FORMAT_R32G32_FLOAT,
+				 .InputSlot = 0,
+				 .AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT,
+				 .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+				 .InstanceDataStepRate = 0,
+			 }}
 	});
 }
 

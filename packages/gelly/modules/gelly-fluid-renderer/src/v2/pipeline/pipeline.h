@@ -1,5 +1,5 @@
-#ifndef PIPELINE_H
-#define PIPELINE_H
+#ifndef GELLY_PIPELINE_H
+#define GELLY_PIPELINE_H
 #include <device.h>
 
 #include <optional>
@@ -74,4 +74,4 @@ private:
 }  // namespace renderer
 }  // namespace gelly
 
-#endif	// PIPELINE_H
+#endif	// GELLY_PIPELINE_H

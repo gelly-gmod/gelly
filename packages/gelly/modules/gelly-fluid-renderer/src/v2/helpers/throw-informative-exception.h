@@ -1,11 +1,16 @@
 #ifndef THROW_INFORMATIVE_EXCEPTION_H
 #define THROW_INFORMATIVE_EXCEPTION_H
 
+#include <winerror.h>
+
 #include <exception>
 
-#define GELLY_FUNCTION_NAME __func__
+#ifndef GELLY_FUNCTION_NAME
 #ifdef _MSC_VER
 #define GELLY_FUNCTION_NAME __FUNCTION__
+#else
+#define GELLY_FUNCTION_NAME __func__
+#endif
 #endif
 
 #define GELLY_RENDERER_THROW(classname, message) \

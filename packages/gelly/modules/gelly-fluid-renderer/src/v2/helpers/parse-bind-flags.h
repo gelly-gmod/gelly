@@ -13,7 +13,14 @@ struct ParsedBindFlags {
 	bool isUAVRequired;
 };
 
-enum class PrimaryBindType { RTV, SRV, UAV, CONSTANT_BUFFER, VERTEX_BUFFER };
+enum class PrimaryBindType {
+	RTV,
+	SRV,
+	UAV,
+	CONSTANT_BUFFER,
+	VERTEX_BUFFER,
+	UNKNOWN
+};
 
 inline auto ParseBindFlags(const UINT &bindFlags) -> ParsedBindFlags {
 	return {
@@ -49,6 +56,8 @@ inline auto FindPrimaryBindType(const UINT &bindFlags)
 	if (D3D11_BIND_VERTEX_BUFFER & bindFlags) {
 		return PrimaryBindType::VERTEX_BUFFER;
 	}
+
+	return PrimaryBindType::UNKNOWN;
 }
 }  // namespace gelly::renderer::util
 

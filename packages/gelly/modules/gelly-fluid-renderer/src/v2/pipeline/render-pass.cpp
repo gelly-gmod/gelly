@@ -50,11 +50,11 @@ auto RenderPass::CreateRasterizerState() -> ComPtr<ID3D11RasterizerState> {
 
 	D3D11_RASTERIZER_DESC rasterizerDesc = {};
 	rasterizerDesc.FillMode = passInfo.rasterizerState.fillMode;
-	rasterizerDesc.FrontCounterClockwise = passInfo.rasterizerState.cullMode;
+	rasterizerDesc.CullMode = passInfo.rasterizerState.cullMode;
 	rasterizerDesc.DepthBias = 0;
 	rasterizerDesc.DepthBiasClamp = 0.0f;
 	rasterizerDesc.SlopeScaledDepthBias = 0.0f;
-	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.DepthClipEnable = false;
 	rasterizerDesc.ScissorEnable = false;
 	rasterizerDesc.MultisampleEnable = false;
 	rasterizerDesc.AntialiasedLineEnable = false;

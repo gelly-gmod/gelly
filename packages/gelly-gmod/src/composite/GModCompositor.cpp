@@ -5,18 +5,34 @@
 #include "standard/StandardPipeline.h"
 
 GModCompositor::GModCompositor(
-	PipelineType type, const std::shared_ptr<ISimData> &simData,
+	PipelineType type,
+	GellyInterfaceVal<ISimData> simData,
+	const std::shared_ptr<gelly::renderer::Device> &device,
+	unsigned int width,
+	unsigned int height,
+	unsigned int maxParticles
 ) :
-	pipeline(nullptr), gellyResources() {
+	pipeline(nullptr), gellyResources(), width(width), height(height) {
 	using namespace gelly::renderer::splatting;
 
-	gellyResources.device = std::make_shared<gelly::renderer::Device>();
+	gellyResources.device = device;
 
 	if (type == PipelineType::STANDARD) {
-		pipeline = std::make_unique<StandardPipeline>();
-		auto sharedHandles = pipeline->CreatePipelineLocalResources(
+		pipeline = std::make_unique<StandardPipeline>(width, height);
+		const auto sharedHandles = pipeline->CreatePipelineLocalResources(
 			gellyResources, Resources::FindGModResources()
 		);
+
+		gellyResources.splattingRenderer = SplattingRenderer::Create(
+			{.device = gellyResources.device,
+			 .simData = simData,
+			 .inputSharedHandles = sharedHandles,
+			 .width = width,
+			 .height = height,
+			 .maxParticles = maxParticles}
+		);
+
+		pipeline->UpdateGellyResources(gellyResources);
 	}
 }
 

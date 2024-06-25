@@ -79,6 +79,28 @@ auto Texture::CreateRenderTargetView(const ComPtr<ID3D11Texture2D> &texture)
 	return rtv;
 }
 
+auto Texture::CreateUnorderedAccessView(const ComPtr<ID3D11Texture2D> &texture)
+	-> ComPtr<ID3D11UnorderedAccessView> {
+	D3D11_UNORDERED_ACCESS_VIEW_DESC desc = {};
+	desc.Format = GetFormat();
+	desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	desc.Texture2D.MipSlice = 0;
+
+	ComPtr<ID3D11UnorderedAccessView> uav;
+	const auto result =
+		createInfo.device->GetRawDevice()->CreateUnorderedAccessView(
+			texture.Get(), &desc, &uav
+		);
+
+	GELLY_RENDERER_THROW_ON_FAIL(
+		result,
+		std::invalid_argument,
+		"Failed to create UnorderedAccessView with the supplied creation info."
+	);
+
+	return uav;
+}
+
 auto Texture::CreateShaderResourceView(const ComPtr<ID3D11Texture2D> &texture)
 	-> ComPtr<ID3D11ShaderResourceView> {
 	D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};

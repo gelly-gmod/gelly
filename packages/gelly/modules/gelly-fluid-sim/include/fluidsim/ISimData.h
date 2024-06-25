@@ -2,6 +2,7 @@
 #define GELLY_ISIMDATA_H
 
 #include "GellyInterface.h"
+#include "ISimContext.h"
 
 namespace Gelly {
 struct SimFloat4 {

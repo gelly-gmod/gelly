@@ -9,7 +9,7 @@
 namespace gelly {
 namespace renderer {
 
-class NativeImage : Image {
+class NativeImage : public Image {
 public:
 	struct NativeImageCreateInfo {
 		const std::shared_ptr<Device> device;

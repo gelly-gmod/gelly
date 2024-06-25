@@ -1,5 +1,9 @@
 #include "pipeline.h"
 
+#include <stdexcept>
+
+#include "validate-pipeline.h"
+
 template <typename... Ts>
 struct overloaded : Ts... {
 	using Ts::operator()...;
@@ -11,7 +15,21 @@ namespace gelly {
 namespace renderer {
 Pipeline::Pipeline(const PipelineCreateInfo &createInfo) :
 	createInfo(createInfo),
-	name(createInfo.name, createInfo.name + strlen(createInfo.name)) {}
+	name(createInfo.name, createInfo.name + strlen(createInfo.name)) {
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	if (const auto validationErrors = ValidatePipeline(createInfo);
+		validationErrors) {
+		std::string errorMessage =
+			GELLY_FUNCTION_NAME " Pipeline validation failed:";
+
+		for (const auto &error : *validationErrors) {
+			errorMessage += error.friendlyMessage + "\n";
+		}
+
+		throw std::runtime_error(errorMessage);
+	}
+#endif
+}
 
 auto Pipeline::CreatePipeline(const PipelineCreateInfo &&createInfo)
 	-> std::shared_ptr<Pipeline> {

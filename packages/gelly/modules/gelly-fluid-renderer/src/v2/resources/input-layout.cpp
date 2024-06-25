@@ -3,6 +3,7 @@
 #include <helpers/throw-informative-exception.h>
 
 #include <stdexcept>
+#include <string>
 
 namespace gelly {
 namespace renderer {
@@ -20,20 +21,21 @@ auto InputLayout::GetVertexShader() -> std::shared_ptr<VertexShader> {
 }
 
 auto InputLayout::CreateInputLayout() -> ComPtr<ID3D11InputLayout> {
-	ComPtr<ID3D11InputLayout> inputLayout;
-	const auto result = createInfo.device->GetRawDevice()->CreateInputLayout(
-		createInfo.inputElements.data(),
-		static_cast<UINT>(createInfo.inputElements.size()),
-		createInfo.vertexShader->GetBlob(),
-		createInfo.vertexShader->GetBlobSize(),
-		inputLayout.GetAddressOf()
-	);
+	ComPtr<ID3D11InputLayout> layout;
+	const auto layoutResult =
+		createInfo.device->GetRawDevice()->CreateInputLayout(
+			createInfo.inputElements.data(),
+			static_cast<UINT>(createInfo.inputElements.size()),
+			createInfo.vertexShader->GetBlob(),
+			createInfo.vertexShader->GetBlobSize(),
+			layout.GetAddressOf()
+		);
 
 	GELLY_RENDERER_THROW_ON_FAIL(
-		result, std::invalid_argument, "Failed to create input layout"
+		layoutResult, std::invalid_argument, "Failed to create input layout"
 	);
 
-	return inputLayout;
+	return layout;
 }
 
 }  // namespace renderer

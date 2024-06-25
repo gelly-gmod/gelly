@@ -326,6 +326,11 @@ StandardPipeline::CreatePipelineLocalResources(
 	return textures->GetSharedHandles();
 }
 
+void StandardPipeline::UpdateGellyResources(const GellyResources &newResources
+) {
+	gellyResources = newResources;
+}
+
 void StandardPipeline::SetConfig(const PipelineConfig &config) {
 	this->config = config;
 }

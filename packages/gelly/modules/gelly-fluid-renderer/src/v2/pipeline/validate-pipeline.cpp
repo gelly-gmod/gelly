@@ -120,7 +120,7 @@ auto ValidateInputVertexBuffer(const InputVertexBuffer &vertexBuffer)
 	return std::nullopt;
 }
 
-auto ValidateConstantBuffer(const std::shared_ptr<Buffer> constantBuffer)
+auto ValidateConstantBuffer(const std::shared_ptr<Buffer> &constantBuffer)
 	-> std::optional<PipelineValidationError> {
 	const auto underlyingBufferBindFlags = constantBuffer->GetBufferBindFlags();
 
@@ -195,7 +195,7 @@ auto ValidatePipeline(const Pipeline::PipelineCreateInfo &createInfo)
 	std::for_each(
 		createInfo.shaderGroup.constantBuffers.begin(),
 		createInfo.shaderGroup.constantBuffers.end(),
-		[&errors](const auto *buffer) {
+		[&errors](const auto buffer) {
 			const auto error = ValidateConstantBuffer(buffer);
 			if (error) {
 				errors.push_back(*error);

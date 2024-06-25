@@ -7,10 +7,10 @@
 #include "fluidrender/IFluidRenderer.h"
 #include "fluidrender/IFluidTextures.h"
 
-struct GellyResources {
-	using gelly::renderer::Device;
-	using gelly::renderer::splatting::SplattingRenderer;
+using gelly::renderer::Device;
+using gelly::renderer::splatting::SplattingRenderer;
 
+struct GellyResources {
 	IFluidTextures *textures;
 	std::shared_ptr<Device> device;
 	std::shared_ptr<SplattingRenderer> splattingRenderer;

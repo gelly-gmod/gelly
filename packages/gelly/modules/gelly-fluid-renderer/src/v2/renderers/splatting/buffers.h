@@ -23,10 +23,6 @@ struct float4 {
 
 struct InternalBuffers {
 	using BufferCreateInfo = Buffer::BufferCreateInfo;
-	template <typename T>
-	using WithAutomaticStride = BufferCreateInfo::WithAutomaticStride<T>;
-
-	constexpr auto CreateBuffer = Buffer::CreateBuffer;
 
 	std::shared_ptr<Buffer> particlePositions = nullptr;
 	std::shared_ptr<Buffer> particleAbsorptions = nullptr;
@@ -43,62 +39,76 @@ struct InternalBuffers {
 	InternalBuffers(
 		const std::shared_ptr<Device> &device, const unsigned int maxParticles
 	) :
-		particlePositions(CreateBuffer(WithAutomaticStride<float4>(
-			{.device = device,
-			 .maxElementCount = maxParticles,
-			 .initialData = nullptr,
-			 .usage = D3D11_USAGE_DEFAULT,
-			 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))),
-		particleAbsorptions(CreateBuffer(WithAutomaticStride<float3>(
-			{.device = device,
-			 .maxElementCount = maxParticles,
-			 .initialData = nullptr,
-			 .usage = D3D11_USAGE_DEFAULT,
-			 .format = DXGI_FORMAT_R32G32B32_FLOAT,
-			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))),
-		anisotropyQ1(CreateBuffer(WithAutomaticStride<float4>(
-			{.device = device,
-			 .maxElementCount = maxParticles,
-			 .initialData = nullptr,
-			 .usage = D3D11_USAGE_DEFAULT,
-			 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))),
-		anisotropyQ2(CreateBuffer(WithAutomaticStride<float4>(
-			{.device = device,
-			 .maxElementCount = maxParticles,
-			 .initialData = nullptr,
-			 .usage = D3D11_USAGE_DEFAULT,
-			 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))),
-		anisotropyQ3(CreateBuffer(WithAutomaticStride<float4>(
-			{.device = device,
-			 .maxElementCount = maxParticles,
-			 .initialData = nullptr,
-			 .usage = D3D11_USAGE_DEFAULT,
-			 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))),
-		foamPositions(CreateBuffer(WithAutomaticStride<float4>(
-			{.device = device,
-			 .maxElementCount = maxParticles,
-			 .initialData = nullptr,
-			 .usage = D3D11_USAGE_DEFAULT,
-			 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))),
-		foamVelocities(CreateBuffer(WithAutomaticStride<float4>(
-			{.device = device,
-			 .maxElementCount = maxParticles,
-			 .initialData = nullptr,
-			 .usage = D3D11_USAGE_DEFAULT,
-			 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-			 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-		))),
+		particlePositions(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
+		),
+		particleAbsorptions(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float3>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
+		),
+		anisotropyQ1(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
+		),
+		anisotropyQ2(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
+		),
+		anisotropyQ3(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
+		),
+		foamPositions(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
+		),
+		foamVelocities(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
+		),
 		fluidRenderCBuffer({.device = device}){};
 };
 

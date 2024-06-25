@@ -1,25 +1,12 @@
 #include "Scene.h"
 
 Scene::Scene(
-	const std::shared_ptr<IFluidRenderer> &connectedRenderer,
 	const std::shared_ptr<ISimContext> &simContext,
 	const std::shared_ptr<IFluidSimulation> &sim,
 	int maxParticles
-)
-	: simContext(simContext),
-	  sim(sim),
-	  connectedRenderer(connectedRenderer),
-	  ents(),
-	  particles(connectedRenderer, sim),
-	  config(sim) {
-	// link the simulation to the renderer
+) :
+	simContext(simContext), sim(sim), ents(), particles(sim), config(sim) {
 	sim->SetMaxParticles(maxParticles);
-	connectedRenderer->SetSimData(sim->GetSimulationData());
-	sim->Initialize();
-
-	ents.emplace(sim->GetScene());
-
-	SetTimeStepMultiplier(DEFAULT_TIMESTEP_MULTIPLIER);
 }
 
 void Scene::AddEntity(EntIndex entIndex, std::vector<Vector> vertices) {
@@ -55,3 +42,10 @@ void Scene::SetFluidProperties(const ::SetFluidProperties &props) const {
 }
 
 void Scene::ChangeRadius(float radius) const { config.ChangeRadius(radius); }
+
+void Scene::Initialize() {
+	sim->Initialize();
+	ents.emplace(sim->GetScene());
+
+	SetTimeStepMultiplier(DEFAULT_TIMESTEP_MULTIPLIER);
+}

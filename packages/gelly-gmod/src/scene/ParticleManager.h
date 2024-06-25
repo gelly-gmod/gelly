@@ -29,7 +29,6 @@ public:
 
 class ParticleManager {
 private:
-	std::shared_ptr<IFluidRenderer> renderer;
 	std::shared_ptr<IFluidSimulation> sim;
 
 	[[nodiscard]] ISimCommandList *CreateCommandListFromBuilder(
@@ -42,10 +41,7 @@ private:
 	void PushAbsorptionData(const ParticleListBuilder &builder) const;
 
 public:
-	ParticleManager(
-		const std::shared_ptr<IFluidRenderer> &renderer,
-		const std::shared_ptr<IFluidSimulation> &sim
-	);
+	explicit ParticleManager(const std::shared_ptr<IFluidSimulation> &sim);
 	~ParticleManager() = default;
 
 	static ParticleListBuilder CreateParticleList();

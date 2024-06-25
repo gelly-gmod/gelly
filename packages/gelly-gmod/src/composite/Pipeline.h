@@ -63,6 +63,8 @@ public:
 		const GellyResources &gelly, const UnownedResources &gmod
 	) = 0;
 
+	virtual void UpdateGellyResources(const GellyResources &newResources) = 0;
+
 	virtual void SetConfig(const PipelineConfig &config) = 0;
 	[[nodiscard]] virtual PipelineConfig GetConfig() const = 0;
 

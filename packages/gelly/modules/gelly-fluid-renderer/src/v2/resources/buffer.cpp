@@ -62,6 +62,8 @@ auto Buffer::CreateBufferResource() -> ComPtr<ID3D11Buffer> {
 	GELLY_RENDERER_THROW_ON_FAIL(
 		result, std::invalid_argument, "Failed to create buffer"
 	);
+
+	return buffer;
 }
 
 auto Buffer::CreateShaderResourceView(const ComPtr<ID3D11Buffer> &buffer)
@@ -81,6 +83,8 @@ auto Buffer::CreateShaderResourceView(const ComPtr<ID3D11Buffer> &buffer)
 	GELLY_RENDERER_THROW_ON_FAIL(
 		result, std::invalid_argument, "Failed to create shader resource view"
 	);
+
+	return srv;
 }
 
 auto Buffer::CreateUnorderedAccessView(const ComPtr<ID3D11Buffer> &buffer)
@@ -100,6 +104,8 @@ auto Buffer::CreateUnorderedAccessView(const ComPtr<ID3D11Buffer> &buffer)
 	GELLY_RENDERER_THROW_ON_FAIL(
 		result, std::invalid_argument, "Failed to create unordered access view"
 	);
+
+	return uav;
 }
 }  // namespace renderer
 }  // namespace gelly
