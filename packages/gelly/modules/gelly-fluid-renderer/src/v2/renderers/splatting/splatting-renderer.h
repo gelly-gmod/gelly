@@ -31,8 +31,12 @@ public:
 	explicit SplattingRenderer(const SplattingRendererCreateInfo &createInfo);
 	~SplattingRenderer() = default;
 
+	static auto Create(const SplattingRendererCreateInfo &&createInfo)
+		-> std::shared_ptr<SplattingRenderer>;
+
 	auto Render() const -> void;
-	auto UpdateFrameParams(const cbuffer::FluidRenderCBufferData &data) const -> void;
+	auto UpdateFrameParams(const cbuffer::FluidRenderCBufferData &data) const
+		-> void;
 	auto UpdateSettings(const Settings &settings) -> void;
 
 private:

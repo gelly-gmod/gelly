@@ -4,18 +4,11 @@
 
 #include "fluidrender/IRenderContext.h"
 
-std::pair<uint16_t, uint16_t> StandardTextures::GetRenderContextSize() const {
-	uint16_t width, height;
-	gellyResources.context->GetDimensions(width, height);
-	return std::make_pair(width, height);
-}
-
-std::pair<ComPtr<IDirect3DTexture9>, GellyInterfaceVal<IManagedTexture>>
-StandardTextures::CreateTexture(const char *name, D3DFORMAT format) const {
+std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
+	const char *name, D3DFORMAT format
+) const {
 	HANDLE sharedHandle = nullptr;
 	ComPtr<IDirect3DTexture9> gmodTexture;
-
-	auto [width, height] = GetRenderContextSize();
 
 	if (FAILED(gmodResources.device->CreateTexture(
 			width,
@@ -32,15 +25,11 @@ StandardTextures::CreateTexture(const char *name, D3DFORMAT format) const {
 		);
 	}
 
-	GellyInterfaceVal<IManagedTexture> gellyTexture =
-		gellyResources.context->CreateSharedTexture(
-			name, sharedHandle, ContextRenderAPI::D3D9Ex
-		);
-
-	return std::make_pair(gmodTexture, gellyTexture);
+	return {gmodTexture, sharedHandle};
 }
 
 void StandardTextures::CreateFeatureTextures() {
+	/*
 	std::tie(gmodTextures.albedo, gellyTextures.albedo) =
 		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F);
 
@@ -58,25 +47,35 @@ void StandardTextures::CreateFeatureTextures() {
 
 	std::tie(gmodTextures.foam, gellyTextures.foam) =
 		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);
-}
+		*/
 
-void StandardTextures::LinkFeatureTextures() const {
-	gellyResources.textures->SetFeatureTexture(ALBEDO, gellyTextures.albedo);
-	gellyResources.textures->SetFeatureTexture(NORMALS, gellyTextures.normal);
-	gellyResources.textures->SetFeatureTexture(DEPTH, gellyTextures.depth);
-	gellyResources.textures->SetFeatureTexture(
-		POSITIONS, gellyTextures.position
-	);
-	gellyResources.textures->SetFeatureTexture(
-		THICKNESS, gellyTextures.thickness
-	);
-	gellyResources.textures->SetFeatureTexture(FOAM, gellyTextures.foam);
+	std::tie(gmodTextures.albedo, sharedHandles.albedo) =
+		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F);
+
+	std::tie(gmodTextures.normal, sharedHandles.normals) =
+		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F);
+
+	std::tie(gmodTextures.depth, sharedHandles.ellipsoidDepth) =
+		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F);
+
+	std::tie(gmodTextures.position, sharedHandles.positions) =
+		CreateTexture("gelly-gmod/position", D3DFMT_A32B32G32R32F);
+
+	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
+		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F);
+
+	std::tie(gmodTextures.foam, sharedHandles.foam) =
+		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);
 }
 
 StandardTextures::StandardTextures(
-	const GellyResources &gelly, const UnownedResources &gmod
-)
-	: gellyResources(gelly), gmodResources(gmod) {
+	const UnownedResources &gmod, unsigned int width, unsigned int height
+) :
+	gmodResources(gmod), width(width), height(height) {
 	CreateFeatureTextures();
-	LinkFeatureTextures();
+}
+
+gelly::renderer::splatting::InputSharedHandles
+StandardTextures::GetSharedHandles() const {
+	return sharedHandles;
 }

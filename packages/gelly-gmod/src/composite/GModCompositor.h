@@ -11,11 +11,7 @@ private:
 	GellyResources gellyResources;
 
 public:
-	GModCompositor(
-		PipelineType type,
-		std::shared_ptr<IFluidRenderer> renderer,
-		std::shared_ptr<IRenderContext> context
-	);
+	GModCompositor(PipelineType type, const std::shared_ptr<ISimData> &simData);
 
 	GModCompositor(const GModCompositor &) = delete;
 	GModCompositor &operator=(const GModCompositor &) = delete;

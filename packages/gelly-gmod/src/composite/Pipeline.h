@@ -58,7 +58,8 @@ public:
 	 *
 	 * @throws std::runtime_error Thrown if the resources cannot be created
 	 */
-	virtual void CreatePipelineLocalResources(
+	virtual gelly::renderer::splatting::InputSharedHandles
+	CreatePipelineLocalResources(
 		const GellyResources &gelly, const UnownedResources &gmod
 	) = 0;
 

@@ -14,28 +14,21 @@ using namespace Microsoft::WRL;
  * Textures for the standard pipeline
  */
 class StandardTextures {
+	using gelly::renderer::splatting::InputSharedHandles;
+
 private:
-	GellyResources gellyResources;
 	UnownedResources gmodResources;
+	InputSharedHandles sharedHandles;
+	unsigned int width;
+	unsigned int height;
 
-	[[nodiscard]] std::pair<uint16_t, uint16_t> GetRenderContextSize() const;
-
-	std::pair<ComPtr<IDirect3DTexture9>, GellyInterfaceVal<IManagedTexture>>
-	CreateTexture(const char *name, D3DFORMAT format) const;
+	std::pair<ComPtr<IDirect3DTexture9>, HANDLE> CreateTexture(
+		const char *name, D3DFORMAT format
+	) const;
 
 	void CreateFeatureTextures();
-	void LinkFeatureTextures() const;
 
 public:
-	struct {
-		GellyInterfaceVal<IManagedTexture> albedo;
-		GellyInterfaceVal<IManagedTexture> normal;
-		GellyInterfaceVal<IManagedTexture> depth;
-		GellyInterfaceVal<IManagedTexture> position;
-		GellyInterfaceVal<IManagedTexture> thickness;
-		GellyInterfaceVal<IManagedTexture> foam;
-	} gellyTextures{};
-
 	struct {
 		ComPtr<IDirect3DTexture9> albedo;
 		ComPtr<IDirect3DTexture9> normal;
@@ -45,7 +38,12 @@ public:
 		ComPtr<IDirect3DTexture9> foam;
 	} gmodTextures;
 
-	StandardTextures(const GellyResources &gelly, const UnownedResources &gmod);
+	StandardTextures(
+		const UnownedResources &gmod, unsigned int width, unsigned int height
+	);
+	~StandardTextures() = default;
+
+	InputSharedHandles GetSharedHandles() const;
 };
 
 #endif	// STANDARDTEXTURES_H

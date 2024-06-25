@@ -16,6 +16,15 @@
 
 using namespace gsc;
 
+// we do need to copy the xmmatrix to a float4x4 to ensure shader compatibility
+inline gelly::renderer::cbuffer::float4x4 XMMatrixToFloat4x4(
+	const XMFLOAT4X4 &matrix
+) {
+	gelly::renderer::cbuffer::float4x4 result = {};
+	std::memcpy(&result, &matrix, sizeof(XMFLOAT4X4));
+	return result;
+}
+
 void StandardPipeline::CreateCompositeShader() {
 	auto &device = gmodResources.device;
 
@@ -95,9 +104,6 @@ void StandardPipeline::CreateStateBlock() {
 void StandardPipeline::CreateBackBuffer() {
 	auto &device = gmodResources.device;
 
-	uint16_t width, height;
-	gellyResources.context->GetDimensions(width, height);
-
 	if (const auto hr = device->CreateTexture(
 			width,
 			height,
@@ -156,7 +162,7 @@ void StandardPipeline::SetCompositeShaderConstants() const {
 }
 
 void StandardPipeline::UpdateGellyRenderParams() {
-	auto &renderer = gellyResources.renderer;
+	auto renderer = gellyResources.splattingRenderer;
 
 	CViewSetup viewSetup;
 	GetClientViewSetup(viewSetup);
@@ -205,25 +211,26 @@ void StandardPipeline::UpdateGellyRenderParams() {
 		XMMatrixTranspose(XMLoadFloat4x4(&inverseProjectionMatrix))
 	);
 
-	FluidRenderParams renderParams = {};
-	renderParams.view = viewMatrix;
-	renderParams.proj = projectionMatrix;
-	renderParams.invView = inverseViewMatrix;
-	renderParams.invProj = inverseProjectionMatrix;
+	gelly::renderer::cbuffer::FluidRenderCBufferData renderParams = {};
+	renderParams.g_View = XMMatrixToFloat4x4(viewMatrix);
+	renderParams.g_Projection = XMMatrixToFloat4x4(projectionMatrix);
+	renderParams.g_InverseView = XMMatrixToFloat4x4(inverseViewMatrix);
+	renderParams.g_InverseProjection =
+		XMMatrixToFloat4x4(inverseProjectionMatrix);
 
-	renderParams.particleRadius = config.particleRadius;
-	renderParams.thresholdRatio = config.thresholdRatio;
-	renderParams.diffuseScale = config.diffuseScale;
-	renderParams.diffuseMotionBlur = config.diffuseMotionBlur;
+	renderParams.g_ParticleRadius = config.particleRadius;
+	renderParams.g_ThresholdRatio = config.thresholdRatio;
+	renderParams.g_DiffuseScale = config.diffuseScale;
+	renderParams.g_DiffuseMotionBlur = config.diffuseMotionBlur;
 
-	renderParams.width = static_cast<float>(viewSetup.width);
-	renderParams.height = static_cast<float>(viewSetup.height);
-	renderParams.farPlane = viewSetup.zFar;
-	renderParams.nearPlane = viewSetup.zNear;
+	renderParams.g_ViewportWidth = static_cast<float>(viewSetup.width);
+	renderParams.g_ViewportHeight = static_cast<float>(viewSetup.height);
+	renderParams.g_FarPlane = viewSetup.zFar;
+	renderParams.g_NearPlane = viewSetup.zNear;
 
-	renderParams.cameraPos.x = viewSetup.origin.x;
-	renderParams.cameraPos.y = viewSetup.origin.y;
-	renderParams.cameraPos.z = viewSetup.origin.z;
+	renderParams.g_CameraPosition.x = viewSetup.origin.x;
+	renderParams.g_CameraPosition.y = viewSetup.origin.y;
+	renderParams.g_CameraPosition.z = viewSetup.origin.z;
 
 	compositeConstants.eyePos[0] = viewSetup.origin.x;
 	compositeConstants.eyePos[1] = viewSetup.origin.y;
@@ -255,9 +262,9 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	}
 
 	compositeConstants.aspectRatio =
-		renderParams.width / renderParams.height;  // viewport aspect ratio
+		static_cast<float>(viewSetup.width) / viewSetup.height;
 
-	renderer->SetPerFrameParams(renderParams);
+	renderer->UpdateFrameParams(renderParams);
 
 	std::memcpy(
 		&compositeConstants.ambientLightCube,
@@ -269,20 +276,8 @@ void StandardPipeline::UpdateGellyRenderParams() {
 }
 
 void StandardPipeline::RenderGellyFrame() {
-	auto &renderer = gellyResources.renderer;
-
-	FluidRenderSettings settings = {};
-	settings.filterIterations = config.filterIterations;
-	settings.thicknessFilterIterations = config.thicknessIterations;
-
-	renderer->SetSettings(settings);
+	const auto renderer = gellyResources.splattingRenderer;
 	renderer->Render();
-
-#ifdef GELLY_USE_DEBUG_LAYER
-	auto *d3d11Context =
-		reinterpret_cast<CD3D11RenderContext *>(gellyResources.context.get());
-	d3d11Context->PrintDebugInfo();
-#endif
 }
 
 void StandardPipeline::SetCompositeSamplerState(
@@ -300,30 +295,35 @@ void StandardPipeline::SetCompositeSamplerState(
 	device->SetSamplerState(index, D3DSAMP_SRGBTEXTURE, srgb);
 }
 
-StandardPipeline::StandardPipeline()
-	: Pipeline(),
-	  gellyResources(),
-	  gmodResources(),
-	  textures(),
-	  backBuffer(),
-	  ndcQuad(),
-	  compositeShader(),
-	  quadVertexShader() {}
+StandardPipeline::StandardPipeline(unsigned int width, unsigned height) :
+	Pipeline(),
+	gellyResources(),
+	gmodResources(),
+	textures(),
+	backBuffer(),
+	ndcQuad(),
+	compositeShader(),
+	quadVertexShader(),
+	width(width),
+	height(height) {}
 
 StandardPipeline::~StandardPipeline() { RemoveAmbientLightCubeHooks(); }
 
-void StandardPipeline::CreatePipelineLocalResources(
+gelly::renderer::splatting::InputSharedHandles
+StandardPipeline::CreatePipelineLocalResources(
 	const GellyResources &gelly, const UnownedResources &gmod
 ) {
 	gellyResources = gelly;
 	gmodResources = gmod;
 
-	textures.emplace(gellyResources, gmodResources);
+	textures.emplace(gmodResources, width, height);
 	CreateCompositeShader();
 	CreateQuadVertexShader();
 	CreateNDCQuad();
 	CreateStateBlock();
 	CreateBackBuffer();
+
+	return textures->GetSharedHandles();
 }
 
 void StandardPipeline::SetConfig(const PipelineConfig &config) {

@@ -66,6 +66,9 @@ private:
 	PipelineConfig config;
 	PipelineFluidMaterial fluidMaterial;
 
+	unsigned int width;
+	unsigned int height;
+
 	void CreateCompositeShader();
 	void CreateQuadVertexShader();
 	void CreateNDCQuad();
@@ -84,10 +87,10 @@ private:
 	void CompositeFoam(bool withGellyRendered) const;
 
 public:
-	StandardPipeline();
+	StandardPipeline(unsigned int width, unsigned int height);
 	~StandardPipeline() override;
 
-	void CreatePipelineLocalResources(
+	gelly::renderer::splatting::InputSharedHandles CreatePipelineLocalResources(
 		const GellyResources &gelly, const UnownedResources &gmod
 	) override;
 

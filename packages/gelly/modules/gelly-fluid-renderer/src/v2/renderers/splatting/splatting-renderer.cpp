@@ -15,6 +15,11 @@ SplattingRenderer::SplattingRenderer(
 	LinkBuffersToSimData();
 }
 
+auto SplattingRenderer::Create(const SplattingRendererCreateInfo &&createInfo)
+	-> std::shared_ptr<SplattingRenderer> {
+	return std::make_shared<SplattingRenderer>(createInfo);
+}
+
 auto SplattingRenderer::Render() const -> void {
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
 	depthFilteringA->Run();
