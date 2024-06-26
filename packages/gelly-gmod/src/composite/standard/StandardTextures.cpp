@@ -53,6 +53,9 @@ void StandardTextures::CreateFeatureTextures() {
 	std::tie(gmodTextures.normal, sharedHandles.normals) =
 		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F);
 
+	std::tie(gmodTextures.backNormal, sharedHandles.backNormals) =
+		CreateTexture("gelly-gmod/back-normal", D3DFMT_A16B16G16R16F);
+
 	std::tie(gmodTextures.depth, sharedHandles.ellipsoidDepth) =
 		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F);
 

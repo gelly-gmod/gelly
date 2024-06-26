@@ -15,8 +15,12 @@
 namespace gelly {
 namespace renderer {
 namespace splatting {
-inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
-	-> std::shared_ptr<Pipeline> {
+inline auto CreateNormalEstimationPipeline(
+	const PipelineInfo &info,
+	const std::shared_ptr<Texture> &inputDepth,
+	const std::shared_ptr<Texture> &outputNormal,
+	bool outputPositions = true
+) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
 		.depthStencilState =
@@ -36,40 +40,46 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 
 	const util::ScreenQuad screenQuad({.device = info.device});
 
-	return Pipeline::CreatePipeline(
-		{.name = "Estimating normals",
-		 .device = info.device,
-		 .renderPass = renderPass,
-		 .inputLayout = screenQuad.GetInputLayout(),
-		 .primitiveTopology = util::ScreenQuad::GetPrimitiveTopology(),
-		 .inputs =
-			 {screenQuad.GetVertexBuffer(),
-			  InputTexture{
-				  .texture = info.internalTextures->unfilteredEllipsoidDepth,
-				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
-				  .slot = 0
-			  }},
-		 .outputs =
-			 {OutputTexture{
-				  .texture = info.outputTextures->normals,
-				  .bindFlag = D3D11_BIND_RENDER_TARGET,
-				  .slot = 0,
-				  .clearColor = {0.f, 0.f, 0.f, 0.f}
-			  },
-			  OutputTexture{
-				  .texture = info.outputTextures->positions,
-				  .bindFlag = D3D11_BIND_RENDER_TARGET,
-				  .slot = 1,
-				  .clearColor = {0.f, 0.f, 0.f, 0.f}
-			  }},
-		 .shaderGroup =
-			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
-			  .vertexShader = screenQuad.GetVertexShader(),
-			  .constantBuffers =
-				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
-		 .depthBuffer = std::nullopt,
-		 .defaultVertexCount = 4}
-	);
+	const auto pipelineCreateInfo = {
+		.name = "Estimating normals",
+		.device = info.device,
+		.renderPass = renderPass,
+		.inputLayout = screenQuad.GetInputLayout(),
+		.primitiveTopology = util::ScreenQuad::GetPrimitiveTopology(),
+		.inputs =
+			{screenQuad.GetVertexBuffer(),
+			 InputTexture{
+				 .texture = inputDepth,
+				 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				 .slot = 0
+			 }},
+		.outputs =
+			{OutputTexture{
+				 .texture = outputNormal,
+				 .bindFlag = D3D11_BIND_RENDER_TARGET,
+				 .slot = 0,
+				 .clearColor = {0.f, 0.f, 0.f, 0.f}
+			 },
+			 OutputTexture{
+				 .texture = info.outputTextures->positions,
+				 .bindFlag = D3D11_BIND_RENDER_TARGET,
+				 .slot = 1,
+				 .clearColor = {0.f, 0.f, 0.f, 0.f}
+			 }},
+		.shaderGroup =
+			{.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
+			 .vertexShader = screenQuad.GetVertexShader(),
+			 .constantBuffers =
+				 {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
+		.depthBuffer = std::nullopt,
+		.defaultVertexCount = 4
+	};
+
+	if (!outputPositions) {
+		pipelineCreateInfo.outputs.pop_back();
+	}
+
+	return Pipeline::CreatePipeline(pipelineCreateInfo);
 }
 }  // namespace splatting
 }  // namespace renderer

@@ -37,7 +37,7 @@ private:
 class SplattingRenderer {
 public:
 	struct Settings {
-		unsigned int filterIterations = 1;
+		unsigned int filterIterations = 10;
 	};
 
 	struct SplattingRendererCreateInfo {
@@ -75,7 +75,8 @@ private:
 	PipelinePtr backDepthFilteringA;
 	PipelinePtr backDepthFilteringB;
 	PipelinePtr thicknessExtraction;
-	PipelinePtr normalEstimation;
+	PipelinePtr frontNormalEstimation;
+	PipelinePtr backNormalEstimation;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	RENDERDOC_API_1_1_2 *renderDoc = nullptr;

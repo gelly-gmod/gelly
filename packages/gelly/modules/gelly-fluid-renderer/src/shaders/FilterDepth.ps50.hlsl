@@ -28,6 +28,7 @@ float FetchProjDepth(float2 pixel) {
     return InputDepth.Load(int3(pixel, 0)).r;
 }
 
+#define FILTER_RADIUS 2.f
 float CreateIsosurfaceDepth(float2 tex) {
     float2 inPosition = tex * float2(g_ViewportWidth, g_ViewportHeight);
     const float blurRadiusWorld = g_ParticleRadius * 0.5f;
@@ -36,9 +37,9 @@ float CreateIsosurfaceDepth(float2 tex) {
 
     float depth = FetchEyeDepth(inPosition);
     float blurDepthFalloff = g_ThresholdRatio;
-    float maxBlurRadius = 10.0;
+    float maxBlurRadius = FILTER_RADIUS;
 
-    float radius = 10.f; 
+    float radius = FILTER_RADIUS;
     float radiusInv = 1.0 / radius;
     float taps = ceil(radius);
     float frac = taps - radius;
@@ -47,8 +48,8 @@ float CreateIsosurfaceDepth(float2 tex) {
     float wsum = 0.0;
     float count = 0.0;
 
-    for (float y = -10.f; y <= 10.f; y += 1.0) {
-        for (float x = -10.f; x <= 10.f; x += 1.0) {
+    for (float y = -FILTER_RADIUS; y <= FILTER_RADIUS; y += 1.0) {
+        for (float x = -FILTER_RADIUS; x <= FILTER_RADIUS; x += 1.0) {
             float2 offset = float2(x, y);
             float sample = FetchEyeDepth(inPosition + offset);
             if (FetchProjDepth(inPosition + offset) >= 1.f) {

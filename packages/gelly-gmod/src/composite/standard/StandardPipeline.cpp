@@ -391,6 +391,7 @@ void StandardPipeline::Composite() {
 	SetCompositeSamplerState(4, D3DTEXF_LINEAR);
 	SetCompositeSamplerState(5, D3DTEXF_LINEAR);
 	SetCompositeSamplerState(6, D3DTEXF_LINEAR);
+	SetCompositeSamplerState(7, D3DTEXF_LINEAR);
 
 	device->SetTexture(0, textures->gmodTextures.depth.Get());
 	device->SetTexture(1, textures->gmodTextures.normal.Get());
@@ -399,6 +400,7 @@ void StandardPipeline::Composite() {
 	device->SetTexture(4, textures->gmodTextures.thickness.Get());
 	device->SetTexture(5, GetCubemap());
 	device->SetTexture(6, textures->gmodTextures.albedo.Get());
+	device->SetTexture(7, textures->gmodTextures.backNormal.Get());
 
 	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
