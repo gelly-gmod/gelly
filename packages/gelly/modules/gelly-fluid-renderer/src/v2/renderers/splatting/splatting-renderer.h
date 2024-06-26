@@ -72,6 +72,8 @@ private:
 	PipelinePtr ellipsoidSplatting;
 	PipelinePtr depthFilteringA;
 	PipelinePtr depthFilteringB;
+	PipelinePtr backDepthFilteringA;
+	PipelinePtr backDepthFilteringB;
 	PipelinePtr thicknessExtraction;
 	PipelinePtr normalEstimation;
 

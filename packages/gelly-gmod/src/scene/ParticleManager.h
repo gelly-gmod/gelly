@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "GarrysMod/Lua/SourceCompat.h"
-#include "fluidrender/IFluidRenderer.h"
 #include "fluidsim/IFluidSimulation.h"
 #include "fluidsim/ISimCommandList.h"
 #include "renderers/splatting/splatting-renderer.h"
@@ -41,7 +40,11 @@ public:
 	~ParticleManager() = default;
 
 	static ParticleListBuilder CreateParticleList();
-	void AddParticles(const ParticleListBuilder &builder, const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>& absorptionModifier) const;
+	void AddParticles(
+		const ParticleListBuilder &builder,
+		const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
+			&absorptionModifier
+	) const;
 	void ClearParticles() const;
 };
 

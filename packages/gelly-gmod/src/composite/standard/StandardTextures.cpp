@@ -2,8 +2,6 @@
 
 #include <utility>
 
-#include "fluidrender/IRenderContext.h"
-
 std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
 	const char *name, D3DFORMAT format
 ) const {

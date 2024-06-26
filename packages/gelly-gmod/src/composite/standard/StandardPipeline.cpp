@@ -5,7 +5,6 @@
 #include <cstring>
 
 #include "../../logging/global-macros.h"
-#include "fluidrender/CD3D11RenderContext.h"
 #include "shaders/out/CompositeFoamPS.h"
 #include "shaders/out/CompositePS.h"
 #include "shaders/out/NDCQuadVS.h"

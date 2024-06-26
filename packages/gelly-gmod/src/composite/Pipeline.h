@@ -4,7 +4,6 @@
 #include "GellyResources.h"
 #include "PipelineConfig.h"
 #include "UnownedResources.h"
-#include "fluidrender/IFluidTextures.h"
 
 struct PipelineFluidMaterial {
 	// The current material system is physically based for the most part,

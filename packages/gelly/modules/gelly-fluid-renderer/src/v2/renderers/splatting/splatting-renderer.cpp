@@ -108,6 +108,17 @@ auto SplattingRenderer::CreatePipelines() -> void {
 		pipelineInfo.outputTextures->ellipsoidDepth,
 		pipelineInfo.internalTextures->unfilteredEllipsoidDepth
 	);
+	backDepthFilteringA = CreateDepthFilteringPipeline(
+		pipelineInfo,
+		pipelineInfo.internalTextures->unfilteredBackEllipsoidDepth,
+		pipelineInfo.internalTextures->filteredBackEllipsoidDepth
+	);
+	backDepthFilteringB = CreateDepthFilteringPipeline(
+		pipelineInfo,
+		pipelineInfo.internalTextures->filteredBackEllipsoidDepth,
+		pipelineInfo.internalTextures->unfilteredBackEllipsoidDepth
+	);
+
 	normalEstimation = CreateNormalEstimationPipeline(pipelineInfo);
 	thicknessExtraction = CreateThicknessExtractionPipeline(pipelineInfo);
 }
@@ -177,6 +188,8 @@ auto SplattingRenderer::RunDepthSmoothingFilter(int iterations) const -> void {
 	for (int i = 0; i < iterations; i++) {
 		depthFilteringA->Run();
 		depthFilteringB->Run();
+		backDepthFilteringA->Run();
+		backDepthFilteringB->Run();
 	}
 }
 

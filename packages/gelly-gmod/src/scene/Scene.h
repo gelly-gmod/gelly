@@ -12,7 +12,6 @@
 #include "EntityManager.h"
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "ParticleManager.h"
-#include "fluidrender/IFluidRenderer.h"
 #include "logging/global-macros.h"
 #include "renderers/splatting/splatting-renderer.h"
 

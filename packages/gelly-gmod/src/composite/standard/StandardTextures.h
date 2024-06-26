@@ -6,7 +6,6 @@
 #include "GellyInterfaceRef.h"
 #include "composite/GellyResources.h"
 #include "composite/UnownedResources.h"
-#include "fluidrender/IManagedTexture.h"
 
 using namespace Microsoft::WRL;
 using gelly::renderer::splatting::InputSharedHandles;
