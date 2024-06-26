@@ -5,7 +5,7 @@ float EyeToProjDepth(float depth) {
 }
 
 float ProjToEyeDepth(float depth) {
-	// 2 * n * f / (f + n - d * (f - n))
 	float eyeDepth = (2.0f * g_FarPlane * g_NearPlane) / (g_FarPlane + g_NearPlane - depth * (g_FarPlane - g_NearPlane));
+	eyeDepth = -eyeDepth; // flip the depth cause it's in eye space
 	return eyeDepth;
 }

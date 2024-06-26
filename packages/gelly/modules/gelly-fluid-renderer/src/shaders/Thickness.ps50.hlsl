@@ -11,14 +11,20 @@ struct PS_OUTPUT {
 };
 
 float CalculateThickness(in float2 uv, in float frontDepth, in float backDepth) {
-	float3 frontPos = WorldPosFromDepthF(uv, frontDepth);
-	float3 backPos = WorldPosFromDepthF(uv, backDepth);
+	float3 frontPos = WorldPosFromProjDepthF(uv, frontDepth);
+	float3 backPos = WorldPosFromProjDepthF(uv, backDepth);
 	return length(backPos - frontPos);
 }
 
 PS_OUTPUT main(VS_OUTPUT input) {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float2 viewport = float2(g_ViewportWidth, g_ViewportHeight);
-	output.Thickness = CalculateThickness(input.Tex.xy, InputFrontDepth.Load(int3(input.Tex.xy * viewport, 0)), InputBackDepth.Load(int3(input.Tex.xy * viewport, 0)));
+	float frontDepth = InputFrontDepth.Load(int3(input.Tex.xy * viewport, 0)).r;
+
+	if (frontDepth >= 1.f) {
+		discard;
+	}
+
+	output.Thickness = CalculateThickness(input.Tex.xy, frontDepth, InputBackDepth.Load(int3(input.Tex.xy * viewport, 0)).r);
 	return output;
 }

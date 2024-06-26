@@ -83,7 +83,7 @@ float4 Shade(VS_INPUT input) {
     float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption) + fresnel * specular;
     // inverse fresnel is already applied to the diffuse lobe
     float3 diffuseSpecularLobe = diffuse + fresnel * specular;
-    float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
+        float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
 
     specularTransmissionLobe *= material.r_st_ior.y;
     roughLobe *= (1.f - material.r_st_ior.y);
@@ -95,12 +95,12 @@ float4 Shade(VS_INPUT input) {
 
 PS_OUTPUT main(VS_INPUT input) {
     float4 depthFragment = tex2D(depthTex, input.Tex);
-    if (depthFragment.g >= 1.f) {
+    if (depthFragment.r >= 1.f) {
         discard;
     }
     
     PS_OUTPUT output = (PS_OUTPUT)0;
     output.Color = Shade(input);
-    output.Depth = depthFragment.g;
+    output.Depth = depthFragment.r;
     return output;
 }

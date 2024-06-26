@@ -13,6 +13,9 @@
 #include "SplattingVS.h"
 #include "pipeline-info.h"
 
+#undef min
+#undef max
+
 namespace gelly {
 namespace renderer {
 namespace splatting {
@@ -40,9 +43,7 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 				.cullMode = D3D11_CULL_NONE,
 			},
 		.blendState = {{
-			.independentBlendEnable =
-				true,  // the ellipsoid depth has no blending so we
-					   // need to enable this
+			.independentBlendEnable = true,
 			.renderTarget =
 				{D3D11_RENDER_TARGET_BLEND_DESC{
 					 // absorption, we do want to blend this but not by adding
@@ -170,14 +171,15 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 				  .texture = info.internalTextures->unfilteredEllipsoidDepth,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 1,
-				  .clearColor = {1.f, 1.f, 1.f, 1.f}
+				  .clearColor = {1.f, D3D11_FLOAT32_MAX, 1.f, 1.f}
 			  },
 			  OutputTexture{
 				  .texture =
 					  info.internalTextures->unfilteredBackEllipsoidDepth,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
-				  .clearColor = {0.f, 0.f, 0.f, 0.f}
+				  .clearColor =
+					  {0.f, std::numeric_limits<float>::min(), 0.f, 0.f}
 			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),

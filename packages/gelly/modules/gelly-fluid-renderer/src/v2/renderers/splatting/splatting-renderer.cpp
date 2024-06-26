@@ -37,8 +37,7 @@ auto SplattingRenderer::Render() const -> void {
 #endif
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
 	thicknessExtraction->Run();
-	depthFilteringA->Run();
-	depthFilteringB->Run();
+	RunDepthSmoothingFilter(settings.filterIterations);
 	normalEstimation->Run();
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
@@ -133,6 +132,23 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 		SimBufferType::FOAM_VELOCITY,
 		pipelineInfo.internalBuffers->foamVelocities->GetRawBuffer().Get()
 	);
+}
+
+auto SplattingRenderer::RunDepthSmoothingFilter(int iterations) const -> void {
+	// we need to only clear the output texture to ensure we don't
+	// accidently overwrite the original depth with 1.0
+
+	float depthClearColor[4] = {1.f, 1.f, 1.f, 1.f};
+	createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
+		pipelineInfo.outputTextures->ellipsoidDepth->GetRenderTargetView().Get(
+		),
+		depthClearColor
+	);
+
+	for (int i = 0; i < iterations; i++) {
+		depthFilteringA->Run();
+		depthFilteringB->Run();
+	}
 }
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES

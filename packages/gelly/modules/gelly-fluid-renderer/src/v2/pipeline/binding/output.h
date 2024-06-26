@@ -11,7 +11,9 @@ struct OutputTexture {
 	const std::shared_ptr<Texture> texture;
 	D3D11_BIND_FLAG bindFlag;
 	unsigned int slot;
+
 	float clearColor[4];
+	bool clear = true;
 };
 
 // As of now, it only makes sense to output to textures.

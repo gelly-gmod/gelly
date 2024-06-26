@@ -376,7 +376,7 @@ void StandardPipeline::CompositeFoam(bool withGellyRendered) const {
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
-	CompositeFoam(false);  // so that it can be seen in water
+	// CompositeFoam(false);  // so that it can be seen in water
 	UpdateBackBuffer();
 
 	stateBlock->Capture();
@@ -422,7 +422,7 @@ void StandardPipeline::Composite() {
 	// Then we composite foam again so that the foam's alpha blend includes the
 	// composite
 
-	CompositeFoam(true);
+	// CompositeFoam(true);
 }
 
 void StandardPipeline::Render() {

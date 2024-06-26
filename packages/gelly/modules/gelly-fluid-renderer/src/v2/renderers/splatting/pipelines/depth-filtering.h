@@ -58,7 +58,7 @@ inline auto CreateDepthFilteringPipeline(
 			.texture = outputDepth,
 			.bindFlag = D3D11_BIND_RENDER_TARGET,
 			.slot = 0,
-			.clearColor = {0.f, 1.f, 0.f, 0.f}
+			.clear = false
 		}},
 		.shaderGroup =
 			{.pixelShader = PS_FROM_GSC(FilterDepthPS, info.device),

@@ -111,10 +111,12 @@ auto Pipeline::SetupOutputMerger() -> void {
 				outputTexture->texture->GetRenderTargetView().Get();
 			viewCount++;
 
-			deviceContext->ClearRenderTargetView(
-				outputTexture->texture->GetRenderTargetView().Get(),
-				outputTexture->clearColor
-			);
+			if (outputTexture->clear) {
+				deviceContext->ClearRenderTargetView(
+					outputTexture->texture->GetRenderTargetView().Get(),
+					outputTexture->clearColor
+				);
+			}
 		}
 	}
 

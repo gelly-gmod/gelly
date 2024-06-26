@@ -5,26 +5,26 @@
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
 
-float SampleNoDiscontinuity(float2 tex, float zc) {
-    float frag = InputDepth.Sample(InputDepthSampler, tex);
-	
-    if (frag >= 1.f) {
-        return EyeToProjDepth(zc);
+float SampleNoDiscontinuity(float2 tex, float centerTapEye) {
+    float2 depthTap = InputDepth.Sample(InputDepthSampler, tex);
+	float depthTapProj = depthTap.r;
+	float depthTapEye = -depthTap.g;
+
+    if (depthTapProj >= 1.f) {
+        return centerTapEye;
     }
-	
-	float eyeFrag = ProjToEyeDepth(frag);
 
     // We can use a gaussian to drive a blend between the two depths
-    float depthDiff = (eyeFrag - zc) * g_ThresholdRatio;
+    float depthDiff = (depthTapEye - centerTapEye) * g_ThresholdRatio;
     // We use a much smaller sigma to get a sharper blend,
     // if we don't then we still get depth discontinuities
     float weight = exp((-depthDiff * depthDiff) / 0.7f);
 
-    return lerp(zc, eyeFrag, weight);
+    return lerp(centerTapEye, depthTapEye, weight);
 }
 
-float3 WorldPosFromDepth(float2 tex, float4 zc) {
-    float depth = SampleNoDiscontinuity(tex, zc);
+float3 WorldPosFromDepth(float2 tex, float centerTapEye) {
+    float depth = SampleNoDiscontinuity(tex, centerTapEye);
     depth = EyeToProjDepth(depth);
     float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
     pos = mul(g_InverseProjection, pos);
@@ -49,15 +49,14 @@ struct PS_OUTPUT {
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    float original = InputDepth.Sample(InputDepthSampler, input.Tex);
-    if (original >= 1.f) {
+    float2 centerTap = InputDepth.Sample(InputDepthSampler, input.Tex);
+    if (centerTap.r >= 1.f) {
         discard;
     }
 
     // We perform our own taps
     float2 texelSize = 1.f / float2(g_ViewportWidth, g_ViewportHeight);
-
-    float zc = ProjToEyeDepth(original);
+    float centerTapEye = -centerTap.g;
 
     /**    float c0 = texelFetch(depth,p           ,0).w;
     float l2 = texelFetch(depth,p-ivec2(2,0),0).w;
@@ -107,10 +106,10 @@ PS_OUTPUT main(VS_OUTPUT input) {
     
     // float3 normal = -normalize(cross(dpdx, dpdy));
 
-    float3 l1 = WorldPosFromDepth(input.Tex - float2(1, 0) * texelSize, zc);
-    float3 r1 = WorldPosFromDepth(input.Tex + float2(1, 0) * texelSize, zc);
-    float3 t1 = WorldPosFromDepth(input.Tex + float2(0, 1) * texelSize, zc);
-    float3 b1 = WorldPosFromDepth(input.Tex - float2(0, 1) * texelSize, zc);
+    float3 l1 = WorldPosFromDepth(input.Tex - float2(1, 0) * texelSize, centerTapEye);
+    float3 r1 = WorldPosFromDepth(input.Tex + float2(1, 0) * texelSize, centerTapEye);
+    float3 t1 = WorldPosFromDepth(input.Tex + float2(0, 1) * texelSize, centerTapEye);
+    float3 b1 = WorldPosFromDepth(input.Tex - float2(0, 1) * texelSize, centerTapEye);
 
     float3 dpdx = r1 - l1;
     float3 dpdy = t1 - b1;
@@ -118,6 +117,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float3 normal = -normalize(cross(dpdx, dpdy));
 
     output.PositiveNormal = float4(normal, 1.f);
-    output.WorldPosition = float4(WorldPosFromDepth(input.Tex, zc), 1.f);
+    output.WorldPosition = float4(WorldPosFromDepth(input.Tex, centerTapEye), 1.f);
     return output;
 }

@@ -62,10 +62,15 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float projectionDepth = rayNDCPos.z / rayNDCPos.w;
 	float backProjectionDepth = backRayNDCPos.z / backRayNDCPos.w;
     float eyeDepth = eyePos.z;
+	float backEyeDepth = backEyePos.z;
 
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
-	output.FrontDepth = projectionDepth;
-	output.BackDepth = backProjectionDepth;
+	// quick explanation: eye depth is typically stored in a view space position as z = -z_eye
+	// this means that it sort of behaves like a negative depth value, -1000 is farther away than -500
+	// but that is not the case for the projection depth, which is a positive value which we depth test with min/max
+	// so we need to negate the eye depth to make it behave like the projection depth, later we will negate it again
+	output.FrontDepth = float2(projectionDepth, -eyeDepth);
+	output.BackDepth = float2(backProjectionDepth, -backEyeDepth);
 
     return output;
 }

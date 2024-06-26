@@ -94,7 +94,7 @@ struct InternalTextures {
 				 {.device = device,
 				  .width = width,
 				  .height = height,
-				  .format = DXGI_FORMAT_R32_FLOAT,
+				  .format = DXGI_FORMAT_R32G32_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
 					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
@@ -130,7 +130,7 @@ struct InternalTextures {
 				 {.device = device,
 				  .width = width,
 				  .height = height,
-				  .format = DXGI_FORMAT_R32_FLOAT,
+				  .format = DXGI_FORMAT_R32G32_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
 					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,

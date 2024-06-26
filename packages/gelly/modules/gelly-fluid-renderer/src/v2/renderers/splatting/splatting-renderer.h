@@ -17,7 +17,7 @@ using PipelinePtr = std::shared_ptr<Pipeline>;
 class SplattingRenderer {
 public:
 	struct Settings {
-		unsigned int filterIterations = 2;
+		unsigned int filterIterations = 1;
 	};
 
 	struct SplattingRendererCreateInfo {
@@ -59,6 +59,8 @@ private:
 	auto CreatePipelines() -> void;
 	auto CreatePipelineInfo() const -> PipelineInfo;
 	auto LinkBuffersToSimData() const -> void;
+
+	auto RunDepthSmoothingFilter(int iterations) const -> void;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 *;
