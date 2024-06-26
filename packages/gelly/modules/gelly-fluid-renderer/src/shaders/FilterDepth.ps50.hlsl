@@ -22,11 +22,11 @@ float ComputeBlurScale() {
 }
 
 float FetchEyeDepth(float2 pixel) {
-    return InputDepth.Load(int3(pixel, 0)).r;
+    return ProjToEyeDepth(InputDepth.Load(int3(pixel, 0)));
 }
 
 float FetchProjDepth(float2 pixel) {
-    return InputDepth.Load(int3(pixel, 0)).g;
+    return InputDepth.Load(int3(pixel, 0));
 }
 
 float CreateIsosurfaceDepth(float2 tex
@@ -105,8 +105,8 @@ PS_OUTPUT main(VS_OUTPUT input) {
         #endif
     );
 
-    float projDepth = EyeToProjDepth(eyeDepth);
+	float projDepth = EyeToProjDepth(eyeDepth);
     
-    output.Color = float4(eyeDepth, projDepth, 0.f, 1.0f);
+    output.Color = float4(projDepth, 0.f, 0.f, 1.0f);
     return output;
 }

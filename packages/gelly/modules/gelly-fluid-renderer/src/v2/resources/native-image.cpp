@@ -6,8 +6,8 @@
 
 namespace gelly {
 namespace renderer {
-NativeImage::NativeImage(const NativeImageCreateInfo &createInfo)
-	: createInfo(createInfo) {
+NativeImage::NativeImage(const NativeImageCreateInfo &createInfo) :
+	createInfo(createInfo) {
 	texture2D = CreateTexture2D();
 }
 
@@ -43,6 +43,13 @@ auto NativeImage::CreateTexture2D() -> ComPtr<ID3D11Texture2D> {
 		result,
 		std::invalid_argument,
 		"Failed to create Texture2D with the supplied creation info."
+	);
+
+	// set the debug name
+	texture->SetPrivateData(
+		WKPDID_D3DDebugObjectName,
+		static_cast<UINT>(strlen(createInfo.name)),
+		createInfo.name
 	);
 
 	return texture;

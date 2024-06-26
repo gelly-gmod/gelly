@@ -5,6 +5,7 @@
 #include <helpers/comptr.h>
 
 #include <memory>
+#include <optional>
 
 #include "device.h"
 #include "resources/depth-buffer.h"
@@ -45,11 +46,17 @@ public:
 		D3D11_CULL_MODE cullMode;
 	};
 
+	struct BlendState {
+		bool independentBlendEnable;
+		D3D11_RENDER_TARGET_BLEND_DESC renderTarget[8];
+	};
+
 	struct PassInfo {
 		const std::shared_ptr<Device> device;
 		DepthStencilState depthStencilState;
 		ViewportState viewportState;
 		RasterizerState rasterizerState;
+		std::optional<BlendState> blendState = std::nullopt;
 	};
 
 	RenderPass(const PassInfo &passInfo);
@@ -64,9 +71,11 @@ private:
 	PassInfo passInfo;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;
 	ComPtr<ID3D11RasterizerState> rasterizerState;
+	ComPtr<ID3D11BlendState> blendState;
 
 	auto CreateDepthStencilState() -> ComPtr<ID3D11DepthStencilState>;
 	auto CreateRasterizerState() -> ComPtr<ID3D11RasterizerState>;
+	auto CreateBlendState() -> ComPtr<ID3D11BlendState>;
 	auto CreateViewport() -> D3D11_VIEWPORT;
 };
 

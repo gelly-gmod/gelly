@@ -54,7 +54,7 @@ auto Texture::GetSamplerState() -> ComPtr<ID3D11SamplerState> {
 }
 
 auto Texture::GetFormat() -> DXGI_FORMAT {
-	return createInfo.image->GetFormat();
+	return createInfo.format.value_or(createInfo.image->GetFormat());
 }
 
 auto Texture::CreateRenderTargetView(const ComPtr<ID3D11Texture2D> &texture)

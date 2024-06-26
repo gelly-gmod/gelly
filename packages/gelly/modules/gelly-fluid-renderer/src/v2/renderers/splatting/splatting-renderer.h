@@ -49,6 +49,7 @@ private:
 	PipelinePtr ellipsoidSplatting;
 	PipelinePtr depthFilteringA;
 	PipelinePtr depthFilteringB;
+	PipelinePtr thicknessExtraction;
 	PipelinePtr normalEstimation;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES

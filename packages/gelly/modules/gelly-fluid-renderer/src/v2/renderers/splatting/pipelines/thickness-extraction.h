@@ -1,5 +1,5 @@
-#ifndef NORMAL_ESTIMATION_H
-#define NORMAL_ESTIMATION_H
+#ifndef THICKNESS_EXTRACTION_H
+#define THICKNESS_EXTRACTION_H
 
 #include <device.h>
 #include <helpers/create-gsc-shader.h>
@@ -8,14 +8,14 @@
 #include <memory>
 #include <optional>
 
-#include "EstimateNormalPS.h"
+#include "ThicknessPS.h"
 #include "helpers/rendering/screen-quad.h"
 #include "pipeline-info.h"
 
 namespace gelly {
 namespace renderer {
 namespace splatting {
-inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
+inline auto CreateThicknessExtractionPipeline(const PipelineInfo &info)
 	-> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -37,7 +37,7 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 	const util::ScreenQuad screenQuad({.device = info.device});
 
 	return Pipeline::CreatePipeline(
-		{.name = "Estimating normals",
+		{.name = "Extracting thickness",
 		 .device = info.device,
 		 .renderPass = renderPass,
 		 .inputLayout = screenQuad.GetInputLayout(),
@@ -45,18 +45,24 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 		 .inputs =
 			 {screenQuad.GetVertexBuffer(),
 			  InputTexture{
-				  .texture = info.internalTextures->unfilteredEllipsoidDepth,
+				  .texture =
+					  info.internalTextures->unfilteredBackEllipsoidDepth,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
+			  },
+			  InputTexture{
+				  .texture = info.internalTextures->unfilteredEllipsoidDepth,
+				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				  .slot = 1
 			  }},
 		 .outputs = {OutputTexture{
-			 .texture = info.outputTextures->normals,
+			 .texture = info.outputTextures->thickness,
 			 .bindFlag = D3D11_BIND_RENDER_TARGET,
 			 .slot = 0,
 			 .clearColor = {0.f, 0.f, 0.f, 0.f}
 		 }},
 		 .shaderGroup =
-			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
+			 {.pixelShader = PS_FROM_GSC(ThicknessPS, info.device),
 			  .vertexShader = screenQuad.GetVertexShader(),
 			  .constantBuffers =
 				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
@@ -68,4 +74,4 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 }  // namespace renderer
 }  // namespace gelly
 
-#endif	// NORMAL_ESTIMATION_H
+#endif	// THICKNESS_EXTRACTION_H

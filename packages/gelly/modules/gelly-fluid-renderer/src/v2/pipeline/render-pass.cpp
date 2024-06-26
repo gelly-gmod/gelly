@@ -10,6 +10,9 @@ namespace renderer {
 RenderPass::RenderPass(const PassInfo &passInfo) : passInfo(passInfo) {
 	depthStencilState = CreateDepthStencilState();
 	rasterizerState = CreateRasterizerState();
+	if (passInfo.blendState.has_value()) {
+		blendState = CreateBlendState();
+	}
 }
 
 auto RenderPass::Apply() -> void {
@@ -19,6 +22,9 @@ auto RenderPass::Apply() -> void {
 	deviceContext->RSSetState(rasterizerState.Get());
 	auto viewport = CreateViewport();
 	deviceContext->RSSetViewports(1, &viewport);
+	if (passInfo.blendState.has_value()) {
+		deviceContext->OMSetBlendState(blendState.Get(), nullptr, 0xFFFFFFFF);
+	}
 }
 
 auto RenderPass::CreateDepthStencilState() -> ComPtr<ID3D11DepthStencilState> {
@@ -81,6 +87,30 @@ auto RenderPass::CreateViewport() -> D3D11_VIEWPORT {
 	viewport.MaxDepth = passInfo.viewportState.maxDepth;
 
 	return viewport;
+}
+
+auto RenderPass::CreateBlendState() -> ComPtr<ID3D11BlendState> {
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable =
+		passInfo.blendState->independentBlendEnable;
+
+	std::memcpy(
+		blendDesc.RenderTarget,
+		passInfo.blendState->renderTarget,
+		sizeof(D3D11_RENDER_TARGET_BLEND_DESC) * 8
+	);
+
+	ComPtr<ID3D11BlendState> blendState;
+	const auto result = passInfo.device->GetRawDevice()->CreateBlendState(
+		&blendDesc, blendState.GetAddressOf()
+	);
+
+	GELLY_RENDERER_THROW_ON_FAIL(
+		result, std::invalid_argument, "Failed to create blend state"
+	)
+
+	return blendState;
 }
 
 }  // namespace renderer

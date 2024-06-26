@@ -3,6 +3,7 @@
 #include <helpers/comptr.h>
 
 #include <memory>
+#include <optional>
 
 #include "device.h"
 #include "image.h"
@@ -15,6 +16,11 @@ public:
 	struct TextureCreateInfo {
 		const std::shared_ptr<Device> device;
 		const std::shared_ptr<Image> image;
+		/**
+		 * Will be overwritten with the format of the image if not provided.
+		 * Useful for reinterpretation of the underlying image format.
+		 */
+		const std::optional<DXGI_FORMAT> format = std::nullopt;
 		const UINT bindFlags;
 	};
 

@@ -77,6 +77,8 @@ struct OutputTextures {
 
 struct InternalTextures {
 	std::shared_ptr<Texture> unfilteredEllipsoidDepth = nullptr;
+	std::shared_ptr<Texture> unfilteredBackEllipsoidDepth = nullptr;
+
 	std::shared_ptr<Texture> unfilteredThickness = nullptr;
 	std::shared_ptr<Texture> unfilteredAlbedo = nullptr;
 	std::shared_ptr<DepthBuffer> ellipsoidDepthBuffer = nullptr;
@@ -92,7 +94,7 @@ struct InternalTextures {
 				 {.device = device,
 				  .width = width,
 				  .height = height,
-				  .format = DXGI_FORMAT_R32G32_FLOAT,
+				  .format = DXGI_FORMAT_R32_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
 					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
@@ -119,6 +121,24 @@ struct InternalTextures {
 				  .arraySize = 1,
 				  .mipLevels = 1,
 				  .name = "Unfiltered Thickness"}
+			 ),
+			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+		)),
+		unfilteredBackEllipsoidDepth(Texture::CreateTexture(
+			{.device = device,
+			 .image = NativeImage::CreateNativeImage(
+				 {.device = device,
+				  .width = width,
+				  .height = height,
+				  .format = DXGI_FORMAT_R32_FLOAT,
+				  .usage = D3D11_USAGE_DEFAULT,
+				  .bindFlags =
+					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+				  .cpuAccessFlags = 0,
+				  .miscFlags = 0,
+				  .arraySize = 1,
+				  .mipLevels = 1,
+				  .name = "Unfiltered Back Ellipsoid Depth"}
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
 		)),

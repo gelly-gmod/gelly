@@ -99,7 +99,10 @@ auto Pipeline::SetupInputAssembler() -> void {
 auto Pipeline::SetupOutputMerger() -> void {
 	auto *deviceContext = createInfo.device->GetRawDeviceContext().Get();
 	int viewCount = 0;
+	int uavCount = 0;
+
 	ID3D11RenderTargetView *renderTargetViews[8] = {};
+	ID3D11UnorderedAccessView *unorderedAccessViews[8] = {};
 
 	for (const auto &output : createInfo.outputs) {
 		const auto *outputTexture = std::get_if<OutputTexture>(&output);
@@ -115,15 +118,39 @@ auto Pipeline::SetupOutputMerger() -> void {
 		}
 	}
 
+	// we also may have some input UAVs which do need to be bound at the same
+	// time that outputs are typically bound
+	for (const auto &input : createInfo.inputs) {
+		const auto *inputTexture = std::get_if<InputTexture>(&input);
+		if (inputTexture &&
+			inputTexture->bindFlag == D3D11_BIND_UNORDERED_ACCESS) {
+			unorderedAccessViews[inputTexture->slot] =
+				inputTexture->texture->GetUnorderedAccessView().Get();
+			uavCount++;
+		}
+	}
+
 	const std::shared_ptr<DepthBuffer> depthBuffer =
 		createInfo.depthBuffer.value_or(nullptr);
 
 	ID3D11DepthStencilView *depthStencilView =
 		depthBuffer ? depthBuffer->GetDepthStencilView().Get() : nullptr;
 
-	deviceContext->OMSetRenderTargets(
-		viewCount, renderTargetViews, depthStencilView
-	);
+	if (uavCount > 0) {
+		deviceContext->OMSetRenderTargetsAndUnorderedAccessViews(
+			viewCount,
+			renderTargetViews,
+			depthStencilView,
+			viewCount,	// start uavs after render targets to not overwrite them
+			uavCount,
+			unorderedAccessViews,
+			nullptr
+		);
+	} else {
+		deviceContext->OMSetRenderTargets(
+			viewCount, renderTargetViews, depthStencilView
+		);
+	}
 }
 
 auto Pipeline::SetupShaderStages() -> void {

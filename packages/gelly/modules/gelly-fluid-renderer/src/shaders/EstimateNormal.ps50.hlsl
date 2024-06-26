@@ -5,19 +5,22 @@
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
 
-float SampleNoDiscontinuity(float2 tex, float4 zc) {
-    float4 frag = InputDepth.Sample(InputDepthSampler, tex);
-    if (frag.g >= 1.f) {
-        return zc.r;
+float SampleNoDiscontinuity(float2 tex, float zc) {
+    float frag = InputDepth.Sample(InputDepthSampler, tex);
+	
+    if (frag >= 1.f) {
+        return EyeToProjDepth(zc);
     }
+	
+	float eyeFrag = ProjToEyeDepth(frag);
 
     // We can use a gaussian to drive a blend between the two depths
-    float depthDiff = (frag.r - zc.r) * g_ThresholdRatio;
+    float depthDiff = (eyeFrag - zc) * g_ThresholdRatio;
     // We use a much smaller sigma to get a sharper blend,
     // if we don't then we still get depth discontinuities
     float weight = exp((-depthDiff * depthDiff) / 0.7f);
 
-    return lerp(zc.r, frag.r, weight);
+    return lerp(zc, eyeFrag, weight);
 }
 
 float3 WorldPosFromDepth(float2 tex, float4 zc) {
@@ -46,15 +49,15 @@ struct PS_OUTPUT {
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    float4 original = InputDepth.Sample(InputDepthSampler, input.Tex);
-    if (original.g >= 1.f) {
+    float original = InputDepth.Sample(InputDepthSampler, input.Tex);
+    if (original >= 1.f) {
         discard;
     }
 
     // We perform our own taps
     float2 texelSize = 1.f / float2(g_ViewportWidth, g_ViewportHeight);
 
-    float4 zc = original;
+    float zc = ProjToEyeDepth(original);
 
     /**    float c0 = texelFetch(depth,p           ,0).w;
     float l2 = texelFetch(depth,p-ivec2(2,0),0).w;
