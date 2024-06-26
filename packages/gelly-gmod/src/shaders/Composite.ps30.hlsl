@@ -50,7 +50,7 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
 }
 
 float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal) {
-    return tex + normal.yx * TexRefractFromMaterial(material) * thickness * 8;
+    return tex + normal.yx * TexRefractFromMaterial(material);
 }
 
 float3 SampleTransmission(in float2 tex, in float thickness, in float3 pos, in float3 eyeDir, in float3 normal, in float3 absorption) {
@@ -89,8 +89,7 @@ float4 Shade(VS_INPUT input) {
     roughLobe *= (1.f - material.r_st_ior.y);
 
     float3 weight = specularTransmissionLobe + roughLobe;
-
-	return float4(normal * 0.5f + 0.5f, 1.f);
+	return float4(weight, 1.f);
 }
 
 PS_OUTPUT main(VS_INPUT input) {

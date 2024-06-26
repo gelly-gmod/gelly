@@ -48,6 +48,12 @@ public:
 	[[nodiscard]] const GellyResources &GetGellyResources() const {
 		return gellyResources;
 	}
+
+	[[nodiscard]] const std::shared_ptr<
+		gelly::renderer::splatting::AbsorptionModifier> &
+	GetAbsorptionModifier() const {
+		return gellyResources.splattingRenderer->GetAbsorptionModifier();
+	}
 };
 
 #endif	// COMPOSITE_H

@@ -56,6 +56,7 @@ struct InternalBuffers {
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
+				 .cpuAccessFlags = D3D11_CPU_ACCESS_WRITE,
 				 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
 			))
 		),

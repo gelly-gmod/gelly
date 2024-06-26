@@ -8,6 +8,27 @@
 namespace gelly {
 namespace renderer {
 namespace splatting {
+
+AbsorptionModifier::AbsorptionModifier(
+	const AbsorptionModifierCreateInfo &createInfo
+) :
+	createInfo(createInfo), bufferView() {}
+
+auto AbsorptionModifier::StartModifying() -> void {
+	bufferView = std::make_shared<BufferView>(BufferView::BufferViewCreateInfo{
+		.device = createInfo.device,
+		.buffer = createInfo.absorptionBuffer,
+		.mapType = D3D11_MAP_WRITE_NO_OVERWRITE
+	});
+}
+
+auto AbsorptionModifier::ModifyAbsorption(int particleIndex, float3 absorption)
+	-> void {
+	bufferView->Write(particleIndex, absorption);
+}
+
+auto AbsorptionModifier::EndModifying() -> void { bufferView.reset(); }
+
 SplattingRenderer::SplattingRenderer(
 	const SplattingRendererCreateInfo &createInfo
 ) :
@@ -16,6 +37,9 @@ SplattingRenderer::SplattingRenderer(
 	query(CreateQuery()) {
 	CreatePipelines();
 	LinkBuffersToSimData();
+	absorptionModifier = CreateAbsorptionModifier(
+		pipelineInfo.internalBuffers->particleAbsorptions
+	);
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	renderDoc = InstantiateRenderDoc();
@@ -56,6 +80,11 @@ auto SplattingRenderer::Render() const -> void {
 		   ) == S_FALSE) {
 		Sleep(0);
 	}
+}
+
+auto SplattingRenderer::GetAbsorptionModifier() const
+	-> std::shared_ptr<AbsorptionModifier> {
+	return absorptionModifier;
 }
 
 auto SplattingRenderer::UpdateSettings(const Settings &settings) -> void {
@@ -149,6 +178,16 @@ auto SplattingRenderer::RunDepthSmoothingFilter(int iterations) const -> void {
 		depthFilteringA->Run();
 		depthFilteringB->Run();
 	}
+}
+
+auto SplattingRenderer::CreateAbsorptionModifier(
+	const std::shared_ptr<Buffer> &absorptionBuffer
+) const -> std::shared_ptr<AbsorptionModifier> {
+	return std::make_shared<AbsorptionModifier>(
+		AbsorptionModifier::AbsorptionModifierCreateInfo{
+			.device = createInfo.device, .absorptionBuffer = absorptionBuffer
+		}
+	);
 }
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES

@@ -34,7 +34,6 @@ float3 WorldPosFromDepth(float2 tex, float centerTapEye) {
 }
 
 float3 WorldPosFromDepthF(float2 tex, float depth) {
-    depth = EyeToProjDepth(depth);
     float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
     pos = mul(g_InverseProjection, pos);
     pos = mul(g_InverseView, pos);
@@ -117,6 +116,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
     float3 normal = -normalize(cross(dpdx, dpdy));
 
     output.PositiveNormal = float4(normal, 1.f);
-    output.WorldPosition = float4(WorldPosFromDepth(input.Tex, centerTapEye), 1.f);
+    output.WorldPosition = float4(WorldPosFromDepthF(input.Tex, centerTap.r), 1.f);
     return output;
 }

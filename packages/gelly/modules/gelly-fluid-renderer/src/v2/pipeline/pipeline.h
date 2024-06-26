@@ -69,6 +69,11 @@ private:
 		const ComPtr<ID3D11DeviceContext> &deviceContext,
 		const InputTexture &texture
 	) -> void;
+
+	static auto BindInputBuffer(
+		const ComPtr<ID3D11DeviceContext> &deviceContext,
+		const InputBuffer &buffer
+	) -> void;
 };
 
 }  // namespace renderer

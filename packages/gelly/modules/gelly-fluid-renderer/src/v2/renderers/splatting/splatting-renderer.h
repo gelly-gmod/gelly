@@ -8,11 +8,31 @@
 #include "pipeline/pipeline.h"
 #include "pipelines/pipeline-info.h"
 #include "renderdoc_app.h"
+#include "resources/buffer-view.h"
 
 namespace gelly {
 namespace renderer {
 namespace splatting {
 using PipelinePtr = std::shared_ptr<Pipeline>;
+
+class AbsorptionModifier {
+public:
+	struct AbsorptionModifierCreateInfo {
+		std::shared_ptr<Device> device;
+		std::shared_ptr<Buffer> absorptionBuffer;
+	};
+
+	explicit AbsorptionModifier(const AbsorptionModifierCreateInfo &createInfo);
+	~AbsorptionModifier() = default;
+
+	auto StartModifying() -> void;
+	auto ModifyAbsorption(int particleIndex, float3 absorption) -> void;
+	auto EndModifying() -> void;
+
+private:
+	AbsorptionModifierCreateInfo createInfo;
+	std::shared_ptr<BufferView> bufferView;
+};
 
 class SplattingRenderer {
 public:
@@ -39,9 +59,12 @@ public:
 	auto Render() const -> void;
 	auto UpdateFrameParams(cbuffer::FluidRenderCBufferData &data) const -> void;
 	auto UpdateSettings(const Settings &settings) -> void;
+	[[nodiscard]] auto GetAbsorptionModifier() const
+		-> std::shared_ptr<AbsorptionModifier>;
 
 private:
 	SplattingRendererCreateInfo createInfo;
+	std::shared_ptr<AbsorptionModifier> absorptionModifier;
 	Settings settings;
 	ComPtr<ID3D11Query> query;
 
@@ -67,6 +90,9 @@ private:
 #endif
 
 	auto CreateQuery() -> ComPtr<ID3D11Query>;
+	auto CreateAbsorptionModifier(
+		const std::shared_ptr<Buffer> &absorptionBuffer
+	) const -> std::shared_ptr<AbsorptionModifier>;
 };
 
 }  // namespace splatting

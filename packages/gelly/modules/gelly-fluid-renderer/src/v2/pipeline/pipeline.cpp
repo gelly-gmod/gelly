@@ -208,6 +208,13 @@ auto Pipeline::SetupShaderStages() -> void {
 			BindInputTexture(deviceContext, *inputTexture);
 		}
 	}
+
+	for (const auto &input : createInfo.inputs) {
+		const auto *inputBuffer = std::get_if<InputBuffer>(&input);
+		if (inputBuffer) {
+			BindInputBuffer(deviceContext, *inputBuffer);
+		}
+	}
 }
 
 auto Pipeline::BindInputTexture(
@@ -236,6 +243,30 @@ auto Pipeline::BindInputTexture(
 				texture.slot,
 				1,
 				texture.texture->GetSamplerState().GetAddressOf()
+			);
+			break;
+		default:
+			break;
+	}
+}
+
+auto Pipeline::BindInputBuffer(
+	const ComPtr<ID3D11DeviceContext> &deviceContext, const InputBuffer &buffer
+) -> void {
+	switch (buffer.bindFlag) {
+		case D3D11_BIND_SHADER_RESOURCE:
+			deviceContext->VSSetShaderResources(
+				buffer.slot,
+				1,
+				buffer.buffer->GetShaderResourceView().GetAddressOf()
+			);
+			break;
+		case D3D11_BIND_UNORDERED_ACCESS:
+			deviceContext->CSSetUnorderedAccessViews(
+				buffer.slot,
+				1,
+				buffer.buffer->GetUnorderedAccessView().GetAddressOf(),
+				nullptr
 			);
 			break;
 		default:

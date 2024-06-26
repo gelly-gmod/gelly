@@ -635,6 +635,7 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 		newMax
 	);
 
+	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
 	scene->Initialize();
 
 	LUA->Pop();
@@ -724,6 +725,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		DEFAULT_MAX_PARTICLES
 	);
 
+	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
 	scene->Initialize();
 
 	DumpLuaStack("Getting global table", LUA);

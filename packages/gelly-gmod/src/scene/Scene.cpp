@@ -32,7 +32,7 @@ void Scene::LoadMap(const std::string &mapPath) {
 }
 
 void Scene::AddParticles(const ParticleListBuilder &builder) const {
-	particles.AddParticles(builder);
+	particles.AddParticles(builder, absorptionModifier);
 }
 
 void Scene::ClearParticles() const { particles.ClearParticles(); }

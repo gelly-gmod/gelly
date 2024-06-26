@@ -46,17 +46,14 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 			.independentBlendEnable = true,
 			.renderTarget =
 				{D3D11_RENDER_TARGET_BLEND_DESC{
-					 // absorption, we do want to blend this but not by adding
-					 // because it'd quickly saturate
-					 // so we use the min blend op
-					 .BlendEnable = true,
+					 .BlendEnable = true,  // we do a no-op blend for absorption
 					 .SrcBlend = D3D11_BLEND_ONE,
-					 .DestBlend = D3D11_BLEND_ONE,
-					 .BlendOp = D3D11_BLEND_OP_MIN,
+					 .DestBlend = D3D11_BLEND_ZERO,
+					 .BlendOp = D3D11_BLEND_OP_ADD,
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
-					 .DestBlendAlpha = D3D11_BLEND_ONE,
-					 .BlendOpAlpha = D3D11_BLEND_OP_MIN,
-					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+					 .DestBlendAlpha = D3D11_BLEND_ZERO,
+					 .BlendOpAlpha = D3D11_BLEND_OP_ADD,
+					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL
 				 },
 				 D3D11_RENDER_TARGET_BLEND_DESC{
 					 // we can use min/max blend ops to actually depth test

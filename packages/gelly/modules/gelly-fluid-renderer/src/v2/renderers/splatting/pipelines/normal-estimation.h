@@ -49,12 +49,19 @@ inline auto CreateNormalEstimationPipeline(const PipelineInfo &info)
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
 			  }},
-		 .outputs = {OutputTexture{
-			 .texture = info.outputTextures->normals,
-			 .bindFlag = D3D11_BIND_RENDER_TARGET,
-			 .slot = 0,
-			 .clearColor = {0.f, 0.f, 0.f, 0.f}
-		 }},
+		 .outputs =
+			 {OutputTexture{
+				  .texture = info.outputTextures->normals,
+				  .bindFlag = D3D11_BIND_RENDER_TARGET,
+				  .slot = 0,
+				  .clearColor = {0.f, 0.f, 0.f, 0.f}
+			  },
+			  OutputTexture{
+				  .texture = info.outputTextures->positions,
+				  .bindFlag = D3D11_BIND_RENDER_TARGET,
+				  .slot = 1,
+				  .clearColor = {0.f, 0.f, 0.f, 0.f}
+			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
 			  .vertexShader = screenQuad.GetVertexShader(),

@@ -14,6 +14,7 @@
 #include "ParticleManager.h"
 #include "fluidrender/IFluidRenderer.h"
 #include "logging/global-macros.h"
+#include "renderers/splatting/splatting-renderer.h"
 
 class Scene {
 	const float DEFAULT_TIMESTEP_MULTIPLIER = 10.0f;
@@ -21,6 +22,8 @@ class Scene {
 private:
 	std::shared_ptr<ISimContext> simContext;
 	std::shared_ptr<IFluidSimulation> sim;
+	std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
+		absorptionModifier;
 
 	std::optional<EntityManager> ents;
 	std::optional<Map> map;
@@ -78,6 +81,13 @@ public:
 
 	[[nodiscard]] GellyInterfaceVal<ISimData> GetSimData() const {
 		return sim->GetSimulationData();
+	}
+
+	void SetAbsorptionModifier(
+		const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
+			&modifier
+	) {
+		absorptionModifier = modifier;
 	}
 
 	void Initialize();
