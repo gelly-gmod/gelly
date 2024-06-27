@@ -1,6 +1,7 @@
 #include "FluidRenderCBuffer.hlsli"
 #include "ScreenQuadStructs.hlsli"
 #include "util/EyeToProjDepth.hlsli"
+#include "util/IsUnderwater.hlsli"
 
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
@@ -86,10 +87,16 @@ float CreateIsosurfaceDepth(float2 tex) {
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    float original = InputDepth.SampleLevel(InputDepthSampler, input.Tex, 0).r;
-    if (original >= 1.f) {
+    float2 original = InputDepth.SampleLevel(InputDepthSampler, input.Tex, 0);
+    if (original.r >= 1.f) {
         discard;
     }
+
+	// there's really no point in filtering the depth if it's underwater
+	if (IsProjDepthUnderwater(original)) {
+		output.Color = float4(original, 0.f, 1.f);
+		return output;
+	}
 
     float eyeDepth = CreateIsosurfaceDepth(input.Tex);
 	float projDepth = EyeToProjDepth(eyeDepth);

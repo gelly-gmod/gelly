@@ -14,6 +14,7 @@ struct OutputTexture {
 
 	float clearColor[4];
 	bool clear = true;
+	bool enabled = true;
 };
 
 // As of now, it only makes sense to output to textures.

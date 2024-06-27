@@ -13,6 +13,7 @@ sampler2D backbufferTex : register(s3);
 sampler2D thicknessTex : register(s4);
 samplerCUBE cubemapTex : register(s5);
 sampler2D absorptionTex : register(s6);
+sampler2D backNormalTex : register(s7);
 
 float4 eyePos : register(c0);
 float4 refractAndCubemapStrength : register(c1);
@@ -60,7 +61,16 @@ float3 SampleTransmission(in float2 tex, in float thickness, in float3 pos, in f
     return transmission;
 }
 
-float4 Shade(VS_INPUT input) {
+#define UNDERWATER_DEPTH_MINIMUM 0.7f
+float4 Shade(VS_INPUT input, float projectedDepth) {
+    if (projectedDepth <= UNDERWATER_DEPTH_MINIMUM) {
+        float thickness = tex2D(thicknessTex, input.Tex).x;
+        float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
+        float3 transmission = tex2D(backbufferTex, input.Tex).xyz;
+
+        return float4(transmission * absorption, 1.f); // simple underwater effect
+    }
+
     float thickness = tex2D(thicknessTex, input.Tex).x;
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = tex2D(positionTex, input.Tex).xyz;
@@ -99,7 +109,7 @@ PS_OUTPUT main(VS_INPUT input) {
     }
     
     PS_OUTPUT output = (PS_OUTPUT)0;
-    output.Color = Shade(input);
+    output.Color = Shade(input, depthFragment.r);
     output.Depth = depthFragment.r;
     return output;
 }

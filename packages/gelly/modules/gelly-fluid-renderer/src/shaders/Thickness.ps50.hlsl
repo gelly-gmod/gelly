@@ -2,6 +2,7 @@
 #include "ScreenQuadStructs.hlsli"
 #include "util/EyeToProjDepth.hlsli"
 #include "util/WorldPosFromDepth.hlsli"
+#include "util/IsUnderwater.hlsli"
 
 Texture2D InputBackDepth : register(t0);
 Texture2D InputFrontDepth : register(t1);
@@ -17,6 +18,13 @@ struct PS_OUTPUT {
 float CalculateThickness(in float2 uv, in float frontDepth, in float backDepth) {
 	float3 frontPos = WorldPosFromProjDepthF(uv, frontDepth);
 	float3 backPos = WorldPosFromProjDepthF(uv, backDepth);
+
+	if (IsProjDepthUnderwater(frontDepth)) {
+		float3 temp = frontPos;
+		frontPos = backPos;
+		backPos = temp;
+	}
+
 	return min(length(frontPos - backPos), MAXIMUM_DISTANCE);
 }
 

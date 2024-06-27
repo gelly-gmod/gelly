@@ -106,7 +106,7 @@ auto Pipeline::SetupOutputMerger() -> void {
 
 	for (const auto &output : createInfo.outputs) {
 		const auto *outputTexture = std::get_if<OutputTexture>(&output);
-		if (outputTexture) {
+		if (outputTexture && outputTexture->enabled) {
 			renderTargetViews[outputTexture->slot] =
 				outputTexture->texture->GetRenderTargetView().Get();
 			viewCount++;
