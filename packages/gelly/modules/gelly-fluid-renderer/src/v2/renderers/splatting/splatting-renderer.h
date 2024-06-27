@@ -38,6 +38,14 @@ class SplattingRenderer {
 public:
 	struct Settings {
 		unsigned int filterIterations = 10;
+		/**
+		 * There is no need to disable this unless you are debugging. Seriously,
+		 * if this is disabled then it's purely up to random chance if your
+		 * driver will crash or not. But, it is useful for GPU instrumentation
+		 * software such as NSight or PIX, as it allows them to properly capture
+		 * the frame.
+		 */
+		bool enableGPUSynchronization = true;
 	};
 
 	struct SplattingRendererCreateInfo {
@@ -58,6 +66,7 @@ public:
 
 	auto Render() const -> void;
 	auto UpdateFrameParams(cbuffer::FluidRenderCBufferData &data) const -> void;
+	auto GetSettings() const -> Settings;
 	auto UpdateSettings(const Settings &settings) -> void;
 	[[nodiscard]] auto GetAbsorptionModifier() const
 		-> std::shared_ptr<AbsorptionModifier>;

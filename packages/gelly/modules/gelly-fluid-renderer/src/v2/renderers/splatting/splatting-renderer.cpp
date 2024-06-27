@@ -72,13 +72,16 @@ auto SplattingRenderer::Render() const -> void {
 #endif
 
 	createInfo.device->GetRawDeviceContext()->Flush();
-	createInfo.device->GetRawDeviceContext()->End(query.Get());
 
-	// busy wait until the query is done
-	while (createInfo.device->GetRawDeviceContext()->GetData(
-			   query.Get(), nullptr, 0, 0
-		   ) == S_FALSE) {
-		Sleep(0);
+	if (settings.enableGPUSynchronization) {
+		createInfo.device->GetRawDeviceContext()->End(query.Get());
+
+		// busy wait until the query is done
+		while (createInfo.device->GetRawDeviceContext()->GetData(
+				   query.Get(), nullptr, 0, 0
+			   ) == S_FALSE) {
+			Sleep(0);
+		}
 	}
 }
 
@@ -86,6 +89,8 @@ auto SplattingRenderer::GetAbsorptionModifier() const
 	-> std::shared_ptr<AbsorptionModifier> {
 	return absorptionModifier;
 }
+
+auto SplattingRenderer::GetSettings() const -> Settings { return settings; }
 
 auto SplattingRenderer::UpdateSettings(const Settings &settings) -> void {
 	this->settings = settings;

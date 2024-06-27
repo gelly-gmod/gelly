@@ -159,14 +159,6 @@ LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
 			compositor->GetConfig().diffuseScale
 		);
 		LOG_ERROR(
-			"EMERGENCY EXCEPTION HANDLER: Filter iterations: %f",
-			compositor->GetConfig().filterIterations
-		);
-		LOG_ERROR(
-			"EMERGENCY EXCEPTION HANDLER: Thickness iterations: %f",
-			compositor->GetConfig().thicknessIterations
-		);
-		LOG_ERROR(
 			"EMERGENCY EXCEPTION HANDLER: Refraction strength: %f",
 			compositor->GetConfig().refractionStrength
 		);
@@ -556,13 +548,8 @@ LUA_FUNCTION(gelly_SetRenderSettings) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table);	 // new render settings
 
 	auto config = compositor->GetConfig();
-
-	GET_LUA_TABLE_MEMBER(int, SmoothingIterations);
-	GET_LUA_TABLE_MEMBER(int, ThicknessIterations);
 	GET_LUA_TABLE_MEMBER(float, RefractionStrength);
 
-	config.filterIterations = SmoothingIterations;
-	config.thicknessIterations = ThicknessIterations;
 	config.refractionStrength = RefractionStrength;
 
 	compositor->SetConfig(config);
@@ -660,6 +647,37 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 LUA_FUNCTION(gelly_GetVersion) {
 	START_GELLY_EXCEPTIONS();
 	LUA->PushString(GELLY_VERSION);
+	CATCH_GELLY_EXCEPTIONS();
+	return 1;
+}
+
+LUA_FUNCTION(gelly_SetGellySettings) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);	 // settings
+
+	GET_LUA_TABLE_MEMBER(float, FilterIterations);
+	GET_LUA_TABLE_MEMBER(bool, EnableGPUSynchronization);
+
+	int filterIterations = static_cast<int>(FilterIterations);
+	auto currentSettings = compositor->GetGellySettings();
+	currentSettings.filterIterations = filterIterations;
+	currentSettings.enableGPUSynchronization = EnableGPUSynchronization_b;
+
+	compositor->UpdateGellySettings(currentSettings);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
+LUA_FUNCTION(gelly_GetGellySettings) {
+	START_GELLY_EXCEPTIONS();
+	auto currentSettings = compositor->GetGellySettings();
+
+	LUA->CreateTable();
+	LUA->PushNumber(currentSettings.filterIterations);
+	LUA->SetField(-2, "FilterIterations");
+	LUA->PushBool(currentSettings.enableGPUSynchronization);
+	LUA->SetField(-2, "EnableGPUSynchronization");
+
 	CATCH_GELLY_EXCEPTIONS();
 	return 1;
 }
@@ -772,6 +790,8 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetTimeStepMultiplier);
 	DEFINE_LUA_FUNC(gelly, ChangeMaxParticles);
 	DEFINE_LUA_FUNC(gelly, GetVersion);
+	DEFINE_LUA_FUNC(gelly, SetGellySettings);
+	DEFINE_LUA_FUNC(gelly, GetGellySettings);
 	DumpLuaStack("After defining functions", LUA);
 	LUA->SetField(-2, "gelly");
 	DumpLuaStack("Setting gelly table", LUA);

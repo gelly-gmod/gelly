@@ -49,10 +49,19 @@ public:
 		return gellyResources;
 	}
 
-	[[nodiscard]] const std::shared_ptr<
-		gelly::renderer::splatting::AbsorptionModifier> &
+	[[nodiscard]] std::shared_ptr<
+		gelly::renderer::splatting::AbsorptionModifier>
 	GetAbsorptionModifier() const {
 		return gellyResources.splattingRenderer->GetAbsorptionModifier();
+	}
+
+	[[nodiscard]] SplattingRenderer::Settings GetGellySettings() const {
+		return gellyResources.splattingRenderer->GetSettings();
+	}
+
+	void UpdateGellySettings(const SplattingRenderer::Settings &settings
+	) const {
+		gellyResources.splattingRenderer->UpdateSettings(settings);
 	}
 };
 

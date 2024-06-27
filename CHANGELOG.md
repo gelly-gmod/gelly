@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.0] - 2024-06-27
+
+### Added
+
+- Entirely new renderer codebase
+- New thickness model (not a new absorption model, that has remained the same)
+- Basic underwater rendering (not perfect, but it's a start)
+- New GPU synchronization option in the developer UI (can be toggled on and off for performance/debugging)
+
+### Changed
+
+- Every single preset has had their color tweaked.
+- Water is significantly more dyed with blue.
+- Piss is now more yellow.
+- Blood is a saturated red and is more opaque.
+- Gell-O has a deeper red color.
+- Glunk now appears dark if you go into the fluid.
+- Depth filter has been tweaked and therefore should have better performance.
+- Normal fluid rendering is now disengaged once the camera is underwater and switched to underwater rendering.
+- Frame rendering has been tweaked to more or less synchronize with the GPU, which means you may or may not see a
+  performance increase.
+
+### Fixed
+
+- Fixed the preset creator having wacky colors
+
 ## [1.11.0] - 2024-06-18
 
 ### Added
