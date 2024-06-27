@@ -63,7 +63,6 @@ auto SplattingRenderer::Render() const -> void {
 	thicknessExtraction->Run();
 	RunDepthSmoothingFilter(settings.filterIterations);
 	frontNormalEstimation->Run();
-	backNormalEstimation->Run();
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->EndFrameCapture(
@@ -125,13 +124,6 @@ auto SplattingRenderer::CreatePipelines() -> void {
 		pipelineInfo.internalTextures->unfilteredEllipsoidDepth,
 		pipelineInfo.outputTextures->normals,
 		true
-	);
-
-	backNormalEstimation = CreateNormalEstimationPipeline(
-		pipelineInfo,
-		pipelineInfo.internalTextures->unfilteredBackEllipsoidDepth,
-		pipelineInfo.outputTextures->backNormals,
-		false
 	);
 
 	thicknessExtraction = CreateThicknessExtractionPipeline(pipelineInfo);

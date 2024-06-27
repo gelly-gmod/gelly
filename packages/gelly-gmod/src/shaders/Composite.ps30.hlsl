@@ -13,7 +13,6 @@ sampler2D backbufferTex : register(s3);
 sampler2D thicknessTex : register(s4);
 samplerCUBE cubemapTex : register(s5);
 sampler2D absorptionTex : register(s6);
-sampler2D backNormalTex : register(s7);
 
 float4 eyePos : register(c0);
 float4 refractAndCubemapStrength : register(c1);
@@ -51,7 +50,7 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
 }
 
 float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal) {
-    return tex + normal.yx * TexRefractFromMaterial(material);
+    return tex + normal.xy * TexRefractFromMaterial(material);
 }
 
 float3 SampleTransmission(in float2 tex, in float thickness, in float3 pos, in float3 eyeDir, in float3 normal, in float3 absorption) {

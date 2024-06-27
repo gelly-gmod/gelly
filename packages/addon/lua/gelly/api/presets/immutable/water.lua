@@ -14,7 +14,7 @@ return {
 		Roughness = 0,
 		IsSpecularTransmission = true,
 		RefractiveIndex = 1.333,
-		Absorption = Vector(0.03, 0.03, 0),
+		Absorption = Vector(0.1, 0.1, 0.03),
 		DiffuseColor = Vector(0, 0, 0),
 	},
 }

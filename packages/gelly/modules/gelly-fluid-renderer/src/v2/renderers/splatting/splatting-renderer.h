@@ -76,7 +76,6 @@ private:
 	PipelinePtr backDepthFilteringB;
 	PipelinePtr thicknessExtraction;
 	PipelinePtr frontNormalEstimation;
-	PipelinePtr backNormalEstimation;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	RENDERDOC_API_1_1_2 *renderDoc = nullptr;

@@ -16,7 +16,6 @@ struct InputSharedHandles {
 	HANDLE thickness = nullptr;
 	HANDLE albedo = nullptr;
 	HANDLE normals = nullptr;
-	HANDLE backNormals = nullptr;
 	HANDLE positions = nullptr;
 	HANDLE foam = nullptr;
 };
@@ -26,7 +25,6 @@ struct OutputTextures {
 	std::shared_ptr<Texture> thickness = nullptr;
 	std::shared_ptr<Texture> albedo = nullptr;
 	std::shared_ptr<Texture> normals = nullptr;
-	std::shared_ptr<Texture> backNormals = nullptr;
 	std::shared_ptr<Texture> positions = nullptr;
 	std::shared_ptr<Texture> foam = nullptr;
 
@@ -58,13 +56,6 @@ struct OutputTextures {
 			{.device = device,
 			 .image = SharedImage::CreateSharedImage(
 				 {.device = device, .sharedHandle = handles.normals}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		backNormals(Texture::CreateTexture(
-			{.device = device,
-			 .image = SharedImage::CreateSharedImage(
-				 {.device = device, .sharedHandle = handles.backNormals}
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
 		)),
