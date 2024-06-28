@@ -71,9 +71,8 @@ auto SplattingRenderer::Render() const -> void {
 	}
 #endif
 
-	createInfo.device->GetRawDeviceContext()->Flush();
-
 	if (settings.enableGPUSynchronization) {
+		createInfo.device->GetRawDeviceContext()->Flush();
 		createInfo.device->GetRawDeviceContext()->End(query.Get());
 
 		// busy wait until the query is done
