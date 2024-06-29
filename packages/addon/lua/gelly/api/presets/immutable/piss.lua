@@ -1,6 +1,6 @@
 return {
 	Name = "Piss",
-	Radius = 5,
+	Radius = 4,
 	DiffuseScale = 0.25,
 	SolverParams = {
 		Viscosity = 0,
@@ -15,7 +15,7 @@ return {
 		Roughness = 0,
 		IsSpecularTransmission = true,
 		RefractiveIndex = 1.333,
-		Absorption = Vector(0.01, 0.01, 16),
+		Absorption = Vector(0.03, 0.03, 0.2),
 		DiffuseColor = Vector(0, 0, 0),
 	},
 }

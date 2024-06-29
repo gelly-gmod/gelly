@@ -23,11 +23,11 @@ static void FlexErrorCallback(
 	printf("FlexErrorCallback: %s - %s:%d\n", msg, file, line);
 }
 
-CD3D11FlexFluidSimulation::CD3D11FlexFluidSimulation()
-	: simData(new CD3D11CPUSimData()),
-	  maxParticles(0),
-	  commandLists({}),
-	  scene(nullptr) {}
+CD3D11FlexFluidSimulation::CD3D11FlexFluidSimulation() :
+	simData(new CD3D11CPUSimData()),
+	maxParticles(0),
+	commandLists({}),
+	scene(nullptr) {}
 
 CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 	delete simData;
@@ -116,6 +116,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	solverDesc.maxDiffuseParticles = simData->GetMaxFoamParticles();
 	solverDesc.maxNeighborsPerParticle = 64;
 	solverDesc.maxContactsPerParticle = maxContactsPerParticle;
+	solverDesc.featureMode = eNvFlexFeatureModeSimpleFluids;
 
 	solver = NvFlexCreateSolver(library, &solverDesc);
 
@@ -333,6 +334,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 
 	NvFlexSetParams(solver, &solverParams);
 	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
+	scene->Update();
 
 	NvFlexUpdateSolver(solver, deltaTime * timeStepMultiplier, substeps, false);
 	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, &copyDesc);
@@ -395,18 +397,18 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 
 	solverParams.dissipation = 0.0f;
 	solverParams.damping = 0.0f;
-	solverParams.particleCollisionMargin = 1.f;
-	solverParams.shapeCollisionMargin = 1.f;
-	solverParams.collisionDistance = solverParams.fluidRestDistance * 0.7f;
-	solverParams.sleepThreshold = 0.0f;
+	solverParams.particleCollisionMargin = 0.f;
+	solverParams.shapeCollisionMargin = 0.4f;
+	solverParams.collisionDistance = solverParams.fluidRestDistance;
+	solverParams.sleepThreshold = 0.01f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;
 
 	solverParams.maxSpeed = FLT_MAX;
 	solverParams.maxAcceleration = 100.0f;	// approximately 10x gravity
 
-	solverParams.relaxationMode = eNvFlexRelaxationLocal;
-	solverParams.relaxationFactor = 1.0f;
+	solverParams.relaxationMode = eNvFlexRelaxationGlobal;
+	solverParams.relaxationFactor = 0.25f;
 	solverParams.solidPressure = 5.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;

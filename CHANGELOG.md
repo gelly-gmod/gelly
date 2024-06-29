@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.1] - 2024-06-29
+
+### Fixed
+
+- In FleX, props would spawn in place of another, causing some particles to shoot out of the prop. This has been fixed.
+- Fixed `gmod_wheel` objects not being picked up by the simulation.
+
+### Changes
+
+- Runs FleX with less margin and substeps to improve performance
+- To account for the above change, the relaxation factor has decreased to 0.25 and now uses global relaxation to
+  encourage faster convergence.
+- Gelly Gun now uses jittering to ensure that particles do not bug out when in proximity to the gun's spawn point.
+- Back depth filtering is now disabled by default, as it was causing performance losses with no real visual gains.
+
 ## [1.12.0] - 2024-06-28
 
 ### Added
@@ -65,6 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed the sandbox mod not being the default mod
 - If you still have trouble, run: "gelly_mod select sandbox-mod" in the GMod console
+
+> > > > > > > master
 
 ## [1.10.0] - 2024-06-16
 

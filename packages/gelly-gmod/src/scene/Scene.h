@@ -69,10 +69,7 @@ public:
 		return sim->GetComputeDeviceName();
 	}
 
-	void Simulate(float dt) {
-		sim->Update(dt);
-		sim->GetScene()->Update();
-	}
+	void Simulate(float dt) { sim->Update(dt); }
 
 	void SetTimeStepMultiplier(float timeStepMultiplier) {
 		sim->SetTimeStepMultiplier(fmaxf(timeStepMultiplier, 0.0001f));
