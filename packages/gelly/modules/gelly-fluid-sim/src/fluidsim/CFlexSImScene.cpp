@@ -35,8 +35,8 @@ static NvFlexCollisionShapeType GetFlexShapeType(ObjectShape shape) {
 	}
 }
 
-CFlexSimScene::CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver)
-	: library(library), solver(solver), objects({}) {
+CFlexSimScene::CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver) :
+	library(library), solver(solver), objects({}) {
 	geometry.positions = NvFlexAllocBuffer(
 		library, maxColliders, sizeof(FlexFloat4), eNvFlexBufferHost
 	);
@@ -196,7 +196,7 @@ void CFlexSimScene::Update() {
 		);
 
 		auto *flags =
-			static_cast<uint *>(NvFlexMap(geometry.flags, eNvFlexMapWait));
+			static_cast<int *>(NvFlexMap(geometry.flags, eNvFlexMapWait));
 
 		uint valueIndex = 0;
 		for (auto &object : objects) {
@@ -248,18 +248,11 @@ void CFlexSimScene::Update() {
 			rotations[valueIndex].z = object.second.rotation[2];
 			rotations[valueIndex].w = object.second.rotation[3];
 
-			// HACK: Static props have higher priority than dynamic props, so we
-			// can use that to our advantage here. This lets player collision
-			// response become robust, and it's a simple compromise since all we
-			// need to do is mark the world as dynamic and the player as static.
-			const bool isDynamic = valueIndex != 0;
-
 			flags[valueIndex] = NvFlexMakeShapeFlags(
-				GetFlexShapeType(object.second.shape), isDynamic
+				GetFlexShapeType(object.second.shape), true
 			);
 
 			object.second.currentShapeIndex = valueIndex;
-
 			valueIndex++;
 		}
 
