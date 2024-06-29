@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.12.0] - 2024-06-27
+## [1.12.0] - 2024-06-28
 
 ### Added
 
@@ -26,10 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Normal fluid rendering is now disengaged once the camera is underwater and switched to underwater rendering.
 - Frame rendering has been tweaked to more or less synchronize with the GPU, which means you may or may not see a
   performance increase.
+- HDR fix is now configurable via gelly_hdr_fix and disabled on unknown maps.
+- HDR fix is on forcibly if a known-bad map is loaded to ensure the best experience.
+- Filter threshold ratio has been adjusted, which eliminates "halos" around some fluids.
 
 ### Fixed
 
 - Fixed the preset creator having wacky colors
+- Fixed frustrum culling occasionally glitching and rendering all fluids when viewed perpendicularly (or, sideways)
+- Frustrum culling now works properly with the new renderer and properly culls any fluids that are not in view
 
 ## [1.11.0] - 2024-06-18
 

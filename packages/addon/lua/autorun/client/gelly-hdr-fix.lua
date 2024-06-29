@@ -17,7 +17,7 @@ hook.Add("GellyLoaded", "gelly.fix-hdr-cubemaps", function()
 		return
 	end
 
-	if not isFixEnabled or not isKnownBadMap then
+	if not isFixEnabled and not isKnownBadMap then
 		return
 	end
 
