@@ -46,6 +46,8 @@ public:
 		 * the frame.
 		 */
 		bool enableGPUSynchronization = true;
+		bool enableBackDepthFiltering = false;
+		bool enableFrontDepthFiltering = true;
 	};
 
 	struct SplattingRendererCreateInfo {

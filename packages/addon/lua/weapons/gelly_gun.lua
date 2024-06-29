@@ -69,7 +69,7 @@ function SWEP:SecondaryAttack()
 	gellyx.emitters.Cube({
 		center = owner:GetShootPos() + owner:GetAimVector() * 110,
 		velocity = owner:GetAimVector() * 70,
-		bounds = Vector(10, 10, 10),
+		bounds = Vector(50, 50, 50),
 		density = self.ParticleDensity * self.RapidFireBoost,
 	})
 

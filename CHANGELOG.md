@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.10.1] - 2024-06-16
+## [1.12.1] - 2024-06-28
 
 ### Fixed
 
@@ -16,6 +16,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Runs FleX with less margin and substeps to improve performance
 - To account for the above change, the relaxation factor has decreased to 0.25 and now uses global relaxation to
   encourage faster convergence.
+
+## [1.12.0] - 2024-06-28
+
+### Added
+
+- Entirely new renderer codebase
+- New thickness model (not a new absorption model, that has remained the same)
+- Basic underwater rendering (not perfect, but it's a start)
+- New GPU synchronization option in the developer UI (can be toggled on and off for performance/debugging)
+
+### Changed
+
+- Every single preset has had their color tweaked.
+- Water is significantly more dyed with blue.
+- Piss is now more yellow.
+- Blood is a saturated red and is more opaque.
+- Gell-O has a deeper red color.
+- Glunk now appears dark if you go into the fluid.
+- Depth filter has been tweaked and therefore should have better performance.
+- Normal fluid rendering is now disengaged once the camera is underwater and switched to underwater rendering.
+- Frame rendering has been tweaked to more or less synchronize with the GPU, which means you may or may not see a
+  performance increase.
+- HDR fix is now configurable via gelly_hdr_fix and disabled on unknown maps.
+- HDR fix is on forcibly if a known-bad map is loaded to ensure the best experience.
+- Filter threshold ratio has been adjusted, which eliminates "halos" around some fluids.
+
+### Fixed
+
+- Fixed the preset creator having wacky colors
+- Fixed frustrum culling occasionally glitching and rendering all fluids when viewed perpendicularly (or, sideways)
+- Frustrum culling now works properly with the new renderer and properly culls any fluids that are not in view
+
+## [1.11.0] - 2024-06-18
+
+### Added
+
+- New absorption model which is more physically accurate.
+- The new rule of thumb is to use hammer units when describing how fast each color channel is absorbed.
+
+### Fixed
+
+- Fixed the normal aliasing bug where viewing a fluid from a distance would cause it to turn black.
+
+### Changes
+
+- The renderer has been optimized, thickness should significantly be crisper.
+- All presets have been updated to reflect the new absorption model.
+- Thickness is now blurred several more times.
+
+## [1.10.2] - 2024-06-17
+
+### Fixed
+
+- Fixed the nil transform bug, which tended to happen if an object was deleted in close succession to another object
+
+## [1.10.1] - 2024-06-17
+
+### Fixed
+
+- Fixed the sandbox mod not being the default mod
+- If you still have trouble, run: "gelly_mod select sandbox-mod" in the GMod console
+
+> > > > > > > master
 
 ## [1.10.0] - 2024-06-16
 

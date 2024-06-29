@@ -188,19 +188,35 @@ auto SplattingRenderer::RunDepthSmoothingFilter(unsigned int iterations) const
 	-> void {
 	// we need to only clear the output texture to ensure we don't
 	// accidently overwrite the original depth with 1.0
-
 	float depthClearColor[4] = {1.f, 1.f, 1.f, 1.f};
-	createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
-		pipelineInfo.outputTextures->ellipsoidDepth->GetRenderTargetView().Get(
-		),
-		depthClearColor
-	);
+
+	if (settings.enableFrontDepthFiltering) {
+		createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
+			pipelineInfo.outputTextures->ellipsoidDepth->GetRenderTargetView()
+				.Get(),
+			depthClearColor
+		);
+	}
+
+	if (settings.enableBackDepthFiltering) {
+		createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
+			pipelineInfo.internalTextures->filteredBackEllipsoidDepth
+				->GetRenderTargetView()
+				.Get(),
+			depthClearColor
+		);
+	}
 
 	for (int i = 0; i < iterations; i++) {
-		depthFilteringA->Run();
-		depthFilteringB->Run();
-		backDepthFilteringA->Run();
-		backDepthFilteringB->Run();
+		if (settings.enableFrontDepthFiltering) {
+			depthFilteringA->Run();
+			depthFilteringB->Run();
+		}
+
+		if (settings.enableBackDepthFiltering) {
+			backDepthFilteringA->Run();
+			backDepthFilteringB->Run();
+		}
 	}
 }
 
