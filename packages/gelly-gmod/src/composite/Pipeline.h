@@ -4,7 +4,6 @@
 #include "GellyResources.h"
 #include "PipelineConfig.h"
 #include "UnownedResources.h"
-#include "fluidrender/IFluidTextures.h"
 
 struct PipelineFluidMaterial {
 	// The current material system is physically based for the most part,
@@ -58,9 +57,12 @@ public:
 	 *
 	 * @throws std::runtime_error Thrown if the resources cannot be created
 	 */
-	virtual void CreatePipelineLocalResources(
+	virtual gelly::renderer::splatting::InputSharedHandles
+	CreatePipelineLocalResources(
 		const GellyResources &gelly, const UnownedResources &gmod
 	) = 0;
+
+	virtual void UpdateGellyResources(const GellyResources &newResources) = 0;
 
 	virtual void SetConfig(const PipelineConfig &config) = 0;
 	[[nodiscard]] virtual PipelineConfig GetConfig() const = 0;

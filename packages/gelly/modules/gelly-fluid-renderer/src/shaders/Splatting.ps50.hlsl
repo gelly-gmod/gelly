@@ -6,12 +6,6 @@ float sqr(float x) {
     return x * x;
 }
 
-// UAV regs actually are considered the same as RTV regs in the assembly--so we move u0 to u2
-
-globallycoherent RWTexture2D<float4> g_Thickness : register(u2);
-
-#define THICKNESS_INCREMENT 0.005f
-
 PS_OUTPUT main(GS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
 
@@ -51,18 +45,32 @@ PS_OUTPUT main(GS_OUTPUT input) {
         discard;
     }
 
+	// to prevent the intersection from being behind the camera
+	if (minT < 0.f) {
+		minT = 0.f;
+	}
+
+	if (maxT < 0.f) {
+		discard;
+	}
+
     float3 eyePos = viewDir.xyz * minT;
+	float3 backEyePos = viewDir.xyz * maxT;
     float4 rayNDCPos = mul(g_Projection, float4(eyePos, 1.f));
+	float4 backRayNDCPos = mul(g_Projection, float4(backEyePos, 1.f));
 
     float projectionDepth = rayNDCPos.z / rayNDCPos.w;
+	float backProjectionDepth = backRayNDCPos.z / backRayNDCPos.w;
     float eyeDepth = eyePos.z;
+	float backEyeDepth = backEyePos.z;
 
-	uint2 thicknessCoords = uint2(input.Pos.x, input.Pos.y);
-	g_Thickness[thicknessCoords] += float4(THICKNESS_INCREMENT, THICKNESS_INCREMENT, THICKNESS_INCREMENT, 0.f);
-
-    output.ShaderDepth = float4(eyeDepth, projectionDepth, 0.f, 1.f);
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
-    output.Depth = projectionDepth;
+	// quick explanation: eye depth is typically stored in a view space position as z = -z_eye
+	// this means that it sort of behaves like a negative depth value, -1000 is farther away than -500
+	// but that is not the case for the projection depth, which is a positive value which we depth test with min/max
+	// so we need to negate the eye depth to make it behave like the projection depth, later we will negate it again
+	output.FrontDepth = float2(projectionDepth, -eyeDepth);
+	output.BackDepth = float2(backProjectionDepth, -backEyeDepth);
 
     return output;
 }

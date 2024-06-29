@@ -37,7 +37,7 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		)
 
 		local activePresetName = gellyx.presets.getActivePreset()
-				and gellyx.presets.getActivePreset().Name
+			and gellyx.presets.getActivePreset().Name
 			or "None"
 
 		draw.SimpleText(
@@ -159,7 +159,9 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 	iterationSlider:SetDecimals(0)
 	iterationSlider:SetValue(15)
 	iterationSlider.OnValueChanged = function(_, value)
-		gelly.SetRenderSettings({ SmoothingIterations = value, ThicknessIterations = 13 })
+		local gellySettings = gelly.GetGellySettings()
+		gellySettings.FilterIterations = value
+		gelly.SetGellySettings(gellySettings)
 	end
 
 	local reloadModsButton = vgui.Create("DButton")
@@ -223,5 +225,16 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 	diffuseMotionBlurSlider:SetValue(1)
 	diffuseMotionBlurSlider.OnValueChanged = function(_, value)
 		gelly.SetDiffuseMotionBlur(value)
+	end
+
+	local syncCheckbox = vgui.Create("DCheckBoxLabel")
+	syncCheckbox:SetPos(ScrW() - 500, 700)
+	syncCheckbox:SetText("Enable GPU Sync")
+	syncCheckbox:SetValue(true)
+	syncCheckbox:SizeToContents()
+	syncCheckbox.OnChange = function(_, value)
+		local gellySettings = gelly.GetGellySettings()
+		gellySettings.EnableGPUSynchronization = value
+		gelly.SetGellySettings(gellySettings)
 	end
 end)

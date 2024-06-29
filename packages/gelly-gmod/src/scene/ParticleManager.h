@@ -4,9 +4,9 @@
 #include <vector>
 
 #include "GarrysMod/Lua/SourceCompat.h"
-#include "fluidrender/IFluidRenderer.h"
 #include "fluidsim/IFluidSimulation.h"
 #include "fluidsim/ISimCommandList.h"
+#include "renderers/splatting/splatting-renderer.h"
 
 class ParticleListBuilder {
 	friend class ParticleManager;
@@ -29,27 +29,22 @@ public:
 
 class ParticleManager {
 private:
-	std::shared_ptr<IFluidRenderer> renderer;
 	std::shared_ptr<IFluidSimulation> sim;
 
 	[[nodiscard]] ISimCommandList *CreateCommandListFromBuilder(
 		const ParticleListBuilder &builder
 	) const;
 
-	void SubmitPerParticleAbsorption(const ParticleListBuilder &builder) const;
-
-	void PullAbsorptionData(const ParticleListBuilder &builder) const;
-	void PushAbsorptionData(const ParticleListBuilder &builder) const;
-
 public:
-	ParticleManager(
-		const std::shared_ptr<IFluidRenderer> &renderer,
-		const std::shared_ptr<IFluidSimulation> &sim
-	);
+	explicit ParticleManager(const std::shared_ptr<IFluidSimulation> &sim);
 	~ParticleManager() = default;
 
 	static ParticleListBuilder CreateParticleList();
-	void AddParticles(const ParticleListBuilder &builder) const;
+	void AddParticles(
+		const ParticleListBuilder &builder,
+		const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
+			&absorptionModifier
+	) const;
 	void ClearParticles() const;
 };
 

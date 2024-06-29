@@ -28,7 +28,7 @@ struct GS_OUTPUT {
 };
 
 struct PS_OUTPUT {
-    float4 ShaderDepth : SV_Target0;
-	float4 Absorption : SV_Target1;
-    float Depth : SV_DEPTH;
+	float4 Absorption : SV_Target0;
+	float2 FrontDepth : SV_Target1;
+	float2 BackDepth : SV_Target2;
 };

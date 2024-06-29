@@ -7,40 +7,57 @@ add_library(
         gelly_fluid_renderer
         STATIC
         ${SHADER_OUTPUT_FILES}
-        include/GellyFluidRender.h
-        src/GellyFluidRender.cpp
-        include/fluidrender/IRenderContext.h include/fluidrender/IManagedTexture.h include/fluidrender/CD3D11RenderContext.h src/fluidrender/CD3D11RenderContext.cpp include/fluidrender/CD3D11ManagedTexture.h src/fluidrender/CD3D11ManagedTexture.cpp include/fluidrender/IManagedBuffer.h include/fluidrender/CD3D11ManagedBuffer.h src/fluidrender/CD3D11ManagedBuffer.cpp include/fluidrender/IFluidRenderer.h src/fluidrender/CD3D11to11SharedTexture.cpp include/fluidrender/CD3D11to11SharedTexture.h include/fluidrender/IFluidTextures.h include/fluidrender/splatting/CD3D11SplattingFluidTextures.h src/fluidrender/CD3D11DebugFluidTextures.cpp include/fluidrender/splatting/CD3D11SplattingFluidRenderer.h src/fluidrender/CD3D11DebugFluidRenderer.cpp
-        include/fluidrender/IManagedShader.h
-        src/fluidrender/CD3D11ManagedShader.cpp
-        include/fluidrender/CD3D11ManagedShader.h
-        include/fluidrender/IManagedBufferLayout.h
-        include/fluidrender/CD3D11ManagedBufferLayout.h
-        src/fluidrender/CD3D11ManagedBufferLayout.cpp
-        include/fluidrender/util/CBuffers.h
-        include/fluidrender/IManagedDepthBuffer.h
-        include/fluidrender/CD3D11ManagedDepthBuffer.h
-        src/fluidrender/CD3D11ManagedDepthBuffer.cpp
-        include/fluidrender/util/ScreenQuadVB.h
-        include/fluidrender/CD3D9to11SharedTexture.h
-        src/fluidrender/CD3D9to11SharedTexture.cpp
-        include/fluidrender/IMappedBufferView.h
-        include/fluidrender/CD3D11MappedBufferView.h
-        src/fluidrender/CD3D11MappedBufferView.cpp
-        include/fluidrender/util/Kernel.h
-        src/fluidrender/util/Kernel.cpp
-        include/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.h
-        src/fluidrender/isosurface/CD3D11IsosurfaceFluidRenderer.cpp
-        include/fluidrender/util/Exceptions.h
-        include/fluidrender/IPerfMarker.h
-        include/fluidrender/CD3D11PerfMarker.h
-        src/fluidrender/CD3D11PerfMarker.cpp)
+        src/v2/device.cpp
+        src/v2/device.h
+        src/v2/helpers/comptr.h
+        src/v2/helpers/throw-informative-exception.h
+        src/v2/resources/texture.cpp
+        src/v2/resources/texture.h
+        src/v2/resources/buffer.cpp
+        src/v2/resources/buffer.h
+        src/v2/helpers/parse-bind-flags.h
+        src/v2/resources/shader.cpp
+        src/v2/resources/shader.h
+        src/v2/resources/input-layout.cpp
+        src/v2/resources/input-layout.h
+        src/v2/pipeline/render-pass.cpp
+        src/v2/pipeline/render-pass.h
+        src/v2/pipeline/binding/Input.h
+        src/v2/pipeline/binding/output.h
+        src/v2/pipeline/pipeline.cpp
+        src/v2/pipeline/pipeline.h
+        src/v2/pipeline/validate-pipeline.cpp
+        src/v2/pipeline/validate-pipeline.h
+        src/v2/resources/depth-buffer.cpp
+        src/v2/resources/depth-buffer.h
+        src/v2/resources/buffer-view.cpp
+        src/v2/resources/buffer-view.h
+        src/v2/renderers/splatting/pipelines/ellipsoid-splatting.h
+        src/v2/renderers/splatting/pipelines/pipeline-info.h
+        src/v2/renderers/splatting/texture-registry.h
+        src/v2/resources/native-image.cpp
+        src/v2/resources/native-image.h
+        src/v2/resources/shared-image.cpp
+        src/v2/resources/shared-image.h
+        src/v2/resources/image.h
+        src/v2/helpers/create-gsc-shader.h
+        src/v2/renderers/splatting/buffers.h
+        src/v2/helpers/rendering/constant-buffer.h
+        src/v2/renderers/splatting/cbuffers.h
+        src/v2/helpers/rendering/screen-quad.cpp
+        src/v2/helpers/rendering/screen-quad.h
+        src/v2/renderers/splatting/pipelines/depth-filtering.h
+        src/v2/renderers/splatting/splatting-renderer.cpp
+        src/v2/renderers/splatting/splatting-renderer.h
+)
 
 target_include_directories(
         gelly_fluid_renderer
         PUBLIC
-        include
+        src/v2
         src/shaders/out
         src/shaders/isosurface/out
+        src
         ../gelly-interfaces/include
         ../gelly-d3d/include
         ../gelly-fluid-sim/include
