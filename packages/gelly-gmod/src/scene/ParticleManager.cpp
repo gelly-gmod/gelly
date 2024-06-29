@@ -1,7 +1,7 @@
 #include "ParticleManager.h"
 
-ParticleListBuilder::ParticleListBuilder()
-	: particles(), absorption{0.f, 0.f, 0.f}, absorptionSet(false) {}
+ParticleListBuilder::ParticleListBuilder() :
+	particles(), absorption{0.f, 0.f, 0.f}, absorptionSet(false) {}
 
 ParticleListBuilder ParticleListBuilder::AddParticle(
 	const Vector &position, const Vector &velocity
@@ -24,11 +24,8 @@ ParticleListBuilder ParticleListBuilder::SetAbsorption(
 	return *this;
 }
 
-ParticleManager::ParticleManager(
-	const std::shared_ptr<IFluidRenderer> &renderer,
-	const std::shared_ptr<IFluidSimulation> &sim
-)
-	: renderer(renderer), sim(sim) {}
+ParticleManager::ParticleManager(const std::shared_ptr<IFluidSimulation> &sim) :
+	sim(sim) {}
 
 ISimCommandList *ParticleManager::CreateCommandListFromBuilder(
 	const ParticleListBuilder &builder
@@ -41,41 +38,25 @@ ISimCommandList *ParticleManager::CreateCommandListFromBuilder(
 	return cmdList;
 }
 
-void ParticleManager::SubmitPerParticleAbsorption(const ParticleListBuilder &builder
-) const {
-	int startIndex = sim->GetSimulationData()->GetActiveParticles() + 1;
-	int endIndex = startIndex + builder.particles.size();
-
-	for (int i = startIndex; i < endIndex; i++) {
-		renderer->SetPerParticleAbsorption(i, builder.absorption);
-	}
-}
-
-void ParticleManager::PullAbsorptionData(const ParticleListBuilder &builder) const {
-	if (builder.absorptionSet &&
-		renderer->CheckFeatureSupport(
-			GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION
-		)) {
-		renderer->PullPerParticleData();
-	}
-}
-
-void ParticleManager::PushAbsorptionData(const ParticleListBuilder &builder) const {
-	if (builder.absorptionSet &&
-		renderer->CheckFeatureSupport(
-			GELLY_FEATURE::FLUIDRENDER_PER_PARTICLE_ABSORPTION
-		)) {
-		renderer->PushPerParticleData();
-	}
-}
-
 ParticleListBuilder ParticleManager::CreateParticleList() { return {}; }
 
-void ParticleManager::AddParticles(const ParticleListBuilder &builder) const {
+void ParticleManager::AddParticles(
+	const ParticleListBuilder &builder,
+	const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
+		&absorptionModifier
+) const {
 	auto *cmdList = CreateCommandListFromBuilder(builder);
-	PullAbsorptionData(builder);
-	SubmitPerParticleAbsorption(builder);
-	PushAbsorptionData(builder);
+
+	absorptionModifier->StartModifying();
+	for (int i = 0; i < builder.particles.size(); ++i) {
+		absorptionModifier->ModifyAbsorption(
+			sim->GetSimulationData()->GetActiveParticles() + i,
+			reinterpret_cast<const gelly::renderer::splatting::float3 &>(
+				builder.absorption
+			)
+		);
+	}
+	absorptionModifier->EndModifying();
 
 	sim->ExecuteCommandList(cmdList);
 	sim->DestroyCommandList(cmdList);

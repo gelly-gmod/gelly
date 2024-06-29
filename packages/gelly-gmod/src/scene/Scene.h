@@ -12,8 +12,8 @@
 #include "EntityManager.h"
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "ParticleManager.h"
-#include "fluidrender/IFluidRenderer.h"
 #include "logging/global-macros.h"
+#include "renderers/splatting/splatting-renderer.h"
 
 class Scene {
 	const float DEFAULT_TIMESTEP_MULTIPLIER = 10.0f;
@@ -21,7 +21,8 @@ class Scene {
 private:
 	std::shared_ptr<ISimContext> simContext;
 	std::shared_ptr<IFluidSimulation> sim;
-	std::shared_ptr<IFluidRenderer> connectedRenderer;
+	std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
+		absorptionModifier;
 
 	std::optional<EntityManager> ents;
 	std::optional<Map> map;
@@ -30,7 +31,6 @@ private:
 
 public:
 	Scene(
-		const std::shared_ptr<IFluidRenderer> &connectedRenderer,
 		const std::shared_ptr<ISimContext> &simContext,
 		const std::shared_ptr<IFluidSimulation> &sim,
 		int maxParticles
@@ -77,6 +77,19 @@ public:
 	void SetTimeStepMultiplier(float timeStepMultiplier) {
 		sim->SetTimeStepMultiplier(fmaxf(timeStepMultiplier, 0.0001f));
 	}
+
+	[[nodiscard]] GellyInterfaceVal<ISimData> GetSimData() const {
+		return sim->GetSimulationData();
+	}
+
+	void SetAbsorptionModifier(
+		const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
+			&modifier
+	) {
+		absorptionModifier = modifier;
+	}
+
+	void Initialize();
 };
 
 #endif	// SCENE_H

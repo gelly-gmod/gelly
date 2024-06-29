@@ -6,32 +6,33 @@
 
 GModCompositor::GModCompositor(
 	PipelineType type,
-	std::shared_ptr<IFluidRenderer> renderer,
-	std::shared_ptr<IRenderContext> context
-)
-	: pipeline(nullptr), gellyResources() {
-	gellyResources.renderer = renderer;
-	gellyResources.context = context;
-	gellyResources.textures = renderer->GetFluidTextures();
+	GellyInterfaceVal<ISimData> simData,
+	const std::shared_ptr<gelly::renderer::Device> &device,
+	unsigned int width,
+	unsigned int height,
+	unsigned int maxParticles
+) :
+	pipeline(nullptr), gellyResources(), width(width), height(height) {
+	using namespace gelly::renderer::splatting;
 
-#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
-	LOG_INFO("GPU debugging detected, enabling RenderDoc integration...");
-	if (const auto success = renderer->EnableRenderDocCaptures(); !success) {
-		LOG_WARNING(
-			"Failed to enable captures, maybe RenderDoc is not running "
-			"or "
-			"the API has changed?"
-		);
-	} else {
-		LOG_INFO("RenderDoc captures enabled");
-	}
-#endif
+	gellyResources.device = device;
 
 	if (type == PipelineType::STANDARD) {
-		pipeline = std::make_unique<StandardPipeline>();
-		pipeline->CreatePipelineLocalResources(
+		pipeline = std::make_unique<StandardPipeline>(width, height);
+		const auto sharedHandles = pipeline->CreatePipelineLocalResources(
 			gellyResources, Resources::FindGModResources()
 		);
+
+		gellyResources.splattingRenderer = SplattingRenderer::Create(
+			{.device = gellyResources.device,
+			 .simData = simData,
+			 .inputSharedHandles = sharedHandles,
+			 .width = width,
+			 .height = height,
+			 .maxParticles = maxParticles}
+		);
+
+		pipeline->UpdateGellyResources(gellyResources);
 	}
 }
 

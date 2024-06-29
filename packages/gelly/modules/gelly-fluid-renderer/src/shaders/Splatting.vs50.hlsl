@@ -2,6 +2,8 @@
 #include "FluidRenderCBuffer.hlsli"
 #include "util/SolveQuadratic.hlsli"
 
+Buffer<float3> g_Absorption : register(t0);
+
 float DotInvW(float4 a, float4 b) {
     return a.x*b.x + a.y*b.y + a.z*b.z - a.w*b.w;
 }
@@ -69,5 +71,7 @@ VS_OUTPUT main(VS_INPUT input) {
     output.NDCPos = mul(g_Projection, mul(g_View, float4(input.Pos.xyz, 1.f)));
     output.NDCPos /= output.NDCPos.w;
 
+	output.Absorption = g_Absorption[input.ID];
+	
     return output;
 }

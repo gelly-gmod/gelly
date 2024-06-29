@@ -19,7 +19,7 @@ SWEP.Secondary.Automatic = true
 SWEP.Secondary.Ammo = ""
 
 SWEP.ParticleDensity = 300
-SWEP.FireRate = 40 -- bursts per second
+SWEP.FireRate = 40      -- bursts per second
 SWEP.RapidFireBoost = 2 -- how much proportional quantity of particles to emit when rapid firing
 
 local CROSSHAIR_RADIUS = 10
@@ -51,7 +51,7 @@ function SWEP:PrimaryAttack()
 	gellyx.emitters.Cube({
 		center = owner:GetShootPos() + owner:GetAimVector() * 110,
 		velocity = owner:GetAimVector() * 2,
-		bounds = Vector(50, 50, 50),
+		bounds = Vector(30, 30, 30),
 		density = self.ParticleDensity,
 	})
 
@@ -318,27 +318,27 @@ local function createMenuPanel()
 			for arcSegment = 0, self.ArcSegments do
 				local arcX = centerX
 					+ math.cos(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* self.NeutralZoneRadius
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* self.NeutralZoneRadius
 				local arcY = centerY
 					+ math.sin(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* self.NeutralZoneRadius
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* self.NeutralZoneRadius
 
 				-- start the actual arc from the neutral zone
 				local extendedArcX = arcX
 					+ math.cos(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* (radius - self.NeutralZoneRadius)
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* (radius - self.NeutralZoneRadius)
 
 				local extendedArcY = arcY
 					+ math.sin(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* (radius - self.NeutralZoneRadius)
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* (radius - self.NeutralZoneRadius)
 
 				table.insert(points, { x = extendedArcX, y = extendedArcY })
 			end
@@ -347,14 +347,14 @@ local function createMenuPanel()
 			for arcSegment = self.ArcSegments, 0, -1 do
 				local arcX = centerX
 					+ math.cos(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* self.NeutralZoneRadius
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* self.NeutralZoneRadius
 				local arcY = centerY
 					+ math.sin(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* self.NeutralZoneRadius
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* self.NeutralZoneRadius
 
 				table.insert(points, { x = arcX, y = arcY })
 			end
@@ -363,26 +363,26 @@ local function createMenuPanel()
 			for arcSegment = self.ArcSegments, 0, -1 do
 				local arcX = centerX
 					+ math.cos(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* self.NeutralZoneRadius
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* self.NeutralZoneRadius
 				local arcY = centerY
 					+ math.sin(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* self.NeutralZoneRadius
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* self.NeutralZoneRadius
 
 				local extendedArcX = arcX
 					+ math.cos(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* (radius - self.NeutralZoneRadius)
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* (radius - self.NeutralZoneRadius)
 
 				local extendedArcY = arcY
 					+ math.sin(
-							angle + (arcAnglePadding / self.ArcSegments) * arcSegment
-						)
-						* (radius - self.NeutralZoneRadius)
+						angle + (arcAnglePadding / self.ArcSegments) * arcSegment
+					)
+					* (radius - self.NeutralZoneRadius)
 
 				table.insert(points, { x = extendedArcX, y = extendedArcY })
 				table.insert(points, { x = arcX, y = arcY })
@@ -427,7 +427,7 @@ local function createMenuPanel()
 			local fade = isSelected and self:CalculateFadeIn() or 1
 			surface.SetDrawColor(
 				isSelected and Color(50 + 30 * fade, 50 + 30 * fade, 50 + 30 * fade)
-					or Color(50, 50, 50)
+				or Color(50, 50, 50)
 			)
 
 			surface.DrawPoly(points)

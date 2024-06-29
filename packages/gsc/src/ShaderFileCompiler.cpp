@@ -40,8 +40,9 @@ void ShaderFileCompiler::CompileToBytecode() {
 
 	fxcCommand += fxcProfile;
 	if (isDebugEnabled) {
-		// tell our shaders that AOVs are enabled
-		fxcCommand += " /D AOV_ENABLED";
+		// tell our shaders that AOVs are enabled, we also want to
+		// emit debug info and disable all optimizations (the zi + od flags)
+		fxcCommand += " /D AOV_ENABLED /Zi /Od";
 	}
 	fxcCommand += " /E main /Fo ";
 
@@ -100,8 +101,8 @@ void ShaderFileCompiler::CompileToBytecode() {
 
 ShaderFileCompiler::ShaderFileCompiler(
 	ShaderFile shaderFile, bool isDebugEnabled
-)
-	: shaderFile{std::move(shaderFile)}, isDebugEnabled(isDebugEnabled) {
+) :
+	shaderFile{std::move(shaderFile)}, isDebugEnabled(isDebugEnabled) {
 	CompileToBytecode();
 }
 

@@ -9,12 +9,6 @@ static const float2 corners[4] = {
 // cuts out tiny particles that are just gonna be noise in the final image
 #define VARIANCE_THRESHOLD 0.7f
 
-void CullParticle(float2 ndcPos) {
-    if (any(abs(ndcPos)) > 1.0) {
-        discard;
-    }
-}
-
 [maxvertexcount(4)]
 void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     GS_OUTPUT output = (GS_OUTPUT)0;
@@ -22,7 +16,10 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
 		return;
 	}
 
-    CullParticle(input[0].NDCPos.xy);
+    // if we're outside of the NDC cube, we might as well discard
+	if (input[0].NDCPos.x < -1.0 || input[0].NDCPos.x > 1.0 || input[0].NDCPos.y < -1.0 || input[0].NDCPos.y > 1.0) {
+		return;
+	}
 
     float4 bounds = input[0].Bounds;
     const float4 invQ0 = input[0].InvQ0;
@@ -40,6 +37,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmin, ymin, 0.5f, 1.0f);
@@ -47,6 +45,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmax, ymax, 0.5f, 1.0f);
@@ -54,6 +53,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmax, ymin, 0.5f, 1.0f);
@@ -61,5 +61,6 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     output.InvQ1 = invQ1;
     output.InvQ2 = invQ2;
     output.InvQ3 = invQ3;
+	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 }
