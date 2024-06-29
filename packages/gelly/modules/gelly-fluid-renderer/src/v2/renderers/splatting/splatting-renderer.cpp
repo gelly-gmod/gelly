@@ -184,7 +184,8 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 	);
 }
 
-auto SplattingRenderer::RunDepthSmoothingFilter(int iterations) const -> void {
+auto SplattingRenderer::RunDepthSmoothingFilter(unsigned int iterations) const
+	-> void {
 	// we need to only clear the output texture to ensure we don't
 	// accidently overwrite the original depth with 1.0
 

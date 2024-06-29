@@ -19,7 +19,7 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 		gelly.Render()
 	end)
 
-	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function(depth, skybox)
+	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function()
 		gelly.Composite()
 	end)
 end)

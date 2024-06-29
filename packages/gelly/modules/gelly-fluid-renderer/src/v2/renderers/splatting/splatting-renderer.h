@@ -94,7 +94,7 @@ private:
 	auto CreatePipelineInfo() const -> PipelineInfo;
 	auto LinkBuffersToSimData() const -> void;
 
-	auto RunDepthSmoothingFilter(int iterations) const -> void;
+	auto RunDepthSmoothingFilter(unsigned int iterations) const -> void;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 *;
