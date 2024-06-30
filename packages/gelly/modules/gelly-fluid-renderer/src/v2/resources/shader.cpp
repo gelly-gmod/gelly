@@ -15,6 +15,8 @@ Shader<ShaderType>::Shader(const ShaderCreateInfo &createInfo) :
 		shader = CreatePixelShader();
 	} else if constexpr (is_geometry_shader<ShaderType>) {
 		shader = CreateGeometryShader();
+	} else if constexpr (is_compute_shader<ShaderType>) {
+		shader = CreateComputeShader();
 	}
 }
 
@@ -85,10 +87,28 @@ auto Shader<ShaderType>::CreateGeometryShader()
 	return geometryShader;
 }
 
+template <typename ShaderType>
+auto Shader<ShaderType>::CreateComputeShader() -> ComPtr<ID3D11ComputeShader> {
+	ComPtr<ID3D11ComputeShader> computeShader;
+	const auto result = createInfo.device->GetRawDevice()->CreateComputeShader(
+		createInfo.shaderBlob,
+		createInfo.shaderBlobSize,
+		nullptr,
+		computeShader.GetAddressOf()
+	);
+
+	GELLY_RENDERER_THROW_ON_FAIL(
+		result, std::invalid_argument, "Failed to create compute shader"
+	);
+
+	return computeShader;
+}
+
 // explicit template instantiation
 template class Shader<ID3D11PixelShader>;
 template class Shader<ID3D11VertexShader>;
 template class Shader<ID3D11GeometryShader>;
+template class Shader<ID3D11ComputeShader>;
 
 }  // namespace renderer
 }  // namespace gelly
