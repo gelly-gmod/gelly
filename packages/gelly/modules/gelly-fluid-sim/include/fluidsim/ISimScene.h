@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "GellyDataTypes.h"
+#include "NvFlexExt.h"
 
 using namespace Gelly::DataTypes;
 
@@ -13,6 +14,7 @@ namespace Gelly {
 enum class ObjectShape : uint8_t {
 	TRIANGLE_MESH,
 	CAPSULE,
+	FORCEFIELD,
 };
 
 struct ObjectCreationParams {
@@ -46,8 +48,20 @@ struct ObjectCreationParams {
 		float halfHeight;
 	};
 
+	/**
+	 * Forcefields aren't physical objects, so any calls which don't make sense
+	 * (like setting its rotation) *is* ok and will be ignored.
+	 */
+	struct Forcefield {
+		float position[3];
+		float radius;
+		float strength;
+		NvFlexExtForceMode mode;
+		bool linearFalloff;
+	};
+
 	ObjectShape shape = ObjectShape::TRIANGLE_MESH;
-	std::variant<TriangleMesh, Capsule> shapeData;
+	std::variant<TriangleMesh, Capsule, Forcefield> shapeData;
 };
 
 using ObjectHandle = uint;
