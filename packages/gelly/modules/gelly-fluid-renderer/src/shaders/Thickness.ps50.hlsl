@@ -25,7 +25,7 @@ float CalculateThickness(in float2 uv, in float frontDepth, in float backDepth) 
 		backPos = temp;
 	}
 
-	return min(length(frontPos - backPos), MAXIMUM_DISTANCE);
+	return length(frontPos - backPos);
 }
 
 PS_OUTPUT main(VS_OUTPUT input) {
