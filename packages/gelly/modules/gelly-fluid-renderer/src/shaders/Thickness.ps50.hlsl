@@ -11,10 +11,6 @@ struct PS_OUTPUT {
 	float4 Thickness : SV_Target0;
 };
 
-// we want to clamp the thickness to a maximum distance
-// so that when a fluid is viewed from another fluid at a distance,
-// it doesnt appear to be infinitely thick
-#define MAXIMUM_DISTANCE 30.f
 float CalculateThickness(in float2 uv, in float frontDepth, in float backDepth) {
 	float3 frontPos = WorldPosFromProjDepthF(uv, frontDepth);
 	float3 backPos = WorldPosFromProjDepthF(uv, backDepth);
