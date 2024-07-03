@@ -64,9 +64,9 @@ function SWEP:OnGrabberKeyPressed()
 		self.Forcefield = gellyx.forcefield.create({
 			Position = self:GetOwner():GetShootPos(),
 			Radius = 100,
-			Strength = -2000,
-			LinearFalloff = true,
-			Mode = gellyx.forcefield.Mode.Impulse,
+			Strength = -100,
+			LinearFalloff = false,
+			Mode = gellyx.forcefield.Mode.Force,
 		})
 
 		self.ForcefieldDistance = self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos())
