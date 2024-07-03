@@ -82,6 +82,7 @@ CFlexSimScene::~CFlexSimScene() {
 	NvFlexFreeBuffer(geometry.prevRotations);
 	NvFlexFreeBuffer(geometry.info);
 	NvFlexFreeBuffer(geometry.flags);
+	NvFlexExtDestroyForceFieldCallback(forceFieldCallback);
 }
 
 ObjectHandle CFlexSimScene::CreateObject(const ObjectCreationParams &params) {

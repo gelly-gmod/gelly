@@ -27,6 +27,7 @@
 #include "source/IVRenderView.h"
 #include "tracy/Tracy.hpp"
 #include "util/GellySharedPtrs.h"
+#include "util/lua-table.h"
 #include "version.h"
 
 #define DEFINE_LUA_FUNC(namespace, name)    \
@@ -309,6 +310,61 @@ LUA_FUNCTION(gelly_AddPlayerObject) {
 
 	scene->AddPlayerObject(entIndex, radius, halfHeight);
 
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
+LUA_FUNCTION(gelly_AddForcefieldObject) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);	 // Forcefield data
+
+	auto nullVector = Vector{};
+	nullVector.x = 0;
+	nullVector.y = 0;
+	nullVector.z = 0;
+
+	const auto luaTable = gelly::gmod::helpers::LuaTable(LUA);
+	const Vector position = luaTable.Get("Position", nullVector);
+	const float radius = luaTable.Get("Radius", 0.f);
+	const float strength = luaTable.Get("Strength", 0.f);
+	const bool linearFalloff = luaTable.Get("LinearFalloff", false);
+	const NvFlexExtForceMode mode =
+		luaTable.Get("Mode", NvFlexExtForceMode::eNvFlexExtModeForce);
+
+	ObjectCreationParams forcefield = {};
+	forcefield.shape = ObjectShape::FORCEFIELD;
+	forcefield.shapeData = ObjectCreationParams::Forcefield{
+		.position = {position.x, position.y, position.z},
+		.radius = radius,
+		.strength = strength,
+		.mode = mode,
+		.linearFalloff = linearFalloff
+	};
+
+	const auto forcefieldHandle = scene->AddForcefield(forcefield);
+	LUA->PushNumber(forcefieldHandle);
+	CATCH_GELLY_EXCEPTIONS();
+
+	return 1;
+}
+
+LUA_FUNCTION(gelly_UpdateForcefieldPosition) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
+	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);  // Position
+
+	scene->UpdateForcefieldPosition(
+		static_cast<ObjectHandle>(LUA->GetNumber(1)), LUA->GetVector(2)
+	);
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
+LUA_FUNCTION(gelly_RemoveForcefieldObject) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
+	scene->RemoveForcefield(static_cast<ObjectHandle>(LUA->GetNumber(1)));
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -776,6 +832,9 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, AddObject);
 	DEFINE_LUA_FUNC(gelly, AddPlayerObject);
 	DEFINE_LUA_FUNC(gelly, RemoveObject);
+	DEFINE_LUA_FUNC(gelly, AddForcefieldObject);
+	DEFINE_LUA_FUNC(gelly, UpdateForcefieldPosition);
+	DEFINE_LUA_FUNC(gelly, RemoveForcefieldObject);
 	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);

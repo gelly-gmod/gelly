@@ -95,6 +95,7 @@ add_library(
         src/exceptions/get-stack-size.cpp
         src/exceptions/get-stack-size.h
         src/version.h.in
+        src/util/lua-table.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
