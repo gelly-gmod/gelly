@@ -48,7 +48,6 @@ function SWEP:InitializeGrabberHooks()
 	end
 
 	hook.Add("KeyPress", self, function(_, ply, key)
-		print(key)
 		if key == GRABBER_KEY and not self:IsInputBlocked() and self:GetOwner():GetActiveWeapon() == self and input.IsButtonDown(MOUSE_MIDDLE) then
 			self:OnGrabberKeyPressed()
 		end
@@ -63,9 +62,9 @@ function SWEP:OnGrabberKeyPressed()
 		self.Forcefield = gellyx.forcefield.create({
 			Position = self:GetOwner():GetShootPos(),
 			Radius = 100,
-			Strength = -1000,
-			LinearFalloff = false,
-			Mode = gellyx.forcefield.Mode.Force,
+			Strength = -2000,
+			LinearFalloff = true,
+			Mode = gellyx.forcefield.Mode.Impulse,
 		})
 
 		self.ForcefieldDistance = self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos())
