@@ -137,6 +137,7 @@ void CFlexSimScene::RemoveObject(ObjectHandle handle) {
 	}
 
 	objects.erase(object);
+	dirty = true;
 }
 
 void CFlexSimScene::SetObjectPosition(

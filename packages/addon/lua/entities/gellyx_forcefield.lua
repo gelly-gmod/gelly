@@ -12,7 +12,14 @@ AccessorFunc(ENT, "Strength", "Strength", FORCE_NUMBER)
 AccessorFunc(ENT, "LinearFalloff", "LinearFalloff", FORCE_BOOL)
 AccessorFunc(ENT, "Mode", "Mode", FORCE_NUMBER) -- type is actually gellyx.forcefield.Mode
 
+function ENT:UpdateTransmitState()
+	return TRANSMIT_ALWAYS
+end
+
 function ENT:Initialize()
+	self:SetModel("models/props_junk/PopCan01a.mdl")
+	self:SetNoDraw(true)
+
 	if CLIENT then
 		self.ForcefieldHandle = gelly.AddForcefieldObject({
 			Position = Vector(),
