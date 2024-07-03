@@ -426,6 +426,26 @@ ObjectData CFlexSimScene::CreateCapsule(
 	return data;
 }
 
+ObjectData CFlexSimScene::CreateForcefield(
+	const ObjectCreationParams::Forcefield &params
+) const {
+	ObjectData data = {};
+
+	data.shape = ObjectShape::FORCEFIELD;
+
+	data.position[0] = 0.0f;
+	data.position[1] = 0.0f;
+	data.position[2] = 0.0f;
+
+	data.rotation[0] = 0.0f;
+	data.rotation[1] = 0.0f;
+	data.rotation[2] = 0.0f;
+	data.rotation[3] = 1.0f;
+
+	data.shapeData = params;
+	return data;
+}
+
 ObjectHandle CFlexSimScene::GetHandleFromShapeIndex(const uint &shapeIndex) {
 	const auto it = std::find_if(
 		objects.begin(),

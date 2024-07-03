@@ -45,6 +45,28 @@ function SWEP:PrimaryAttack()
 		return
 	end
 
+	if input.IsKeyDown(KEY_X) then
+		-- enable our grabber tool
+		local isGrabberEnabled = self.Forcefield ~= nil
+		if not isGrabberEnabled then
+			self.Forcefield = gellyx.forcefield.create({
+				Position = self:GetOwner():GetShootPos(),
+				Radius = 50,
+				Strength = -1000,
+				LinearFalloff = false,
+				Mode = gellyx.forcefield.Mode.Force,
+			})
+
+			self.ForcefieldDistance = self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos())
+		else
+			self.Forcefield:SetPos(self:GetOwner():GetShootPos() +
+				self:GetOwner():GetAimVector() * self.ForcefieldDistance)
+		end
+	elseif self.Forcefield then
+		self.Forcefield:Remove()
+		self.Forcefield = nil
+	end
+
 	---@type Player
 	local owner = self:GetOwner()
 
