@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The simulation scene now performs a dirty update when an object is removed.
+- Water preset is a tad more green
+
+### Fixed
+
+- Rendering/composition turns off when Gelly as a whole is inactive
 
 ## [1.12.2] - 2024-07-02
 
