@@ -56,9 +56,11 @@ end
 
 function SWEP:OnGrabberKeyPressed()
 	if self.Forcefield then
+		surface.PlaySound("buttons/button10.wav")
 		self.Forcefield:Remove()
 		self.Forcefield = nil
 	else
+		surface.PlaySound("buttons/button9.wav")
 		self.Forcefield = gellyx.forcefield.create({
 			Position = self:GetOwner():GetShootPos(),
 			Radius = 100,

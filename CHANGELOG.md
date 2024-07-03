@@ -5,9 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2024-07-02
+
+### Added
+
+- Forcefield support in Gelly
+- New forcefield functions in Gelly API
+- A forcefield SENT and library in GellyX
+- Forcefields can be created with the Gelly Gun by holding the middle mouse button and pressing E.
+
+### Changed
+
+- The simulation scene now performs a dirty update when a object is removed.
+
 ## [1.12.2] - 2024-07-02
 
-### Changes
+### Changed
 
 - Changes the water preset to be more like the ocean, with a deep blue color.
 - Removes the thickness limit, which may appear a little weird but ultimately makes for far more realistic lighting.
