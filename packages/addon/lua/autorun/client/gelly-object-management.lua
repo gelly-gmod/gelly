@@ -1,4 +1,6 @@
 local logging = include("gelly/logging.lua")
+local getBrushModelMesh = include("gelly/util/get-brush-model-mesh.lua")
+local array = include("gelly/util/functional-arrays.lua")
 
 local objects = {}
 
@@ -30,10 +32,55 @@ local function getVerticesOfModel(modelPath)
 	return vertices
 end
 
-local function addObject(entity)
-	logging.info("Adding object #%d to gelly", entity:EntIndex())
+local function getObjectMesh(entity)
+	local isBrushModel = entity:GetModel()[1] == "*"
 
-	local meshes = getVerticesOfModel(entity:GetModel())
+	if isBrushModel then
+		local mesh = getBrushModelMesh(entity)
+		if not mesh then
+			logging.warn("Failed to get mesh for entity #%d", entity:EntIndex())
+			return nil
+		end
+
+		return { mesh }
+	else
+		return getVerticesOfModel(entity:GetModel())
+	end
+end
+
+local WHITELISTED_ENTITY_CLASSES = {
+	"prop_physics",
+	"gmod_wheel",
+	"func_*"
+}
+
+local function isClassWhitelisted(entity)
+	return array(WHITELISTED_ENTITY_CLASSES):any(function(class)
+		local classSubstring = class
+		if classSubstring[#classSubstring] == "*" then
+			classSubstring = classSubstring:sub(1, -2)
+		end
+
+		if entity:GetClass():find(classSubstring) then
+			return true
+		end
+
+		return false
+	end)
+end
+
+local function addObject(entity)
+	if not IsValid(entity) or not isClassWhitelisted(entity) then
+		return
+	end
+
+	logging.info("Adding object #%d to gelly", entity:EntIndex())
+	local meshes = getObjectMesh(entity)
+
+	if not meshes then
+		logging.warn("Failed to get mesh for entity #%d, not adding to Gelly.", entity:EntIndex())
+		return
+	end
 
 	local objectHandles = {}
 	local offset = #meshes > 1 and MULTI_OBJECT_OFFSET or 0
@@ -89,21 +136,16 @@ local function updateObject(entity)
 	end
 end
 
-local WHITELISTED_ENTITY_CLASSES = {
-	["prop_physics"] = true,
-	["gmod_wheel"] = true
-}
-
 local PLAYER_RADIUS = 15
 local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
-	-- Add local player
+	-- fetch any entities that may've been created before the hook was added
+	timer.Simple(0.1,
+		function() -- we arbitrarily wait 100ms to ensure the frame has ended (we can't really create entities during rendering)
+			array(ents.GetAll()):forEach(addObject)
+		end)
 
 	hook.Add("OnEntityCreated", "gelly.object-add", function(entity)
-		if not IsValid(entity) or not WHITELISTED_ENTITY_CLASSES[entity:GetClass()] then
-			return
-		end
-
 		addObject(entity)
 	end)
 
