@@ -57,6 +57,22 @@ public:
 	void SetFluidProperties(const SetFluidProperties &props) const;
 	void ChangeRadius(float radius) const;
 
+	[[nodiscard]] ObjectHandle AddForcefield(
+		const ObjectCreationParams &forcefield
+	) {
+		return sim->GetScene()->CreateObject(forcefield);
+	}
+
+	void UpdateForcefieldPosition(ObjectHandle handle, const Vector &position) {
+		sim->GetScene()->SetObjectPosition(
+			handle, position.x, position.y, position.z
+		);
+	}
+
+	void RemoveForcefield(ObjectHandle handle) {
+		sim->GetScene()->RemoveObject(handle);
+	}
+
 	[[nodiscard]] int GetActiveParticles() const {
 		return sim->GetSimulationData()->GetActiveParticles();
 	}

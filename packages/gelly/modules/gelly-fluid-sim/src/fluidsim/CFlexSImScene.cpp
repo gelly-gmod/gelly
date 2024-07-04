@@ -63,6 +63,8 @@ CFlexSimScene::CFlexSimScene(NvFlexLibrary *library, NvFlexSolver *solver) :
 	geometry.flags = NvFlexAllocBuffer(
 		library, maxColliders, sizeof(uint), eNvFlexBufferHost
 	);
+
+	forceFieldCallback = NvFlexExtCreateForceFieldCallback(solver);
 }
 
 CFlexSimScene::~CFlexSimScene() {
@@ -80,6 +82,7 @@ CFlexSimScene::~CFlexSimScene() {
 	NvFlexFreeBuffer(geometry.prevRotations);
 	NvFlexFreeBuffer(geometry.info);
 	NvFlexFreeBuffer(geometry.flags);
+	NvFlexExtDestroyForceFieldCallback(forceFieldCallback);
 }
 
 ObjectHandle CFlexSimScene::CreateObject(const ObjectCreationParams &params) {
@@ -94,6 +97,11 @@ ObjectHandle CFlexSimScene::CreateObject(const ObjectCreationParams &params) {
 		case ObjectShape::CAPSULE:
 			data = CreateCapsule(
 				std::get<ObjectCreationParams::Capsule>(params.shapeData)
+			);
+			break;
+		case ObjectShape::FORCEFIELD:
+			data = CreateForcefield(
+				std::get<ObjectCreationParams::Forcefield>(params.shapeData)
 			);
 			break;
 		default:
@@ -129,6 +137,7 @@ void CFlexSimScene::RemoveObject(ObjectHandle handle) {
 	}
 
 	objects.erase(object);
+	dirty = true;
 }
 
 void CFlexSimScene::SetObjectPosition(
@@ -174,7 +183,8 @@ void CFlexSimScene::SetObjectQuaternion(
 
 void CFlexSimScene::Update() {
 	if (dirty) {
-		OutputDebugStringA("CFlexSimScene::Update: Dirty\n");
+		std::vector<NvFlexExtForceField> rawForceFields;
+
 		auto *info = static_cast<NvFlexCollisionGeometry *>(
 			NvFlexMap(geometry.info, eNvFlexMapWait)
 		);
@@ -200,6 +210,26 @@ void CFlexSimScene::Update() {
 
 		uint valueIndex = 0;
 		for (auto &object : objects) {
+			if (object.second.shape == ObjectShape::FORCEFIELD) {
+				NvFlexExtForceField forceField = {};
+				const auto &originalForceField =
+					std::get<ObjectCreationParams::Forcefield>(
+						object.second.shapeData
+					);
+
+				forceField.mPosition[0] = object.second.position[0];
+				forceField.mPosition[1] = object.second.position[1];
+				forceField.mPosition[2] = object.second.position[2];
+
+				forceField.mRadius = originalForceField.radius;
+				forceField.mStrength = originalForceField.strength;
+				forceField.mMode = originalForceField.mode;
+				forceField.mLinearFalloff = originalForceField.linearFalloff;
+
+				rawForceFields.push_back(forceField);
+				continue;
+			}
+
 			switch (object.second.shape) {
 				case ObjectShape::TRIANGLE_MESH: {
 					const auto &mesh = std::get<ObjectData::TriangleMesh>(
@@ -219,6 +249,12 @@ void CFlexSimScene::Update() {
 					info[valueIndex].capsule.halfHeight = capsule.halfHeight;
 					break;
 				}
+
+				default:
+					throw std::runtime_error(
+						"CFlexSimScene::Update: Invalid object shape (an "
+						"implementation for a ObjectShape was forgotten?)"
+					);
 			}
 
 			if (object.second.firstFrame) {
@@ -264,6 +300,10 @@ void CFlexSimScene::Update() {
 		NvFlexUnmap(geometry.flags);
 
 		dirty = false;
+
+		NvFlexExtSetForceFields(
+			forceFieldCallback, rawForceFields.data(), rawForceFields.size()
+		);
 	}
 
 	NvFlexSetShapes(
@@ -384,6 +424,26 @@ ObjectData CFlexSimScene::CreateCapsule(
 
 	data.shapeData = ObjectData::Capsule{params.radius, params.halfHeight};
 
+	return data;
+}
+
+ObjectData CFlexSimScene::CreateForcefield(
+	const ObjectCreationParams::Forcefield &params
+) const {
+	ObjectData data = {};
+
+	data.shape = ObjectShape::FORCEFIELD;
+
+	data.position[0] = 0.0f;
+	data.position[1] = 0.0f;
+	data.position[2] = 0.0f;
+
+	data.rotation[0] = 0.0f;
+	data.rotation[1] = 0.0f;
+	data.rotation[2] = 0.0f;
+	data.rotation[3] = 1.0f;
+
+	data.shapeData = params;
 	return data;
 }
 

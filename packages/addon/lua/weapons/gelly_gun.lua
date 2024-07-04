@@ -35,8 +35,53 @@ local Y_SWAY_AMPLITUDE = 0.2
 
 local PARTICLE_LIMIT_WARNING_PERCENT = 0.4
 
+local GRABBER_KEY = IN_USE
+
 function SWEP:Initialize()
 	self:SetHoldType("pistol")
+	self:InitializeGrabberHooks()
+end
+
+function SWEP:InitializeGrabberHooks()
+	if SERVER then
+		return
+	end
+
+	hook.Add("KeyPress", self, function(_, ply, key)
+		if key == GRABBER_KEY and not self:IsInputBlocked() and self:GetOwner():GetActiveWeapon() == self and input.IsButtonDown(MOUSE_MIDDLE) then
+			self:OnGrabberKeyPressed()
+		end
+	end)
+end
+
+function SWEP:OnGrabberKeyPressed()
+	if self.Forcefield then
+		surface.PlaySound("buttons/button10.wav")
+		self.Forcefield:Remove()
+		self.Forcefield = nil
+	else
+		surface.PlaySound("buttons/button9.wav")
+		self.Forcefield = gellyx.forcefield.create({
+			Position = self:GetOwner():GetShootPos(),
+			Radius = 100,
+			Strength = -100,
+			LinearFalloff = false,
+			Mode = gellyx.forcefield.Mode.Force,
+		})
+
+		self.ForcefieldDistance = self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos())
+	end
+end
+
+function SWEP:OnGrabberThink()
+	if not self.Forcefield then
+		return
+	end
+
+	local owner = self:GetOwner()
+
+	local forcefieldPosition = owner:GetShootPos() + owner:GetAimVector() * self.ForcefieldDistance
+	self.Forcefield:SetPos(forcefieldPosition)
 end
 
 function SWEP:PrimaryAttack()
@@ -44,7 +89,6 @@ function SWEP:PrimaryAttack()
 		self:CallOnClient("PrimaryAttack")
 		return
 	end
-
 	---@type Player
 	local owner = self:GetOwner()
 
@@ -169,7 +213,7 @@ function SWEP:ViewModelDrawn(vm)
 		self:CreateMenu()
 	end
 
-	if input.IsKeyDown(KEY_E) and not self:IsInputBlocked() then
+	if input.IsKeyDown(KEY_E) and not self:IsInputBlocked() and not input.IsButtonDown(MOUSE_MIDDLE) then
 		self:CreateTimeSlider()
 	end
 
@@ -195,6 +239,10 @@ function SWEP:ViewModelDrawn(vm)
 	end
 
 	cam.End3D2D()
+end
+
+function SWEP:Think()
+	self:OnGrabberThink()
 end
 
 function SWEP:CreateMenu()

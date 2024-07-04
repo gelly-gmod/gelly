@@ -1,5 +1,5 @@
 include("gx-soft-functions.lua")
-
+include("gx-forcefields.lua")
 include("gx-fluid-presets.lua")
 gellyx.presets.loadPresetFiles()
 

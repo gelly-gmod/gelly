@@ -26,7 +26,9 @@ struct ObjectData {
 	float rotation[4]{};
 	bool firstFrame = true;
 
-	std::variant<TriangleMesh, Capsule> shapeData;
+	std::variant<TriangleMesh, Capsule, ObjectCreationParams::Forcefield>
+		shapeData;
+
 	uint currentShapeIndex{};
 };
 
@@ -39,6 +41,7 @@ private:
 
 	NvFlexLibrary *library = nullptr;
 	NvFlexSolver *solver = nullptr;
+	NvFlexExtForceFieldCallback *forceFieldCallback = nullptr;
 
 	struct {
 		NvFlexBuffer *positions;
@@ -61,6 +64,10 @@ private:
 
 	[[nodiscard]] ObjectData CreateCapsule(
 		const ObjectCreationParams::Capsule &params
+	) const;
+
+	[[nodiscard]] ObjectData CreateForcefield(
+		const ObjectCreationParams::Forcefield &params
 	) const;
 
 public:
