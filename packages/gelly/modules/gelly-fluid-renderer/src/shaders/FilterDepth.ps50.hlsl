@@ -20,19 +20,9 @@ float ComputeBlurScale() {
 }
 
 float FetchEyeDepth(float2 pixel) {
-    float eyeDepth = InputDepth.SampleLevel(InputDepthSampler, pixel, 0).g;
+    float eyeDepth = InputDepth.Load(int3(pixel, 0)).g;
 	// only return negative if it is positive
 	return sign(eyeDepth) == -1.f ? eyeDepth : -eyeDepth;
-}
-
-float FetchEyeDepth(float2 pixel, float centerDepth) {
-	float2 tap = InputDepth.SampleLevel(InputDepthSampler, pixel, 0).xy;
-	if (tap.x >= 1.f) {
-		return centerDepth;
-	}
-
-	float currentDepth = sign(tap.y) == -1.f ? tap.y : -tap.y;
-	return lerp(centerDepth, currentDepth, exp(-sqr((currentDepth - centerDepth) * g_ThresholdRatio)));
 }
 
 float FetchProjDepth(float2 pixel) {
@@ -42,64 +32,56 @@ float FetchProjDepth(float2 pixel) {
 #define FILTER_RADIUS 2.f
 float CreateIsosurfaceDepth(float2 tex) {
     float2 inPosition = tex * float2(g_ViewportWidth, g_ViewportHeight);
-    float2 dx = float2(1.f / g_ViewportWidth, 0.f);
-	float2 dy = float2(0.f, 1.f / g_ViewportHeight);
+    const float blurRadiusWorld = g_ParticleRadius * 0.5f;
+    const float blurScale = ComputeBlurScale();
+    const float blurFalloff = g_ThresholdRatio;
 
-	/*
-	| 0 | 1 | 2 |
-	+---+---+---+
-	| 3 | 4 | 5 |  --> 4 is the center
-	+---+---+---+
-	| 6 | 7 | 8 |
-	*/
-	float taps[9];
-	taps[4] = FetchEyeDepth(tex);
-	taps[0] = FetchEyeDepth(tex - dx - dy, taps[4]);
-	taps[1] = FetchEyeDepth(tex - dy, taps[4]);
-	taps[2] = FetchEyeDepth(tex + dx - dy, taps[4]);
-	taps[3] = FetchEyeDepth(tex - dx, taps[4]);
-	taps[5] = FetchEyeDepth(tex + dx, taps[4]);
-	taps[6] = FetchEyeDepth(tex - dx + dy, taps[4]);
-	taps[7] = FetchEyeDepth(tex + dy, taps[4]);
-	taps[8] = FetchEyeDepth(tex + dx + dy, taps[4]);
+    float depth = FetchEyeDepth(inPosition);
+    float blurDepthFalloff = g_ThresholdRatio;
+    float maxBlurRadius = FILTER_RADIUS;
 
-	float zc = taps[4];
-	float zdxp = taps[5];
-	float zdxn = taps[3];
+    float radius = FILTER_RADIUS;
+    float radiusInv = 1.0 / radius;
+    float taps = ceil(radius);
+    float frac = taps - radius;
 
-	float zdx = 0.5f * (zdxp - zdxn);
+    float sum = 0.0;
+    float wsum = 0.0;
+    float count = 0.0;
 
-	float zdyp = taps[7];
-	float zdyn = taps[1];
+    for (float y = -FILTER_RADIUS; y <= FILTER_RADIUS; y += 1.0) {
+        for (float x = -FILTER_RADIUS; x <= FILTER_RADIUS; x += 1.0) {
+            float2 offset = float2(x, y);
+            float sample = FetchEyeDepth(inPosition + offset);
+            if (FetchProjDepth(inPosition + offset) >= 1.f) {
+				// lower our offset to the closest valid pixel
+                continue;
+            }
 
-	float zdy = 0.5f * (zdyp - zdyn);
+            float r1 = length(float2(x, y)) * radiusInv;
+            float w = exp(-(r1 * r1));
 
-	float zdx2 = zdxp + zdxn - 2.f * zc;
-	float zdy2 = zdyp + zdyn - 2.f * zc;
-	
-	float zdxpyp = taps[8];
-	float zdxnyn = taps[0];
-	float zdxpyn = taps[2];
-	float zdxnyp = taps[6];
+            float r2 = (sample - depth) * blurDepthFalloff;
+            // 'g' is a Gaussian, but it can have some artifacts.
+            // To remedy it, we use a wider Gaussian, which is
+            // derived from the parametric Gaussian, then
+            // simplified to exp(-(r^2/4))
+            float g = exp(-(r2 * r2) / 8);
+            float wBoundary = step(radius, max(abs(x), abs(y)));
+            float wFrac = 1.0 - wBoundary * frac;
 
-	float zdxy = (zdxpyp + zdxnyn - zdxpyn - zdxnyp) / 4.f;
+            sum += sample * w * g * wFrac;
+            wsum += w * g * wFrac;
+            count += g * wFrac;
+        }
+    }
 
-	float cx = 2.f / (g_ViewportWidth * -g_Projection[0][0]);
-	float cy = 2.f / (g_ViewportHeight * -g_Projection[1][1]);
+    if (wsum > 0.0) {
+        sum /= wsum;
+	}
 
-	float d = cy * cy * zdx * zdx + cx * cx * zdy * zdy + cx * cx * cy * cy * zc * zc;
-
-	float ddx = cy * cy * 2.f * zdx * zdx2 + cx * cx * 2.f * zdy * zdxy + cx * cx * cy * cy * 2.f * zc * zdx;
-	float ddy = cy * cy * 2.f * zdx * zdxy + cx * cx * 2.f * zdy * zdy2 + cx * cx * cy * cy * 2.f * zc * zdy;
-
-	float ex = 0.5f * zdx * ddx - zdx2 * d;
-	float ey = 0.5f * zdy * ddy - zdy2 * d;
-
-	float h = 0.5f * ((cy * ex + cx * ey) / pow(d, 1.5f));
-
-	float final = zc + h * 0.0004f * (1.f + (abs(zdx) + abs(zdy)) * 1000.f);
-
-	return final;
+    float blend = count / sqr(2.0 * radius + 1.0);
+    return lerp(depth, sum, blend);
 }
 
 
