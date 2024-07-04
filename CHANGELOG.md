@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.1] - 2024-07-03
+
+### Fixed
+
+- Brush models are now supported
+- Map entities are now visible to Gelly and can be interacted with
+- Gelly now works with maps such as gm_gwater.
+
 ## [1.13.0] - 2024-07-02
 
 ### Added
