@@ -4,7 +4,7 @@ return function(brushModel)
 
 	-- brush models don't have a typical model so we retrieve the physmesh instead
 	local physicsObject = clientSideModel:GetPhysicsObject()
-	if not physicsObject then
+	if not physicsObject or not IsValid(physicsObject) then
 		clientSideModel:Remove()
 		return nil
 	end
