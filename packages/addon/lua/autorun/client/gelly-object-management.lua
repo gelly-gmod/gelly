@@ -33,12 +33,17 @@ local function getVerticesOfModel(modelPath)
 end
 
 local function getObjectMesh(entity)
+	if not entity:GetModel() then
+		-- oops, we're probably attempting to get the model of a "point" or "logical" entity, usually put in by map makers
+		return nil
+	end
+
 	local isBrushModel = entity:GetModel()[1] == "*"
 
 	if isBrushModel then
 		local mesh = getBrushModelMesh(entity)
 		if not mesh then
-			logging.warn("Failed to get mesh for entity #%d", entity:EntIndex())
+			logging.warn("Failed to get mesh for entity #%d (class: %s)", entity:EntIndex(), entity:GetClass())
 			return nil
 		end
 
