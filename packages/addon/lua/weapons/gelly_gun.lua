@@ -1,7 +1,7 @@
 SWEP.Category = "Gelly"
 SWEP.Spawnable = true
 SWEP.AdminOnly = false
-SWEP.PrintName = "Gelly Gun"
+SWEP.PrintName = "Gelly Gun Fork"
 
 SWEP.ViewModel = "models/weapons/c_pistol.mdl"
 SWEP.WorldModel = "models/weapons/w_pistol.mdl"
@@ -84,6 +84,10 @@ function SWEP:OnGrabberThink()
 	self.Forcefield:SetPos(forcefieldPosition)
 end
 
+-- I saw no way to actually get the internal radius currently being used, so we're just going to scale by the convar
+local presetRadiusScaleConVar = CreateClientConVar("gelly_preset_radius_scale", "1", true, false,
+	"The scale of the preset radius. This variable is useful for scaling presets to match the scale of the scene.")
+
 function SWEP:PrimaryAttack()
 	if SERVER then
 		self:CallOnClient("PrimaryAttack")
@@ -92,10 +96,11 @@ function SWEP:PrimaryAttack()
 	---@type Player
 	local owner = self:GetOwner()
 
+	local boundsMultiplier = presetRadiusScaleConVar:GetFloat()
 	gellyx.emitters.Cube({
-		center = owner:GetShootPos() + owner:GetAimVector() * 110,
+		center = owner:GetShootPos() + owner:GetAimVector() * 110 * boundsMultiplier,
 		velocity = owner:GetAimVector() * 2,
-		bounds = Vector(30, 30, 30),
+		bounds = Vector(30, 30, 30) * boundsMultiplier,
 		density = self.ParticleDensity,
 	})
 
@@ -110,10 +115,11 @@ function SWEP:SecondaryAttack()
 
 	local owner = self:GetOwner()
 	local jitterDisplacement = VectorRand() * 15 -- we want to jitter the particles so that they don't overlap as much
+	local boundsMultiplier = presetRadiusScaleConVar:GetFloat()
 	gellyx.emitters.Cube({
-		center = owner:GetShootPos() + owner:GetAimVector() * 110 + jitterDisplacement,
+		center = owner:GetShootPos() + owner:GetAimVector() * 110 * boundsMultiplier + jitterDisplacement,
 		velocity = owner:GetAimVector() * 70,
-		bounds = Vector(20, 20, 20),
+		bounds = Vector(20, 20, 20) * boundsMultiplier,
 		density = self.ParticleDensity * self.RapidFireBoost,
 	})
 
