@@ -1,7 +1,7 @@
 SWEP.Category = "Gelly"
 SWEP.Spawnable = true
 SWEP.AdminOnly = false
-SWEP.PrintName = "Gelly Gun Fork"
+SWEP.PrintName = "Gelly Gun"
 
 SWEP.ViewModel = "models/weapons/c_pistol.mdl"
 SWEP.WorldModel = "models/weapons/w_pistol.mdl"
