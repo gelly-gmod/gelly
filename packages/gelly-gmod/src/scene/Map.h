@@ -4,8 +4,11 @@
 #include "BSPParser.h"
 // clang-format on
 
+#include <stdexcept>
 #include <string>
 
+#include "BSP.h"
+#include "PHY.h"
 #include "fluidsim/ISimScene.h"
 
 /**
@@ -28,8 +31,12 @@ private:
 	ObjectHandle mapObject;
 
 	static void CheckMapPath(const std::string &mapPath);
-	[[nodiscard]] static BSPMap LoadMap(const std::string &mapPath);
-	[[nodiscard]] static ObjectCreationParams CreateMapParams(const BSPMap &map
+	[[nodiscard]] static BSPMap LoadBSPMap(const std::string &mapPath);
+	[[nodiscard]] static PHYParser::BSP::BSP LoadPHYMap(
+		const std::string &mapPath
+	);
+	[[nodiscard]] static ObjectCreationParams CreateMapParams(
+		const float *vertices, size_t vertexCount
 	);
 	[[nodiscard]] ObjectHandle CreateMapObject(
 		const ObjectCreationParams &params
