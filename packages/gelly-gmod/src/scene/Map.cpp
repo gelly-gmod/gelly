@@ -128,7 +128,7 @@ Map::Map(
 	const std::string &mapPath
 ) :
 	simScene(scene), mapObject(INVALID_OBJECT_HANDLE) {
-	ObjectCreationParams params = {};
+	ObjectCreationParams params;
 
 	try {
 		const auto phyMap = LoadPHYMap(mapPath);
