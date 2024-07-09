@@ -21,6 +21,7 @@
 #include "logging/helpers/dev-console-logging.h"
 #include "luajit/raw-lua-access.h"
 #include "luajit/setup-atpanic-handler.h"
+#include "scene/asset-cache.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
@@ -28,6 +29,7 @@
 #include "tracy/Tracy.hpp"
 #include "util/GellySharedPtrs.h"
 #include "util/lua-table.h"
+#include "util/parse-asset-from-filesystem.h"
 #include "version.h"
 
 #define DEFINE_LUA_FUNC(namespace, name)    \
@@ -52,6 +54,7 @@ static std::shared_ptr<Scene> scene = nullptr;
 static std::shared_ptr<ISimContext> simContext = nullptr;
 static std::shared_ptr<IFluidSimulation> sim = nullptr;
 static std::shared_ptr<luajit::LuaShared> luaShared = nullptr;
+static std::shared_ptr<AssetCache> assetCache = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
 constexpr int MAXIMUM_PARTICLES = 10000000;
@@ -272,27 +275,30 @@ LUA_FUNCTION(gelly_AddObject) {
 	START_GELLY_EXCEPTIONS()
 
 	// The lua side will pass through the triangle mesh
-	LUA->CheckType(1, GarrysMod::Lua::Type::Table);	  // Mesh
+	LUA->CheckType(
+		1, GarrysMod::Lua::Type::String
+	);	// Mesh name (asset name, to us)
 	LUA->CheckType(2, GarrysMod::Lua::Type::Number);  // Ent index
+	const auto assetName = LUA->GetString(1);
 	const auto entIndex = static_cast<EntIndex>(LUA->GetNumber(2));
-	LUA->Pop();	 // to not interfere with the loop
 
-	const uint32_t vertexCount = LUA->ObjLen(1);
-	if (vertexCount <= 0) {
-		LUA->ThrowError("Cannot create object with no vertices!");
+	if (!assetCache->FetchAsset(assetName).has_value()) {
+		LOG_WARNING("Asset cache miss on asset %s", assetName);
+
+		// We'll just parse the asset here
+		auto vertices =
+			gelly::gmod::helpers::ParseAssetFromFilesystem(assetName);
+
+		assetCache->InsertAsset(assetName, vertices.data(), vertices.size());
+		LOG_WARNING(
+			"Asset %s inserted into cache with %d vertices",
+			assetName,
+			vertices.size()
+		);
 	}
 
-	std::vector<Vector> vertices(vertexCount);
+	scene->AddEntity(entIndex, assetCache, assetName);
 
-	for (uint32_t i = 0; i < vertexCount; i++) {
-		LUA->PushNumber(i + 1);
-		LUA->GetTable(-2);
-		const auto vertex = LUA->GetVector(-1);
-		vertices[i] = vertex;
-		LUA->Pop();
-	}
-
-	scene->AddEntity(entIndex, vertices);
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -779,6 +785,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		);
 	}
 
+	assetCache = std::make_shared<AssetCache>();
 	rendererDevice = std::make_shared<gelly::renderer::Device>();
 
 	simContext = MakeSimContext(
@@ -871,6 +878,7 @@ GMOD_MODULE_CLOSE() {
 		return 0;
 	}
 
+	assetCache.reset();
 	compositor.reset();
 	scene.reset();
 	sim.reset();

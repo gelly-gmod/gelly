@@ -89,12 +89,8 @@ local function addObject(entity)
 
 	local objectHandles = {}
 	local offset = #meshes > 1 and MULTI_OBJECT_OFFSET or 0
-
-	for _, mesh in ipairs(meshes) do
-		table.insert(objectHandles, entity:EntIndex() + offset)
-		gelly.AddObject(mesh, entity:EntIndex() + offset)
-		offset = offset + 1
-	end
+	gelly.AddObject(entity:GetModel():sub(1, -5), entity:EntIndex())
+	table.insert(objectHandles, entity:EntIndex())
 
 	objects[entity] = objectHandles
 end
@@ -126,7 +122,7 @@ local function updateObject(entity)
 			return
 		end
 
-		local transform = entity:GetBoneMatrix(0)
+		local transform = entity:GetWorldTransformMatrix()
 		if not transform then
 			transform = entity:GetWorldTransformMatrix()
 			if not transform then

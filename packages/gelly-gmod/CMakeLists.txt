@@ -99,6 +99,9 @@ add_library(
         src/version.h.in
         src/util/lua-table.h
         src/util/PHYToGMod.h
+        src/scene/asset-cache.cpp
+        src/scene/asset-cache.h
+        src/util/parse-asset-from-filesystem.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions

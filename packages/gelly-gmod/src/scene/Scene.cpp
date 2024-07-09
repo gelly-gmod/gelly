@@ -9,8 +9,12 @@ Scene::Scene(
 	sim->SetMaxParticles(maxParticles);
 }
 
-void Scene::AddEntity(EntIndex entIndex, std::vector<Vector> vertices) {
-	ents->AddEntity(entIndex, vertices);
+void Scene::AddEntity(
+	EntIndex entIndex,
+	const std::shared_ptr<AssetCache> &cache,
+	const char *assetName
+) {
+	ents->AddEntity(entIndex, cache, assetName);
 }
 
 void Scene::AddPlayerObject(EntIndex entIndex, float radius, float halfHeight) {
