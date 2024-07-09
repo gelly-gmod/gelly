@@ -4,6 +4,7 @@
 #include "material/Absorption.hlsli"
 #include "material/Schlicks.hlsli"
 #include "source-engine/AmbientCube.hlsli"
+
 #include "material/Diffuse.hlsli"
 
 sampler2D depthTex : register(s0);
