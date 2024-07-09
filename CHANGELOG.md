@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2024-07-09
+
+### Added
+
+- Added PHYParser to Gelly
+- Added the asset cache, an in-memory cache for asset vertex data which should speed up instantiation of props
+
+### Fixed
+
+- Fixed the mod addition restriction system failing in some cases
+
+### Changed
+
+- Prop models now go through the asset cache and exclusively use PHY collision models.
+- Maps now go through PHYParser if possible, falling back on render models provided by BSPParser.
+- Diffuse rendering has been fixed and now appears correctly.
+
 ## [1.14.0] - 2024-07-04
 
 ### Added

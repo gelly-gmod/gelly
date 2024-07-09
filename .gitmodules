@@ -97,3 +97,6 @@
 [submodule "packages/gelly/modules/gelly-fluid-sim/vendor/DirectXMath"]
 	path = packages/gelly/modules/gelly-fluid-sim/vendor/DirectXMath
 	url = https://github.com/microsoft/DirectXMath.git
+[submodule "packages/gelly-gmod/vendor/PHYParser"]
+	path = packages/gelly-gmod/vendor/PHYParser
+	url = https://github.com/gelly-gmod/PHYParser.git

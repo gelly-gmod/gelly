@@ -6,6 +6,7 @@
 
 #include "EntIndex.h"
 #include "GarrysMod/Lua/SourceCompat.h"
+#include "asset-cache.h"
 #include "fluidsim/IFluidSimulation.h"
 #include "fluidsim/ISimScene.h"
 
@@ -22,7 +23,11 @@ public:
 	explicit EntityManager(ISimScene *scene);
 	~EntityManager();
 
-	void AddEntity(EntIndex entIndex, const std::vector<Vector> &vertices);
+	void AddEntity(
+		EntIndex entIndex,
+		const std::shared_ptr<AssetCache> &cache,
+		const char *assetName
+	);
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);
 	void RemoveEntity(EntIndex entIndex);
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);

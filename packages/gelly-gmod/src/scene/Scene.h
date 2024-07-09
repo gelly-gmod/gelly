@@ -43,13 +43,20 @@ public:
 
 	~Scene(){LOG_INFO("Scene destructor called")};
 
-	void AddEntity(EntIndex entIndex, std::vector<Vector> vertices);
+	void AddEntity(
+		EntIndex entIndex,
+		const std::shared_ptr<AssetCache> &cache,
+		const char *assetName
+	);
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);
 	void RemoveEntity(EntIndex entIndex);
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);
 	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
 
-	void LoadMap(const std::string &mapPath);
+	void LoadMap(
+		const std::shared_ptr<AssetCache> &assetCache,
+		const std::string &mapPath
+	);
 
 	void AddParticles(const ParticleListBuilder &builder) const;
 	void ClearParticles() const;

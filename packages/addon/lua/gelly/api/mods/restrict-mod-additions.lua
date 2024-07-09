@@ -27,13 +27,19 @@ return function()
 		:forEach(function(restrictInfo)
 			restrictInfo.weapons:forEach(function(weapon)
 				logging.info("%s weapon %s", restrictInfo.enabled and "Enabling" or "Disabling", weapon)
-				list.GetForEdit("Weapon")[weapon].Spawnable = restrictInfo.enabled
+				local swepEntry = list.GetForEdit("Weapon")[weapon]
+				if swepEntry then
+					swepEntry.Spawnable = restrictInfo.enabled
+				end
 				removePreexistingEntities(weapon)
 			end)
 
 			restrictInfo.entities:forEach(function(entity)
 				logging.info("%s entity %s", restrictInfo.enabled and "Enabling" or "Disabling", entity)
-				list.GetForEdit("SpawnableEntities")[entity].Spawnable = restrictInfo.enabled
+				local entityEntry = list.GetForEdit("SpawnableEntities")[entity]
+				if entityEntry then
+					entityEntry.Spawnable = restrictInfo.enabled
+				end
 				removePreexistingEntities(entity)
 			end)
 

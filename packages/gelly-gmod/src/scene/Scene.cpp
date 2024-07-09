@@ -9,8 +9,12 @@ Scene::Scene(
 	sim->SetMaxParticles(maxParticles);
 }
 
-void Scene::AddEntity(EntIndex entIndex, std::vector<Vector> vertices) {
-	ents->AddEntity(entIndex, vertices);
+void Scene::AddEntity(
+	EntIndex entIndex,
+	const std::shared_ptr<AssetCache> &cache,
+	const char *assetName
+) {
+	ents->AddEntity(entIndex, cache, assetName);
 }
 
 void Scene::AddPlayerObject(EntIndex entIndex, float radius, float halfHeight) {
@@ -27,8 +31,10 @@ void Scene::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 	ents->UpdateEntityRotation(entIndex, rotation);
 }
 
-void Scene::LoadMap(const std::string &mapPath) {
-	map.emplace(sim->GetScene(), mapPath);
+void Scene::LoadMap(
+	const std::shared_ptr<AssetCache> &assetCache, const std::string &mapPath
+) {
+	map.emplace(assetCache, sim->GetScene(), mapPath);
 }
 
 void Scene::AddParticles(const ParticleListBuilder &builder) const {

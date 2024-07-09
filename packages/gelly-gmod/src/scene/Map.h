@@ -4,8 +4,12 @@
 #include "BSPParser.h"
 // clang-format on
 
+#include <stdexcept>
 #include <string>
 
+#include "BSP.h"
+#include "PHY.h"
+#include "asset-cache.h"
 #include "fluidsim/ISimScene.h"
 
 /**
@@ -28,15 +32,28 @@ private:
 	ObjectHandle mapObject;
 
 	static void CheckMapPath(const std::string &mapPath);
-	[[nodiscard]] static BSPMap LoadMap(const std::string &mapPath);
-	[[nodiscard]] static ObjectCreationParams CreateMapParams(const BSPMap &map
+	[[nodiscard]] static BSPMap LoadBSPMap(const std::string &mapPath);
+	[[nodiscard]] static PHYParser::BSP::BSP LoadPHYMap(
+		const std::string &mapPath
+	);
+	[[nodiscard]] static ObjectCreationParams CreateMapParams(
+		const float *vertices, size_t vertexCount
 	);
 	[[nodiscard]] ObjectHandle CreateMapObject(
 		const ObjectCreationParams &params
 	) const;
+	[[nodiscard]] std::vector<float> ConvertBrushModelToVertices(
+		const PHYParser::BSP::BSP::Model &model
+	) const;
 
 public:
-	Map(ISimScene *scene, const std::string &mapPath);
+	/**
+	 * \note Upon successful usage of PHYParser, the Map object will contribute
+	 * brushmodels to the asset cache.
+	 */
+	Map(const std::shared_ptr<AssetCache> &assetCache,
+		ISimScene *scene,
+		const std::string &mapPath);
 	Map(Map &&other) = delete;
 
 	~Map();

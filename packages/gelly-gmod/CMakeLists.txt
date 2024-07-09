@@ -9,6 +9,8 @@ add_subdirectory(vendor/gmod-module-base)
 add_subdirectory(vendor/minhook)
 add_subdirectory(vendor/GMFS)
 add_subdirectory(vendor/BSPParser)
+set(BUILD_PHYPARSER_TEST OFF)
+add_subdirectory(vendor/PHYParser)
 
 option(GELLY_ENABLE_RENDERDOC_CAPTURES "Enable RenderDoc capture functionality" OFF)
 
@@ -96,6 +98,10 @@ add_library(
         src/exceptions/get-stack-size.h
         src/version.h.in
         src/util/lua-table.h
+        src/util/PHYToGMod.h
+        src/scene/asset-cache.cpp
+        src/scene/asset-cache.h
+        src/util/parse-asset-from-filesystem.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
@@ -111,6 +117,7 @@ target_link_libraries(gelly-gmod
         minhook
         GMFS
         BSPParser
+        PHYParser
         Tracy::TracyClient
         DbgHelp.lib
 )
@@ -124,6 +131,7 @@ target_include_directories(gelly-gmod
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GMFS
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/BSPParser
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/PHYParser/src
         ${GELLY_INCLUDE_DIRS}
 )
 

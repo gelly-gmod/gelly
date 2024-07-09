@@ -24,7 +24,9 @@ EntityManager::ProcessGModMesh(std::vector<Vector> vertices) const {
 }
 
 void EntityManager::AddEntity(
-	EntIndex entIndex, const std::vector<Vector> &vertices
+	EntIndex entIndex,
+	const std::shared_ptr<AssetCache> &cache,
+	const char *assetName
 ) {
 	ObjectCreationParams params = {};
 	params.shape = ObjectShape::TRIANGLE_MESH;
@@ -32,9 +34,17 @@ void EntityManager::AddEntity(
 	ObjectCreationParams::TriangleMesh mesh = {};
 	mesh.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT32;
 
-	const auto [processedVertices, indices] = ProcessGModMesh(vertices);
-	mesh.vertices = reinterpret_cast<const float *>(processedVertices.data());
-	mesh.vertexCount = processedVertices.size();
+	const auto asset = cache->FetchAsset(assetName);
+	std::vector<uint32_t> indices;
+	indices.reserve(asset->rawVertices.size() / 3);
+	for (size_t i = 0; i < asset->rawVertices.size() / 3; i += 3) {
+		indices.push_back(i);
+		indices.push_back(i + 1);
+		indices.push_back(i + 2);
+	}
+
+	mesh.vertices = asset->rawVertices.data();
+	mesh.vertexCount = asset->rawVertices.size() / 3;
 	mesh.indices32 = indices.data();
 	mesh.indexCount = indices.size();
 	mesh.scale[0] = 1.f;
