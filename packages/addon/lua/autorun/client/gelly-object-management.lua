@@ -1,57 +1,7 @@
 local logging = include("gelly/logging.lua")
-local getBrushModelMesh = include("gelly/util/get-brush-model-mesh.lua")
 local array = include("gelly/util/functional-arrays.lua")
 
 local objects = {}
-
--- Used to offset the object handles so that they don't conflict with GMOD's entity handles
--- once a multi-mesh object is added.
-local MULTI_OBJECT_OFFSET = 65536
-
---- Returns a list of the individual meshes and their vertices of the given model.
----@param modelPath string
-local function getVerticesOfModel(modelPath)
-	local meshes, bindPoses = util.GetModelMeshes(modelPath, 1, 1)
-	local vertices = {}
-
-	-- We want to transform the vertices to the root of the model so that there's no visual mismatch
-	local rootTransform = Matrix()
-	if bindPoses then
-		rootTransform = bindPoses[0].matrix
-	end
-
-	for _, mesh in ipairs(meshes) do
-		local vertsForMesh = {}
-		for _, vertex in ipairs(mesh.triangles) do
-			table.insert(vertsForMesh, rootTransform * vertex.pos)
-		end
-
-		table.insert(vertices, vertsForMesh)
-	end
-
-	return vertices
-end
-
-local function getObjectMesh(entity)
-	if not entity:GetModel() then
-		-- oops, we're probably attempting to get the model of a "point" or "logical" entity, usually put in by map makers
-		return nil
-	end
-
-	local isBrushModel = entity:GetModel()[1] == "*"
-
-	if isBrushModel then
-		local mesh = getBrushModelMesh(entity)
-		if not mesh then
-			logging.warn("Failed to get mesh for entity #%d (class: %s)", entity:EntIndex(), entity:GetClass())
-			return nil
-		end
-
-		return { mesh }
-	else
-		return getVerticesOfModel(entity:GetModel())
-	end
-end
 
 local WHITELISTED_ENTITY_CLASSES = {
 	"prop_physics",
@@ -80,17 +30,21 @@ local function addObject(entity)
 	end
 
 	logging.info("Adding object #%d to gelly", entity:EntIndex())
-	local meshes = getObjectMesh(entity)
-
-	if not meshes then
+	if not entity:GetModel() then
 		logging.warn("Failed to get mesh for entity #%d, not adding to Gelly.", entity:EntIndex())
 		return
 	end
 
 	local objectHandles = {}
-	local offset = #meshes > 1 and MULTI_OBJECT_OFFSET or 0
 	local normalizedModelName = entity:GetModel()[1] == "*" and entity:GetModel() or entity:GetModel():sub(1, -5)
-	gelly.AddObject(normalizedModelName, entity:EntIndex())
+
+	local success, msg = pcall(gelly.AddObject, normalizedModelName, entity:EntIndex())
+	if not success then
+		logging.warn("Failed to add object #%d to gelly", entity:EntIndex())
+		logging.warn("Reason: %s", msg)
+		return
+	end
+
 	table.insert(objectHandles, entity:EntIndex())
 
 	objects[entity] = objectHandles
@@ -125,12 +79,9 @@ local function updateObject(entity)
 
 		local transform = entity:GetWorldTransformMatrix()
 		if not transform then
-			transform = entity:GetWorldTransformMatrix()
-			if not transform then
-				logging.warn("Transform bug for entity #%d", entity:EntIndex())
-				removeObject(entity)
-				return
-			end
+			logging.warn("Transform bug for entity #%d", entity:EntIndex())
+			removeObject(entity)
+			return
 		end
 
 		gelly.SetObjectPosition(objectHandle, transform:GetTranslation())
