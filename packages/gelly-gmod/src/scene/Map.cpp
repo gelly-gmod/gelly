@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../logging/global-macros.h"
+#include "GarrysMod/Lua/SourceCompat.h"
 #include "util/PHYToGMod.h"
 
 void Map::CheckMapPath(const std::string &mapPath) {
@@ -82,7 +83,50 @@ ObjectHandle Map::CreateMapObject(const ObjectCreationParams &params) const {
 	return handle;
 }
 
-Map::Map(ISimScene *scene, const std::string &mapPath) :
+std::vector<float> Map::ConvertBrushModelToVertices(
+	const PHYParser::BSP::BSP::Model &model
+) const {
+	auto vertices = std::vector<float>{};
+	for (const auto &solid : model.solids) {
+		for (const auto &triangle : solid.GetTriangles()) {
+			float v0x = triangle.vertices[0].x;
+			float v0y = triangle.vertices[0].y;
+			float v0z = triangle.vertices[0].z;
+
+			float v1x = triangle.vertices[1].x;
+			float v1y = triangle.vertices[1].y;
+			float v1z = triangle.vertices[1].z;
+
+			float v2x = triangle.vertices[2].x;
+			float v2y = triangle.vertices[2].y;
+			float v2z = triangle.vertices[2].z;
+
+			gelly::gmod::helpers::ConvertPHYPositionToGMod(v0x, v0y, v0z);
+			gelly::gmod::helpers::ConvertPHYPositionToGMod(v1x, v1y, v1z);
+			gelly::gmod::helpers::ConvertPHYPositionToGMod(v2x, v2y, v2z);
+
+			vertices.push_back(v0x);
+			vertices.push_back(v0y);
+			vertices.push_back(v0z);
+
+			vertices.push_back(v1x);
+			vertices.push_back(v1y);
+			vertices.push_back(v1z);
+
+			vertices.push_back(v2x);
+			vertices.push_back(v2y);
+			vertices.push_back(v2z);
+		}
+	}
+
+	return vertices;
+}
+
+Map::Map(
+	const std::shared_ptr<AssetCache> &assetCache,
+	ISimScene *scene,
+	const std::string &mapPath
+) :
 	simScene(scene), mapObject(INVALID_OBJECT_HANDLE) {
 	ObjectCreationParams params = {};
 
@@ -94,43 +138,29 @@ Map::Map(ISimScene *scene, const std::string &mapPath) :
 		}
 
 		const auto &worldspawn = phyMap.GetModel(0);
-		auto vertices = std::vector<float>{};
-		for (const auto &solid : worldspawn.solids) {
-			for (const auto &triangle : solid.GetTriangles()) {
-				float v0x = triangle.vertices[0].x;
-				float v0y = triangle.vertices[0].y;
-				float v0z = triangle.vertices[0].z;
+		auto worldspawnVertices = ConvertBrushModelToVertices(worldspawn);
 
-				float v1x = triangle.vertices[1].x;
-				float v1y = triangle.vertices[1].y;
-				float v1z = triangle.vertices[1].z;
-
-				float v2x = triangle.vertices[2].x;
-				float v2y = triangle.vertices[2].y;
-				float v2z = triangle.vertices[2].z;
-
-				gelly::gmod::helpers::ConvertPHYPositionToGMod(v0x, v0y, v0z);
-				gelly::gmod::helpers::ConvertPHYPositionToGMod(v1x, v1y, v1z);
-				gelly::gmod::helpers::ConvertPHYPositionToGMod(v2x, v2y, v2z);
-
-				vertices.push_back(v0x);
-				vertices.push_back(v0y);
-				vertices.push_back(v0z);
-
-				vertices.push_back(v1x);
-				vertices.push_back(v1y);
-				vertices.push_back(v1z);
-
-				vertices.push_back(v2x);
-				vertices.push_back(v2y);
-				vertices.push_back(v2z);
-			}
-		}
-
-		params = CreateMapParams(vertices.data(), vertices.size() / 3);
+		params = CreateMapParams(
+			worldspawnVertices.data(), worldspawnVertices.size() / 3
+		);
 		mapObject = CreateMapObject(params);
 
-		printf("Went through PHYParser for map: %s\n", mapPath.c_str());
+		for (int i = 1; i < phyMap.GetModelCount(); i++) {
+			const auto &model = phyMap.GetModel(i);
+			auto vertices = ConvertBrushModelToVertices(model);
+			assetCache->InsertAsset(
+				"*" + std::to_string(model.index),
+				reinterpret_cast<Vector *>(vertices.data()),
+				vertices.size() / 3
+			);
+
+			LOG_INFO(
+				"Map is contributing brush model, '*%d', to the asset cache! "
+				"(%d vertices)",
+				model.index,
+				vertices.size() / 3
+			);
+		}
 	} catch (const std::exception &e) {
 		LOG_ERROR(
 			"Failed to load map using PHYParser: %s\n%s",
@@ -144,7 +174,6 @@ Map::Map(ISimScene *scene, const std::string &mapPath) :
 			bspMap.GetNumVertices()
 		);
 		mapObject = CreateMapObject(params);
-		printf("Went through BSPParser for map: %s\n", mapPath.c_str());
 	} catch (...) {
 		LOG_ERROR("Failed to load map: %s", mapPath.c_str());
 	}

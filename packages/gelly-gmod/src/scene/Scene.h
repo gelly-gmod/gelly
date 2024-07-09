@@ -53,7 +53,10 @@ public:
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);
 	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
 
-	void LoadMap(const std::string &mapPath);
+	void LoadMap(
+		const std::shared_ptr<AssetCache> &assetCache,
+		const std::string &mapPath
+	);
 
 	void AddParticles(const ParticleListBuilder &builder) const;
 	void ClearParticles() const;

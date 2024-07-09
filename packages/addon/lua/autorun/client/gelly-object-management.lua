@@ -89,7 +89,8 @@ local function addObject(entity)
 
 	local objectHandles = {}
 	local offset = #meshes > 1 and MULTI_OBJECT_OFFSET or 0
-	gelly.AddObject(entity:GetModel():sub(1, -5), entity:EntIndex())
+	local normalizedModelName = entity:GetModel()[1] == "*" and entity:GetModel() or entity:GetModel():sub(1, -5)
+	gelly.AddObject(normalizedModelName, entity:EntIndex())
 	table.insert(objectHandles, entity:EntIndex())
 
 	objects[entity] = objectHandles

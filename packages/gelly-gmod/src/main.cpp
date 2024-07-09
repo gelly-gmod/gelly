@@ -265,7 +265,7 @@ LUA_FUNCTION(gelly_LoadMap) {
 	START_GELLY_EXCEPTIONS()
 
 	LUA->CheckType(1, GarrysMod::Lua::Type::String);  // Map name
-	scene->LoadMap(LUA->GetString(1));
+	scene->LoadMap(assetCache, LUA->GetString(1));
 
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
@@ -698,7 +698,7 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	const auto *map = LUA->GetString(-1);
 	const std::string fileName = "maps/" + std::string(map) + ".bsp";
 
-	scene->LoadMap(fileName);
+	scene->LoadMap(assetCache, fileName);
 
 	// then pop off the special table and the game table
 	LUA->Pop(2);
