@@ -50,9 +50,14 @@ inline auto CreateDepthFilteringPipeline(
 		.inputs =
 			{screenQuad.GetVertexBuffer(),
 			 InputTexture{
-				 .texture = inputDepth,
+				 .texture = info.outputTextures->ellipsoidDepth,
 				 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				 .slot = 0
+			 },
+			 InputTexture{
+				 .texture = inputDepth,
+				 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				 .slot = 1
 			 }},
 		.outputs = {OutputTexture{
 			.texture = outputDepth,

@@ -51,7 +51,7 @@ inline auto CreateThicknessExtractionPipeline(const PipelineInfo &info)
 				  .slot = 0
 			  },
 			  InputTexture{
-				  .texture = info.internalTextures->unfilteredEllipsoidDepth,
+				  .texture = info.outputTextures->ellipsoidDepth,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 1
 			  }},
