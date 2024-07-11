@@ -70,6 +70,8 @@ float3 CreateIsosurfaceNormals(float2 tex) {
         // our pipeline initializes every invalid depth to D3D11_FLOAT32_MAX so this is how we can check for invalid depth
         if (kernel[i] > INVALID_EYE_DEPTH_EPSILON) {
             kernel[i] = kernel[4]; // center pixel
+            // we'll also do symmetric balancing for the kernel
+            kernel[9 - i] = kernel[4]; // center pixel
         }
 
         // 0 * 0 = 0, so we can use this to check if the normal is invalid
