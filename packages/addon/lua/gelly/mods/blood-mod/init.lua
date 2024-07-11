@@ -6,7 +6,7 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 		DamageFlags = bit.bor(DMG_BULLET, DMG_ALWAYSGIB),
 		MinDensity = 200,
 		MaxDensity = 400,
-		VelocityPower = 10, -- bullets usually are rotating so they can end up flinging blood
+		VelocityPower = -10, -- bullets usually are rotating so they can end up flinging blood
 		Randomness = 0.8, -- spray in the direction of the normal
 		CubeSize = 9,
 		DamageMultiplier = 15, -- density is added by the damage * this
@@ -45,7 +45,7 @@ local WEAPON_BLOOD_CONFIGS = {
 	m9k_dbarrel = {
 		MinDensity = 100,
 		MaxDensity = 200,
-		VelocityPower = 14, -- bullets usually are rotating so they can end up flinging blood
+		VelocityPower = -14, -- bullets usually are rotating so they can end up flinging blood 
 		Randomness = 0.9, -- spray in the direction of the normal
 		CubeSize = 52,
 		DamageMultiplier = 35, -- density is added by the damage * this
@@ -55,7 +55,7 @@ local WEAPON_BLOOD_CONFIGS = {
 	weapon_shotgun = {
 		MinDensity = 100,
 		MaxDensity = 200,
-		VelocityPower = 5,
+		VelocityPower = -5, -- blood should be launched at the player from the wound not from the wound at the victim
 		Randomness = 0.5,
 		CubeSize = 15,
 		DamageMultiplier = 35,
@@ -64,10 +64,10 @@ local WEAPON_BLOOD_CONFIGS = {
 	weapon_357 = {
 		MinDensity = 100,
 		MaxDensity = 200,
-		VelocityPower = 5,
+		VelocityPower = 5, -- a .357 bullet should maybe penetrate through the entire victim
 		Randomness = 0.1,
 		CubeSize = 5,
-		DamageMultiplier = 30,
+		DamageMultiplier = 40,
 	},
 }
 
@@ -123,6 +123,12 @@ local BLOOD_COLOR_MATERIALS = {
 	},
 }
 
+local VALID_ENTS = {
+	prop_ragdoll = true,
+	gib_chunk = true,
+	zippygoremod3_gib = true,
+}
+
 local function getDamageTypeConfig(damageType)
 	for _, config in ipairs(DAMAGE_TYPE_BLOOD_CONFIGS) do
 		if bit.band(damageType, config.DamageFlags) ~= 0 then
@@ -135,7 +141,7 @@ end
 local function getConfig(attacker, damageType)
 	local config = nil
 
-	if attacker:IsValid() and attacker:GetActiveWeapon():IsValid() then
+	if attacker:IsValid() and attacker.GetActiveWeapon and IsValid(attacker:GetActiveWeapon()) then
 		config = WEAPON_BLOOD_CONFIGS[attacker:GetActiveWeapon():GetClass()]
 	end
 
@@ -157,7 +163,6 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage,
 	local density = math.random(config.MinDensity, config.MaxDensity)
 	local velocity = normal * config.VelocityPower
 
-	local bounds = Vector(config.CubeSize, config.CubeSize, config.CubeSize)
 	local damageMultiplier = config.DamageMultiplier or 0
 	density = density + damageMultiplier * damage
 
@@ -181,7 +186,7 @@ hook.Add(
 			not victim:IsValid() or
 			(not victim:IsPlayer() and
 				not victim:IsNPC() and
-				not victim:IsRagdoll())
+				not VALID_ENTS[victim:GetClass()])
 		then
 			return
 		end
