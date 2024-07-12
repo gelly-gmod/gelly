@@ -17,10 +17,10 @@ namespace renderer {
 namespace splatting {
 // we take in the input/output depth separately so that we are able
 // to create ping pong pipelines for filter iterations
-inline auto CreateDepthFilteringPipeline(
+inline auto CreateSurfaceFilteringPipeline(
 	const PipelineInfo &info,
-	const std::shared_ptr<Texture> &inputDepth,
-	const std::shared_ptr<Texture> &outputDepth
+	const std::shared_ptr<Texture> &inputNormal,
+	const std::shared_ptr<Texture> &outputNormal
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -55,12 +55,12 @@ inline auto CreateDepthFilteringPipeline(
 				 .slot = 0
 			 },
 			 InputTexture{
-				 .texture = inputDepth,
+				 .texture = inputNormal,
 				 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				 .slot = 1
 			 }},
 		.outputs = {OutputTexture{
-			.texture = outputDepth,
+			.texture = outputNormal,
 			.bindFlag = D3D11_BIND_RENDER_TARGET,
 			.slot = 0,
 			.clear = false

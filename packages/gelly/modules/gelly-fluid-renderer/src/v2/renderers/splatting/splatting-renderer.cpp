@@ -1,8 +1,8 @@
 #include "splatting-renderer.h"
 
-#include "pipelines/depth-filtering.h"
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
+#include "pipelines/surface-filtering.h"
 #include "pipelines/thickness-extraction.h"
 
 namespace gelly {
@@ -61,8 +61,8 @@ auto SplattingRenderer::Render() const -> void {
 #endif
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
 	thicknessExtraction->Run();
-	frontNormalEstimation->Run();
-	RunDepthSmoothingFilter(settings.filterIterations);
+	rawNormalEstimation->Run();
+	RunSurfaceFilteringPipeline(settings.filterIterations);
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->EndFrameCapture(
@@ -102,28 +102,18 @@ auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data
 
 auto SplattingRenderer::CreatePipelines() -> void {
 	ellipsoidSplatting = CreateEllipsoidSplattingPipeline(pipelineInfo);
-	depthFilteringA = CreateDepthFilteringPipeline(
+	surfaceFilteringA = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
 		pipelineInfo.internalTextures->unfilteredNormals,
 		pipelineInfo.outputTextures->normals
 	);
-	depthFilteringB = CreateDepthFilteringPipeline(
+	surfaceFilteringB = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
 		pipelineInfo.outputTextures->normals,
 		pipelineInfo.internalTextures->unfilteredNormals
 	);
-	backDepthFilteringA = CreateDepthFilteringPipeline(
-		pipelineInfo,
-		pipelineInfo.internalTextures->unfilteredBackEllipsoidDepth,
-		pipelineInfo.internalTextures->filteredBackEllipsoidDepth
-	);
-	backDepthFilteringB = CreateDepthFilteringPipeline(
-		pipelineInfo,
-		pipelineInfo.internalTextures->filteredBackEllipsoidDepth,
-		pipelineInfo.internalTextures->unfilteredBackEllipsoidDepth
-	);
 
-	frontNormalEstimation = CreateNormalEstimationPipeline(
+	rawNormalEstimation = CreateNormalEstimationPipeline(
 		pipelineInfo,
 		pipelineInfo.outputTextures->ellipsoidDepth,
 		pipelineInfo.internalTextures->unfilteredNormals,
@@ -184,8 +174,8 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 	);
 }
 
-auto SplattingRenderer::RunDepthSmoothingFilter(unsigned int iterations) const
-	-> void {
+auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
+) const -> void {
 	if (iterations == 0) {
 		const auto context = createInfo.device->GetRawDeviceContext();
 		// we'll just want to copy unfilted depth to the filtered depth output
@@ -203,7 +193,7 @@ auto SplattingRenderer::RunDepthSmoothingFilter(unsigned int iterations) const
 	// accidently overwrite the original depth with 1.0
 	float depthClearColor[4] = {1.f, 1.f, 1.f, 1.f};
 
-	if (settings.enableFrontDepthFiltering) {
+	if (settings.enableSurfaceFiltering) {
 		createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
 			pipelineInfo.outputTextures->normals->GetRenderTargetView().Get(),
 			depthClearColor
@@ -211,9 +201,9 @@ auto SplattingRenderer::RunDepthSmoothingFilter(unsigned int iterations) const
 	}
 
 	for (int i = 0; i < iterations; i++) {
-		if (settings.enableFrontDepthFiltering) {
-			depthFilteringA->Run();
-			depthFilteringB->Run();
+		if (settings.enableSurfaceFiltering) {
+			surfaceFilteringA->Run();
+			surfaceFilteringB->Run();
 		}
 	}
 }

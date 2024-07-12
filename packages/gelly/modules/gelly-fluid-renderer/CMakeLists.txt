@@ -46,7 +46,7 @@ add_library(
         src/v2/renderers/splatting/cbuffers.h
         src/v2/helpers/rendering/screen-quad.cpp
         src/v2/helpers/rendering/screen-quad.h
-        src/v2/renderers/splatting/pipelines/depth-filtering.h
+        src/v2/renderers/splatting/pipelines/surface-filtering.h
         src/v2/renderers/splatting/splatting-renderer.cpp
         src/v2/renderers/splatting/splatting-renderer.h
 )
