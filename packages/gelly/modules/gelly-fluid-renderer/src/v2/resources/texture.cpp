@@ -128,8 +128,8 @@ auto Texture::CreateShaderResourceView(const ComPtr<ID3D11Texture2D> &texture)
 auto Texture::CreateSamplerState() -> ComPtr<ID3D11SamplerState> {
 	D3D11_SAMPLER_DESC desc = {};
 	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	desc.MinLOD = 0;

@@ -1,8 +1,8 @@
 #include "splatting-renderer.h"
 
-#include "pipelines/depth-filtering.h"
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
+#include "pipelines/surface-filtering.h"
 #include "pipelines/thickness-extraction.h"
 
 namespace gelly {
@@ -61,8 +61,8 @@ auto SplattingRenderer::Render() const -> void {
 #endif
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
 	thicknessExtraction->Run();
-	RunDepthSmoothingFilter(settings.filterIterations);
-	frontNormalEstimation->Run();
+	rawNormalEstimation->Run();
+	RunSurfaceFilteringPipeline(settings.filterIterations);
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->EndFrameCapture(
@@ -102,31 +102,21 @@ auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data
 
 auto SplattingRenderer::CreatePipelines() -> void {
 	ellipsoidSplatting = CreateEllipsoidSplattingPipeline(pipelineInfo);
-	depthFilteringA = CreateDepthFilteringPipeline(
+	surfaceFilteringA = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
-		pipelineInfo.internalTextures->unfilteredEllipsoidDepth,
-		pipelineInfo.outputTextures->ellipsoidDepth
+		pipelineInfo.internalTextures->unfilteredNormals,
+		pipelineInfo.outputTextures->normals
 	);
-	depthFilteringB = CreateDepthFilteringPipeline(
+	surfaceFilteringB = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
-		pipelineInfo.outputTextures->ellipsoidDepth,
-		pipelineInfo.internalTextures->unfilteredEllipsoidDepth
-	);
-	backDepthFilteringA = CreateDepthFilteringPipeline(
-		pipelineInfo,
-		pipelineInfo.internalTextures->unfilteredBackEllipsoidDepth,
-		pipelineInfo.internalTextures->filteredBackEllipsoidDepth
-	);
-	backDepthFilteringB = CreateDepthFilteringPipeline(
-		pipelineInfo,
-		pipelineInfo.internalTextures->filteredBackEllipsoidDepth,
-		pipelineInfo.internalTextures->unfilteredBackEllipsoidDepth
+		pipelineInfo.outputTextures->normals,
+		pipelineInfo.internalTextures->unfilteredNormals
 	);
 
-	frontNormalEstimation = CreateNormalEstimationPipeline(
+	rawNormalEstimation = CreateNormalEstimationPipeline(
 		pipelineInfo,
-		pipelineInfo.internalTextures->unfilteredEllipsoidDepth,
-		pipelineInfo.outputTextures->normals,
+		pipelineInfo.outputTextures->ellipsoidDepth,
+		pipelineInfo.internalTextures->unfilteredNormals,
 		true
 	);
 
@@ -184,38 +174,36 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 	);
 }
 
-auto SplattingRenderer::RunDepthSmoothingFilter(unsigned int iterations) const
-	-> void {
+auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
+) const -> void {
+	if (iterations == 0) {
+		const auto context = createInfo.device->GetRawDeviceContext();
+		// we'll just want to copy unfilted depth to the filtered depth output
+		context->CopyResource(
+			pipelineInfo.outputTextures->ellipsoidDepth->GetTexture2D().Get(),
+			pipelineInfo.internalTextures->unfilteredEllipsoidDepth
+				->GetTexture2D()
+				.Get()
+		);
+
+		return;
+	}
+
 	// we need to only clear the output texture to ensure we don't
 	// accidently overwrite the original depth with 1.0
 	float depthClearColor[4] = {1.f, 1.f, 1.f, 1.f};
 
-	if (settings.enableFrontDepthFiltering) {
+	if (settings.enableSurfaceFiltering) {
 		createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
-			pipelineInfo.outputTextures->ellipsoidDepth->GetRenderTargetView()
-				.Get(),
-			depthClearColor
-		);
-	}
-
-	if (settings.enableBackDepthFiltering) {
-		createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
-			pipelineInfo.internalTextures->filteredBackEllipsoidDepth
-				->GetRenderTargetView()
-				.Get(),
+			pipelineInfo.outputTextures->normals->GetRenderTargetView().Get(),
 			depthClearColor
 		);
 	}
 
 	for (int i = 0; i < iterations; i++) {
-		if (settings.enableFrontDepthFiltering) {
-			depthFilteringA->Run();
-			depthFilteringB->Run();
-		}
-
-		if (settings.enableBackDepthFiltering) {
-			backDepthFilteringA->Run();
-			backDepthFilteringB->Run();
+		if (settings.enableSurfaceFiltering) {
+			surfaceFilteringA->Run();
+			surfaceFilteringB->Run();
 		}
 	}
 }
