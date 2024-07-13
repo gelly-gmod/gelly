@@ -34,6 +34,10 @@ auto NativeImage::CreateTexture2D() -> ComPtr<ID3D11Texture2D> {
 	desc.CPUAccessFlags = createInfo.cpuAccessFlags;
 	desc.MiscFlags = createInfo.miscFlags;
 
+	if (createInfo.mipLevels > 1) {
+		desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	}
+
 	ComPtr<ID3D11Texture2D> texture;
 	const auto result = createInfo.device->GetRawDevice()->CreateTexture2D(
 		&desc, nullptr, &texture

@@ -36,6 +36,7 @@ public:
 	auto GetUnorderedAccessView() -> ComPtr<ID3D11UnorderedAccessView>;
 	auto GetSamplerState() -> ComPtr<ID3D11SamplerState>;
 	auto GetFormat() -> DXGI_FORMAT;
+	auto GetMipLevels() -> UINT;
 
 private:
 	TextureCreateInfo createInfo;
