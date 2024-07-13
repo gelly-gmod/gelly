@@ -10,7 +10,7 @@ Texture2D InputNormal : register(t1);
 SamplerState InputNormalSampler : register(s1);
 
 static const float INVALID_EYE_DEPTH_EPSILON = 0.001f;
-static const float RETAINMENT_PERCENTAGE = 0.5f; // retain 50% of last generation's normal
+static const float RETAINMENT_PERCENTAGE = 1.f; // retain 50% of last generation's normal
 static const float NORMAL_MIP_LEVEL = 8.f;
 
 struct PS_OUTPUT {
