@@ -64,6 +64,7 @@ private:
 	auto SetupInputAssembler() -> void;
 	auto SetupOutputMerger() -> void;
 	auto SetupShaderStages() -> void;
+	auto UpdateMipsForMipmappedTextures() -> void;
 
 	static auto BindInputTexture(
 		const ComPtr<ID3D11DeviceContext> &deviceContext,

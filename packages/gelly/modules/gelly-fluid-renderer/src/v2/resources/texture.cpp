@@ -57,6 +57,10 @@ auto Texture::GetFormat() -> DXGI_FORMAT {
 	return createInfo.format.value_or(createInfo.image->GetFormat());
 }
 
+auto Texture::GetMipLevels() -> UINT {
+	return createInfo.image->GetMipLevels();
+}
+
 auto Texture::CreateRenderTargetView(const ComPtr<ID3D11Texture2D> &texture)
 	-> ComPtr<ID3D11RenderTargetView> {
 	D3D11_RENDER_TARGET_VIEW_DESC desc = {};

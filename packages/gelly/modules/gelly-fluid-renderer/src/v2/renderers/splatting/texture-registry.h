@@ -193,7 +193,9 @@ struct InternalTextures {
 				  .cpuAccessFlags = 0,
 				  .miscFlags = 0,
 				  .arraySize = 1,
-				  .mipLevels = 1,
+				  .mipLevels = 8,  // we want to have mips so that in some
+								   // cases, we can increase a kernel footprint
+								   // without having to use more iterations
 				  .name = "Unfiltered Normals"}
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
