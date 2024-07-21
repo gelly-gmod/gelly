@@ -4,6 +4,8 @@
 #include <fstream>
 #include <vector>
 
+#include "replace-all-occurrences.h"
+
 const std::string HEADER_TEMPLATE = R"(#include <cstddef>
 #include <cstdint>
 // gbp: {NAME}.h
@@ -64,18 +66,6 @@ auto ExtractDLLNameFromPath(const std::string &path) -> std::string {
 	}
 
 	return name;
-}
-
-auto ReplaceAllOccurrences(
-	std::string &target, const std::string &key, const std::string &value
-) -> void {
-	size_t pos = 0;
-	// fairly simple, we just shift the target string by the size of the last
-	// replacement to avoid only replacing the first occurrence
-	while ((pos = target.find(key, pos)) != std::string::npos) {
-		target.replace(pos, key.length(), value);
-		pos += value.length();
-	}
 }
 
 auto ConvertFileToByteArray(const std::string &path) -> std::vector<uint8_t> {

@@ -7,6 +7,9 @@ add_executable(gbp
         src/collect-dll-list-from-argv.cpp
         src/pack-dll.h
         src/pack-dll.cpp
+        src/create-binary-pack-header.h
+        src/create-binary-pack-header.cpp
+        src/replace-all-occurrences.h
 )
 
 set_target_properties(gbp PROPERTIES

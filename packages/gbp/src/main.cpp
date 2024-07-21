@@ -1,7 +1,7 @@
 #include <cstdio>
-#include <iostream>
 
 #include "collect-dll-list-from-argv.h"
+#include "create-binary-pack-header.h"
 #include "pack-dll.h"
 
 int main(const int argc, char *argv[]) {
@@ -39,6 +39,17 @@ int main(const int argc, char *argv[]) {
 		printf("[gbp] Output path (source): %s\n", packedDll.cppPath.c_str());
 		printf("[gbp] Output path (header): %s\n", packedDll.hPath.c_str());
 	}
+
+	printf("[gbp] Successfully packed %lld DLLs\n", packedDLLs.size());
+	printf("[gbp] Emitting binary pack header...\n");
+
+	if (!CreateBinaryPackHeaderFile(argv[2], packedDLLs)) {
+		printf("[gbp] Failed to emit binary pack header, terminating...\n");
+		return 1;
+	}
+
+	printf("[gbp] Successfully emitted binary pack header\n");
+	printf("[gbp] Done!\n");
 
 	return 0;
 }
