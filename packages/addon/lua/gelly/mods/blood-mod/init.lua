@@ -34,10 +34,10 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 		DamageFlags = DMG_CRUSH,
 		MinDensity = 100,
 		MaxDensity = 200,
-		VelocityPower = 4,
-		Randomness = 1,
-		CubeSize = 15,
-		DamageMultiplier = 20,
+		VelocityPower = 2,
+		Randomness = 2,
+		CubeSize = 10,
+		DamageMultiplier = 15,
 	},
 }
 
