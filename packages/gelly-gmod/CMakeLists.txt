@@ -25,6 +25,17 @@ add_subdirectory(../gelly "gelly")
 
 create_shader_glue_targets(GellyGModShaderCompile "Compiling the GMod module's shaders" ${GELLY_PRODUCTION_BUILD})
 
+# compute the GBP binaries we'll need to compile (basically just each 'src/binaries/gbp/*.h' and each 'src/binaries/gbp/*.cpp') file
+set(GBP_SOURCE_FILES "")
+# then figure out the dependencies
+foreach (FLEX_DEP ${FLEX_LIBS})
+    get_filename_component(FLEX_DEP_NAME ${FLEX_DEP} NAME_WE) # very important that we select WE, some files have multiple extensions
+    list(APPEND GBP_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries/gbp/${FLEX_DEP_NAME}.cpp)
+    list(APPEND GBP_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries/gbp/${FLEX_DEP_NAME}.h)
+endforeach ()
+
+message(STATUS "GBP_SOURCE_FILES: ${GBP_SOURCE_FILES}")
+
 add_library(
         gelly-gmod SHARED
         ${SHADER_OUTPUT_FILES}
@@ -102,13 +113,14 @@ add_library(
         src/scene/asset-cache.cpp
         src/scene/asset-cache.h
         src/util/parse-asset-from-filesystem.h
+        ${GBP_SOURCE_FILES}
+        src/binaries/gbp.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions
 if (GELLY_ENABLE_RENDERDOC_CAPTURES)
     add_compile_definitions("GELLY_ENABLE_RENDERDOC_CAPTURES")
 endif ()
-
 
 target_link_libraries(gelly-gmod
         PUBLIC
@@ -152,19 +164,31 @@ set_target_properties(gelly-gmod PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${GELLY_ROOT_DIR}/release/garrysmod/lua/bin
 )
 
+# gbp operates within the scope of a pack--so we don't have to individually create commands for each flex dep--we can just make 1 target to call gbp
+set(GBP_DEPS "")
+
 foreach (FLEX_DEP ${FLEX_LIBS})
-    add_custom_command(TARGET gelly-gmod POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${FLEX_DEP}
-            ${GELLY_ROOT_DIR}/release
-            VERBATIM
-            COMMENT "Copying ${FLEX_DEP} to the output directory"
-    )
+    string(APPEND GBP_DEPS "${FLEX_DEP},")
 endforeach ()
 
-add_custom_target(
-        CopyFlexLibs
-        DEPENDS ${FLEX_LIBS}
+# remove the trailing comma
+string(LENGTH ${GBP_DEPS} GBP_DEPS_LENGTH)
+math(EXPR GBP_DEPS_LENGTH "${GBP_DEPS_LENGTH} - 1")
+string(SUBSTRING ${GBP_DEPS} 0 ${GBP_DEPS_LENGTH} GBP_DEPS)
+
+message(STATUS "GBP_DEPS: ${GBP_DEPS}")
+
+add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries/gbp.h
+        BYPRODUCTS ${GBP_SOURCE_FILES}
+        COMMAND ${GBP_PATH} ${GBP_DEPS} ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries
+        COMMENT "Creating the GBP pack of FleX dependencies"
 )
 
-add_dependencies(gelly-gmod gsc GellyGModShaderCompile CopyFlexLibs)
+add_custom_target(
+        CreateGBPPack
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries/gbp.h
+        COMMENT "Creating the GBP pack of FleX dependencies"
+)
+
+add_dependencies(gelly-gmod gsc gbp GellyGModShaderCompile CreateGBPPack)

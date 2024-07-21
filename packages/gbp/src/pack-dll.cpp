@@ -50,7 +50,7 @@ namespace gbp::binaries::{NAME} {
 auto ExtractDLLNameFromPath(const std::string &path) -> std::string {
 	std::string name;
 	for (int i = static_cast<int>(path.size() - 1); i >= 0; i--) {
-		if (path[i] == '\\') {
+		if (path[i] == '\\' || path[i] == '/') {
 			break;
 		}
 
@@ -59,7 +59,7 @@ auto ExtractDLLNameFromPath(const std::string &path) -> std::string {
 	std::reverse(name.begin(), name.end());
 
 	// we also want to trim out any extension
-	const size_t extensionPos = name.find_last_of('.'
+	const size_t extensionPos = name.find_first_of('.'
 	);	// very important, we have double extension dlls sometimes
 	if (extensionPos != std::string::npos) {
 		name = name.substr(0, extensionPos);
@@ -132,7 +132,7 @@ auto PackDLL(const std::string &dllName, const std::string &outputDir)
 		sourceFile, "{DATA_SIZE}", std::to_string(bytes.size())
 	);
 	ReplaceAllOccurrences(
-		sourceFile, "{H_MODULE_NAME}", packedDLL.name + ".dll"
+		sourceFile, "{H_MODULE_NAME}", dllPath.filename().string()
 	);
 
 	std::ofstream headerFileStream(headerPath);

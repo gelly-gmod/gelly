@@ -15,5 +15,7 @@ auto CollectDLLsFromArguments(char *argv[]) -> std::vector<std::string> {
 		}
 	}
 
+	dlls.push_back(currentDll);	 // push the last dll
+
 	return std::move(dlls);
 }

@@ -4,6 +4,8 @@
 
 # For any resources that are embedded
 generated
+/packages/gelly-gmod/src/binaries/gbp
+/packages/gelly-gmod/src/binaries/gbp.h
 
 # Shaders
 *.dxbc
