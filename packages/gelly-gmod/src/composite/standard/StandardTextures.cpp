@@ -3,7 +3,7 @@
 #include <utility>
 
 std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
-	const char *name, D3DFORMAT format
+	const char *name, D3DFORMAT format, int levels
 ) const {
 	HANDLE sharedHandle = nullptr;
 	ComPtr<IDirect3DTexture9> gmodTexture;
@@ -11,7 +11,7 @@ std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
 	if (FAILED(gmodResources.device->CreateTexture(
 			width,
 			height,
-			1,
+			levels,
 			D3DUSAGE_RENDERTARGET,
 			format,
 			D3DPOOL_DEFAULT,

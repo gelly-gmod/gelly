@@ -50,6 +50,7 @@ auto Pipeline::Run(const std::optional<int> vertexCount) -> void {
 		);
 	}
 
+	UpdateMipsForMipmappedTextures();
 	SetupRenderPass();
 	SetupInputAssembler();
 	SetupOutputMerger();
@@ -213,6 +214,28 @@ auto Pipeline::SetupShaderStages() -> void {
 		const auto *inputBuffer = std::get_if<InputBuffer>(&input);
 		if (inputBuffer) {
 			BindInputBuffer(deviceContext, *inputBuffer);
+		}
+	}
+}
+
+auto Pipeline::UpdateMipsForMipmappedTextures() -> void {
+	auto *deviceContext = createInfo.device->GetRawDeviceContext().Get();
+
+	for (const auto &output : createInfo.outputs) {
+		const auto *outputTexture = std::get_if<OutputTexture>(&output);
+		if (outputTexture && outputTexture->texture->GetMipLevels() > 1) {
+			deviceContext->GenerateMips(
+				outputTexture->texture->GetShaderResourceView().Get()
+			);
+		}
+	}
+
+	for (const auto &input : createInfo.inputs) {
+		const auto *inputTexture = std::get_if<InputTexture>(&input);
+		if (inputTexture && inputTexture->texture->GetMipLevels() > 1) {
+			deviceContext->GenerateMips(
+				inputTexture->texture->GetShaderResourceView().Get()
+			);
 		}
 	}
 }

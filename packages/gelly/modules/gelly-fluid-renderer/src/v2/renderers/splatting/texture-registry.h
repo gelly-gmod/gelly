@@ -82,6 +82,7 @@ struct InternalTextures {
 
 	std::shared_ptr<Texture> unfilteredThickness = nullptr;
 	std::shared_ptr<Texture> unfilteredAlbedo = nullptr;
+	std::shared_ptr<Texture> unfilteredNormals = nullptr;
 	std::shared_ptr<DepthBuffer> ellipsoidDepthBuffer = nullptr;
 
 	InternalTextures(
@@ -176,6 +177,26 @@ struct InternalTextures {
 				  .arraySize = 1,
 				  .mipLevels = 1,
 				  .name = "Unfiltered Albedo"}
+			 ),
+			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+		)),
+		unfilteredNormals(Texture::CreateTexture(
+			{.device = device,
+			 .image = NativeImage::CreateNativeImage(
+				 {.device = device,
+				  .width = width,
+				  .height = height,
+				  .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				  .usage = D3D11_USAGE_DEFAULT,
+				  .bindFlags =
+					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+				  .cpuAccessFlags = 0,
+				  .miscFlags = 0,
+				  .arraySize = 1,
+				  .mipLevels = 8,  // we want to have mips so that in some
+								   // cases, we can increase a kernel footprint
+								   // without having to use more iterations
+				  .name = "Unfiltered Normals"}
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
 		)),

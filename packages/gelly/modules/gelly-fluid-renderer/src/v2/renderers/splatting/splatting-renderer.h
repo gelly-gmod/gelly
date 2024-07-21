@@ -46,8 +46,7 @@ public:
 		 * the frame.
 		 */
 		bool enableGPUSynchronization = true;
-		bool enableBackDepthFiltering = false;
-		bool enableFrontDepthFiltering = true;
+		bool enableSurfaceFiltering = true;
 	};
 
 	struct SplattingRendererCreateInfo {
@@ -81,12 +80,10 @@ private:
 
 	PipelineInfo pipelineInfo;
 	PipelinePtr ellipsoidSplatting;
-	PipelinePtr depthFilteringA;
-	PipelinePtr depthFilteringB;
-	PipelinePtr backDepthFilteringA;
-	PipelinePtr backDepthFilteringB;
+	PipelinePtr surfaceFilteringA;
+	PipelinePtr surfaceFilteringB;
 	PipelinePtr thicknessExtraction;
-	PipelinePtr frontNormalEstimation;
+	PipelinePtr rawNormalEstimation;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	RENDERDOC_API_1_1_2 *renderDoc = nullptr;
@@ -96,7 +93,7 @@ private:
 	auto CreatePipelineInfo() const -> PipelineInfo;
 	auto LinkBuffersToSimData() const -> void;
 
-	auto RunDepthSmoothingFilter(unsigned int iterations) const -> void;
+	auto RunSurfaceFilteringPipeline(unsigned int iterations) const -> void;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 *;

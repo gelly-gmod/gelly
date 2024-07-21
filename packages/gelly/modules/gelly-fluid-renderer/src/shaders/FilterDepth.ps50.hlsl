@@ -6,100 +6,147 @@
 Texture2D InputDepth : register(t0);
 SamplerState InputDepthSampler : register(s0);
 
+Texture2D InputNormal : register(t1);
+SamplerState InputNormalSampler : register(s1);
+
+static const float INVALID_EYE_DEPTH_EPSILON = 0.001f;
+static const float NORMAL_MIP_LEVEL = 8.f;
+
 struct PS_OUTPUT {
-    float4 Color : SV_Target0;
+    float4 FilteredNormal : SV_Target0;
 };
 
-float sqr(float x) {
-    return x * x;
-}
-
-float ComputeBlurScale() {
-    float aspect = g_ViewportWidth / g_ViewportHeight;
-    return g_ViewportWidth / aspect * g_Projection._m11;
-}
-
 float FetchEyeDepth(float2 pixel) {
-    float eyeDepth = InputDepth.Load(int3(pixel, 0)).g;
+    float eyeDepth = InputDepth.SampleLevel(InputDepthSampler, pixel / float2(g_ViewportWidth, g_ViewportHeight), 0).g;
 	// only return negative if it is positive
 	return sign(eyeDepth) == -1.f ? eyeDepth : -eyeDepth;
 }
 
-float FetchProjDepth(float2 pixel) {
-    return InputDepth.Load(int3(pixel, 0)).r;
+float3 FetchNormal(float2 pixel, float eyeDepth) {
+	// In order to increase our kernel's footprint cheaply, we can compute the size of the pixel in world space to determine the mip level to sample from
+	// This is a cheap way to increase the kernel's footprint without having to do any expensive calculations
+	// Anyways, to facilitate this we could accurately unproject the pixel and calculate something something derivative, but that's expensive
+
+	float mipLevel = 8 - 1.3f * log2((0.2f * abs(eyeDepth)) + 0.0001f);
+	mipLevel = clamp(mipLevel, 0, NORMAL_MIP_LEVEL);
+
+	float2 uv = pixel / float2(g_ViewportWidth, g_ViewportHeight);
+    return InputNormal.SampleLevel(InputNormalSampler, uv, mipLevel).xyz;
 }
 
-#define FILTER_RADIUS 2.f
-float CreateIsosurfaceDepth(float2 tex) {
-    float2 inPosition = tex * float2(g_ViewportWidth, g_ViewportHeight);
-    const float blurRadiusWorld = g_ParticleRadius * 0.5f;
-    const float blurScale = ComputeBlurScale();
-    const float blurFalloff = g_ThresholdRatio;
+inline bool IsDepthInvalid(float depth) {
+	return depth >= INVALID_EYE_DEPTH_EPSILON;
+}
 
-    float depth = FetchEyeDepth(inPosition);
-    float blurDepthFalloff = g_ThresholdRatio;
-    float maxBlurRadius = FILTER_RADIUS;
+inline bool IsNormalAllZero(float3 normal) {
+	return dot(normal, normal) == 0.f;
+}
 
-    float radius = FILTER_RADIUS;
-    float radiusInv = 1.0 / radius;
-    float taps = ceil(radius);
-    float frac = taps - radius;
+inline bool IsNormalAllOne(float3 normal) {
+	return dot(normal, normal) == 3.f;
+}
 
-    float sum = 0.0;
-    float wsum = 0.0;
-    float count = 0.0;
+float3 CreateIsosurfaceNormals(float2 tex) {
+    // We compute the normal of the isosurface at the given pixel by sampling the depth and normal textures
+    float2 centerPixel = tex * float2(g_ViewportWidth, g_ViewportHeight);
 
-    for (float y = -FILTER_RADIUS; y <= FILTER_RADIUS; y += 1.0) {
-        for (float x = -FILTER_RADIUS; x <= FILTER_RADIUS; x += 1.0) {
-            float2 offset = float2(x, y);
-            float sample = FetchEyeDepth(inPosition + offset);
-            if (FetchProjDepth(inPosition + offset) >= 1.f) {
-				// lower our offset to the closest valid pixel
-                continue;
-            }
+    /*
+	3x3 isosurface normal kernel
+    [ 0 ] [ 1 ] [ 2 ]
+    [ 3 ] [ 4 ] [ 5 ]
+    [ 6 ] [ 7 ] [ 8 ]
 
-            float r1 = length(float2(x, y)) * radiusInv;
-            float w = exp(-(r1 * r1));
+    We, at filter-time, generate a kernel which remaps the depth values from the maximum being 1/9 to zero.
+    This allows us to sample the depth values in a way that is more robust to noise, and properly filters out discontinuities.
+	We also retain 50% of the last generation's normal to prevent losing features and valid data which may have too small of a footprint to
+	be considered otherwise.
+    */
 
-            float r2 = (sample - depth) * blurDepthFalloff;
-            // 'g' is a Gaussian, but it can have some artifacts.
-            // To remedy it, we use a wider Gaussian, which is
-            // derived from the parametric Gaussian, then
-            // simplified to exp(-(r^2/4))
-            float g = exp(-(r2 * r2) / 8);
-            float wBoundary = step(radius, max(abs(x), abs(y)));
-            float wFrac = 1.0 - wBoundary * frac;
+    float kernel[9] = {
+        FetchEyeDepth(centerPixel + float2(-1, -1)),
+        FetchEyeDepth(centerPixel + float2( 0, -1)),
+        FetchEyeDepth(centerPixel + float2( 1, -1)),
+        FetchEyeDepth(centerPixel + float2(-1,  0)),
+        FetchEyeDepth(centerPixel + float2( 0,  0)),
+        FetchEyeDepth(centerPixel + float2( 1,  0)),
+        FetchEyeDepth(centerPixel + float2(-1,  1)),
+        FetchEyeDepth(centerPixel + float2( 0,  1)),
+        FetchEyeDepth(centerPixel + float2( 1,  1))
+    };
+	
+    float3 normalTaps[9] = {
+        FetchNormal(centerPixel + float2(-1, -1), kernel[0]),
+        FetchNormal(centerPixel + float2( 0, -1), kernel[1]),
+        FetchNormal(centerPixel + float2( 1, -1), kernel[2]),
+        FetchNormal(centerPixel + float2(-1,  0), kernel[3]),
+        FetchNormal(centerPixel + float2( 0,  0), kernel[4]),
+        FetchNormal(centerPixel + float2( 1,  0), kernel[5]),
+        FetchNormal(centerPixel + float2(-1,  1), kernel[6]),
+        FetchNormal(centerPixel + float2( 0,  1), kernel[7]),
+        FetchNormal(centerPixel + float2( 1,  1), kernel[8])
+    };
 
-            sum += sample * w * g * wFrac;
-            wsum += w * g * wFrac;
-            count += g * wFrac;
+    [unroll]
+    for (int i = 0; i < 9; i++) {
+        // our pipeline initializes every invalid depth to D3D11_FLOAT32_MAX so this is how we can check for invalid depth
+        // fun thing is that we don't actually need to even have a special case for this, as the normal will be discarded anyway
+		// since FLOAT32_MAX - <average depth> is always going to be a large number, and it will just be discarded by the kernel
+
+        if (IsNormalAllZero(normalTaps[i]) || IsNormalAllOne(normalTaps[i])) {
+            kernel[i] = 0.f; // discard this kernel value if the normal is invalid
         }
     }
 
-    if (wsum > 0.0) {
-        sum /= wsum;
-	}
+    float centerKernel = kernel[4];
+    [unroll]
+    for (int j = 0; j < 9; j++) { // fyi: different variable name to avoid shadowing since hlsl is unrolling every loop
+        if (kernel[j] == 0.f) {
+            continue;
+        }
 
-    float blend = count / sqr(2.0 * radius + 1.0);
-    return lerp(depth, sum, blend);
+		kernel[j] = abs(kernel[j] - centerKernel) * 20.f;
+		// scale the difference to be between 0 and 1
+		kernel[j] /= -centerKernel; // flip since we're in negative space
+		kernel[j] = saturate(kernel[j]);
+
+		// invert the value so that the maximum value is 1 (which semantically means that the closer the value is to 1, the more we want to retain it)
+		kernel[j] = 1.f - kernel[j];
+        kernel[j] *= 1 / 9.f; // keep the sum of the kernel to 1 to avoid biasing the normal
+    }
+
+    float3 normal = float3(0, 0, 0);
+    [unroll]
+    for (int k = 0; k < 9; k++) {
+        normal += normalTaps[k] * kernel[k];
+    }
+
+    normal = normalize(normal);
+    return normal;
 }
 
 
 PS_OUTPUT main(VS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
-    float2 original = InputDepth.SampleLevel(InputDepthSampler, input.Tex, 0);
-    if (original.r >= 1.f) {
+    float projDepth = InputDepth.SampleLevel(InputDepthSampler, input.Tex, 0).r;
+
+    if (projDepth >= 1.f) {
         discard;
     }
 
 	// there's really no point in filtering the depth if it's underwater
-	if (IsProjDepthUnderwater(original)) {
-		output.Color = float4(original, 0.f, 1.f);
+	if (IsProjDepthUnderwater(projDepth)) {
+		output.FilteredNormal = float4(0, 0, 0, 1);
 		return output;
 	}
 
-    float eyeDepth = CreateIsosurfaceDepth(input.Tex);
-	float projDepth = EyeToProjDepth(eyeDepth);
-    output.Color = float4(projDepth, eyeDepth, 0.f, 1.0f);
+    float3 normal = CreateIsosurfaceNormals(input.Tex);
+    if (isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) {
+        // return the original normal if the new one is invalid
+        normal = InputNormal.SampleLevel(InputNormalSampler, input.Tex, 0).xyz;
+        output.FilteredNormal = float4(normal, 1.f);
+        return output;
+    }
+
+    output.FilteredNormal = float4(normal, 1.f);
     return output;
 }

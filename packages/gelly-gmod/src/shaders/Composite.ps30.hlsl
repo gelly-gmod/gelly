@@ -4,9 +4,12 @@
 #include "material/Absorption.hlsli"
 #include "material/Schlicks.hlsli"
 #include "source-engine/AmbientCube.hlsli"
-
 #include "material/Diffuse.hlsli"
+#include "util/CMRMap.hlsli"
 
+// useful defines for offline debugging
+//#define NORMALS_VIEW
+//#define NORMALS_VIEW_DEBUG_CURVATURE
 sampler2D depthTex : register(s0);
 sampler2D normalTex : register(s1);
 sampler2D positionTex : register(s2);
@@ -98,8 +101,17 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     specularTransmissionLobe *= material.r_st_ior.y;
     roughLobe *= (1.f - material.r_st_ior.y);
 
+#if defined(NORMALS_VIEW)
+    return float4(normal * 0.5f + 0.5f, 1.f);
+#elif defined(NORMALS_VIEW_DEBUG_CURVATURE)
+    // curvature is just the ddx and ddy of the normal, but we need to consider the world space distance between pixels
+    // so we just divide by the worldspace size of the fragment
+    float curvature = length(fwidth(normal));
+    return float4(util::CMRMapFloat(curvature), 1.f);
+#else
     float3 weight = specularTransmissionLobe + roughLobe;
 	return float4(weight, 1.f);
+#endif
 }
 
 PS_OUTPUT main(VS_INPUT input) {
