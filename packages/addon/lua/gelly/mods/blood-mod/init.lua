@@ -6,7 +6,7 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 		DamageFlags = bit.bor(DMG_BULLET, DMG_ALWAYSGIB),
 		MinDensity = 200,
 		MaxDensity = 400,
-		VelocityPower = -10, -- bullets usually are rotating so they can end up flinging blood
+		VelocityPower = -7, -- bullets usually are rotating so they can end up flinging blood
 		Randomness = 0.8, -- spray in the direction of the normal
 		CubeSize = 9,
 		DamageMultiplier = 15, -- density is added by the damage * this
@@ -15,19 +15,20 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 		DamageFlags = DMG_BLAST,
 		MinDensity = 3200,
 		MaxDensity = 5200,
-		VelocityPower = 40,
-		Randomness = 1,
+		VelocityPower = 15,
+		Randomness = 0.9,
 		CubeSize = 10,
 		DamageMultiplier = 90,
 		FromEntity = true,
 	},
 	{
 		DamageFlags = bit.bor(DMG_SLASH, DMG_CLUB),
-		MinDensity = 100,
-		MaxDensity = 200,
-		VelocityPower = 4,
-		Randomness = 0.1,
-		CubeSize = 3,
+		MinDensity = 200,
+		MaxDensity = 2200,
+		VelocityPower = -15,
+		Randomness = 0.95,
+		CubeSize = 10,
+		DamageMultiplier = 5,
 	},
 	{
 		DamageFlags = DMG_CRUSH,
@@ -66,67 +67,19 @@ local WEAPON_BLOOD_CONFIGS = {
 		MaxDensity = 200,
 		VelocityPower = 5, -- a .357 bullet should maybe penetrate through the entire victim
 		Randomness = 0.1,
-		CubeSize = 5,
+		CubeSize = 10,
 		DamageMultiplier = 40,
 	},
 }
 
-local BLOOD_COLOR_MATERIALS = {
-	[BLOOD_COLOR_RED] = {
-		Roughness = 0,
-		IsSpecularTransmission = true,
-		RefractiveIndex = 1.373,
-		Absorption = Vector(0.3, 1.1, 1.1),
-		DiffuseColor = Vector(0, 0, 0),
-	},
-	[BLOOD_COLOR_YELLOW] = {
-		Roughness = 0,
-		IsSpecularTransmission = true,
-		RefractiveIndex = 1.373,
-		Absorption = Vector(0.3, 0.3, 1.1), -- yellow is formed by mixing red and green
-		DiffuseColor = Vector(0, 0, 0),
-	},
-	[BLOOD_COLOR_GREEN] = {
-		Roughness = 0,
-		IsSpecularTransmission = true,
-		RefractiveIndex = 1.373,
-		Absorption = Vector(0.3, 1.1, 1.1),
-		DiffuseColor = Vector(0, 0, 0),
-	},
-	[BLOOD_COLOR_MECH] = {
-		Roughness = 0,
-		IsSpecularTransmission = false,
-		RefractiveIndex = 1.360,
-		Absorption = Vector(10, 10, 10),
-		DiffuseColor = Vector(0, 0, 0),
-	},
-	[BLOOD_COLOR_ANTLION] = {
-		Roughness = 0,
-		IsSpecularTransmission = true,
-		RefractiveIndex = 1.373,
-		Absorption = Vector(0.3, 0.2, 1.1), -- a little yellow-green
-		DiffuseColor = Vector(0, 0, 0),
-	},
-	[BLOOD_COLOR_ZOMBIE] = {
-		Roughness = 0,
-		IsSpecularTransmission = true,
-		RefractiveIndex = 1.373,
-		Absorption = Vector(0.3, 1.1, 1.1),
-		DiffuseColor = Vector(0, 0, 0),
-	},
-	[BLOOD_COLOR_ANTLION_WORKER] = {
-		Roughness = 0,
-		IsSpecularTransmission = true,
-		RefractiveIndex = 1.373,
-		Absorption = Vector(0.3, 0.2, 1.1),
-		DiffuseColor = Vector(0, 0, 0),
-	},
-}
-
-local VALID_ENTS = {
-	prop_ragdoll = true,
-	gib_chunk = true,
-	zippygoremod3_gib = true,
+local BLOOD_COLOR_ABSORPTION = {
+	[BLOOD_COLOR_RED] = Vector(0.3, 1.1, 1.1),
+	[BLOOD_COLOR_YELLOW] = Vector(0.3, 0.3, 1.1), -- yellow is formed by mixing red and green
+	[BLOOD_COLOR_GREEN] = Vector(0.3, 1.1, 1.1),
+	[BLOOD_COLOR_MECH] = Vector(10, 10, 10),
+	[BLOOD_COLOR_ANTLION] = Vector(0.3, 0.2, 1.1), -- a little yellow-green
+	[BLOOD_COLOR_ZOMBIE] = Vector(0.3, 1.1, 1.1),
+	[BLOOD_COLOR_ANTLION_WORKER] = Vector(0, 0, 0),
 }
 
 local function getDamageTypeConfig(damageType)
@@ -153,12 +106,18 @@ local function getConfig(attacker, damageType)
 end
 
 local function sprayBlood(damageType, victim, attacker, position, force, damage, material)
-	local normal = attacker == LocalPlayer() and
-		attacker:GetAimVector() or
-		force:GetNormalized()
-
 	local config = getConfig(attacker, damageType)
 	if not config then return end
+
+	local entpos = (victim:IsNPC() or victim:IsPlayer()) and
+		victim:GetBonePosition(0) or
+		victim:GetPos()
+
+	local normal = config.FromEntity and
+		(entpos - position):GetNormalized() or
+		attacker == LocalPlayer() and
+		attacker:GetAimVector() or
+		force:GetNormalized()
 
 	local density = math.random(config.MinDensity, config.MaxDensity)
 	local velocity = normal * config.VelocityPower
@@ -168,7 +127,7 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage,
 
 	gellyx.emitters.Sphere({
 		center = config.FromEntity and
-			victim:GetPos() or
+			entpos or
 			position,
 		velocity = velocity,
 		radius = config.CubeSize,
@@ -186,13 +145,18 @@ hook.Add(
 			not victim:IsValid() or
 			(not victim:IsPlayer() and
 				not victim:IsNPC() and
-				not VALID_ENTS[victim:GetClass()])
+				not victim:IsRagdoll() )
 		then
 			return
 		end
 
-		sprayBlood(type, victim, attacker, position, force, damage,
-			BLOOD_COLOR_MATERIALS[victim:GetBloodColor() or BLOOD_COLOR_RED])
+		sprayBlood(type, victim, attacker, position, force, damage, {
+			Roughness = 0, -- blood isn't rough at all
+			IsSpecularTransmission = false, -- blood is translucent
+			RefractiveIndex = 1.373, -- blood has a slightly higher refractive index than water
+			Absorption = BLOOD_COLOR_ABSORPTION[victim:GetBloodColor() or BLOOD_COLOR_RED],
+			DiffuseColor = Vector(0, 0, 0),
+		})
 	end
 )
 
