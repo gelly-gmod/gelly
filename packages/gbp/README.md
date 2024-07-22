@@ -4,9 +4,7 @@ gbp is a tool to embed dynamic-link libraries (DLLs) into a single binary. The m
 having to ship them as files which can become a can of worms when it comes to deployment. ~~users really cannot
 understand how to place DLLs in the correct directory~~
 
-It's specifically designed to ingest DLLs, other tools like [incbin](https://github.com/graphitemaster/incbin) *would*
-work but it wouldn't necessarily contain all of our helpers like we have. Those helpers being: MemoryModule support,
-module name to data mapping, etc.
+It's specifically designed to ingest DLLs only. It doesn't support other types of files.
 
 ## Usage
 

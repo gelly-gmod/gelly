@@ -770,6 +770,10 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 
 	LOG_INFO("Hello, world!");
 	LOG_INFO("Grabbing initial information...");
+#ifndef _MSC_VER
+	LOG_WARNING("This copy of Gelly was built with a non-MSVC compiler!");
+	LOG_WARNING("The first load may throw a 'Module not found' error.")
+#endif
 	LOG_INFO("Creating temporary binaries...");
 	for (const auto &binary : gbp::packedBinaries) {
 		const auto binaryPath =

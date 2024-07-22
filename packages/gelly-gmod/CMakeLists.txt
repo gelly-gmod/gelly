@@ -197,6 +197,7 @@ add_custom_command(
         OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries/gbp.h
         BYPRODUCTS ${GBP_SOURCE_FILES}
         COMMAND ${GBP_PATH} ${GBP_DEPS} ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries
+        DEPENDS ${GBP_PATH}
         COMMENT "Creating the GBP pack of FleX dependencies"
 )
 
