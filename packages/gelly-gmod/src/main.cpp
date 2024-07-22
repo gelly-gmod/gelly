@@ -15,6 +15,9 @@
 #include <MinHook.h>
 #include <Windows.h>
 
+#include <fstream>
+
+#include "binaries/gbp.h"
 #include "composite/GModCompositor.h"
 #include "exceptions/generate-stack-trace.h"
 #include "exceptions/get-stack-size.h"
@@ -767,6 +770,31 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 
 	LOG_INFO("Hello, world!");
 	LOG_INFO("Grabbing initial information...");
+	LOG_INFO("Creating temporary binaries...");
+	for (const auto &binary : gbp::packedBinaries) {
+		const auto binaryPath =
+			std::filesystem::current_path() / binary.moduleName;
+
+		if (exists(binaryPath)) {
+			LOG_WARNING(
+				"Found conflicting binary '%s', deleting...",
+				binaryPath.string().c_str()
+			);
+
+			std::filesystem::remove(binaryPath);
+		}
+
+		std::ofstream binaryFile(binaryPath, std::ios::binary);
+		binaryFile.write(
+			reinterpret_cast<const char *>(binary.data), binary.dataSize
+		);
+		binaryFile.close();
+
+		LOG_INFO(
+			"Wrote binary '%s' to disk for loading...",
+			binaryPath.string().c_str()
+		);
+	}
 
 	CViewSetup currentView = {};
 	GetClientViewSetup(currentView);

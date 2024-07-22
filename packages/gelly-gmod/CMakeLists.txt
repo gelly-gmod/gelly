@@ -132,6 +132,7 @@ target_link_libraries(gelly-gmod
         PHYParser
         Tracy::TracyClient
         DbgHelp.lib
+        delayimp.lib
 )
 
 target_include_directories(gelly-gmod
@@ -144,6 +145,7 @@ target_include_directories(gelly-gmod
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/BSPParser
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/PHYParser/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/MemoryModule
         ${GELLY_INCLUDE_DIRS}
 )
 
@@ -154,6 +156,19 @@ else ()
     set_target_properties(gelly-gmod PROPERTIES PREFIX "gmcl_")
     set_target_properties(gelly-gmod PROPERTIES SUFFIX "_win64.dll ")
 endif ()
+
+# Must delay load the FleX DLLs, otherwise we can't extract them from the pack in time.
+# Don't know if other compilers support, so we'll leave a warning here.
+if (NOT MSVC)
+    message(WARNING "Delay loading FleX DLLs is only known to work correctly on MSVC.\
+    If you're using another compiler, you may need to find an alternative solution.\
+    Feel free to PR a fix if you find one!\
+    The important part is that your built Gelly will likely malfunction on first load if you don't find a way to enable delay loading for your linker.\
+    Since we leave behind the packaged binaries, a second load will work fine. Just exercise caution, clang-cl may work, but it is untested.
+    Please don't distribute a build that doesn't work on first load.")
+endif ()
+
+set(CMAKE_SHARED_LINKER_FLAGS " ${CMAKE_SHARED_LINKER_FLAGS} /DELAYLOAD:NVFLEXRELEASED3D_X64.DLL /DELAYLOAD:NVFLEXEXTRELEASED3D_X64.DLL")
 
 # add our version header
 message(STATUS "Configuring gelly-gmod's version as ${GELLY_VERSION}")
