@@ -785,7 +785,19 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 				binaryPath.string().c_str()
 			);
 
-			std::filesystem::remove(binaryPath);
+			std::error_code ec;
+			bool successfullyRemoved = std::filesystem::remove(binaryPath, ec);
+			if (!successfullyRemoved) {
+				LOG_WARNING(
+					"Could not remove binary '%s'. Typically, this happens "
+					"when Windoes does not want to let go of the DLL, implying "
+					"usage (GWater2)",
+					binaryPath.string().c_str()
+				);
+
+				// don't even continue with writing the new binary
+				continue;
+			}
 		}
 
 		std::ofstream binaryFile(binaryPath, std::ios::binary);
