@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.1] - 2024-07-22
+
+### Fixed
+
+- Fixed the new binary packing causing an exception when Gelly is loaded multiple times in the same session.
+- It also fixes binary packing being incompatible with alternative mods, such as GWater2.
+
 ## [1.19.0] - 2024-07-22
 
 ### Added
