@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH "${GELLY_ROOT_DIR}/cmake")
 
 add_subdirectory(../gsc "gsc")
+add_subdirectory(../gbp "gbp")
+set(GBP_PATH "${GBP_PATH}" PARENT_SCOPE)
 set(GSC_PATH "${GSC_PATH}" PARENT_SCOPE)
 
 add_subdirectory(modules/gelly-d3d)
