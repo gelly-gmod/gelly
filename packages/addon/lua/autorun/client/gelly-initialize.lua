@@ -1,21 +1,22 @@
 local showPopup = include("gelly/ui/show-popup.lua")
 include("gelly/ui/settings.lua")
+include("gelly/ui/welcome-screen.lua")
 
 local GELLY_MISSING_TITLE = "Gelly Missing"
 local GELLY_MISSING_CONTENT =
-	"The binary module for gelly-gmod is missing, or can't be loaded. Please check your installation."
+"The binary module for gelly-gmod is missing, or can't be loaded. Please check your installation."
 
 local GELLY_MAP_TITLE = "Failed to parse map"
 local GELLY_MAP_CONTENT =
-	"Failed to parse the map. This is due to the underlying parser failing to parse certain lumps of the map. This is usually due to the map using non-standard features or uncommon features from different BSP versions."
+"Failed to parse the map. This is due to the underlying parser failing to parse certain lumps of the map. This is usually due to the map using non-standard features or uncommon features from different BSP versions."
 
 local GELLY_BAD_BRANCH_TITLE = "Unsupported branch"
 local GELLY_BAD_BRANCH_CONTENT =
-	"Your branch is not supported by gelly-gmod. Please use the x86-64 branch."
+"Your branch is not supported by gelly-gmod. Please use the x86-64 branch."
 
 local GELLY_FIRST_LAUNCH_TITLE = "Welcome to Gelly!"
 local GELLY_FIRST_LAUNCH_CONTENT =
-	"Welcome to Gelly! Gelly is a fluid simulation tool for Garry's Mod. To get started, open your spawn menu and navigate to the 'Weapons' tab. From there, you can select the 'Gelly' category and the Gelly Gun to use Gelly. As a reminder: Gelly is free, open-source software. It is without warranty or support, and it is NOT paid access. Gelly is buggy. If you encounter a bug, please report it to the gelly GitHub repository. Enjoy!"
+"Welcome to Gelly! Gelly is a fluid simulation tool for Garry's Mod. To get started, open your spawn menu and navigate to the 'Weapons' tab. From there, you can select the 'Gelly' category and the Gelly Gun to use Gelly. As a reminder: Gelly is free, open-source software. It is without warranty or support, and it is NOT paid access. Gelly is buggy. If you encounter a bug, please report it to the gelly GitHub repository. Enjoy!"
 
 -- NOTE: The hook type used is highly important. gelly-gmod internally reads the current rendering context from the game,
 -- and at something that would sound sensible, such as InitPostEntity, the rendering context is not yet available--so gelly-gmod reads garbage.
@@ -39,7 +40,7 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 	end
 
 	if isFirstLaunch() then
-		showPopup(GELLY_FIRST_LAUNCH_TITLE, GELLY_FIRST_LAUNCH_CONTENT)
+		vgui.Create("GellyWelcomeScreen")
 		removeFirstLaunchCookie()
 	end
 
