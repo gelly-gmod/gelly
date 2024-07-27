@@ -13,7 +13,7 @@ namespace renderer {
 class ComputePipeline {
 public:
 	struct WorkSize {
-		unsigned int width, height;
+		unsigned int width{}, height{};
 		unsigned int depth = 1;
 	};
 
@@ -27,20 +27,20 @@ public:
 	 * 1 will be bound to register u1.
 	 */
 	struct ComputePipelineCreateInfo {
-		const std::shared_ptr<Device> device;
 		const char *name;
+		const std::shared_ptr<Device> device;
 		const std::shared_ptr<ComputeShader> computeShader;
 		const std::vector<Input> inputs;
 		const std::vector<Output> outputs;
 		const std::vector<std::shared_ptr<Buffer>> constantBuffers;
+		const unsigned int repeatCount = 1;
 	};
 
-	ComputePipeline(const ComputePipelineCreateInfo &createInfo);
+	explicit ComputePipeline(const ComputePipelineCreateInfo &createInfo);
 	~ComputePipeline() = default;
 
-	static auto CreateComputePipeline(
-		const ComputePipelineCreateInfo &&createInfo
-	) -> std::shared_ptr<ComputePipeline>;
+	static auto CreateComputePipeline(ComputePipelineCreateInfo &&createInfo)
+		-> std::shared_ptr<ComputePipeline>;
 
 	auto Dispatch(const WorkSize &workSize) -> void;
 

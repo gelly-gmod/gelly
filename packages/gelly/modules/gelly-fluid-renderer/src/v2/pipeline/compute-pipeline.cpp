@@ -6,7 +6,7 @@ ComputePipeline::ComputePipeline(const ComputePipelineCreateInfo &createInfo) :
 	createInfo(createInfo) {}
 
 auto ComputePipeline::CreateComputePipeline(
-	const ComputePipelineCreateInfo &&createInfo
+	ComputePipelineCreateInfo &&createInfo
 ) -> std::shared_ptr<ComputePipeline> {
 	return std::make_shared<ComputePipeline>(createInfo);
 }
@@ -16,15 +16,22 @@ auto ComputePipeline::Dispatch(const WorkSize &workSize) -> void {
 	SetupReadOnlyInputs();
 	SetupRWInputsAndOutputs();
 	SetupConstantBuffers();
+	deviceContext->CSSetShader(
+		createInfo.computeShader->GetRawShader().Get(), nullptr, 0
+	);
 
-	deviceContext->Dispatch(workSize.width, workSize.height, workSize.depth);
+	for (unsigned int i = 0; i < createInfo.repeatCount; i++) {
+		deviceContext->Dispatch(
+			workSize.width / 4, workSize.height, workSize.depth
+		);
+	}
 }
 
 auto ComputePipeline::SetupReadOnlyInputs() -> void {
 	const auto deviceContext = createInfo.device->GetRawDeviceContext();
 	for (const auto &input : createInfo.inputs) {
 		if (const auto *texture = std::get_if<InputTexture>(&input);
-			texture->bindFlag == D3D11_BIND_SHADER_RESOURCE) {
+			texture && texture->bindFlag == D3D11_BIND_SHADER_RESOURCE) {
 			deviceContext->CSSetShaderResources(
 				texture->slot,
 				1,
@@ -39,7 +46,7 @@ auto ComputePipeline::SetupReadOnlyInputs() -> void {
 		}
 
 		if (const auto *buffer = std::get_if<InputBuffer>(&input);
-			buffer->bindFlag == D3D11_BIND_SHADER_RESOURCE) {
+			buffer && buffer->bindFlag == D3D11_BIND_SHADER_RESOURCE) {
 			deviceContext->CSSetShaderResources(
 				buffer->slot,
 				1,
@@ -55,19 +62,19 @@ auto ComputePipeline::SetupRWInputsAndOutputs() -> void {
 
 	for (const auto &input : createInfo.inputs) {
 		if (const auto *texture = std::get_if<InputTexture>(&input);
-			texture->bindFlag == D3D11_BIND_UNORDERED_ACCESS) {
+			texture && texture->bindFlag == D3D11_BIND_UNORDERED_ACCESS) {
 			uavs.push_back(texture->texture->GetUnorderedAccessView().Get());
 		}
 
 		if (const auto *buffer = std::get_if<InputBuffer>(&input);
-			buffer->bindFlag == D3D11_BIND_UNORDERED_ACCESS) {
+			buffer && buffer->bindFlag == D3D11_BIND_UNORDERED_ACCESS) {
 			uavs.push_back(buffer->buffer->GetUnorderedAccessView().Get());
 		}
 	}
 
 	for (const auto &output : createInfo.outputs) {
 		if (const auto *texture = std::get_if<OutputTexture>(&output);
-			texture->bindFlag == D3D11_BIND_UNORDERED_ACCESS) {
+			texture && texture->bindFlag == D3D11_BIND_UNORDERED_ACCESS) {
 			uavs.push_back(texture->texture->GetUnorderedAccessView().Get());
 		}
 	}
