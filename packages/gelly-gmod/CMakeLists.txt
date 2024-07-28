@@ -207,4 +207,14 @@ add_custom_target(
         COMMENT "Creating the GBP pack of FleX dependencies"
 )
 
+# we also want to version the binary after it's built
+if (RCEDIT)
+    message(STATUS "Versioning gelly-gmod binary as: ${GELLY_VERSION}")
+    add_custom_command(
+            POST_BUILD
+            COMMAND ${RCEDIT} \"$<TARGET_FILE:gelly-gmod>\" --set-file-version \"${GELLY_VERSION}\" --set-version-string \"companyname\" \"Gelly\" --set-version-string \"productname\" \"Gelly binary module\" --set-version-string \"filedescription\" \"Gelly's binary module for Garry's Mod\"
+            TARGET gelly-gmod
+    )
+endif ()
+
 add_dependencies(gelly-gmod gsc gbp GellyGModShaderCompile CreateGBPPack)

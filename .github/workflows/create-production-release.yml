@@ -45,9 +45,14 @@ jobs:
             -   name: Run sccache-cache
                 uses: mozilla-actions/sccache-action@v0.0.3
 
+            -   name: Download rcedit-x64
+                run: |
+                    Invoke-WebRequest "https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe" -OutFile "rcedit-x64.exe"
+
             -   name: Perform build
                 run: |
-                    cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }}
+                    # We'll want cmake to know about rcedit so we'll just add the current working directory as a search root
+                    cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }} -DCMAKE_PROGRAM_PATH="$(Get-Location)"
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }}
 
             -   name: Add addon to release
