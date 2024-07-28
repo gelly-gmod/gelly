@@ -27,6 +27,11 @@ if (SCCACHE)
     cmake_policy(SET CMP0141 NEW)
 endif ()
 
+find_program(RCEDIT rcedit-x64)
+if (RCEDIT)
+    message(STATUS "Using rcedit for binary versioning")
+endif ()
+
 # if we use clang we gotta turn off -Wattributes, it can cause an absolutely absurd amount of warnings (200+)
 message(STATUS "CMAKE_CXX_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
