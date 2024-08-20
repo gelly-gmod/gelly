@@ -1,13 +1,9 @@
 #include "SplattingStructs.hlsli"
 #include "FluidRenderCBuffer.hlsli"
 
-static const float2 corners[4] = {
-    float2(0.0, 1.0), float2(0.0, 0.0),
-    float2(1.0, 1.0), float2(1.0, 0.0)
-};
-
 // cuts out tiny particles that are just gonna be noise in the final image
 #define VARIANCE_THRESHOLD 0.7f
+
 
 [maxvertexcount(4)]
 void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {

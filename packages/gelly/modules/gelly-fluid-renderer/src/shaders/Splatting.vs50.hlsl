@@ -24,6 +24,7 @@ void SolveForHeight(in float4x4 invClip, out float yMin, out float yMax) {
     SolveQuadratic(a2, b2, c2, yMin, yMax);
 }
 
+
 VS_OUTPUT main(VS_INPUT input) {
     VS_OUTPUT output = (VS_OUTPUT)0;
     output.Pos = float4(input.Pos.xyz, 1.f);

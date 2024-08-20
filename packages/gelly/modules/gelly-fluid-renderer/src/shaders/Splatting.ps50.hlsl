@@ -12,13 +12,13 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	float4x4 invQuadric = input.InvQuadric;
     float4 position = input.Pos;
 
-    float2 invViewport = float2(
-        rcp(g_ViewportWidth),
-        rcp(g_ViewportHeight)
-    );
+    float2 invViewport = rcp(float2(
+    	g_ViewportWidth,
+        g_ViewportHeight
+    ));
 	
     float4 ndcPos = float4(
-        input.Pos.x * invViewport.x * 2.f - 1.f,
+        mad(input.Pos.x, invViewport.x * 2.f, -1.f),
         (1.f - input.Pos.y * invViewport.y) * 2.f - 1.f,
         0.f,
         1.f
@@ -31,8 +31,8 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     // Solve the quadratic equation
     float a = dot(dir.xyz, dir.xyz);
-    float b = dot(dir.xyz, origin.xyz) - dir.w*origin.w;
-    float c = sqr(origin.x) + sqr(origin.y) + sqr(origin.z) - sqr(origin.w);
+    float b = -mad(dir.w, origin.w, -dot(dir.xyz, origin.xyz));
+    float c = dot(origin.xyz, origin.xyz) - sqr(origin.w);
 
     float minT, maxT;
 
