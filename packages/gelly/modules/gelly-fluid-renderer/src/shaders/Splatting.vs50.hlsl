@@ -69,6 +69,5 @@ VS_OUTPUT main(VS_INPUT input) {
     output.NDCPos /= output.NDCPos.w;
 
 	output.Absorption = g_Absorption[input.ID];
-	
     return output;
 }

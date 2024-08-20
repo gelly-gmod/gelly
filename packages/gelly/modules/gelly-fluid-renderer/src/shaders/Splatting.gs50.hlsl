@@ -12,11 +12,13 @@ static const float2 corners[4] = {
 [maxvertexcount(4)]
 void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     GS_OUTPUT output = (GS_OUTPUT)0;
+	[branch]
 	if (input[0].Variance < VARIANCE_THRESHOLD) {
 		return;
 	}
 
     // if we're outside of the NDC cube, we might as well discard
+	[branch]
 	if (input[0].NDCPos.x < -1.0 || input[0].NDCPos.x > 1.0 || input[0].NDCPos.y < -1.0 || input[0].NDCPos.y > 1.0) {
 		return;
 	}

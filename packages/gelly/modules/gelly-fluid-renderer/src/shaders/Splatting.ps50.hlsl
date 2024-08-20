@@ -14,7 +14,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     float2 invViewport = float2(
         rcp(g_ViewportWidth),
-        (g_ViewportWidth / g_ViewportHeight) / g_ViewportWidth
+        rcp(g_ViewportHeight)
     );
 	
     float4 ndcPos = float4(
@@ -36,6 +36,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     float minT, maxT;
 
+	[branch]
     if (!SolveQuadratic(a, 2.f * b, c, minT, maxT)) {
         discard;
     }
@@ -52,6 +53,5 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
 	output.FrontDepth = float2(projectionDepth, -eyeDepth);
 	output.Thickness = 0.1f; // arbitrary value, gets added up to form the thickness
-
     return output;
 }

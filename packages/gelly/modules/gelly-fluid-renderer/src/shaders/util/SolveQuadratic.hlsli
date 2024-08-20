@@ -4,6 +4,8 @@ float Sign(float x) {
 
 bool SolveQuadratic(float a, float b, float c, out float minT, out float maxT) {
 	float discriminant = fma(c * -4.0, (double)a, (double)b * b);
+	
+	[branch]
 	if (discriminant <= 0.0f)
 	{
 		minT = maxT = 0.0f;
