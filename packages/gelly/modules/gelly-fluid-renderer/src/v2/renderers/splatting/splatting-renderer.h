@@ -37,7 +37,7 @@ private:
 class SplattingRenderer {
 public:
 	struct Settings {
-		unsigned int filterIterations = 10;
+		unsigned int filterIterations = 5;
 		/**
 		 * There is no need to disable this unless you are debugging. Seriously,
 		 * if this is disabled then it's purely up to random chance if your
