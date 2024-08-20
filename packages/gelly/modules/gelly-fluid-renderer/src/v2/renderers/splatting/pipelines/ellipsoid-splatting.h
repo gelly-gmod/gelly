@@ -70,14 +70,14 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
 				 },
 				 D3D11_RENDER_TARGET_BLEND_DESC{
-					 // back depth
+					 // thickness, we just want to add the values
 					 .BlendEnable = true,
 					 .SrcBlend = D3D11_BLEND_ONE,
 					 .DestBlend = D3D11_BLEND_ONE,
-					 .BlendOp = D3D11_BLEND_OP_MAX,
+					 .BlendOp = D3D11_BLEND_OP_ADD,
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
 					 .DestBlendAlpha = D3D11_BLEND_ONE,
-					 .BlendOpAlpha = D3D11_BLEND_OP_MAX,
+					 .BlendOpAlpha = D3D11_BLEND_OP_ADD,
 					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
 				 }},
 		}},
@@ -172,11 +172,11 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 			  },
 			  OutputTexture{
 				  .texture =
-					  info.internalTextures->unfilteredBackEllipsoidDepth,
+					  info.outputTextures->thickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
 				  .clearColor =
-					  {0.f, std::numeric_limits<float>::min(), 0.f, 0.f}
+					  {0.f, 0.f, 0.f, 0.f}
 			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),

@@ -30,5 +30,5 @@ struct GS_OUTPUT {
 struct PS_OUTPUT {
 	float4 Absorption : SV_Target0;
 	float2 FrontDepth : SV_Target1;
-	float2 BackDepth : SV_Target2;
+	float Thickness : SV_Target2;
 };

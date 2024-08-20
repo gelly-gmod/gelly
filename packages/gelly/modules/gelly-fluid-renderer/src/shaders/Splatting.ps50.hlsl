@@ -70,7 +70,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	// but that is not the case for the projection depth, which is a positive value which we depth test with min/max
 	// so we need to negate the eye depth to make it behave like the projection depth, later we will negate it again
 	output.FrontDepth = float2(projectionDepth, -eyeDepth);
-	output.BackDepth = float2(backProjectionDepth, -backEyeDepth);
+	output.Thickness = 0.1f; // arbitrary value, gets added up to form the thickness
 
     return output;
 }

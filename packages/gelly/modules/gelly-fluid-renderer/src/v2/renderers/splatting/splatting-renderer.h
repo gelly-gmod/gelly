@@ -82,7 +82,6 @@ private:
 	PipelinePtr ellipsoidSplatting;
 	PipelinePtr surfaceFilteringA;
 	PipelinePtr surfaceFilteringB;
-	PipelinePtr thicknessExtraction;
 	PipelinePtr rawNormalEstimation;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
