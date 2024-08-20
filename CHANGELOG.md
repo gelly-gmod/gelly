@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Backported the old additive thickness model. This should alleviate the problem of seeing fluids across walls.
 
+### Changed
+
+- Piss radius was decreased.
+- Piss friction was corrected to be the same as water.
+
 ### Removed
 
 - Old physically-based thickness model
