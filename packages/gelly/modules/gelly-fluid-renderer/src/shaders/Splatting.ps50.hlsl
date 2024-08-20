@@ -13,10 +13,10 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float4 position = input.Pos;
 
     float2 invViewport = float2(
-        1.f / g_ViewportWidth,
+        rcp(g_ViewportWidth),
         (g_ViewportWidth / g_ViewportHeight) / g_ViewportWidth
     );
-
+	
     float4 ndcPos = float4(
         input.Pos.x * invViewport.x * 2.f - 1.f,
         (1.f - input.Pos.y * invViewport.y) * 2.f - 1.f,
@@ -43,10 +43,10 @@ PS_OUTPUT main(GS_OUTPUT input) {
 	minT = max(minT, 0.f);
 	clip(maxT);
 
-    float3 eyePos = viewDir.xyz * minT;
+    float3 eyePos = minT * viewDir.xyz;
     float4 rayNDCPos = mul(g_Projection, float4(eyePos, 1.f));
 
-    float projectionDepth = rayNDCPos.z / rayNDCPos.w;
+    float projectionDepth = rayNDCPos.z * rcp(rayNDCPos.w);
     float eyeDepth = eyePos.z;
 
 	output.Absorption = float4(input.Absorption.xyz, 1.f);

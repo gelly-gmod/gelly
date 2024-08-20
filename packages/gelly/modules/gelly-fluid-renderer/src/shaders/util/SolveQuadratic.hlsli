@@ -3,20 +3,14 @@ float Sign(float x) {
 }
 
 bool SolveQuadratic(float a, float b, float c, out float minT, out float maxT) {
-    if (a == 0.0 && b == 0.0)
+	float discriminant = fma(c * -4.0, (double)a, (double)b * b);
+	if (discriminant <= 0.0f)
 	{
-		minT = maxT = 0.0;
-		return true;
-	}
-
-	float discriminant = b * b - 4.0 * a * c;
-
-	if (discriminant < 0.0)
-	{
+		minT = maxT = 0.0f;
 		return false;
 	}
 
-	float t = -0.5*(b + Sign(b)*sqrt(discriminant));
+	float t = fma((double)Sign(b), (double)sqrt(discriminant), (double)b) * -0.5f;
 	minT = t / a;
 	maxT = c / t;
 
