@@ -22,10 +22,6 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
 	}
 
     float4 bounds = input[0].Bounds;
-    const float4 invQ0 = input[0].InvQ0;
-    const float4 invQ1 = input[0].InvQ1;
-    const float4 invQ2 = input[0].InvQ2;
-    const float4 invQ3 = input[0].InvQ3;
 
     float xmin = bounds.x;
     float xmax = bounds.y;
@@ -33,34 +29,22 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     float ymax = bounds.w;
 
     output.Pos = float4(xmin, ymax, 0.5f, 1.0f);
-    output.InvQ0 = invQ0;
-    output.InvQ1 = invQ1;
-    output.InvQ2 = invQ2;
-    output.InvQ3 = invQ3;
+    output.InvQuadric = input[0].InvQuadric;
 	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmin, ymin, 0.5f, 1.0f);
-    output.InvQ0 = invQ0;
-    output.InvQ1 = invQ1;
-    output.InvQ2 = invQ2;
-    output.InvQ3 = invQ3;
+    output.InvQuadric = input[0].InvQuadric;
 	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmax, ymax, 0.5f, 1.0f);
-    output.InvQ0 = invQ0;
-    output.InvQ1 = invQ1;
-    output.InvQ2 = invQ2;
-    output.InvQ3 = invQ3;
+    output.InvQuadric = input[0].InvQuadric;
 	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 
     output.Pos = float4(xmax, ymin, 0.5f, 1.0f);
-    output.InvQ0 = invQ0;
-    output.InvQ1 = invQ1;
-    output.InvQ2 = invQ2;
-    output.InvQ3 = invQ3;
+    output.InvQuadric = input[0].InvQuadric;
 	output.Absorption = input[0].Absorption;
     triStream.Append(output);
 }

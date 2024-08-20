@@ -9,10 +9,7 @@ struct VS_INPUT {
 struct VS_OUTPUT {
     float4 Pos : SV_Position;
     float4 Bounds : BOUNDS;
-    float4 InvQ0 : INVQ0;
-    float4 InvQ1 : INVQ1;
-    float4 InvQ2 : INVQ2;
-    float4 InvQ3 : INVQ3;
+    float4x4 InvQuadric : INVQUADRIC;
 	float Variance : VARIANCE;
     float4 NDCPos : NDCPos;
 	float3 Absorption : ABSORPTION;
@@ -20,10 +17,7 @@ struct VS_OUTPUT {
 
 struct GS_OUTPUT {
     float4 Pos : SV_Position;
-    float4 InvQ0 : INVQ0;
-    float4 InvQ1 : INVQ1;
-    float4 InvQ2 : INVQ2;
-    float4 InvQ3 : INVQ3;
+    float4x4 InvQuadric : INVQUADRIC;
 	float3 Absorption : ABSORPTION;
 };
 

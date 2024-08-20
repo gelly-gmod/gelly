@@ -62,10 +62,7 @@ VS_OUTPUT main(VS_INPUT input) {
 
     // send down to geometry shader
     output.Bounds = float4(xMin, xMax, yMin, yMax);
-    output.InvQ0 = invQuadric._m00_m10_m20_m30;
-    output.InvQ1 = invQuadric._m01_m11_m21_m31;
-    output.InvQ2 = invQuadric._m02_m12_m22_m32;
-    output.InvQ3 = invQuadric._m03_m13_m23_m33;
+    output.InvQuadric = invQuadric;
 
     // and to speed things up we'll pass down the NDC position for frustum culling in the GS
     output.NDCPos = mul(g_Projection, mul(g_View, float4(input.Pos.xyz, 1.f)));
