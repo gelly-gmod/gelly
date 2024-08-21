@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.4] - 2024-08-20
+
+### Changed
+
+- Reduced the visibility of individual particles in the thickness
+- Thickness is now feathered, which should make it less apparent
+
 ## [1.20.3] - 2024-08-20
 
 ### Fixed
