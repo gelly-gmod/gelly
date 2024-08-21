@@ -39,6 +39,8 @@ struct CompositeConstants {
 
 	AmbientLightCube ambientLightCube;
 	PipelineFluidMaterial material;
+
+	XMFLOAT4X4 viewProj;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
