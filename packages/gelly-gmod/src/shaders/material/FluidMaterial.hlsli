@@ -11,7 +11,7 @@ struct FluidMaterial {
 };
 
 float TexRefractFromMaterial(in FluidMaterial material) {
-    // Completely phyiscally incorrect, but it looks ok and we're not exactly able to refract in a single pass
+    // Completely physically incorrect, but it looks ok and we're not exactly able to refract in a single pass
     return material.r_st_ior.z * 0.01f;
 }
 
