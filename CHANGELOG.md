@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed refraction being diagonal, it now properly magnifies the background.
+- Fixed thickness balls being too apparent, they should now be less noticeable.
 
 ## [1.20.2] - 2024-08-20
 
