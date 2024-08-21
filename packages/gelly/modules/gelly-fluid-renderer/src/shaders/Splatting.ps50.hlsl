@@ -52,6 +52,13 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
 	output.FrontDepth = float2(projectionDepth, -eyeDepth);
-	output.Thickness = 0.1f * abs(maxT - minT); // arbitrary value, gets added up to form the thickness
+
+    float internalDistance = abs(maxT - minT);
+    float featheringGaussianWidth = 0.73f; // arbitrary value
+    float thicknessFeatheringGaussian = exp(-sqr(internalDistance) / 2.f * sqr(featheringGaussianWidth));
+
+    // we want lower thickness for thin parts, so we will invert the value
+    thicknessFeatheringGaussian = 1.f - thicknessFeatheringGaussian;
+	output.Thickness = 0.1f * thicknessFeatheringGaussian; // arbitrary value, gets added up to form the thickness
     return output;
 }
