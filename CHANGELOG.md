@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - All the legacy emitters were removed, they were replaced by the disc emitter.
 
+### Fixed
+
+- Fixed changelogs being corrupted when they had multiple lines.
+- Fixed FleX instability at high radius
+- Fixed surface filter not working properly with high-radius fluids
+
 ## [1.20.4] - 2024-08-20
 
 ### Changed
