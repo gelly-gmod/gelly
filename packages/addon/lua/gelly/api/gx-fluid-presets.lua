@@ -34,6 +34,7 @@ function gellyx.presets.loadPresetFiles()
 end
 
 local function selectPreset(preset)
+	preset.SolverParams.RestDistanceRatio = preset.SolverParams.RestDistanceRatio or 0.73
 	gelly.ChangeParticleRadius(preset.Radius * presetRadiusScaleConVar:GetFloat())
 	gelly.SetFluidProperties(preset.SolverParams)
 	gelly.SetFluidMaterial(preset.Material)
@@ -73,6 +74,10 @@ end
 
 function gellyx.presets.getCustomPresets()
 	return table.Copy(GELLY_CUSTOM_PRESETS)
+end
+
+function gellyx.presets.getEffectiveRadius()
+	return GELLY_ACTIVE_PRESET.Radius * presetRadiusScaleConVar:GetFloat()
 end
 
 --- Copies a preset's material.

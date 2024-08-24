@@ -35,7 +35,7 @@ function ENT:Think()
 	gellyx.emitters.Cube({
 		center = Vector(0, 0, 50),
 		velocity = Vector(0, 0, 55),
-		bounds = Vector(7, 5, 80),
+		bounds = Vector(2.3 * gellyx.presets.getEffectiveRadius(), 1.6 * gellyx.presets.getEffectiveRadius(), 80),
 		density = 355,
 		transform = transform,
 	})

@@ -255,6 +255,8 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 						arg.vorticityConfinement;
 					solverParams.viscosity = arg.viscosity;
 					solverParams.dynamicFriction = arg.dynamicFriction;
+					solverParams.fluidRestDistance =
+						solverParams.radius * arg.restDistanceRatio;
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();
