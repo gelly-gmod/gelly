@@ -6,9 +6,10 @@ return {
 		Viscosity = 0,
 		SurfaceTension = 0.0,
 		Adhesion = 0,
-		Cohesion = 0.01,
+		Cohesion = 0.05,
 		VorticityConfinement = 15,
 		DynamicFriction = 1,
+		RestDistanceRatio = 0.60,
 	},
 	Material = {
 		Roughness = 0,

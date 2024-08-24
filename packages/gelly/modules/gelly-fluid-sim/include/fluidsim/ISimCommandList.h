@@ -24,6 +24,11 @@ struct SetFluidProperties {
 	float vorticityConfinement;
 	float adhesion;
 	float dynamicFriction;
+	/**
+	 * Ratio of the rest distance to the radius of the particles. (typically
+	 * 0.73)
+	 */
+	float restDistanceRatio = 0.73f;
 };
 
 struct Reset {};

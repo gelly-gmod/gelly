@@ -519,6 +519,7 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	GET_LUA_TABLE_MEMBER(float, VorticityConfinement);
 	GET_LUA_TABLE_MEMBER(float, Adhesion);
 	GET_LUA_TABLE_MEMBER(float, DynamicFriction);
+	GET_LUA_TABLE_MEMBER(float, RestDistanceRatio);
 
 	SetFluidProperties props = {};
 	props.viscosity = Viscosity;
@@ -527,6 +528,7 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	props.vorticityConfinement = VorticityConfinement;
 	props.adhesion = Adhesion;
 	props.dynamicFriction = DynamicFriction;
+	props.restDistanceRatio = RestDistanceRatio;
 
 	scene->SetFluidProperties(props);
 	CATCH_GELLY_EXCEPTIONS();

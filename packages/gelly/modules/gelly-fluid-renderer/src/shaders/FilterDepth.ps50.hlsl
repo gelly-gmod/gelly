@@ -27,7 +27,10 @@ float3 FetchNormal(float2 pixel, float eyeDepth) {
 	// This is a cheap way to increase the kernel's footprint without having to do any expensive calculations
 	// Anyways, to facilitate this we could accurately unproject the pixel and calculate something something derivative, but that's expensive
 
-	float mipLevel = 8 - 1.3f * log2((0.2f * abs(eyeDepth)) + 0.0001f);
+	// This term cheaply accounts for higher depth discontinuities across
+	// high radius particles
+	float radiusAdjustmentTerm = 0.2f * g_ParticleRadius;
+	float mipLevel = 8 - 1.3f * log2((0.2f * abs(eyeDepth)) + 0.0001f) + radiusAdjustmentTerm;
 	mipLevel = clamp(mipLevel, 0, NORMAL_MIP_LEVEL);
 
 	float2 uv = pixel / float2(g_ViewportWidth, g_ViewportHeight);

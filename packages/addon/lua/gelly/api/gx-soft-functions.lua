@@ -19,7 +19,7 @@ function gellyx.AddParticles(particles, material)
 	material = material or GELLY_ACTIVE_PRESET.Material
 
 	local rawParticles = {}
-	if activeParticles() + #particles > maxParticles() then
+	if gellyx.isParticleLimitReached(#particles) then
 		return false
 	end
 
@@ -30,4 +30,12 @@ function gellyx.AddParticles(particles, material)
 
 	gelly.AddParticles(rawParticles, material.Absorption)
 	return true
+end
+
+--- Returns whether the particle limit has been reached, optionally testing with incrementing the particle count by the given amount.
+---@param increment number? The amount to increment the particle count by.
+---@return boolean
+function gellyx.isParticleLimitReached(increment)
+	increment = increment or 0
+	return activeParticles() + increment >= maxParticles()
 end
