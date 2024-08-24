@@ -4,11 +4,12 @@ return {
 	DiffuseScale = 0,
 	SolverParams = {
 		Viscosity = 20,
-		SurfaceTension = 0.001,
+		SurfaceTension = 0,
 		Adhesion = 0,
 		Cohesion = 0.8,
 		VorticityConfinement = 0,
 		DynamicFriction = 0.1,
+		RestDistanceRatio = 0.58,
 	},
 	Material = {
 		Roughness = 1,
