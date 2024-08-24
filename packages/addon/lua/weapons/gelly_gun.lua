@@ -18,7 +18,7 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic = true
 SWEP.Secondary.Ammo = ""
 
-SWEP.ParticleDensity = 300
+SWEP.ParticleDensity = 150
 SWEP.FireRate = 40      -- bursts per second
 SWEP.RapidFireBoost = 6 -- how much proportional quantity of particles to emit when rapid firing
 
@@ -95,7 +95,7 @@ function SWEP:PrimaryAttack()
 	gellyx.emitters.Cube({
 		center = owner:GetShootPos() + owner:GetAimVector() * 110,
 		velocity = owner:GetAimVector() * 2,
-		bounds = Vector(30, 30, 30),
+		bounds = Vector(5, 5, 5),
 		density = self.ParticleDensity,
 	})
 
@@ -109,12 +109,11 @@ function SWEP:SecondaryAttack()
 	end
 
 	local owner = self:GetOwner()
-	local jitterDisplacement = VectorRand() * 15 -- we want to jitter the particles so that they don't overlap as much
 	gellyx.emitters.Cube({
-		center = owner:GetShootPos() + owner:GetAimVector() * 110 + jitterDisplacement,
+		center = owner:GetShootPos() + owner:GetAimVector() * 110,
 		velocity = owner:GetAimVector() * 70,
-		bounds = Vector(20, 20, 20),
-		density = self.ParticleDensity * self.RapidFireBoost,
+		bounds = Vector(5, 5, 5),
+		density = self.ParticleDensity
 	})
 
 	self:SetNextSecondaryFire(CurTime() + 1 / self.FireRate * self.RapidFireBoost)
