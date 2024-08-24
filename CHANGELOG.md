@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2024-08-24
+
+### Added
+
+- Added the disc emitter, a new small disc which emits the current fluid. Configure it with the context menu.
+- Added support for high-radius fluids. Use the "gelly_preset_radius_scale" console command for now.
+
+### Changed
+
+- Linearized the mip regression function with respect to the radius of the fluid. This will make surfaces smoother even
+  at high radius.
+- Water preset is now less spiky, it should be more like water now.
+- Piss preset is the same as the Water preset, but its color was strengthened.
+- Gell-O preset was reworked from scratch, it should now be more like jelly.
+- Glunk preset was smoothed out, it should be very creamy now.
+- Blood preset was tuned to act more like blood, it should be more opaque now as well.
+
+### Removed
+
+- All the legacy emitters were removed, they were replaced by the disc emitter.
+
 ## [1.20.4] - 2024-08-20
 
 ### Changed
