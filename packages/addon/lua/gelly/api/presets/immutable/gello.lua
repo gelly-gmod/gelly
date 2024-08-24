@@ -9,6 +9,7 @@ return {
 		Cohesion = 0.2,
 		VorticityConfinement = 0,
 		DynamicFriction = 0.1,
+		RestDistanceRatio = 0.55,
 	},
 	Material = {
 		Roughness = 0,

@@ -409,8 +409,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.maxSpeed = FLT_MAX;
 	solverParams.maxAcceleration = 100.0f;	// approximately 10x gravity
 
-	solverParams.relaxationMode = eNvFlexRelaxationGlobal;
-	solverParams.relaxationFactor = 0.25f;
+	solverParams.relaxationMode = eNvFlexRelaxationLocal;
+	solverParams.relaxationFactor = 1.f;
 	solverParams.solidPressure = 5.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
