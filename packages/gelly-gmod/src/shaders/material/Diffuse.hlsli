@@ -1,6 +1,6 @@
 // From the "Moving Frostbite to Physically Based Rendering" paper
 float3 F_Schlick(in float3 f0, in float f90, in float u) {
-    return f0 + (f90 - f0) * pow(1.f - u, 5);
+    return f0 + (f90 - f0) * pow(1.f - u, 5.f);
 }
 
 float Fr_DisneyDiffuse(float NdotV, float NdotL, float LdotH, float linearRoughness) {

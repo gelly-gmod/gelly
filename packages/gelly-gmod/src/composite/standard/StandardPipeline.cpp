@@ -421,8 +421,13 @@ void StandardPipeline::Composite() {
 	// composite
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-	// and multisanple antialiasing
-	device->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+	// we also want to disable any sort of fixed-function color transforms,
+	// a notable example is when the fluid flickers to purple randomly
+	device->SetRenderState(D3DRS_FOGENABLE, FALSE);
+	device->SetRenderState(D3DRS_STENCILENABLE, FALSE);
+	device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	device->SetRenderState(D3DRS_COLORVERTEX, FALSE);
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
 	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
