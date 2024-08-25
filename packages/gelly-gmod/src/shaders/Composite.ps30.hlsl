@@ -51,7 +51,7 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
         radiance += lights[i].LightInfo.xyz * specularRadiance * lights[i].Enabled.x;
     }
 
-    return radiance;
+    return max(radiance, float3(0.0, 0.0, 0.0));
 }
 
 float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal, in float3 pos, in float3 eyeDir) {
