@@ -67,3 +67,7 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 	-- also, add the particle system
 	game.AddParticles("particles/gelly.pcf")
 end)
+
+hook.Add("PreCleanupMap", "gelly.cleanup", function()
+	gelly.Reset()
+end)
