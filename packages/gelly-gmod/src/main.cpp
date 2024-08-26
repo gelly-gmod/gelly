@@ -15,6 +15,9 @@
 #include <MinHook.h>
 #include <Windows.h>
 
+#include <fstream>
+
+#include "binaries/gbp.h"
 #include "composite/GModCompositor.h"
 #include "exceptions/generate-stack-trace.h"
 #include "exceptions/get-stack-size.h"
@@ -516,6 +519,7 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	GET_LUA_TABLE_MEMBER(float, VorticityConfinement);
 	GET_LUA_TABLE_MEMBER(float, Adhesion);
 	GET_LUA_TABLE_MEMBER(float, DynamicFriction);
+	GET_LUA_TABLE_MEMBER(float, RestDistanceRatio);
 
 	SetFluidProperties props = {};
 	props.viscosity = Viscosity;
@@ -524,6 +528,7 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	props.vorticityConfinement = VorticityConfinement;
 	props.adhesion = Adhesion;
 	props.dynamicFriction = DynamicFriction;
+	props.restDistanceRatio = RestDistanceRatio;
 
 	scene->SetFluidProperties(props);
 	CATCH_GELLY_EXCEPTIONS();
@@ -767,6 +772,47 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 
 	LOG_INFO("Hello, world!");
 	LOG_INFO("Grabbing initial information...");
+#ifndef _MSC_VER
+	LOG_WARNING("This copy of Gelly was built with a non-MSVC compiler!");
+	LOG_WARNING("The first load may throw a 'Module not found' error.")
+#endif
+	LOG_INFO("Creating temporary binaries...");
+	for (const auto &binary : gbp::packedBinaries) {
+		const auto binaryPath =
+			std::filesystem::current_path() / binary.moduleName;
+
+		if (exists(binaryPath)) {
+			LOG_WARNING(
+				"Found conflicting binary '%s', deleting...",
+				binaryPath.string().c_str()
+			);
+
+			std::error_code ec;
+			bool successfullyRemoved = std::filesystem::remove(binaryPath, ec);
+			if (!successfullyRemoved) {
+				LOG_WARNING(
+					"Could not remove binary '%s'. Typically, this happens "
+					"when Windoes does not want to let go of the DLL, implying "
+					"usage (GWater2)",
+					binaryPath.string().c_str()
+				);
+
+				// don't even continue with writing the new binary
+				continue;
+			}
+		}
+
+		std::ofstream binaryFile(binaryPath, std::ios::binary);
+		binaryFile.write(
+			reinterpret_cast<const char *>(binary.data), binary.dataSize
+		);
+		binaryFile.close();
+
+		LOG_INFO(
+			"Wrote binary '%s' to disk for loading...",
+			binaryPath.string().c_str()
+		);
+	}
 
 	CViewSetup currentView = {};
 	GetClientViewSetup(currentView);

@@ -255,6 +255,8 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 						arg.vorticityConfinement;
 					solverParams.viscosity = arg.viscosity;
 					solverParams.dynamicFriction = arg.dynamicFriction;
+					solverParams.fluidRestDistance =
+						solverParams.radius * arg.restDistanceRatio;
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();
@@ -407,8 +409,8 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.maxSpeed = FLT_MAX;
 	solverParams.maxAcceleration = 100.0f;	// approximately 10x gravity
 
-	solverParams.relaxationMode = eNvFlexRelaxationGlobal;
-	solverParams.relaxationFactor = 0.25f;
+	solverParams.relaxationMode = eNvFlexRelaxationLocal;
+	solverParams.relaxationFactor = 1.f;
 	solverParams.solidPressure = 5.0f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;

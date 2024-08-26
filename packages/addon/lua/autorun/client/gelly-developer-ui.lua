@@ -237,4 +237,121 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		gellySettings.EnableGPUSynchronization = value
 		gelly.SetGellySettings(gellySettings)
 	end
+
+	local openPresetDebuggerMenu = vgui.Create("DButton")
+	openPresetDebuggerMenu:SetPos(ScrW() - 800, 700)
+	openPresetDebuggerMenu:SetSize(200, 50)
+	openPresetDebuggerMenu:SetText("Preset Debugger")
+	openPresetDebuggerMenu.DoClick = function()
+		local frame = vgui.Create("DFrame")
+		frame:SetSize(400, 700)
+		frame:Center()
+		frame:SetTitle("Preset Debugger")
+		frame:MakePopup()
+
+		local preset = GELLY_ACTIVE_PRESET
+		local radiusSlider = vgui.Create("DNumSlider", frame)
+		radiusSlider:SetPos(0, 50)
+		radiusSlider:SetSize(200, 50)
+		radiusSlider:SetText("Radius")
+		radiusSlider:SetMin(0)
+		radiusSlider:SetMax(50)
+		radiusSlider:SetDecimals(2)
+		radiusSlider:SetValue(preset.Radius)
+		radiusSlider.OnValueChanged = function(_, value)
+			preset.Radius = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+
+		local viscositySlider = vgui.Create("DNumSlider", frame)
+		viscositySlider:SetPos(0, 100)
+		viscositySlider:SetSize(200, 50)
+		viscositySlider:SetText("Viscosity")
+		viscositySlider:SetMin(0)
+		viscositySlider:SetMax(50)
+		viscositySlider:SetDecimals(2)
+		viscositySlider:SetValue(preset.SolverParams.Viscosity)
+		viscositySlider.OnValueChanged = function(_, value)
+			preset.SolverParams.Viscosity = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+
+		local surfaceTensionSlider = vgui.Create("DNumSlider", frame)
+		surfaceTensionSlider:SetPos(0, 150)
+		surfaceTensionSlider:SetSize(200, 50)
+		surfaceTensionSlider:SetText("Surface Tension")
+		surfaceTensionSlider:SetMin(0)
+		surfaceTensionSlider:SetMax(50)
+		surfaceTensionSlider:SetDecimals(2)
+		surfaceTensionSlider:SetValue(preset.SolverParams.SurfaceTension)
+		surfaceTensionSlider.OnValueChanged = function(_, value)
+			preset.SolverParams.SurfaceTension = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+
+		local adhesionSlider = vgui.Create("DNumSlider", frame)
+		adhesionSlider:SetPos(0, 200)
+		adhesionSlider:SetSize(200, 50)
+		adhesionSlider:SetText("Adhesion")
+		adhesionSlider:SetMin(0)
+		adhesionSlider:SetMax(50)
+		adhesionSlider:SetDecimals(2)
+		adhesionSlider:SetValue(preset.SolverParams.Adhesion)
+		adhesionSlider.OnValueChanged = function(_, value)
+			preset.SolverParams.Adhesion = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+
+		local cohesionSlider = vgui.Create("DNumSlider", frame)
+		cohesionSlider:SetPos(0, 250)
+		cohesionSlider:SetSize(200, 50)
+		cohesionSlider:SetText("Cohesion")
+		cohesionSlider:SetMin(0)
+		cohesionSlider:SetMax(50)
+		cohesionSlider:SetDecimals(2)
+		cohesionSlider:SetValue(preset.SolverParams.Cohesion)
+		cohesionSlider.OnValueChanged = function(_, value)
+			preset.SolverParams.Cohesion = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+
+		local vorticityConfinementSlider = vgui.Create("DNumSlider", frame)
+		vorticityConfinementSlider:SetPos(0, 300)
+		vorticityConfinementSlider:SetSize(200, 50)
+		vorticityConfinementSlider:SetText("Vorticity Confinement")
+		vorticityConfinementSlider:SetMin(0)
+		vorticityConfinementSlider:SetMax(50)
+		vorticityConfinementSlider:SetDecimals(2)
+		vorticityConfinementSlider:SetValue(preset.SolverParams.VorticityConfinement)
+		vorticityConfinementSlider.OnValueChanged = function(_, value)
+			preset.SolverParams.VorticityConfinement = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+
+		local dynamicFrictionSlider = vgui.Create("DNumSlider", frame)
+		dynamicFrictionSlider:SetPos(0, 350)
+		dynamicFrictionSlider:SetSize(200, 50)
+		dynamicFrictionSlider:SetText("Dynamic Friction")
+		dynamicFrictionSlider:SetMin(0)
+		dynamicFrictionSlider:SetMax(50)
+		dynamicFrictionSlider:SetDecimals(2)
+		dynamicFrictionSlider:SetValue(preset.SolverParams.DynamicFriction)
+		dynamicFrictionSlider.OnValueChanged = function(_, value)
+			preset.SolverParams.DynamicFriction = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+
+		local restDistanceRatioSlider = vgui.Create("DNumSlider", frame)
+		restDistanceRatioSlider:SetPos(0, 400)
+		restDistanceRatioSlider:SetSize(200, 50)
+		restDistanceRatioSlider:SetText("Rest Distance Ratio")
+		restDistanceRatioSlider:SetMin(0)
+		restDistanceRatioSlider:SetMax(3)
+		restDistanceRatioSlider:SetDecimals(2)
+		restDistanceRatioSlider:SetValue(preset.SolverParams.RestDistanceRatio)
+		restDistanceRatioSlider.OnValueChanged = function(_, value)
+			preset.SolverParams.RestDistanceRatio = value
+			gellyx.presets.selectEphemeralPreset(preset)
+		end
+	end
 end)

@@ -5,6 +5,104 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2024-08-24
+
+### Added
+
+- Added the disc emitter, a new small disc which emits the current fluid. Configure it with the context menu.
+- Added support for high-radius fluids. Use the "gelly_preset_radius_scale" console command for now.
+
+### Changed
+
+- Linearized the mip regression function with respect to the radius of the fluid. This will make surfaces smoother even
+  at high radius.
+- Water preset is now less spiky, it should be more like water now.
+- Piss preset is the same as the Water preset, but its color was strengthened.
+- Gell-O preset was reworked from scratch, it should now be more like jelly.
+- Glunk preset was smoothed out, it should be very creamy now.
+- Blood preset was tuned to act more like blood, it should be more opaque now as well.
+
+### Removed
+
+- All the legacy emitters were removed, they were replaced by the disc emitter.
+
+### Fixed
+
+- Fixed changelogs being corrupted when they had multiple lines.
+- Fixed FleX instability at high radius
+- Fixed surface filter not working properly with high-radius fluids
+
+## [1.20.4] - 2024-08-20
+
+### Changed
+
+- Reduced the visibility of individual particles in the thickness
+- Thickness is now feathered, which should make it less apparent
+
+## [1.20.3] - 2024-08-20
+
+### Fixed
+
+- Fixed refraction being diagonal, it now properly magnifies the background.
+
+## [1.20.2] - 2024-08-20
+
+### Changed
+
+- Lowered filter iterations
+- The new filter will account for bumpier surfaces, there shouldn't be a noticeable difference in quality, but a boost
+  in performance.
+
+## [1.20.1] - 2024-08-20
+
+### Changed
+
+- Significantly rewrote most of the splatting pass to use low-level optimizations
+- In general, this update provides performance improvements.
+
+## [1.20.0] - 2024-08-19
+
+### Added
+
+- Backported the old additive thickness model. This should alleviate the problem of seeing fluids across walls.
+
+### Changed
+
+- Piss radius was decreased.
+- Piss friction was corrected to be the same as water.
+
+### Removed
+
+- Old physically-based thickness model
+
+## [1.19.1] - 2024-07-22
+
+### Fixed
+
+- Fixed the new binary packing causing an exception when Gelly is loaded multiple times in the same session.
+- It also fixes binary packing being incompatible with alternative mods, such as GWater2.
+
+## [1.19.0] - 2024-07-22
+
+### Added
+
+- New welcome screen for first-time users
+
+### Removed
+
+- Removed the old welcome popup
+- Old popups still appear in case of a fatal error
+
+## [1.18.0] - 2024-07-21
+
+### Changed
+
+- External binaries no longer ship with Gelly, they are now embedded into the binary module.
+- That means, installation should be less flaky.
+- All one needs to do is drag and drop the *single* folder into the GMod root directory.
+- README instructions were changed to be more audience-friendly.
+- Besides that, this release is equivalent to the last one. You don't need to update if you're on 1.17.0.
+
 ## [1.17.0] - 2024-07-13
 
 ### Changed

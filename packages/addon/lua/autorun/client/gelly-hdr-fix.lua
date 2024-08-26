@@ -22,5 +22,5 @@ hook.Add("GellyLoaded", "gelly.fix-hdr-cubemaps", function()
 	end
 
 	logging.info("Applying HDR fix for map %s", game.GetMap())
-	gelly.SetCubemapStrength(15)
+	gelly.SetCubemapStrength(30)
 end)

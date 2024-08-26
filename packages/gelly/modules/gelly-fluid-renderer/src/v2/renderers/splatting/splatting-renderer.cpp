@@ -3,7 +3,6 @@
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
 #include "pipelines/surface-filtering.h"
-#include "pipelines/thickness-extraction.h"
 
 namespace gelly {
 namespace renderer {
@@ -60,7 +59,6 @@ auto SplattingRenderer::Render() const -> void {
 	}
 #endif
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
-	thicknessExtraction->Run();
 	rawNormalEstimation->Run();
 	RunSurfaceFilteringPipeline(settings.filterIterations);
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
@@ -119,8 +117,6 @@ auto SplattingRenderer::CreatePipelines() -> void {
 		pipelineInfo.internalTextures->unfilteredNormals,
 		true
 	);
-
-	thicknessExtraction = CreateThicknessExtractionPipeline(pipelineInfo);
 }
 
 auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {

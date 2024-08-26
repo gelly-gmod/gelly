@@ -218,6 +218,8 @@ void StandardPipeline::UpdateGellyRenderParams() {
 		XMMatrixTranspose(XMLoadFloat4x4(&inverseProjectionMatrix))
 	);
 
+	XMStoreFloat4x4(&viewProj, XMMatrixTranspose(XMLoadFloat4x4(&viewProj)));
+
 	gelly::renderer::cbuffer::FluidRenderCBufferData renderParams = {};
 	renderParams.g_View = XMMatrixToFloat4x4(viewMatrix);
 	renderParams.g_Projection = XMMatrixToFloat4x4(projectionMatrix);
@@ -245,6 +247,7 @@ void StandardPipeline::UpdateGellyRenderParams() {
 
 	compositeConstants.cubemapStrength = config.cubemapStrength;
 	compositeConstants.refractionStrength = config.refractionStrength;
+	compositeConstants.viewProj = viewProj;
 
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
@@ -291,8 +294,8 @@ void StandardPipeline::SetCompositeSamplerState(
 	int index, D3DTEXTUREFILTERTYPE filter, bool srgb = false
 ) const {
 	auto &device = gmodResources.device;
-	device->SetSamplerState(index, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-	device->SetSamplerState(index, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+	device->SetSamplerState(index, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR);
+	device->SetSamplerState(index, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR);
 
 	device->SetSamplerState(index, D3DSAMP_MINFILTER, filter);
 	device->SetSamplerState(index, D3DSAMP_MAGFILTER, filter);

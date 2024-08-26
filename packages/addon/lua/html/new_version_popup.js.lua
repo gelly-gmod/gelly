@@ -3,13 +3,8 @@ const MARKDOWN_TO_HTML_CONVERTERS = [
 		regex: /### (.+)/g,
 		replace: "<h3>$1</h3>"
 	},
-	// remove github's line endings in a bullet list
 	{
-		regex: /- (.+)[\r\n](.+)/g,
-		replace: "- $1 $2"
-	},
-	{
-		regex: /- (.+)/g,
+		regex: /- (.+\r?\n?[^-]*)/g,
 		replace: "<p class='bullet'><span class='bullet-point'>&#x2022;</span> $1</p>"
 	},
 ]

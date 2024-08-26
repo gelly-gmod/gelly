@@ -31,6 +31,7 @@ CompositeLight lights[2] : register(c2); // next reg that can be used is c8 (2 +
 float4 aspectRatio : register(c8);
 float4 ambientCube[6] : register(c9);
 FluidMaterial material : register(c15);
+float4x4 viewProjMatrix : register(c17);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
@@ -53,12 +54,19 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
     return radiance;
 }
 
-float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal) {
-    return tex + normal.xy * TexRefractFromMaterial(material);
+float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal, in float3 pos, in float3 eyeDir) {
+	float3 refractionDir = refract(eyeDir, normal, 1.f / material.r_st_ior.z);
+	float3 refractPos = pos + refractionDir * 8.f;
+	float4 refractPosClip = mul(viewProjMatrix, float4(refractPos, 1.f));
+	float2 refractUV = refractPosClip.xy / refractPosClip.w;
+	refractUV = 0.5f * refractUV + 0.5f;
+	refractUV.y = 1.f - refractUV.y;
+
+    return refractUV;
 }
 
 float3 SampleTransmission(in float2 tex, in float thickness, in float3 pos, in float3 eyeDir, in float3 normal, in float3 absorption) {
-    float2 uv = ApplyRefractionToUV(tex, thickness, normal);
+    float2 uv = ApplyRefractionToUV(tex, thickness, normal, pos, eyeDir);
     float3 transmission = tex2D(backbufferTex, uv).xyz;
     transmission *= absorption;
     return transmission;
