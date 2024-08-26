@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added a console command to clear particles when not having the Gelly gun.
+- Added a console command to clear particles while not having the Gelly Gun equipped.
 
-## Changed
+### Changed
 
-- Cleanup now clears all particles.
+- Map cleanup now clears all particles.
 
 ## [1.21.2] - 2024-08-25
 
