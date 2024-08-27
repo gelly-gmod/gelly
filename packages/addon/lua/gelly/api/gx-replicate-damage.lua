@@ -16,7 +16,7 @@ if SERVER then
 		net.WriteEntity(attacker)
 		net.WriteVector(position)
 		net.WriteVector(force)
-		net.WriteFloat(damage * (victim.BloodQuantity / 100))
+		net.WriteFloat(damage)
 		net.WriteUInt(type, 32)
 		net.Broadcast()
 		return damage

@@ -7,7 +7,7 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 		MinDensity = 200,
 		MaxDensity = 400,
 		VelocityPower = -7, -- bullets usually are rotating so they can end up flinging blood
-		Randomness = 0.8, -- spray in the direction of the normal
+		Randomness = 0.7, -- spray in the direction of the normal
 		CubeSize = 9,
 		DamageMultiplier = 15, -- density is added by the damage * this
 	},
@@ -57,7 +57,7 @@ local WEAPON_BLOOD_CONFIGS = {
 		MinDensity = 100,
 		MaxDensity = 200,
 		VelocityPower = -5, -- blood should be launched at the player from the wound not from the wound at the victim
-		Randomness = 0.5,
+		Randomness = 0.9,
 		CubeSize = 15,
 		DamageMultiplier = 35,
 	},
@@ -73,13 +73,13 @@ local WEAPON_BLOOD_CONFIGS = {
 }
 
 local BLOOD_COLOR_ABSORPTION = {
-	[BLOOD_COLOR_RED] = Vector(0.3, 1.1, 1.1),
-	[BLOOD_COLOR_YELLOW] = Vector(0.3, 0.3, 1.1), -- yellow is formed by mixing red and green
-	[BLOOD_COLOR_GREEN] = Vector(0.3, 1.1, 1.1),
-	[BLOOD_COLOR_MECH] = Vector(10, 10, 10),
-	[BLOOD_COLOR_ANTLION] = Vector(0.3, 0.2, 1.1), -- a little yellow-green
-	[BLOOD_COLOR_ZOMBIE] = Vector(0.3, 1.1, 1.1),
-	[BLOOD_COLOR_ANTLION_WORKER] = Vector(0, 0, 0),
+	[BLOOD_COLOR_RED] = Vector(0.3, 1.1, 1.1) * 8,
+	[BLOOD_COLOR_YELLOW] = Vector(0.3, 0.3, 1.1) * 8, -- yellow is formed by mixing red and green
+	[BLOOD_COLOR_GREEN] = Vector(0.3, 1.1, 1.1) * 8,
+	[BLOOD_COLOR_MECH] = Vector(10, 10, 10) * 8,
+	[BLOOD_COLOR_ANTLION] = Vector(0.3, 0.2, 1.1) * 8, -- a little yellow-green
+	[BLOOD_COLOR_ZOMBIE] = Vector(0.3, 1.1, 1.1) * 8,
+	[BLOOD_COLOR_ANTLION_WORKER] = Vector(0.3, 0.2, 1.1) * 8,
 }
 
 local function getDamageTypeConfig(damageType)
@@ -164,6 +164,8 @@ gellyx.presets.select("Blood")
 
 hook.Add("GellyModsShutdown", "gelly.builtin.blood-mod", function()
 	hook.Remove("GellyXDamage", "gelly.builtin.blood-mod")
+	hook.Remove("OnEntityCreated", "gelly.blood-quantity")
+	hook.Remove("CreateEntityRagdoll", "gelly.blood-quantity-ragdoll")
 	-- remove any left over blood
 	gelly.Reset()
 
