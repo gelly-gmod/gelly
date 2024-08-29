@@ -2,6 +2,7 @@
 
 #include <NvFlex.h>
 
+#include <stdexcept>
 #include <string>
 
 // TODO: deduplicate this
