@@ -48,7 +48,7 @@ PHYParser::BSP::BSP Map::LoadPHYMap(const std::string &mapPath) {
 }
 
 ObjectCreationParams Map::CreateMapParams(
-	const float *vertices, size_t vertexCount
+	const float *vertices, size_t vertexCount, bool flip
 ) {
 	ObjectCreationParams params = {};
 	params.shape = ObjectShape::TRIANGLE_MESH;
@@ -59,9 +59,15 @@ ObjectCreationParams Map::CreateMapParams(
 	auto *indices = new uint32_t[mesh.vertexCount];
 
 	for (int i = 0; i < mesh.vertexCount; i += 3) {
-		indices[i] = i;
-		indices[i + 1] = i + 1;
-		indices[i + 2] = i + 2;
+		if (flip) {
+			indices[i] = i + 2;
+			indices[i + 1] = i + 1;
+			indices[i + 2] = i;
+		} else {
+			indices[i] = i;
+			indices[i + 1] = i + 1;
+			indices[i + 2] = i + 2;
+		}
 	}
 
 	mesh.indexCount = mesh.vertexCount;
@@ -132,9 +138,21 @@ Map::Map(
 
 	try {
 		const auto phyMap = LoadPHYMap(mapPath);
-		if (phyMap.GetModelCount() < 0) {
+		if (phyMap.GetModelCount() <= 0) {
 			// bail
 			throw std::runtime_error("Failed to load PHY map: " + mapPath);
+		}
+
+		if (!phyMap.IsDisplacementDataAvailable()) {
+			// well... for some maps this is ok, e.g. gm_bigcity_improved (the
+			// only displacements are insignificant little mounds of grass) but
+			// for other maps, say koth_harvest_final, the *entire* ground is
+			// made of displacements, so it becomes a problem
+
+			// for now we'll just bail
+			throw std::runtime_error(
+				"Physics displacement data is not available for map: " + mapPath
+			);
 		}
 
 		const auto &worldspawn = phyMap.GetModel(0);
@@ -143,6 +161,7 @@ Map::Map(
 		params = CreateMapParams(
 			worldspawnVertices.data(), worldspawnVertices.size() / 3
 		);
+
 		mapObject = CreateMapObject(params);
 
 		for (int i = 1; i < phyMap.GetModelCount(); i++) {
@@ -169,13 +188,19 @@ Map::Map(
 		);
 
 		const auto bspMap = LoadBSPMap(mapPath);
+		if (!bspMap.IsValid()) {
+			throw std::runtime_error("Failed to load BSP map: " + mapPath);
+		}
+
 		params = CreateMapParams(
 			reinterpret_cast<const float *>(bspMap.GetVertices()),
-			bspMap.GetNumVertices()
+			bspMap.GetNumVertices(),
+			true  // bsp maps are flipped
 		);
+
 		mapObject = CreateMapObject(params);
 	} catch (...) {
-		LOG_ERROR("Failed to load map: %s", mapPath.c_str());
+		LOG_ERROR("Fatal error when loading map: %s", mapPath.c_str());
 	}
 
 	LOG_INFO("Map loaded: %s\nID: %u", mapPath.c_str(), mapObject);

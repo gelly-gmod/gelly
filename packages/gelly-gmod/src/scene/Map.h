@@ -37,7 +37,7 @@ private:
 		const std::string &mapPath
 	);
 	[[nodiscard]] static ObjectCreationParams CreateMapParams(
-		const float *vertices, size_t vertexCount
+		const float *vertices, size_t vertexCount, bool flip = false
 	);
 	[[nodiscard]] ObjectHandle CreateMapObject(
 		const ObjectCreationParams &params

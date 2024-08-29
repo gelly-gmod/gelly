@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.3] - 2024-08-26
+
+### Added
+
+- Added a console command to clear particles while not having the Gelly Gun equipped.
+
+### Changed
+
+- Map cleanup now clears all particles.
+
+## [1.21.2] - 2024-08-25
+
+### Fixed
+
+- Fixed the fluid sometimes flickering to random colors when the camera is moved.
+- This may or may not fix the square flickering issue.
+
+## [1.21.1] - 2024-08-25
+
+### Fixed
+
+- Certain maps that use displacements (TF2 Harvest, most notably) are now supported.
+- Note that the performance of these maps may be worse than usual due to the nature of the fix.
+- These maps are now marked as "bad" and will use the legacy loader to ensure correct simulation.
+
 ## [1.21.0] - 2024-08-24
 
 ### Added
