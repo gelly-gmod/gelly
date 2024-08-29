@@ -3,6 +3,8 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/packages/addon" />
+      <file path="$PROJECT_DIR$/packages/gbp" />
       <file path="$PROJECT_DIR$/packages/gelly" />
       <file path="$PROJECT_DIR$/packages/gelly-gmod" />
       <file path="$PROJECT_DIR$/packages/gsc" />
