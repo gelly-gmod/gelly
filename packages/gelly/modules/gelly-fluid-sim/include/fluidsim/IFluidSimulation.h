@@ -87,6 +87,8 @@ public:
 
 	virtual const char *GetComputeDeviceName() = 0;
 
+	virtual unsigned int GetRealActiveParticleCount() = 0;
+
 	// Past this point is mainly feature-specific stuff.
 	virtual void VisitLatestContactPlanes(ContactPlaneVisitor visitor) = 0;
 };

@@ -45,6 +45,8 @@ public:
 	const char *GetComputeDeviceName() override;
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
 
+	unsigned int GetRealActiveParticleCount() override { return 0; }
+
 	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override{};
 };
 

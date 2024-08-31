@@ -62,7 +62,6 @@ target_include_directories(
         src/fluidsim
         include
         ../gelly-interfaces/include
-        ../gelly-d3d/include
         ${FLEX_PATH}/include
         vendor/DirectXMath/Inc
 )
@@ -71,6 +70,5 @@ target_include_directories(
 target_link_libraries(
         gelly_fluid_sim
         PUBLIC
-        gelly_d3d9
         ${FLEX_LIBS}
 )

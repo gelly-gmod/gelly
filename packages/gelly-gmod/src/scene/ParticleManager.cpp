@@ -49,8 +49,13 @@ void ParticleManager::AddParticles(
 
 	absorptionModifier->StartModifying();
 	for (int i = 0; i < builder.particles.size(); ++i) {
+		if (sim->GetRealActiveParticleCount() + i >=
+			sim->GetSimulationData()->GetMaxParticles()) {
+			break;
+		}
+
 		absorptionModifier->ModifyAbsorption(
-			sim->GetSimulationData()->GetActiveParticles() + i,
+			sim->GetRealActiveParticleCount() + i,
 			reinterpret_cast<const gelly::renderer::splatting::float3 &>(
 				builder.absorption
 			)

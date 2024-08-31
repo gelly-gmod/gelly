@@ -2,6 +2,7 @@
 
 #include <NvFlex.h>
 
+#include <stdexcept>
 #include <string>
 
 // TODO: deduplicate this
@@ -223,6 +224,13 @@ void CD3D11FlexFluidSimulation::DestroyCommandList(ISimCommandList *commandList
 	delete commandList;
 }
 
+void CD3D11FlexFluidSimulation::SetDeferredActiveParticleCount(
+	uint newActiveCount
+) {
+	particleCountUpdateFlags.deferFlag = true;
+	particleCountUpdateFlags.newActiveCount = newActiveCount;
+}
+
 void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 ) {
 	if (commandList == nullptr) {
@@ -244,6 +252,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				using T = std::decay_t<decltype(arg)>;
 				if constexpr (std::is_same_v<T, Reset>) {
 					simData->SetActiveParticles(0);
+					SetDeferredActiveParticleCount(0);
 				} else if constexpr (std::is_same_v<T, AddParticle>) {
 					mappingRequired = true;
 					newParticles.push_back(arg);
@@ -268,8 +277,18 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 
 	// batches the particle updates
 	if (mappingRequired) {
-		uint currentActiveParticles = simData->GetActiveParticles();
+		uint currentActiveParticles =
+			particleCountUpdateFlags.deferFlag
+				? particleCountUpdateFlags.newActiveCount
+				: simData->GetActiveParticles();
 		uint newActiveParticles = currentActiveParticles + newParticles.size();
+
+		if (newActiveParticles > maxParticles) {
+			// this isn't an error, so we wont throw.
+			// we will silently drop the command however as we want the deferred
+			// count to be a private implementation detail.
+			return;
+		}
 
 		// Update the positions and velocities of the particles
 		NvFlexGetParticles(solver, buffers.positions, nullptr);
@@ -314,12 +333,12 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 		NvFlexUnmap(buffers.phases);
 		NvFlexUnmap(buffers.actives);
 
-		simData->SetActiveParticles(newActiveParticles);
+		SetDeferredActiveParticleCount(newActiveParticles);
 
 		NvFlexCopyDesc copyDesc = {};
 		copyDesc.dstOffset = 0;
 		copyDesc.srcOffset = 0;
-		copyDesc.elementCount = simData->GetActiveParticles();
+		copyDesc.elementCount = newActiveParticles;
 
 		NvFlexSetParticles(solver, buffers.positions, &copyDesc);
 		NvFlexSetVelocities(solver, buffers.velocities, &copyDesc);
@@ -329,6 +348,15 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 }
 
 void CD3D11FlexFluidSimulation::Update(float deltaTime) {
+	if (particleCountUpdateFlags.deferFlag) {
+		particleCountUpdateFlags.deferFlag = false;
+		simData->SetActiveParticles(particleCountUpdateFlags.newActiveCount);
+	}
+
+	if (simData->GetActiveParticles() <= 0) {
+		return;
+	}
+
 	NvFlexCopyDesc copyDesc = {};
 	copyDesc.dstOffset = 0;
 	copyDesc.srcOffset = 0;
@@ -482,6 +510,16 @@ bool CD3D11FlexFluidSimulation::CheckFeatureSupport(GELLY_FEATURE feature) {
 		default:
 			return false;
 	}
+}
+
+// Unfortunate result of separations of concerns being totally ignored in our
+// implementation of the absorption feature. But the renderer needs to know the
+// actual number of particles in the simulation at some points, so we expose
+// this here.
+unsigned int CD3D11FlexFluidSimulation::GetRealActiveParticleCount() {
+	return particleCountUpdateFlags.deferFlag
+			   ? particleCountUpdateFlags.newActiveCount
+			   : simData->GetActiveParticles();
 }
 
 void CD3D11FlexFluidSimulation::VisitLatestContactPlanes(
