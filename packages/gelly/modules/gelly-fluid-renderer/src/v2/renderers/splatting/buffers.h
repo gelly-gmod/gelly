@@ -46,6 +46,7 @@ struct InternalBuffers {
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
 				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
 			))
 		),
@@ -67,6 +68,7 @@ struct InternalBuffers {
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
 				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
 			))
 		),
@@ -77,6 +79,7 @@ struct InternalBuffers {
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
 				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
 			))
 		),
@@ -87,6 +90,7 @@ struct InternalBuffers {
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
 				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
 			))
 		),
@@ -97,6 +101,7 @@ struct InternalBuffers {
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
 				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
 			))
 		),
@@ -107,6 +112,7 @@ struct InternalBuffers {
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
 				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
 			))
 		),
