@@ -58,8 +58,14 @@ private:
 	int substeps = 3;
 	float timeStepMultiplier = 1.f;
 
+	struct {
+		bool deferFlag : 1;
+		uint newActiveCount : 31;
+	} particleCountUpdateFlags{};
+
 	void SetupParams();
 	void DebugDumpParams();
+	void SetDeferredActiveParticleCount(uint newActiveCount);
 
 public:
 	CD3D11FlexFluidSimulation();
@@ -89,6 +95,7 @@ public:
 
 	const char *GetComputeDeviceName() override;
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
+	unsigned int GetRealActiveParticleCount() override;
 
 	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override;
 };

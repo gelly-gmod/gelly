@@ -9,7 +9,7 @@ end
 
 hook.Add("GellyLoaded", "gelly.update-loop", function()
 	timer.Create("gelly.flex-update-timer", 1 / 60, 0, function()
-		if SIMULATE_GELLY and isGellyActive() then
+		if SIMULATE_GELLY then -- we don't check if gelly is active because we do need to update deferred particles (to prevent flicker)
 			if lastTimescale ~= GELLY_SIM_TIMESCALE then
 				lastTimescale = GELLY_SIM_TIMESCALE
 				gelly.SetTimeStepMultiplier(GELLY_SIM_TIMESCALE)

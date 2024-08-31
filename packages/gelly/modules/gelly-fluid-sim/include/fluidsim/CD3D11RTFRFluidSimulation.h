@@ -49,6 +49,9 @@ public:
 	void SetTimeStepMultiplier(float timeStepMultiplier) override{};
 	const char *GetComputeDeviceName() override;
 	bool CheckFeatureSupport(GELLY_FEATURE feature) override;
+	unsigned int GetRealActiveParticleCount() override {
+		return activeParticles;
+	}
 
 	void VisitLatestContactPlanes(ContactPlaneVisitor visitor) override{};
 };
