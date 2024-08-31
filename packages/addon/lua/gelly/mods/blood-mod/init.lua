@@ -9,16 +9,16 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 		VelocityPower = -7, -- bullets usually are rotating so they can end up flinging blood
 		Randomness = 0.7, -- spray in the direction of the normal
 		CubeSize = 9,
-		DamageMultiplier = 15, -- density is added by the damage * this
+		DamageMultiplier = 10, -- density is added by the damage * this
 	},
 	{
 		DamageFlags = DMG_BLAST,
-		MinDensity = 3200,
-		MaxDensity = 5200,
-		VelocityPower = 15,
-		Randomness = 0.9,
-		CubeSize = 10,
-		DamageMultiplier = 90,
+		MinDensity = 100,
+		MaxDensity = 800,
+		VelocityPower = 10,
+		Randomness = 0.7,
+		CubeSize = 2,
+		DamageMultiplier = 200,
 		FromEntity = true,
 	},
 	{
@@ -32,12 +32,12 @@ local DAMAGE_TYPE_BLOOD_CONFIGS = {
 	},
 	{
 		DamageFlags = DMG_CRUSH,
-		MinDensity = 100,
-		MaxDensity = 200,
+		MinDensity = 500,
+		MaxDensity = 700,
 		VelocityPower = 2,
 		Randomness = 2,
 		CubeSize = 10,
-		DamageMultiplier = 15,
+		DamageMultiplier = 25,
 	},
 }
 
@@ -54,12 +54,12 @@ local WEAPON_BLOOD_CONFIGS = {
 
 	-- shotgun
 	weapon_shotgun = {
-		MinDensity = 100,
-		MaxDensity = 200,
-		VelocityPower = -5, -- blood should be launched at the player from the wound not from the wound at the victim
+		MinDensity = 300,
+		MaxDensity = 500,
+		VelocityPower = -9, -- blood should be launched at the player from the wound not from the wound at the victim
 		Randomness = 0.9,
-		CubeSize = 15,
-		DamageMultiplier = 35,
+		CubeSize = 7,
+		DamageMultiplier = 50,
 	},
 
 	weapon_357 = {
@@ -68,18 +68,18 @@ local WEAPON_BLOOD_CONFIGS = {
 		VelocityPower = 5, -- a .357 bullet should maybe penetrate through the entire victim
 		Randomness = 0.1,
 		CubeSize = 10,
-		DamageMultiplier = 40,
+		DamageMultiplier = 20,
 	},
 }
 
 local BLOOD_COLOR_ABSORPTION = {
-	[BLOOD_COLOR_RED] = Vector(0.3, 1.1, 1.1) * 8,
-	[BLOOD_COLOR_YELLOW] = Vector(0.3, 0.3, 1.1) * 8, -- yellow is formed by mixing red and green
-	[BLOOD_COLOR_GREEN] = Vector(0.3, 1.1, 1.1) * 8,
-	[BLOOD_COLOR_MECH] = Vector(10, 10, 10) * 8,
-	[BLOOD_COLOR_ANTLION] = Vector(0.3, 0.2, 1.1) * 8, -- a little yellow-green
-	[BLOOD_COLOR_ZOMBIE] = Vector(0.3, 1.1, 1.1) * 8,
-	[BLOOD_COLOR_ANTLION_WORKER] = Vector(0.3, 0.2, 1.1) * 8,
+	[BLOOD_COLOR_RED] = Vector(0.02, 0.1, 0.1) * 320,
+	[BLOOD_COLOR_YELLOW] = Vector(0.02, 0.02, 0.1) * 320, -- yellow is formed by mixing red and green
+	[BLOOD_COLOR_GREEN] = Vector(0.1, 0.02, 0.1) * 320,
+	[BLOOD_COLOR_MECH] = Vector(10.0, 10.0, 10.0) * 320,
+	[BLOOD_COLOR_ANTLION] = Vector(0.02, 0.02, 0.1) * 320, -- a little yellow-green
+	[BLOOD_COLOR_ZOMBIE] = Vector(0.02, 0.05, 0.1) * 320,
+	[BLOOD_COLOR_ANTLION_WORKER] = Vector(0.1, 0.02, 0.1) * 320,
 }
 
 local function getDamageTypeConfig(damageType)
@@ -141,20 +141,17 @@ hook.Add(
 	"GellyXDamage",
 	"gelly.builtin.blood-mod",
 	function(victim, attacker, position, force, damage, type)
-		if
-			not victim:IsValid() or
-			(not victim:IsPlayer() and
-				not victim:IsNPC() and
-				not victim:IsRagdoll() )
-		then
-			return
-		end
+		if not victim:IsValid() then return end
+
+		local bloodColor = victim:GetBloodColor() or BLOOD_COLOR_RED
+
+		if bloodColor < 1 then bloodColor = BLOOD_COLOR_RED end
 
 		sprayBlood(type, victim, attacker, position, force, damage, {
 			Roughness = 0, -- blood isn't rough at all
 			IsSpecularTransmission = false, -- blood is translucent
 			RefractiveIndex = 1.373, -- blood has a slightly higher refractive index than water
-			Absorption = BLOOD_COLOR_ABSORPTION[victim:GetBloodColor() or BLOOD_COLOR_RED],
+			Absorption = BLOOD_COLOR_ABSORPTION[bloodColor],
 			DiffuseColor = Vector(0, 0, 0),
 		})
 	end
