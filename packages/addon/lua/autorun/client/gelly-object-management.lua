@@ -24,8 +24,40 @@ local function isClassWhitelisted(entity)
 	end)
 end
 
+local function addPlayer(ply)
+	if not IsValid(ply) then
+		return
+	end
+
+	logging.info("Adding player #%d to gelly", ply:EntIndex())
+
+	local objectHandles = {}
+
+	local model = "models/hunter/blocks/cube05x105x05"
+
+	local success, msg = pcall(gelly.AddObject, model, ply:EntIndex())
+	if not success then
+		logging.warn("Failed to add player #%d to gelly", ply:EntIndex())
+		logging.warn("Reason: %s", msg)
+		return
+	end
+
+	table.insert(objectHandles, ply:EntIndex())
+
+	objects[ply] = objectHandles
+end
+
 local function addObject(entity)
-	if not IsValid(entity) or not isClassWhitelisted(entity) then
+	if not IsValid(entity) then
+		return
+	end
+
+	if entity:IsPlayer() then
+		addPlayer(entity)
+		return
+	end
+
+	if not isClassWhitelisted(entity) then
 		return
 	end
 
@@ -61,19 +93,40 @@ local function removeObject(entity)
 	objects[entity] = nil
 end
 
+local function updatePlayer(ply)
+	local objectHandles = objects[ply]
+
+	for _, objectHandle in ipairs(objectHandles) do
+		if not IsValid(ply) then
+			-- Somehow, it got pass the entity removal check
+			removeObject(ply)
+			return
+		end
+
+		local transform = ply:GetBoneMatrix(0)
+		if not transform then
+			logging.warn("Transform bug for player #%d", ply:EntIndex())
+			removeObject(ply)
+			return
+		end
+
+		gelly.SetObjectPosition(objectHandle, ply:GetBonePosition(1))
+		gelly.SetObjectRotation(objectHandle, Angle(0, ply:GetAngles().y, 90))
+	end
+end
+
 local function updateObject(entity)
 	local objectHandles = objects[entity]
+
+	if entity:IsPlayer() then
+		updatePlayer(entity)
+		return
+	end
 
 	for _, objectHandle in ipairs(objectHandles) do
 		if not IsValid(entity) then
 			-- Somehow, it got pass the entity removal check
 			removeObject(entity)
-			return
-		end
-
-		if entity == LocalPlayer() then
-			gelly.SetObjectPosition(objectHandle, entity:GetPos())
-			gelly.SetObjectRotation(objectHandle, Angle(90, 0, 0))
 			return
 		end
 
@@ -89,8 +142,6 @@ local function updateObject(entity)
 	end
 end
 
-local PLAYER_RADIUS = 15
-local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 	-- fetch any entities that may've been created before the hook was added
 	timer.Simple(0.1,
