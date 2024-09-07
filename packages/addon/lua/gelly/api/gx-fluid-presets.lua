@@ -4,6 +4,8 @@ local presetRadiusScaleConVar = CreateClientConVar("gelly_preset_radius_scale", 
 	"The scale of the preset radius. This variable is useful for scaling presets to match the scale of the scene.")
 gellyx = gellyx or {}
 gellyx.presets = gellyx.presets or {}
+gellyx.presets.scaleConVar = presetRadiusScaleConVar
+
 GELLY_PRESETS = GELLY_PRESETS or {}
 GELLY_CUSTOM_PRESETS = GELLY_CUSTOM_PRESETS or {}
 GELLY_ACTIVE_PRESET = GELLY_ACTIVE_PRESET or nil
@@ -98,5 +100,5 @@ cvars.AddChangeCallback("gelly_preset_radius_scale", function(_, _, newValue)
 		return
 	end
 
-	gelly.ChangeParticleRadius(GELLY_ACTIVE_PRESET.Radius * newValue)
+	selectPreset(GELLY_ACTIVE_PRESET)
 end)

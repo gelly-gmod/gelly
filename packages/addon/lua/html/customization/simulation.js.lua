@@ -1,4 +1,4 @@
-class PerformancePage extends HTMLElement {
+class SimulationPage extends HTMLElement {
 	constructor() {
 		super();
 		this.attachShadow({mode: 'open'});
@@ -41,9 +41,10 @@ class PerformancePage extends HTMLElement {
 				<gelly-label-slider id="sim-rate" label="Simulation Rate" min="20" max="144" unit="Hz" value="60"></gelly-label-slider>
 				<gelly-label-slider id="substeps" label="Substeps" min="1" max="10" unit="" value="3"></gelly-label-slider>
 				<gelly-label-slider id="iterations" label="Iterations" min="1" max="10" unit="" value="3"></gelly-label-slider>
+				<gelly-label-slider id="radius-scale" label="Radius Scale" min="1" max="5" unit="x" value="1"></gelly-label-slider>
 			</section>
-			<gelly-explanation id="explanation" header="Performance">
-				These settings control the quality of the simulation, therefore providing ways to
+			<gelly-explanation id="explanation" header="Simulation">
+				These settings control the behavior of the simulation, therefore providing ways to
 				increase the performance at the cost of reduced simulation quality.
 				<br />
 				<br />
@@ -53,6 +54,24 @@ class PerformancePage extends HTMLElement {
 		</main>
 	  `;
 	}
+
+	connectedCallback() {
+		const shadowRoot = this.shadowRoot;
+		const simRate = shadowRoot.getElementById('sim-rate');
+		simRate.addEventListener('valueChanged', (e) => {
+			const value = e.detail.value;
+			gelly.setSimulationRate(value);
+		});
+
+		const radiusScale = shadowRoot.getElementById('radius-scale');
+		radiusScale.addEventListener('valueChanged', (e) => {
+			const value = e.detail.value;
+			gelly.setRadiusScale(value);
+		});
+	}
 }
 
-customElements.define('gelly-performance-page', PerformancePage);
+customElements.define(
+	'gelly-simulation-page',
+	SimulationPage
+);

@@ -59,6 +59,9 @@ class LabelSlider extends HTMLElement {
 
 		this.sliderElement.addEventListener('input', () => {
 			this.valueElement.textContent = this.sliderElement.value + this.getAttribute('unit');
+
+			// dispatch an event to notify the parent
+			this.dispatchValueChanged();
 		});
 
 		this.valueElement.addEventListener('input', () => {
@@ -68,7 +71,19 @@ class LabelSlider extends HTMLElement {
 			if (!this.valueElement.textContent.includes(this.getAttribute('unit'))) {
 				this.valueElement.textContent += this.getAttribute('unit');
 			}
+
+			this.dispatchValueChanged();
 		});
+	}
+
+	dispatchValueChanged() {
+		const sliderValue = this.sliderElement.value.replace(this.getAttribute('unit'), '');
+		this.dispatchEvent(new CustomEvent('valueChanged', {
+			detail: {
+				value: sliderValue
+			},
+			bubbles: true
+		}));
 	}
 
 	connectedCallback() {

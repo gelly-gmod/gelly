@@ -7,37 +7,49 @@
 	<script type="text/javascript" src="asset://garrysmod/lua/html/components/explanation.js.lua"></script>
 	<script type="text/javascript" src="asset://garrysmod/lua/html/components/label-slider.js.lua"></script>
 	<script type="text/javascript" src="asset://garrysmod/lua/html/customization/graphics.js.lua"></script>
-	<script type="text/javascript" src="asset://garrysmod/lua/html/customization/performance.js.lua"></script>
+	<script type="text/javascript" src="asset://garrysmod/lua/html/customization/simulation.js.lua"></script>
 
 	<script>
-		document.addEventListener("DOMContentLoaded", () => {
-			const pageMap = {
-				presets: "h1",
-				graphics: "gelly-graphics-page",
-				mods: "h1",
-				performance: "gelly-performance-page"
+		const PAGE_TO_ELEMENT_MAP = {
+			presets: "h1",
+			graphics: "gelly-graphics-page",
+			mods: "h1",
+			simulation: "gelly-simulation-page"
+		}
+
+		function setCurrentPage(button) {
+			const pageButtons = document.querySelectorAll("#pages .page");
+			const pageId = button.dataset.pageId;
+			const currentPage = document.querySelector("#currentPage");
+
+			// query for the page element, and hide everything else
+			currentPage.querySelectorAll("*").forEach(e => e.style.display = "none");
+			const pageElement = currentPage.querySelector(PAGE_TO_ELEMENT_MAP[pageId]);
+			if (!pageElement) {
+				currentPage.appendChild(document.createElement(PAGE_TO_ELEMENT_MAP[pageId]));
+			} else {
+				pageElement.style.display = "block";
 			}
 
+			// mark this as the active page
+			pageButtons.forEach(b => b.classList.remove("active"));
+			button.classList.add("active");
+		}
+
+		document.addEventListener("DOMContentLoaded", () => {
 			const pageButtons = document.querySelectorAll("#pages .page");
 
 			pageButtons.forEach(button => {
 				button.addEventListener("click", () => {
-					const pageId = button.dataset.pageId;
-					const currentPage = document.querySelector("#currentPage");
-
-					// query for the page element, and hide everything else
-					currentPage.querySelectorAll("*").forEach(e => e.style.display = "none");
-					const pageElement = currentPage.querySelector(pageMap[pageId]);
-					if (!pageElement) {
-						currentPage.appendChild(document.createElement(pageMap[pageId]));
-					} else {
-						pageElement.style.display = "block";
-					}
-
-					// mark this as the active page
-					pageButtons.forEach(b => b.classList.remove("active"));
-					button.classList.add("active");
+					setCurrentPage(button);
 				});
+			});
+
+			setCurrentPage(pageButtons[0]);
+
+			const closeButton = document.querySelector("#close");
+			closeButton.addEventListener("click", () => {
+				gelly.hide();
 			});
 		});
 	</script>
@@ -52,6 +64,7 @@
 			height: 100vh;
 
 			overflow: hidden;
+			box-sizing: border-box;
 		}
 
 		main {
@@ -70,6 +83,8 @@
 			padding: 10px;
 			width: 100%;
 			height: fit-content;
+
+			background: rgba(255, 255, 255, 0.35);
 		}
 
 		.page {
@@ -90,6 +105,25 @@
 		.page.active {
 			color: #ccc;
 		}
+
+		.spacer {
+			flex-grow: 1;
+		}
+
+		#close {
+			cursor: pointer;
+			padding: 10px;
+			color: #3c3c3d;
+			transition: color 0.2s;
+
+			font-family: sans-serif;
+			font-size: 1.2em;
+			font-weight: bold;
+		}
+
+		#close:hover {
+			color: #ff6f6f;
+		}
 	</style>
 </head>
 <body>
@@ -107,8 +141,13 @@
 			MODS
 		</span>
 
-		<span class="page" data-page-id="performance">
-			PERFORMANCE
+		<span class="page" data-page-id="simulation">
+			SIMULATION
+		</span>
+
+		<span class="spacer"></span>
+		<span id="close">
+			CLOSE
 		</span>
 	</section>
 

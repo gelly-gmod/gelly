@@ -47,6 +47,14 @@ class GraphicsPage extends HTMLElement {
 		</main>
 	  `;
 	}
+
+	connectedCallback() {
+		const shadowRoot = this.shadowRoot;
+		const smoothness = shadowRoot.getElementById('smoothness');
+		smoothness.addEventListener('valueChanged', (e) => {
+			gelly.setSmoothness(e.detail.value);
+		});
+	}
 }
 
 customElements.define('gelly-graphics-page', GraphicsPage);

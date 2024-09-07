@@ -40,7 +40,8 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 		removeFirstLaunchCookie()
 	end
 
-	CUSTOMIZATION = vgui.Create("GellyCustomizationMenu")
+	GELLY_CUSTOMIZATION = vgui.Create("GellyCustomizationMenu")
+	GELLY_CUSTOMIZATION:Hide()
 
 	local isGellyLoaded, errorMessage = pcall(require, "gelly-gmod")
 

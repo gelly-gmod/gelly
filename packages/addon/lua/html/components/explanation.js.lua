@@ -15,7 +15,7 @@ class Explanation extends HTMLElement {
 			font-family: sans-serif;
 			font-size: 1.5em;
 			color: #fff;
-			margin-bottom: 10px;
+			margin-bottom: 30px;
 			padding-bottom: 5px;
 			font-weight: bold;
 		}
