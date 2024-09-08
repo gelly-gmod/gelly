@@ -1,0 +1,32 @@
+#sliders-explanation-layout {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 10px;
+
+	height: 100%;
+}
+
+#sliders {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 10px;
+	overflow-y: auto;
+
+	width: 100%;
+}
+
+#explanation {
+	width: 30%;
+}
+
+#separator {
+	width: 1px;
+	height: 95%;
+
+	align-self: center;
+	background: #bbb;
+}

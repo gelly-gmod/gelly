@@ -1,0 +1,23 @@
+.explanation {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+
+	gap: 10px;
+	width: 100%;
+
+	padding: 2px;
+}
+
+.explanation-header {
+	color: white;
+	font-size: 3em;
+	font-weight: bold;
+}
+
+.explanation-text {
+	color: #aaa;
+	font-size: 1em;
+	font-weight: normal;
+}
