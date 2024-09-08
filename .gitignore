@@ -23,3 +23,6 @@ release/garrysmod/lua/bin/*.dll
 release/garrysmod/lua/bin/*.pdb
 release/garrysmod/lua/bin/*.ilk
 release/*.dll
+
+# For addon UI
+node_modules

@@ -3,11 +3,19 @@ local PANEL = {}
 function PANEL:Init()
 	self.HTML = self:Add("DHTML")
 	self.HTML:Dock(FILL)
-	self.HTML:OpenURL("asset://garrysmod/lua/html/customization.html.lua")
+	self.HTML:OpenURL(self:GetUILocation())
 	self:SetVisible(false)
 	self:SetSize(ScrW() * 0.8, ScrH() * 0.6)
 	self:Center()
 	self:SetupJSEnvironment()
+
+	timer.Create("gelly.customization.auto-reload", 5, 0, function()
+		self.HTML:OpenURL(self:GetUILocation())
+	end)
+end
+
+function PANEL:GetUILocation()
+	return "http://127-0-0-1.nip.io/ui/customization.html"
 end
 
 function PANEL:Paint(w, h)

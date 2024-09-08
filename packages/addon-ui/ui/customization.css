@@ -1,0 +1,73 @@
+body {
+	font-family: "Roboto", sans-serif;
+	font-size: 14px;
+	color: #333;
+
+	margin: 0;
+	padding: 0;
+
+	width: 100vw;
+	height: 100vh;
+
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+#root {
+	width: 100%;
+	height: 100%;
+}
+
+main {
+	width: 100%;
+	height: 100%;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-content: center;
+}
+
+#tabs-list {
+	width: 100%;
+	height: 32px;
+
+	background: rgba(1, 1, 1, 0.8);
+
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 10px;
+
+	padding: 10px;
+}
+
+.tab-button {
+	width: fit-content;
+	height: 100%;
+	padding: 3px;
+
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid #333333;
+
+	cursor: pointer;
+	color: #888;
+
+	transition: all 0.3s ease;
+	will-change: transform;
+
+	/* remove default outline */
+	outline: none;
+}
+
+.tab-button:hover {
+	color: white;
+	transform: scale(1.05);
+}
+
+.tab-button.active {
+	color: #ddd;
+	border-bottom: 2px solid #bbb;
+}
