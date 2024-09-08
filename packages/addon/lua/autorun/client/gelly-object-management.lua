@@ -110,7 +110,7 @@ local function updatePlayer(ply)
 			return
 		end
 
-		gelly.SetObjectPosition(objectHandle, ply:GetBonePosition(1))
+		gelly.SetObjectPosition(objectHandle, ply:GetBonePosition(1) - Vector(0, 0, 5))
 		gelly.SetObjectRotation(objectHandle, Angle(0, ply:GetAngles().y, 90))
 	end
 end
