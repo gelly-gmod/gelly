@@ -35,7 +35,6 @@ using GetTextureHandle_t =
 using GetLight_t =
 	std::add_pointer_t<__thiscall uintptr_t(CShaderAPIDX8 *, int)>;
 // uintptr_t (*__thiscall)(CShaderAPIDX8 *, int);
-using GetMaxLights_t = std::add_pointer_t<__thiscall int(CShaderAPIDX8 *)>;
 // int (*__thiscall)(CShaderAPIDX8 *);
 using AllowThreading_t =
 	std::add_pointer_t<__thiscall bool(CMaterialSystem *, bool, int)>;
@@ -50,7 +49,6 @@ using GetD3DTexture_t = IDirect3DBaseTexture9 *(__thiscall *)(CShaderAPIDX8 *,
 using GetTextureHandle_t =
 	TextureHandle_t(__thiscall *)(CTexture *, void *, uint);
 using GetLight_t = uintptr_t(__thiscall *)(CShaderAPIDX8 *, int);
-using GetMaxLights_t = int(__thiscall *)(CShaderAPIDX8 *);
 using AllowThreading_t = bool(__thiscall *)(CMaterialSystem *, bool, int);
 using SetAmbientLightCube_t =
 	void(__thiscall *)(CShaderAPIDX8 *, AmbientLightCube &);
@@ -64,7 +62,6 @@ static GetD3DTexture_t g_getD3DTexture = nullptr;
 static GetTextureHandle_t g_getTextureHandle = nullptr;
 static AllowThreading_t g_allowThreading = nullptr;
 static GetLight_t g_getLight = nullptr;
-static GetMaxLights_t g_getMaxLights = nullptr;
 
 static SetAmbientLightCube_t g_setAmbientLightCube = nullptr;
 static SetAmbientLightCube_t g_setAmbientLightCubeHk = nullptr;
@@ -144,22 +141,17 @@ void EnsureAllHandlesInitialized() {
 	g_getLight =
 		g_shaderAPI.FindFunction<GetLight_t>(sigs::CShaderAPIDX8_GetLight);
 
-	g_getMaxLights = g_shaderAPI.FindFunction<GetMaxLights_t>(
-		sigs::CShaderAPIDX8_GetMaxLights
-	);
-
 	g_setAmbientLightCube = g_shaderAPI.FindFunction<SetAmbientLightCube_t>(
 		sigs::CShaderAPIDX8_SetAmbientLightCube
 	);
 	LOG_INFO("Exiting critical dbghelp section");
 
 	if (!g_getLocalCubemap || !g_getD3DTexture || !g_getTextureHandle ||
-		!g_getLight || !g_getMaxLights || !g_setAmbientLightCube) {
+		!g_getLight || !g_setAmbientLightCube) {
 		LOG_IF_NULL(g_getLocalCubemap);
 		LOG_IF_NULL(g_getD3DTexture);
 		LOG_IF_NULL(g_getTextureHandle);
 		LOG_IF_NULL(g_getLight);
-		LOG_IF_NULL(g_getMaxLights);
 		LOG_IF_NULL(g_setAmbientLightCube);
 		throw std::runtime_error("Failed to resolve all GetCubemap functions!");
 	}
@@ -237,9 +229,7 @@ std::optional<LightDesc_t> GetLightDesc(int index) {
 
 int GetMaxLights() {
 	EnsureAllHandlesInitialized();
-	return g_getMaxLights(g_shaderAPIDX9) -
-		   1;  // I have no idea why it's -1, but it's reflected in the original
-			   // decompiled code
+	return 4;  // doesn't ever seem to change in the decompiled code
 }
 
 AmbientLightCube *GetAmbientLightCube() {
