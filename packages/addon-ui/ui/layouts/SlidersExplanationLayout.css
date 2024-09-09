@@ -15,7 +15,7 @@
 	align-items: flex-start;
 	gap: 10px;
 	overflow-y: auto;
-
+	overflow-x: hidden;
 	width: 100%;
 }
 

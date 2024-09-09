@@ -1,5 +1,5 @@
 import "./Slider.css";
-import { useState } from "preact/hooks";
+import { useState, useRef, useEffect } from "preact/hooks";
 
 function SliderValueDropdown({
 	setValueDropdownVisible,
@@ -10,25 +10,37 @@ function SliderValueDropdown({
 	setValue: (value: number) => void;
 	initalValue: number;
 }) {
+	const inputRef = useRef<HTMLInputElement>(null);
+	useEffect(() => {
+		if (inputRef.current) {
+			inputRef.current.focus();
+		}
+	}, [inputRef]);
+
 	return (
-		<div id="slider-value-dropdown">
-			<input
-				type="number"
-				value={initalValue}
-				onChange={(event) => {
-					if (event.currentTarget) {
-						setValue(parseFloat(event.currentTarget.value));
+		<input
+			class="slider-value-dropdown"
+			type="number"
+			ref={inputRef}
+			value={initalValue}
+			onChange={(event) => {
+				if (event.currentTarget) {
+					const parsedFloat = parseFloat(event.currentTarget.value);
+					if (isNaN(parsedFloat)) {
+						setValueDropdownVisible(false);
+						return;
 					}
-				}}
-			></input>
-			<button
-				onClick={() => {
+
+					setValue(parsedFloat);
+				}
+			}}
+			onBlur={() => setValueDropdownVisible(false)}
+			onKeyDown={(event) => {
+				if (event.key === "Enter") {
 					setValueDropdownVisible(false);
-				}}
-			>
-				OK
-			</button>
-		</div>
+				}
+			}}
+		></input>
 	);
 }
 

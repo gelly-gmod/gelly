@@ -43,15 +43,17 @@ function App() {
 
 	return (
 		<main>
-			<section id={"tabs-list"}>
-				{Object.keys(CUSTOMIZATION_TAB_NAME_MAP).map((tabKey) => (
-					<TabButton
-						tab={tabKey as CustomizationTab}
-						currentTab={tab}
-						setTab={setTab}
-					/>
-				))}
-			</section>
+			<header>
+				<section id={"tabs-list"}>
+					{Object.keys(CUSTOMIZATION_TAB_NAME_MAP).map((tabKey) => (
+						<TabButton
+							tab={tabKey as CustomizationTab}
+							currentTab={tab}
+							setTab={setTab}
+						/>
+					))}
+				</section>
+			</header>
 
 			{tab === CustomizationTab.Presets ? <Presets /> : null}
 			{tab === CustomizationTab.Graphics ? <Graphics /> : null}

@@ -12,12 +12,16 @@
 
 .explanation-header {
 	color: white;
-	font-size: 3em;
+	font-size: 2.4em;
 	font-weight: bold;
+	font-family: "Rubik", sans-serif;
+	cursor: none;
 }
 
 .explanation-text {
 	color: #aaa;
-	font-size: 1em;
+	font-size: 1.1em;
 	font-weight: normal;
+	font-family: "Rubik", sans-serif;
+	cursor: none;
 }
