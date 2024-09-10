@@ -1,10 +1,7 @@
 ---@module "gelly.logging"
 local logging = include("gelly/logging.lua")
-local presetRadiusScaleConVar = CreateClientConVar("gelly_preset_radius_scale", "1", true, false,
-	"The scale of the preset radius. This variable is useful for scaling presets to match the scale of the scene.")
 gellyx = gellyx or {}
 gellyx.presets = gellyx.presets or {}
-gellyx.presets.scaleConVar = presetRadiusScaleConVar
 
 GELLY_PRESETS = GELLY_PRESETS or {}
 GELLY_CUSTOM_PRESETS = GELLY_CUSTOM_PRESETS or {}
@@ -37,7 +34,7 @@ end
 
 local function selectPreset(preset)
 	preset.SolverParams.RestDistanceRatio = preset.SolverParams.RestDistanceRatio or 0.73
-	gelly.ChangeParticleRadius(preset.Radius * presetRadiusScaleConVar:GetFloat())
+	gelly.ChangeParticleRadius(preset.Radius * gellyx.settings.get("preset_radius_scale"):GetFloat())
 	gelly.SetFluidProperties(preset.SolverParams)
 	gelly.SetFluidMaterial(preset.Material)
 	gelly.SetDiffuseScale(preset.DiffuseScale)
@@ -79,7 +76,11 @@ function gellyx.presets.getCustomPresets()
 end
 
 function gellyx.presets.getEffectiveRadius()
-	return GELLY_ACTIVE_PRESET.Radius * presetRadiusScaleConVar:GetFloat()
+	return GELLY_ACTIVE_PRESET.Radius * gellyx.settings.get("preset_radius_scale"):GetFloat()
+end
+
+function gellyx.presets.getRadiusScale()
+	return gellyx.settings.get("preset_radius_scale"):GetFloat()
 end
 
 --- Copies a preset's material.
@@ -95,7 +96,7 @@ function gellyx.presets.copyPresetMaterial(name)
 	return material
 end
 
-cvars.AddChangeCallback("gelly_preset_radius_scale", function(_, _, newValue)
+gellyx.settings.registerOnChange("preset_radius_scale", function()
 	if not GELLY_ACTIVE_PRESET then
 		return
 	end

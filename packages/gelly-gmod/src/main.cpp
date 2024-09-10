@@ -749,6 +749,22 @@ LUA_FUNCTION(gelly_GetGellySettings) {
 	return 1;
 }
 
+LUA_FUNCTION(gelly_ConfigureSim) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
+
+	GET_LUA_TABLE_MEMBER(float, Substeps);
+	GET_LUA_TABLE_MEMBER(float, Iterations);
+
+	int substeps = static_cast<int>(Substeps);
+	int iterations = static_cast<int>(Iterations);
+
+	scene->Configure(substeps, iterations);
+	CATCH_GELLY_EXCEPTIONS();
+
+	return 0;
+}
+
 extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	GarrysMod::Lua::ILuaBase *LUA = L->luabase;
 #ifndef PRODUCTION_BUILD
@@ -904,6 +920,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, GetVersion);
 	DEFINE_LUA_FUNC(gelly, SetGellySettings);
 	DEFINE_LUA_FUNC(gelly, GetGellySettings);
+	DEFINE_LUA_FUNC(gelly, ConfigureSim);
 	DumpLuaStack("After defining functions", LUA);
 	LUA->SetField(-2, "gelly");
 	DumpLuaStack("Setting gelly table", LUA);
