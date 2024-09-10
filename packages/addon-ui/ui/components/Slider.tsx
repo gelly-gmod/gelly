@@ -50,17 +50,18 @@ export default function Slider({
 	step,
 	unit,
 	label,
-	onChange,
+	value,
+	setValue,
 }: {
 	min: number;
 	max: number;
 	step: number;
 	unit: string;
 	label: string;
-	onChange: (value: number) => void;
+	value: number;
+	setValue: (value: number) => void;
 }) {
 	const [valueDropdownVisible, setValueDropdownVisible] = useState(false);
-	const [value, setValue] = useState(min);
 
 	return (
 		<div id="slider">
@@ -71,10 +72,10 @@ export default function Slider({
 				max={max}
 				step={step}
 				value={value}
-				onChange={(event) => {
-					if (event.currentTarget) {
-						onChange(parseFloat(event.currentTarget.value));
-						setValue(parseFloat(event.currentTarget.value));
+				onInput={(event) => {
+					if (event.target) {
+						// @ts-ignore
+						setValue(parseFloat(event.target.value));
 					}
 				}}
 			></input>

@@ -43,34 +43,28 @@ function PANEL:ToggleVisibility()
 	end
 end
 
+function PANEL:Think()
+	local minX, minY = self:LocalToScreen(0, 0)
+	local maxX, maxY = self:LocalToScreen(self:GetWide(), self:GetTall())
+
+	local isMouseOutside = gui.MouseX() < minX or gui.MouseY() < minY or gui.MouseX() > maxX or gui.MouseY() > maxY
+	-- Amazingly, we can capture the mouse outside the panel without screwing up the HTML focus by enabling/disabling
+	-- a capture panel each frame. It's kind of a hack and not at the same time.
+
+	self:MouseCapture(isMouseOutside)
+end
+
+function PANEL:OnMousePressed()
+	self:Hide()
+end
+
 function PANEL:SetupJSEnvironment()
-	self.HTML:AddFunction("gelly", "setSimulationRate", function(rate)
-		local numericRate = tonumber(rate)
-		if not numericRate then
-			return
-		end
-
-		GELLY_SIM_RATE_HZ = numericRate
+	self.HTML:AddFunction("gelly", "getSettingAsFloat", function(key)
+		return gellyx.settings.get(key):GetFloat()
 	end)
 
-	self.HTML:AddFunction("gelly", "setSmoothness", function(smoothness)
-		local numericSmoothness = tonumber(smoothness)
-		if not numericSmoothness then
-			return
-		end
-
-		local gellySettings = gelly.GetGellySettings()
-		gellySettings.FilterIterations = numericSmoothness
-		gelly.SetGellySettings(gellySettings)
-	end)
-
-	self.HTML:AddFunction("gelly", "setRadiusScale", function(radiusScale)
-		local numericRadiusScale = tonumber(radiusScale)
-		if not numericRadiusScale then
-			return
-		end
-
-		gellyx.presets.scaleConVar:SetFloat(numericRadiusScale)
+	self.HTML:AddFunction("gelly", "setSettingAsFloat", function(key, value)
+		gellyx.settings.get(key):SetFloat(value)
 	end)
 
 	self.HTML:AddFunction("gelly", "hide", function()

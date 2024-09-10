@@ -8,8 +8,17 @@ import SlidersExplanationLayout, {
 	Separator,
 	Sliders,
 } from "../layouts/SlidersExplanationLayout.tsx";
+import useSettingValue from "../hooks/useSettingValue.ts";
 
 export default function Simulation() {
+	const [simRate, setSimRate] = useSettingValue("simulation_rate");
+	const [iterations, setIterations] = useSettingValue(
+		"simulation_iterations",
+	);
+	const [substeps, setSubsteps] = useSettingValue("simulation_substeps");
+	const [presetRadiusScale, setPresetRadiusScale] = useSettingValue(
+		"preset_radius_scale",
+	);
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
@@ -18,8 +27,9 @@ export default function Simulation() {
 					max={60}
 					step={1}
 					unit="Hz"
+					value={simRate}
+					setValue={setSimRate}
 					label="Simulation Rate"
-					onChange={() => {}}
 				/>
 
 				<Slider
@@ -27,8 +37,9 @@ export default function Simulation() {
 					max={6}
 					step={1}
 					unit=""
+					value={iterations}
+					setValue={setIterations}
 					label="Iterations"
-					onChange={() => {}}
 				/>
 
 				<Slider
@@ -36,8 +47,9 @@ export default function Simulation() {
 					max={8}
 					step={1}
 					unit=""
+					value={substeps}
+					setValue={setSubsteps}
 					label="Substeps"
-					onChange={() => {}}
 				/>
 
 				<Slider
@@ -45,8 +57,9 @@ export default function Simulation() {
 					max={5}
 					step={0.1}
 					unit="x"
+					value={presetRadiusScale}
+					setValue={setPresetRadiusScale}
 					label="Radius Scale"
-					onChange={() => {}}
 				/>
 			</Sliders>
 			<Separator />

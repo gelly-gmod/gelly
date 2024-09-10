@@ -8,8 +8,11 @@ import Explanation, {
 	ExplanationHeader,
 	ExplanationText,
 } from "../components/Explanation.tsx";
+import useSettingValue from "../hooks/useSettingValue.ts";
 
 export default function Graphics() {
+	const [smoothness, setSmoothness] = useSettingValue("smoothness");
+
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
@@ -17,9 +20,10 @@ export default function Graphics() {
 					min={1}
 					max={30}
 					step={1}
+					value={smoothness}
+					setValue={setSmoothness}
 					unit=""
 					label="Smoothness"
-					onChange={() => {}}
 				/>
 			</Sliders>
 			<Separator />
