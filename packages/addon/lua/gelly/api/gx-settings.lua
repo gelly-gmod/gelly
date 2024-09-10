@@ -12,6 +12,13 @@ gellyx.settings.convars = {
 	simulation_rate = settingConvar("simulation_rate", 60, "Controls the simulation rate of the fluid", 20, 144),
 	simulation_substeps = settingConvar("simulation_substeps", 3, "Controls the substeps of the fluid", 1, 100),
 	simulation_iterations = settingConvar("simulation_iterations", 3, "Controls the iterations of the fluid", 1, 100),
+	fluid_radius = settingConvar("fluid_radius", 1, "Controls the radius of the fluid", 1, 5),
+	fluid_viscosity = settingConvar("fluid_viscosity", 1, "Controls the viscosity of the fluid", 0, 100),
+	fluid_cohesion = settingConvar("fluid_cohesion", 1, "Controls the cohesion of the fluid", 0, 1),
+	fluid_adhesion = settingConvar("fluid_adhesion", 1, "Controls the adhesion of the fluid", 0, 1),
+	fluid_friction = settingConvar("fluid_friction", 1, "Controls the friction of the fluid", 0, 10),
+	fluid_rest_distance_ratio = settingConvar("fluid_rest_distance_ratio", 1,
+		"Controls the rest distance ratio of the fluid", 0, 1),
 }
 
 function gellyx.settings.registerOnChange(name, callback)

@@ -1,9 +1,102 @@
-import "./presets.css";
+import SlidersExplanationLayout, {
+	ExplanationColumn,
+	HorizontalSeparator,
+	Separator,
+	Sliders,
+} from "../layouts/SlidersExplanationLayout.tsx";
+import Explanation, {
+	ExplanationHeader,
+	ExplanationText,
+} from "../components/Explanation.tsx";
+import useSettingValue from "../hooks/useSettingValue.ts";
+import Slider from "../components/Slider.tsx";
 
 export default function Presets() {
+	const [fluidRadius, setFluidRadius] = useSettingValue("fluid_radius");
+	const [viscosity, setViscosity] = useSettingValue("fluid_viscosity");
+	const [cohesion, setCohesion] = useSettingValue("fluid_cohesion");
+	const [adhesion, setAdhesion] = useSettingValue("fluid_adhesion");
+	const [friction, setFriction] = useSettingValue("fluid_friction");
+	const [restDistanceRatio, setRestDistanceRatio] = useSettingValue(
+		"fluid_rest_distance_ratio",
+	);
+
 	return (
-		<section>
-			<span>Work in progress.</span>
-		</section>
+		<SlidersExplanationLayout>
+			<Sliders>
+				<ExplanationHeader>Fluid Settings</ExplanationHeader>
+				<HorizontalSeparator />
+				<Slider
+					min={1}
+					max={10}
+					step={0.1}
+					unit="hu"
+					label="Radius"
+					value={fluidRadius}
+					setValue={setFluidRadius}
+				/>
+				<Slider
+					min={0}
+					max={100}
+					step={0.1}
+					unit=""
+					label="Viscosity"
+					value={viscosity}
+					setValue={setViscosity}
+				/>
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit=""
+					label="Cohesion"
+					value={cohesion}
+					setValue={setCohesion}
+				/>
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit=""
+					label="Adhesion"
+					value={adhesion}
+					setValue={setAdhesion}
+				/>
+				<Slider
+					min={0}
+					max={10}
+					step={0.1}
+					unit=""
+					label="Friction"
+					value={friction}
+					setValue={setFriction}
+				/>
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit=""
+					label="Rest Distance Ratio"
+					value={restDistanceRatio}
+					setValue={setRestDistanceRatio}
+				/>
+			</Sliders>
+			<Separator />
+			<ExplanationColumn>
+				<Explanation>
+					<ExplanationHeader>Presets</ExplanationHeader>
+					<ExplanationText>
+						Presets allow you to save a specific configuration of
+						the fluid in-game to be used later on. You can start
+						with any immutable preset, such as the ones in the Gelly
+						Gun.
+					</ExplanationText>
+					<ExplanationText>
+						From there, you can modify the preset to your liking and
+						save it.
+					</ExplanationText>
+				</Explanation>
+			</ExplanationColumn>
+		</SlidersExplanationLayout>
 	);
 }

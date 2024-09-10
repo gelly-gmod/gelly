@@ -1,6 +1,11 @@
 import "./Slider.css";
 import { useState, useRef, useEffect } from "preact/hooks";
 
+function trimFloat(float: number) {
+	// from: https://stackoverflow.com/a/11832950
+	return Math.round((float + Number.EPSILON) * 100) / 100;
+}
+
 function SliderValueDropdown({
 	setValueDropdownVisible,
 	setValue,
@@ -81,7 +86,7 @@ export default function Slider({
 			></input>
 			<section id="value-display">
 				<span id="value" onClick={() => setValueDropdownVisible(true)}>
-					{value + unit}
+					{trimFloat(value) + unit}
 				</span>
 				{valueDropdownVisible && (
 					<SliderValueDropdown

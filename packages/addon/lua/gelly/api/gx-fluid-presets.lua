@@ -53,6 +53,13 @@ function gellyx.presets.select(name)
 	end
 
 	selectPreset(preset)
+	-- synchronize the fluid settings
+	gellyx.settings.get("fluid_radius"):SetFloat(preset.Radius)
+	gellyx.settings.get("fluid_viscosity"):SetFloat(preset.SolverParams.Viscosity)
+	gellyx.settings.get("fluid_cohesion"):SetFloat(preset.SolverParams.Cohesion)
+	gellyx.settings.get("fluid_adhesion"):SetFloat(preset.SolverParams.Adhesion)
+	gellyx.settings.get("fluid_friction"):SetFloat(preset.SolverParams.DynamicFriction)
+	gellyx.settings.get("fluid_rest_distance_ratio"):SetFloat(preset.SolverParams.RestDistanceRatio)
 end
 
 function gellyx.presets.selectEphemeralPreset(preset)
@@ -102,4 +109,29 @@ gellyx.settings.registerOnChange("preset_radius_scale", function()
 	end
 
 	selectPreset(GELLY_ACTIVE_PRESET)
+end)
+
+local EPHEMERAL_FLUID_SETTING_NAMES = {
+	"fluid_radius",
+	"fluid_viscosity",
+	"fluid_cohesion",
+	"fluid_adhesion",
+	"fluid_friction",
+	"fluid_rest_distance_ratio",
+}
+
+gellyx.settings.registerMultipleOnChange(EPHEMERAL_FLUID_SETTING_NAMES, function()
+	if not GELLY_ACTIVE_PRESET then
+		return
+	end
+
+	local newPreset = gellyx.presets.getActivePreset()
+	newPreset.Radius = gellyx.settings.get("fluid_radius"):GetFloat()
+	newPreset.SolverParams.Viscosity = gellyx.settings.get("fluid_viscosity"):GetFloat()
+	newPreset.SolverParams.Cohesion = gellyx.settings.get("fluid_cohesion"):GetFloat()
+	newPreset.SolverParams.Adhesion = gellyx.settings.get("fluid_adhesion"):GetFloat()
+	newPreset.SolverParams.DynamicFriction = gellyx.settings.get("fluid_friction"):GetFloat()
+	newPreset.SolverParams.RestDistanceRatio = gellyx.settings.get("fluid_rest_distance_ratio"):GetFloat()
+
+	selectPreset(newPreset)
 end)

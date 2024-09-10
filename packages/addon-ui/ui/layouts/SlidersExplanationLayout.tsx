@@ -17,6 +17,10 @@ export function Separator() {
 	return <div id="separator" />;
 }
 
+export function HorizontalSeparator() {
+	return <div id="horizontal-separator" />;
+}
+
 export default function SlidersExplanationLayout({
 	children,
 }: {

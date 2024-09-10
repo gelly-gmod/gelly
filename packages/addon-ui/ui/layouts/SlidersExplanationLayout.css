@@ -13,8 +13,9 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: flex-start;
+	flex-wrap: nowrap;
 	gap: 10px;
-	overflow-y: auto;
+	overflow-y: visible;
 	overflow-x: hidden;
 	width: 100%;
 }
@@ -28,5 +29,12 @@
 	height: 95%;
 
 	align-self: center;
+	background: #bbb;
+}
+
+#horizontal-separator {
+	width: 100%;
+	height: 1px;
+
 	background: #bbb;
 }
