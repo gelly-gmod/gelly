@@ -5,26 +5,31 @@
 	align-items: flex-start;
 	gap: 10px;
 
-	height: 100%;
+	flex: 3 0 100px;
+	max-height: 80%;
 }
 
 #sliders {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: normal;
 	align-items: flex-start;
-	flex-wrap: nowrap;
+
 	gap: 10px;
 	overflow-y: visible;
 	overflow-x: hidden;
-	width: 100%;
+	flex: 2 0 100px;
+
+	/* TODO: Why is this required? What is causing the overflow such that it cant be solved witthout this? */
+	align-self: stretch;
 }
 
 #explanation {
-	width: 30%;
+	flex: 0.3 0 100px;
 }
 
 #separator {
+	display: inline-block;
 	width: 1px;
 	height: 95%;
 
@@ -33,6 +38,7 @@
 }
 
 #horizontal-separator {
+	display: inline-block;
 	width: 100%;
 	height: 1px;
 

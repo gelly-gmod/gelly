@@ -43,6 +43,8 @@ header {
 
 	gap: 10px;
 	background-color: rgba(60, 4, 4, 0.62);
+
+	flex: 0.1 0 40px;
 }
 
 #tabs-list {
@@ -89,4 +91,18 @@ header {
 .tab-button.active {
 	color: #ddd;
 	border-bottom: 1px solid #bbb;
+}
+
+* {
+	scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+	width: 6px;
+	height: 12px;
+}
+
+*::-webkit-scrollbar-thumb {
+	background: #333;
+	border-radius: 6px;
 }

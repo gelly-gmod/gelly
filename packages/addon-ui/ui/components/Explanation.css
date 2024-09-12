@@ -11,6 +11,8 @@
 }
 
 .explanation-header {
+	display: block;
+
 	color: white;
 	font-size: 2.4em;
 	font-weight: bold;
