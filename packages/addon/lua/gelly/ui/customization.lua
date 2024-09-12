@@ -14,14 +14,6 @@ function PANEL:GetUILocation()
 	return "http://127-0-0-1.nip.io/ui/customization.html"
 end
 
-function PANEL:Paint(w, h)
-	local x, y = self:LocalToScreen(0, 0)
-
-	render.SetScissorRect(x, y, x + w, y + h, true)
-	Derma_DrawBackgroundBlur(self, 0);
-	render.SetScissorRect(0, 0, 0, 0, false)
-end
-
 function PANEL:Hide()
 	self:SetVisible(false)
 	self:SetKeyboardInputEnabled(false)

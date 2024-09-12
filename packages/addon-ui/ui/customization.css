@@ -15,6 +15,21 @@ body {
 	background: rgba(39, 18, 18, 0.76);
 }
 
+@keyframes bodyFadeOut {
+	from {
+		background: rgba(39, 18, 18, 0.76);
+		opacity: 1;
+	}
+	to {
+		background: rgba(41, 41, 41, 0.3);
+		opacity: 0.35;
+	}
+}
+
+body.translucent {
+	animation: bodyFadeOut 0.5s ease forwards;
+}
+
 #root {
 	width: 100%;
 	height: 100%;

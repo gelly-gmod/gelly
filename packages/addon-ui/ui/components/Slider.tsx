@@ -57,6 +57,8 @@ export default function Slider({
 	label,
 	value,
 	setValue,
+	onInputStart,
+	onInputEnd,
 }: {
 	min: number;
 	max: number;
@@ -65,6 +67,8 @@ export default function Slider({
 	label: string;
 	value: number;
 	setValue: (value: number) => void;
+	onInputStart?: () => void;
+	onInputEnd?: () => void;
 }) {
 	const [valueDropdownVisible, setValueDropdownVisible] = useState(false);
 
@@ -83,6 +87,8 @@ export default function Slider({
 						setValue(parseFloat(event.target.value));
 					}
 				}}
+				onMouseDown={onInputStart}
+				onMouseUp={onInputEnd}
 			></input>
 			<section id="value-display">
 				<span id="value" onClick={() => setValueDropdownVisible(true)}>

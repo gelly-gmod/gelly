@@ -10,6 +10,10 @@ import Explanation, {
 } from "../components/Explanation.tsx";
 import useSettingValue from "../hooks/useSettingValue.ts";
 import Slider from "../components/Slider.tsx";
+import {
+	disableTemporaryTranslucency,
+	enableTemporaryTranslucency,
+} from "../util/temporary-translucency.ts";
 
 export default function Presets() {
 	const [fluidRadius, setFluidRadius] = useSettingValue("fluid_radius");
@@ -34,6 +38,8 @@ export default function Presets() {
 					label="Radius"
 					value={fluidRadius}
 					setValue={setFluidRadius}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 				<Slider
 					min={0}
@@ -43,6 +49,8 @@ export default function Presets() {
 					label="Viscosity"
 					value={viscosity}
 					setValue={setViscosity}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 				<Slider
 					min={0}
@@ -52,6 +60,8 @@ export default function Presets() {
 					label="Cohesion"
 					value={cohesion}
 					setValue={setCohesion}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 				<Slider
 					min={0}
@@ -61,6 +71,8 @@ export default function Presets() {
 					label="Adhesion"
 					value={adhesion}
 					setValue={setAdhesion}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 				<Slider
 					min={0}
@@ -70,6 +82,8 @@ export default function Presets() {
 					label="Friction"
 					value={friction}
 					setValue={setFriction}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 				<Slider
 					min={0}
@@ -79,6 +93,8 @@ export default function Presets() {
 					label="Rest Distance Ratio"
 					value={restDistanceRatio}
 					setValue={setRestDistanceRatio}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 			</Sliders>
 			<Separator />
