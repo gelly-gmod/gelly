@@ -53,6 +53,7 @@ function gellyx.presets.select(name)
 	end
 
 	selectPreset(preset)
+
 	-- synchronize the fluid settings
 	gellyx.settings.get("fluid_radius"):SetFloat(preset.Radius)
 	gellyx.settings.get("fluid_viscosity"):SetFloat(preset.SolverParams.Viscosity)
@@ -60,6 +61,11 @@ function gellyx.presets.select(name)
 	gellyx.settings.get("fluid_adhesion"):SetFloat(preset.SolverParams.Adhesion)
 	gellyx.settings.get("fluid_friction"):SetFloat(preset.SolverParams.DynamicFriction)
 	gellyx.settings.get("fluid_rest_distance_ratio"):SetFloat(preset.SolverParams.RestDistanceRatio)
+
+	if GELLY_CUSTOMIZATION then
+		-- tell the UI that we have new settings
+		GELLY_CUSTOMIZATION:ForceSettingUpdate()
+	end
 end
 
 function gellyx.presets.selectEphemeralPreset(preset)

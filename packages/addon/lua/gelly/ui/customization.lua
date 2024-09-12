@@ -72,4 +72,8 @@ function PANEL:SetupJSEnvironment()
 	end)
 end
 
+function PANEL:ForceSettingUpdate()
+	self.HTML:RunJavascript("gellySync.notifyListeners()")
+end
+
 vgui.Register("GellyCustomizationMenu", PANEL, "EditablePanel")
