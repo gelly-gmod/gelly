@@ -9,6 +9,10 @@ import Explanation, {
 	ExplanationText,
 } from "../components/Explanation.tsx";
 import useSettingValue from "../hooks/useSettingValue.ts";
+import {
+	disableTemporaryTranslucency,
+	enableTemporaryTranslucency,
+} from "../util/temporary-translucency.ts";
 
 export default function Graphics() {
 	const [smoothness, setSmoothness] = useSettingValue("smoothness");
@@ -24,6 +28,8 @@ export default function Graphics() {
 					setValue={setSmoothness}
 					unit=""
 					label="Smoothness"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 			</Sliders>
 			<Separator />

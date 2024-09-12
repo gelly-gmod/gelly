@@ -9,6 +9,10 @@ import SlidersExplanationLayout, {
 	Sliders,
 } from "../layouts/SlidersExplanationLayout.tsx";
 import useSettingValue from "../hooks/useSettingValue.ts";
+import {
+	disableTemporaryTranslucency,
+	enableTemporaryTranslucency,
+} from "../util/temporary-translucency.ts";
 
 export default function Simulation() {
 	const [simRate, setSimRate] = useSettingValue("simulation_rate");
@@ -30,6 +34,8 @@ export default function Simulation() {
 					value={simRate}
 					setValue={setSimRate}
 					label="Simulation Rate"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 
 				<Slider
@@ -40,6 +46,8 @@ export default function Simulation() {
 					value={iterations}
 					setValue={setIterations}
 					label="Iterations"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 
 				<Slider
@@ -50,6 +58,8 @@ export default function Simulation() {
 					value={substeps}
 					setValue={setSubsteps}
 					label="Substeps"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 
 				<Slider
@@ -60,6 +70,8 @@ export default function Simulation() {
 					value={presetRadiusScale}
 					setValue={setPresetRadiusScale}
 					label="Radius Scale"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 			</Sliders>
 			<Separator />
