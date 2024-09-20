@@ -25,6 +25,12 @@ function PANEL:Show()
 	self:SetKeyboardInputEnabled(true)
 	self:SetMouseInputEnabled(true)
 	self:MakePopup()
+
+	-- The pros outweigh the cons for this hack, as this will ensure transluceny
+	-- is removed when the panel is shown. Usually, transluceny can get stuck if
+	-- some awkward condition arises, such as the user lets go suddenly outside of our input sink or
+	-- a browser-provided input control suddenly loses focus.
+	self:ForceRemoveTranslucency()
 end
 
 function PANEL:ToggleVisibility()
@@ -74,6 +80,10 @@ end
 
 function PANEL:ForceSettingUpdate()
 	self.HTML:RunJavascript("gellySync.notifyListeners()")
+end
+
+function PANEL:ForceRemoveTranslucency()
+	self.HTML:RunJavascript("document.body.classList.remove('translucent')")
 end
 
 vgui.Register("GellyCustomizationMenu", PANEL, "EditablePanel")

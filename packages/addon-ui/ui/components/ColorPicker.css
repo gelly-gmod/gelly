@@ -33,12 +33,22 @@ input[type="color"] {
 	height: 32px;
 
 	outline: none;
-	border: none;
+	border: 2px solid #888888;
+	border-radius: 3px;
 
 	appearance: none;
 	cursor: pointer;
 
 	-webkit-appearance: none;
+
+	transition:
+		border 0.2s,
+		transform 0.2s ease;
+}
+
+input[type="color"]:hover {
+	border: 2px solid #ffffff;
+	transform: scale(1.05);
 }
 
 input[type="color"]::-webkit-color-swatch-wrapper {

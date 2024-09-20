@@ -103,6 +103,8 @@ export default function Presets() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 				/>
+				<ExplanationHeader>Fluid Material</ExplanationHeader>
+				<HorizontalSeparator />
 				<ColorPicker
 					color={colorHexCode}
 					label="Color"
