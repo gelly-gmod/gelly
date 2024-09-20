@@ -73,6 +73,10 @@ function PANEL:SetupJSEnvironment()
 		gellyx.settings.get(key):SetString(value)
 	end)
 
+	self.HTML:AddFunction("gelly", "getActiveParticles", function()
+		return gelly.GetStatus().ActiveParticles
+	end)
+
 	self.HTML:AddFunction("gelly", "hide", function()
 		self:Hide()
 	end)

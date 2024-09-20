@@ -37,5 +37,6 @@ declare namespace gelly {
 	 */
 	function setSettingAsString(key: string, value: string): void;
 
+	function getActiveParticles(callback: (count: number) => void): void;
 	function hide(): void;
 }

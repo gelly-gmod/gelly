@@ -1,5 +1,11 @@
 export function enableTemporaryTranslucency() {
-	document.body.classList.add("translucent");
+	gelly.getActiveParticles((count) => {
+		if (count <= 0) {
+			return;
+		}
+
+		document.body.classList.add("translucent");
+	});
 }
 
 export function disableTemporaryTranslucency() {
