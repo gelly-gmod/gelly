@@ -59,6 +59,14 @@ function PANEL:SetupJSEnvironment()
 		gellyx.settings.get(key):SetFloat(value)
 	end)
 
+	self.HTML:AddFunction("gelly", "getSettingAsString", function(key)
+		return gellyx.settings.get(key):GetString()
+	end)
+
+	self.HTML:AddFunction("gelly", "setSettingAsString", function(key, value)
+		gellyx.settings.get(key):SetString(value)
+	end)
+
 	self.HTML:AddFunction("gelly", "hide", function()
 		self:Hide()
 	end)

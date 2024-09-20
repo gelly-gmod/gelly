@@ -19,6 +19,9 @@ gellyx.settings.convars = {
 	fluid_friction = settingConvar("fluid_friction", 1, "Controls the friction of the fluid", 0, 10),
 	fluid_rest_distance_ratio = settingConvar("fluid_rest_distance_ratio", 1,
 		"Controls the rest distance ratio of the fluid", 0, 1),
+	fluid_color_hex = settingConvar("fluid_color_hex", "", "Controls the color of the fluid"),
+	fluid_color_scale = settingConvar("fluid_color_scale", 1, "Controls the color scale of the fluid", 0, 10),
+	fluid_roughness = settingConvar("fluid_roughness", 1, "Controls the roughness of the fluid", 0, 1),
 }
 
 function gellyx.settings.registerOnChange(name, callback)

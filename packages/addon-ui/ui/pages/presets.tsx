@@ -8,12 +8,15 @@ import Explanation, {
 	ExplanationHeader,
 	ExplanationText,
 } from "../components/Explanation.tsx";
-import useSettingValue from "../hooks/useSettingValue.ts";
+import useSettingValue, {
+	useSettingValueString,
+} from "../hooks/useSettingValue.ts";
 import Slider from "../components/Slider.tsx";
 import {
 	disableTemporaryTranslucency,
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
+import ColorPicker from "../components/ColorPicker.tsx";
 
 export default function Presets() {
 	const [fluidRadius, setFluidRadius] = useSettingValue("fluid_radius");
@@ -24,6 +27,10 @@ export default function Presets() {
 	const [restDistanceRatio, setRestDistanceRatio] = useSettingValue(
 		"fluid_rest_distance_ratio",
 	);
+	const [colorHexCode, setColorHexCode] =
+		useSettingValueString("fluid_color_hex");
+	const [colorScale, setColorScale] = useSettingValue("fluid_color_scale");
+	const [roughness, setRoughness] = useSettingValue("fluid_roughness");
 
 	return (
 		<SlidersExplanationLayout>
@@ -93,6 +100,35 @@ export default function Presets() {
 					label="Rest Distance Ratio"
 					value={restDistanceRatio}
 					setValue={setRestDistanceRatio}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+				<ColorPicker
+					color={colorHexCode}
+					label="Color"
+					onChange={setColorHexCode}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+				<Slider
+					min={0.5}
+					max={10}
+					step={0.5}
+					unit={"x"}
+					label="Color Scale"
+					value={colorScale}
+					setValue={setColorScale}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit=""
+					label="Roughness"
+					value={roughness}
+					setValue={setRoughness}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 				/>
