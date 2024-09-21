@@ -49,7 +49,15 @@ function PANEL:Think()
 	-- Amazingly, we can capture the mouse outside the panel without screwing up the HTML focus by enabling/disabling
 	-- a capture panel each frame. It's kind of a hack and not at the same time.
 
-	self:MouseCapture(isMouseOutside)
+	self:MouseCapture(isMouseOutside and self:IsMousePositionValidData())
+end
+
+function PANEL:IsMousePositionValidData()
+	-- Really weird bug: the mouse position is sometimes (0, 0) at random frames
+	-- once the user interacts with a system-provided control modal (color picker, most of the time, but sliders can also trigger this)
+	-- It then lasts a good 10-20 seconds and then goes back to normal. This is a workaround for that.
+
+	return gui.MouseX() ~= 0 and gui.MouseY() ~= 0
 end
 
 function PANEL:OnMousePressed()
