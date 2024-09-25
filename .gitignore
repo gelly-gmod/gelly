@@ -27,3 +27,4 @@ release/*.dll
 # For addon UI
 node_modules
 .vite/**/*
+packages/addon/lua/html/gelly-ui
