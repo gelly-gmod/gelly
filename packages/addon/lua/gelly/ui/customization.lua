@@ -3,15 +3,11 @@ local PANEL = {}
 function PANEL:Init()
 	self.HTML = self:Add("DHTML")
 	self.HTML:Dock(FILL)
-	self.HTML:OpenURL(self:GetUILocation())
+	self.HTML:OpenURL("asset://garrysmod/lua/html/gelly-ui/customization.html.lua")
 	self:SetVisible(false)
 	self:SetSize(ScrW() * 0.8, ScrH() * 0.6)
 	self:Center()
 	self:SetupJSEnvironment()
-end
-
-function PANEL:GetUILocation()
-	return "http://127-0-0-1.nip.io/ui/customization.html"
 end
 
 function PANEL:Hide()

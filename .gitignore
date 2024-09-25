@@ -26,4 +26,4 @@ release/*.dll
 
 # For addon UI
 node_modules
-.vite
+.vite/**/*
