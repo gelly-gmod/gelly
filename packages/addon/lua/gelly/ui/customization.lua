@@ -1,9 +1,19 @@
+local logging = include("gelly/logging.lua")
+local gelly_ui_point_to_localhost = CreateClientConVar("gelly_ui_point_to_localhost", "0", true, false,
+	"Point the Gelly UI to localhost for development purposes.")
+
 local PANEL = {}
 
 function PANEL:Init()
+	local localhostUI = gelly_ui_point_to_localhost:GetBool()
+	if localhostUI then
+		logging.warn("Gelly UI is pointing to localhost.")
+	end
+
 	self.HTML = self:Add("DHTML")
 	self.HTML:Dock(FILL)
-	self.HTML:OpenURL("asset://garrysmod/lua/html/gelly-ui/customization.html.lua")
+	self.HTML:OpenURL(localhostUI and "http://127-0-0-1.nip.io/customization.html" or
+		"asset://garrysmod/lua/html/gelly-ui/customization.html.lua")
 	self:SetVisible(false)
 	self:SetSize(ScrW() * 0.8, ScrH() * 0.6)
 	self:Center()
