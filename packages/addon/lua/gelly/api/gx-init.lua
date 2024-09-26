@@ -8,6 +8,7 @@ gellyx.presets.loadPresetFiles()
 
 include("gx-replicate-damage.lua")
 include("gx-replicate-removal.lua")
+include("gx-replicate-buttons.lua")
 
 include("emitters/cube-emitter.lua")
 include("emitters/mesh-emitter.lua")
