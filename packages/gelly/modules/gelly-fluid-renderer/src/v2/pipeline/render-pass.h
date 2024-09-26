@@ -57,6 +57,7 @@ public:
 		ViewportState viewportState;
 		RasterizerState rasterizerState;
 		std::optional<BlendState> blendState = std::nullopt;
+		bool enableMipRegeneration = true;
 	};
 
 	RenderPass(const PassInfo &passInfo);
@@ -66,6 +67,10 @@ public:
 	 * sets up all the state for this render pass
 	 */
 	auto Apply() -> void;
+
+	auto IsMipRegenerationEnabled() const -> bool {
+		return passInfo.enableMipRegeneration;
+	}
 
 private:
 	PassInfo passInfo;
