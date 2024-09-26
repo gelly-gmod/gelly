@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added the customization menu, a brand-new menu that allows you to customize almost every aspect of the fluid
   simulation and renderer.
--
+- Adds console variables for most customization options.
+- Adds a new console command, `gelly_toggle_customization_menu`, to open and close the customization menu.
+- **Note**: Parts of the menu are WIP, you can open the menu with M or by manually binding the command.
 
 ## [1.21.5] - 2024-09-09
 
