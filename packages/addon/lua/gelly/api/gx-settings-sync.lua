@@ -23,8 +23,10 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		Iterations = gellyx.settings.get("simulation_iterations"):GetInt(),
 	})
 
-	if changedConvar == gellyx.settings.getFullName("max_particles") then
+	if changedConvar == nil or changedConvar == gellyx.settings.getFullName("max_particles") then
 		-- This is one of our most expensive changes so we ensure it's only done when necessary
+		-- But on initialization, we need to set it again so we check if there even was a changed convar.
+
 		gelly.ChangeMaxParticles(gellyx.settings.get("max_particles"):GetInt())
 		gellyx.presets.select(gellyx.presets.getActivePreset().Name)
 		hook.Run("GellyRestarted")
