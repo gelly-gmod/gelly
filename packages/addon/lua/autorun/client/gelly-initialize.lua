@@ -1,6 +1,6 @@
 local showPopup = include("gelly/ui/show-popup.lua")
-include("gelly/ui/settings.lua")
 include("gelly/ui/welcome-screen.lua")
+include("gelly/ui/customization.lua")
 
 local GELLY_MISSING_TITLE = "Gelly Missing"
 local GELLY_MISSING_CONTENT =
@@ -13,10 +13,6 @@ local GELLY_MAP_CONTENT =
 local GELLY_BAD_BRANCH_TITLE = "Unsupported branch"
 local GELLY_BAD_BRANCH_CONTENT =
 "Your branch is not supported by gelly-gmod. Please use the x86-64 branch."
-
-local GELLY_FIRST_LAUNCH_TITLE = "Welcome to Gelly!"
-local GELLY_FIRST_LAUNCH_CONTENT =
-"Welcome to Gelly! Gelly is a fluid simulation tool for Garry's Mod. To get started, open your spawn menu and navigate to the 'Weapons' tab. From there, you can select the 'Gelly' category and the Gelly Gun to use Gelly. As a reminder: Gelly is free, open-source software. It is without warranty or support, and it is NOT paid access. Gelly is buggy. If you encounter a bug, please report it to the gelly GitHub repository. Enjoy!"
 
 -- NOTE: The hook type used is highly important. gelly-gmod internally reads the current rendering context from the game,
 -- and at something that would sound sensible, such as InitPostEntity, the rendering context is not yet available--so gelly-gmod reads garbage.
@@ -43,6 +39,9 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 		vgui.Create("GellyWelcomeScreen")
 		removeFirstLaunchCookie()
 	end
+
+	GELLY_CUSTOMIZATION = vgui.Create("GellyCustomizationMenu")
+	GELLY_CUSTOMIZATION:Hide()
 
 	local isGellyLoaded, errorMessage = pcall(require, "gelly-gmod")
 

@@ -12,7 +12,8 @@ class CD3D11FlexFluidSimulation : public IFluidSimulation {
 private:
 	static constexpr SimCommandType supportedCommands =
 		static_cast<SimCommandType>(
-			RESET | ADD_PARTICLE | CHANGE_RADIUS | SET_FLUID_PROPERTIES
+			RESET | ADD_PARTICLE | CHANGE_RADIUS | SET_FLUID_PROPERTIES |
+			CONFIGURE
 		);
 
 	CD3D11CPUSimData *simData;

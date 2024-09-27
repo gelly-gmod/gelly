@@ -62,6 +62,14 @@ footer {
 	margin-left: 10px;
 }
 
+b {
+	font-family: "Kanit", sans-serif;
+	font-weight: bold;
+	font-style: normal;
+
+	color: white;
+}
+
 .bullet-point {
 	margin-right: 5px;
 }
