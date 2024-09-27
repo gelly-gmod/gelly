@@ -269,6 +269,9 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();
+				} else if constexpr (std::is_same_v<T, Configure>) {
+					substeps = arg.substeps;
+					solverParams.numIterations = arg.iterations;
 				}
 			},
 			command.data

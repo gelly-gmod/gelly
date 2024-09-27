@@ -5,12 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.22.1] - 2024-09-25
+## [1.22.1] - 2024-09-27
+
+### Fixed
+
+- Fixed normals propagating through the mip chain, leading to a blurry appearance.
+- Fixed the version popup not bolding the text properly.
+
+## [1.22.0] - 2024-09-25
+
+### Added
+
+- Added the customization menu, a brand-new menu that allows you to customize almost every aspect of the fluid
+  simulation and renderer.
+- **Note**: By default, you can press **M** to open the menu.
+- Adds console variables for most customization options.
+- Adds a new console command, **gelly_toggle_customization**, to open and close the customization menu.
+- **Note**: You may bind this to any key and Gelly will remove the M keybind for the customization menu.
+- New version popup now has bolded text.
 
 ### Changed
 
-- Prevents normal propagation across the mip chain
-- Basically, makes the fluid look crisper and cleaner
+- The 'max particles' setting is now a slider in the customization menu and a console variable.
+- The range for the 'max particles' setting is now 10,000 to 1,500,000.
+
+### Removed
+
+- Removed legacy preset creator
+- Removed even more legacy settings menu
 
 ## [1.21.5] - 2024-09-09
 

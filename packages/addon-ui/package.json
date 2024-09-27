@@ -1,0 +1,24 @@
+{
+	"name": "addon-ui",
+	"version": "1.0.0",
+	"description": "",
+	"private": true,
+	"scripts": {
+		"dev": "vite --host",
+		"build:gmod": "vite build --base=/asset://garrysmod/lua/html/gelly-ui && npm run gmod:fix",
+		"gmod:fix": "node scripts/gmod-fix.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@preact/preset-vite": "^2.9.0",
+		"prettier": "^3.3.3",
+		"typescript": "^5.5.4",
+		"vite": "^5.4.3",
+		"vite-plugin-singlefile": "^2.0.2"
+	},
+	"dependencies": {
+		"@types/node": "^22.7.0"
+	}
+}

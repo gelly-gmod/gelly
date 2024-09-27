@@ -1,0 +1,48 @@
+#sliders-explanation-layout {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 10px;
+
+	flex: 3 0 100px;
+	max-height: 80%;
+}
+
+#sliders {
+	display: flex;
+	flex-direction: column;
+	justify-content: normal;
+	align-items: flex-start;
+
+	gap: 10px;
+	overflow-y: visible;
+	overflow-x: hidden;
+	flex: 2 0 100px;
+
+	align-self: stretch;
+}
+
+#explanation {
+	flex: 0.3 0 100px;
+	max-height: 90%;
+	overflow-y: scroll;
+}
+
+#separator {
+	display: inline-block;
+	width: 1px;
+	height: 95%;
+
+	align-self: center;
+	background: #bbb;
+}
+
+#horizontal-separator {
+	display: inline-block;
+	width: 100%;
+	height: 1px;
+	min-height: 1px;
+
+	background: #bbb;
+}

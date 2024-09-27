@@ -102,6 +102,13 @@ public:
 		return sim->GetSimulationData();
 	}
 
+	void Configure(int substeps, int iterations) {
+		const auto commandList = sim->CreateCommandList();
+		commandList->AddCommand({CONFIGURE, ::Configure{substeps, iterations}});
+		sim->ExecuteCommandList(commandList);
+		sim->DestroyCommandList(commandList);
+	}
+
 	void SetAbsorptionModifier(
 		const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
 			&modifier

@@ -42,6 +42,17 @@ jobs:
                 with:
                     arch: amd64
 
+            -   name: Set up NodeJS
+                uses: actions/setup-node@v4
+                with:
+                    node-version: '20.1.0'
+
+            -   name: Build the addon UI
+                run: |
+                    cd packages/addon-ui
+                    npm install
+                    npm run build:gmod
+
             -   name: Run sccache-cache
                 uses: mozilla-actions/sccache-action@v0.0.3
 

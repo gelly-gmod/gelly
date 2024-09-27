@@ -1,0 +1,34 @@
+.explanation {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+
+	gap: 10px;
+	width: 100%;
+	height: 100%;
+
+	padding: 2px;
+}
+
+.explanation-header {
+	display: block;
+
+	color: white;
+	font-size: 2.4em;
+	font-weight: bold;
+	font-family: "Rubik", sans-serif;
+	cursor: none;
+}
+
+.explanation-text {
+	color: #aaa;
+	font-size: 1.1em;
+	font-weight: normal;
+	font-family: "Rubik", sans-serif;
+	cursor: none;
+}
+
+.explanation-text.warning {
+	color: #c72727;
+	font-weight: bold;
+}
