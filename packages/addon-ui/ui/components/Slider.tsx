@@ -59,6 +59,7 @@ export default function Slider({
 	setValue,
 	onInputStart,
 	onInputEnd,
+	onlySetValuesOnMouseUp,
 }: {
 	min: number;
 	max: number;
@@ -69,6 +70,7 @@ export default function Slider({
 	setValue: (value: number) => void;
 	onInputStart?: () => void;
 	onInputEnd?: () => void;
+	onlySetValuesOnMouseUp?: boolean;
 }) {
 	const [valueDropdownVisible, setValueDropdownVisible] = useState(false);
 
@@ -82,7 +84,13 @@ export default function Slider({
 				step={step}
 				value={value}
 				onInput={(event) => {
-					if (event.target) {
+					if (event.target && !onlySetValuesOnMouseUp) {
+						// @ts-ignore
+						setValue(parseFloat(event.target.value));
+					}
+				}}
+				onChange={(event) => {
+					if (event.target && onlySetValuesOnMouseUp) {
 						// @ts-ignore
 						setValue(parseFloat(event.target.value));
 					}

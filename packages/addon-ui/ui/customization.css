@@ -108,6 +108,15 @@ header {
 	border-bottom: 1px solid #bbb;
 }
 
+.tab-button[disabled] {
+	color: #666;
+	cursor: not-allowed;
+}
+
+.tab-button[disabled]:hover {
+	transform: none;
+}
+
 * {
 	scrollbar-width: thin;
 }

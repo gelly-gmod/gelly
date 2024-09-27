@@ -25,6 +25,8 @@
 
 #explanation {
 	flex: 0.3 0 100px;
+	max-height: 90%;
+	overflow-y: scroll;
 }
 
 #separator {

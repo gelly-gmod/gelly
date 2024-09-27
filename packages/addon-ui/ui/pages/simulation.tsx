@@ -23,6 +23,9 @@ export default function Simulation() {
 	const [presetRadiusScale, setPresetRadiusScale] = useSettingValue(
 		"preset_radius_scale",
 	);
+
+	const [maxParticles, setMaxParticles] = useSettingValue("max_particles");
+
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
@@ -73,6 +76,19 @@ export default function Simulation() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 				/>
+
+				<Slider
+					min={10000}
+					max={1500000}
+					step={10000}
+					unit=""
+					label="Max Particles"
+					value={maxParticles}
+					setValue={setMaxParticles}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onlySetValuesOnMouseUp
+				/>
 			</Sliders>
 			<Separator />
 			<ExplanationColumn>
@@ -86,6 +102,14 @@ export default function Simulation() {
 					<ExplanationText>
 						Simulation rate, in particular, may cause visual lag, so
 						it is not recommended to lower it below 60Hz.
+					</ExplanationText>
+					<ExplanationText warning>
+						Max particles is a hard limit on the number of particles
+						that can be simulated.
+					</ExplanationText>
+					<ExplanationText warning>
+						You will crash if you set the limit higher than your
+						computer can handle.
 					</ExplanationText>
 				</Explanation>
 			</ExplanationColumn>

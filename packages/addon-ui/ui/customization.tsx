@@ -24,14 +24,17 @@ function TabButton({
 	tab,
 	currentTab,
 	setTab,
+	disabled,
 }: {
 	tab: CustomizationTab;
 	currentTab: CustomizationTab;
 	setTab: (tab: CustomizationTab) => void;
+	disabled?: boolean;
 }) {
 	return (
 		<button
 			className={tab === currentTab ? "tab-button active" : "tab-button"}
+			disabled={disabled}
 			onClick={() => setTab(tab)}
 		>
 			{CUSTOMIZATION_TAB_NAME_MAP[tab]}
@@ -50,6 +53,10 @@ function App() {
 							tab={tabKey as CustomizationTab}
 							currentTab={tab}
 							setTab={setTab}
+							disabled={
+								(tabKey as CustomizationTab) ===
+								CustomizationTab.Mods
+							}
 						/>
 					))}
 				</section>

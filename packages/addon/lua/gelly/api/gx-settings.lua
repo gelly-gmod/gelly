@@ -22,6 +22,8 @@ gellyx.settings.convars = {
 	fluid_color_hex = settingConvar("fluid_color_hex", "", "Controls the color of the fluid"),
 	fluid_color_scale = settingConvar("fluid_color_scale", 1, "Controls the color scale of the fluid", 0, 10),
 	fluid_roughness = settingConvar("fluid_roughness", 1, "Controls the roughness of the fluid", 0, 1),
+	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
+		1500000),
 }
 
 function gellyx.settings.registerOnChange(name, callback)
@@ -38,4 +40,8 @@ end
 function gellyx.settings.get(name)
 	assert(gellyx.settings.convars[name], "Invalid setting name")
 	return gellyx.settings.convars[name]
+end
+
+function gellyx.settings.getFullName(name)
+	return gellyx.settings.key .. name
 end

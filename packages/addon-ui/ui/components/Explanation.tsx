@@ -8,8 +8,18 @@ export function ExplanationHeader({
 }) {
 	return <span class="explanation-header">{children}</span>;
 }
-export function ExplanationText({ children }: { children: ComponentChildren }) {
-	return <span class="explanation-text">{children}</span>;
+export function ExplanationText({
+	children,
+	warning,
+}: {
+	children: ComponentChildren;
+	warning?: boolean;
+}) {
+	return (
+		<span class={warning ? "explanation-text warning" : "explanation-text"}>
+			{children}
+		</span>
+	);
 }
 
 export default function Explanation({

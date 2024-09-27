@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adds a new console command, `gelly_toggle_customization_menu`, to open and close the customization menu.
 - **Note**: Parts of the menu are WIP, you can open the menu with M or by manually binding the command.
 
+### Removed
+
+- Removed legacy preset creator
+- Removed even more legacy settings menu
+
 ## [1.21.5] - 2024-09-09
 
 ### Fixed
