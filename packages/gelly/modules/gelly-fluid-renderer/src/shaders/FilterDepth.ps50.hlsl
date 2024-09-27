@@ -34,6 +34,13 @@ float3 FetchNormal(float2 pixel, float eyeDepth) {
 	mipLevel = clamp(mipLevel, 0, NORMAL_MIP_LEVEL);
 
 	float2 uv = pixel / float2(g_ViewportWidth, g_ViewportHeight);
+    // improve the incoming bilinear sample
+    uv = uv * float2(g_ViewportWidth, g_ViewportHeight) + 0.5f;
+    float2 iuv = floor(uv);
+    float2 fuv = frac(uv);
+    uv = iuv + fuv * fuv * (3.0f - 2.0f * fuv);
+    uv = (uv - 0.5f) / float2(g_ViewportWidth, g_ViewportHeight);
+
     return InputNormal.SampleLevel(InputNormalSampler, uv, mipLevel).xyz;
 }
 
@@ -89,7 +96,7 @@ float3 CreateIsosurfaceNormals(float2 tex) {
         FetchNormal(centerPixel + float2( 1,  1), kernel[8])
     };
 
-    [unroll]
+    [loop]
     for (int i = 0; i < 9; i++) {
         // our pipeline initializes every invalid depth to D3D11_FLOAT32_MAX so this is how we can check for invalid depth
         // fun thing is that we don't actually need to even have a special case for this, as the normal will be discarded anyway
@@ -101,7 +108,7 @@ float3 CreateIsosurfaceNormals(float2 tex) {
     }
 
     float centerKernel = kernel[4];
-    [unroll]
+    [loop]
     for (int j = 0; j < 9; j++) { // fyi: different variable name to avoid shadowing since hlsl is unrolling every loop
         if (kernel[j] == 0.f) {
             continue;
@@ -118,7 +125,7 @@ float3 CreateIsosurfaceNormals(float2 tex) {
     }
 
     float3 normal = float3(0, 0, 0);
-    [unroll]
+    [loop]
     for (int k = 0; k < 9; k++) {
         normal += normalTaps[k] * kernel[k];
     }
