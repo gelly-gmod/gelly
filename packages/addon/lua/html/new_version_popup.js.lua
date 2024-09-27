@@ -4,7 +4,7 @@ const MARKDOWN_TO_HTML_CONVERTERS = [
 		replace: "<h3>$1</h3>"
 	},
 	{
-		regex: /\*\*(.+)\*\*/g,
+		regex: /\*\*(\w+)\*\*/g,
 		replace: "<b>$1</b>"
 	},
 	{
