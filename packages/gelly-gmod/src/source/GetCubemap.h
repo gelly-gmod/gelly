@@ -67,6 +67,7 @@ std::optional<LightDesc_t> GetLightDesc(int index);
 int GetMaxLights();
 
 AmbientLightCube *GetAmbientLightCube();
+void SetupAmbientLightCubeHook();
 void RemoveAmbientLightCubeHooks();
 
 #endif	// GETCUBEMAP_H

@@ -28,10 +28,7 @@ public:
 	GModCompositor(GModCompositor &&) = delete;
 	GModCompositor &operator=(GModCompositor &&) = delete;
 
-	~GModCompositor() {
-		LOG_INFO("GModCompositor destructor called");
-		// we dont need to delete pipeline because it is a unique_ptr
-	}
+	~GModCompositor() = default;
 
 	void SetConfig(PipelineConfig config);
 	[[nodiscard]] PipelineConfig GetConfig() const;
