@@ -21,7 +21,7 @@ private:
 	unsigned int height;
 
 	std::pair<ComPtr<IDirect3DTexture9>, HANDLE> CreateTexture(
-		const char *name, D3DFORMAT format, int levels = 1
+		const char *name, D3DFORMAT format, int levels = 1, float scale = 1.f
 	) const;
 
 	void CreateFeatureTextures();

@@ -55,6 +55,9 @@ public:
 		-> std::shared_ptr<Pipeline>;
 
 	auto Run(std::optional<int> vertexCount = std::nullopt) -> void;
+	auto GetRenderPass() const -> std::shared_ptr<RenderPass> {
+		return createInfo.renderPass;
+	}
 
 private:
 	PipelineCreateInfo createInfo;

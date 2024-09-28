@@ -115,6 +115,10 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
     float3 normal = -normalize(cross(dpdx, dpdy));
 
+	if (isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) {
+		discard;
+	}
+
     output.PositiveNormal = float4(normal, 1.f);
     output.WorldPosition = float4(WorldPosFromDepthF(input.Tex, centerTap.r), 1.f);
     return output;
