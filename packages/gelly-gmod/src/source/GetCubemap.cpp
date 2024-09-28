@@ -86,7 +86,7 @@ void __thiscall SetAmbientLightCubeHook(
 }
 
 void SetupAmbientLightCubeHook() {
-	if (!g_setAmbientLightCube) {
+	if (!g_setAmbientLightCube || g_setAmbientLightCubeHk) {
 		return;
 	}
 
@@ -118,9 +118,10 @@ void EnsureAllHandlesInitialized() {
 	}
 
 	if (g_getLocalCubemap && g_getD3DTexture && g_getTextureHandle &&
-		g_allowThreading) {
+		g_allowThreading && g_getLight && g_setAmbientLightCube) {
 		return;
 	}
+
 	LOG_INFO("Entering critical dbghelp section");
 	g_getLocalCubemap = g_materialSystem.FindFunction<GetLocalCubemap_t>(
 		sigs::CMaterialSystem_GetLocalCubemap
