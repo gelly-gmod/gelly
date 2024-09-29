@@ -315,7 +315,9 @@ StandardPipeline::StandardPipeline(unsigned int width, unsigned height) :
 	compositeShader(),
 	quadVertexShader(),
 	width(width),
-	height(height) {}
+	height(height) {
+	SetupAmbientLightCubeHook();
+}
 
 StandardPipeline::~StandardPipeline() { RemoveAmbientLightCubeHooks(); }
 

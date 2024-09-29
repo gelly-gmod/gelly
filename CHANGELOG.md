@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.3] - 2024-09-28
+
+### Changed
+
+- Adjusted the mip curve such that waves and other details should still be preserved
+
+### Fixed
+
+- Fixed the pixelation of the fluid when the camera is close to the fluid.
+- Fixed fluid mixing being virtually non-existent.
+- **Note**: Fluid mixing is still not perfect, but it should be better than before. It **will not** be accurate, but it
+  should be less jarring.
+
+## [1.22.2] - 2024-09-27
+
+### Fixed
+
+- Fixed Glunk being pitch black
+
 ## [1.22.1] - 2024-09-27
 
 ### Fixed

@@ -3,14 +3,14 @@
 #include <utility>
 
 std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
-	const char *name, D3DFORMAT format, int levels
+	const char *name, D3DFORMAT format, int levels, float scale
 ) const {
 	HANDLE sharedHandle = nullptr;
 	ComPtr<IDirect3DTexture9> gmodTexture;
 
 	if (FAILED(gmodResources.device->CreateTexture(
-			width,
-			height,
+			width * scale,
+			height * scale,
 			levels,
 			D3DUSAGE_RENDERTARGET,
 			format,
@@ -48,7 +48,7 @@ void StandardTextures::CreateFeatureTextures() {
 		*/
 
 	std::tie(gmodTextures.albedo, sharedHandles.albedo) =
-		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F);
+		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.1f);
 
 	std::tie(gmodTextures.normal, sharedHandles.normals) =
 		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F);
@@ -60,7 +60,7 @@ void StandardTextures::CreateFeatureTextures() {
 		CreateTexture("gelly-gmod/position", D3DFMT_A32B32G32R32F);
 
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
-		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F);
+		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.1f);
 
 	std::tie(gmodTextures.foam, sharedHandles.foam) =
 		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);

@@ -1,5 +1,6 @@
 #include "splatting-renderer.h"
 
+#include "pipelines/albedo-downsampling.h"
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
 #include "pipelines/surface-filtering.h"
@@ -50,7 +51,7 @@ auto SplattingRenderer::Create(const SplattingRendererCreateInfo &&createInfo)
 	return std::make_shared<SplattingRenderer>(createInfo);
 }
 
-auto SplattingRenderer::Render() const -> void {
+auto SplattingRenderer::Render() -> void {
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->StartFrameCapture(
@@ -58,7 +59,17 @@ auto SplattingRenderer::Render() const -> void {
 		);
 	}
 #endif
+
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
+	SetFrameResolution(
+		albedoDownsampling->GetRenderPass()->GetScaledWidth(),
+		albedoDownsampling->GetRenderPass()->GetScaledHeight()
+	);
+	albedoDownsampling->Run();
+	SetFrameResolution(
+		surfaceFilteringA->GetRenderPass()->GetScaledWidth(),
+		surfaceFilteringA->GetRenderPass()->GetScaledHeight()
+	);
 	rawNormalEstimation->Run();
 	RunSurfaceFilteringPipeline(settings.filterIterations);
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
@@ -93,13 +104,27 @@ auto SplattingRenderer::UpdateSettings(const Settings &settings) -> void {
 	this->settings = settings;
 }
 
-auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data
-) const -> void {
+auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data)
+	-> void {
 	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(data);
+	std::memcpy(
+		&frameParamCopy, &data, sizeof(cbuffer::FluidRenderCBufferData)
+	);
+}
+
+auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
+	frameParamCopy.g_ViewportWidth = width;
+	frameParamCopy.g_ViewportHeight = height;
+
+	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(frameParamCopy
+	);
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
 	ellipsoidSplatting = CreateEllipsoidSplattingPipeline(pipelineInfo);
+	albedoDownsampling =
+		CreateAlbedoDownsamplingPipeline(pipelineInfo, ALBEDO_OUTPUT_SCALE);
+
 	surfaceFilteringA = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
 		pipelineInfo.internalTextures->unfilteredNormals,
@@ -197,7 +222,19 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
 	}
 
 	for (int i = 0; i < iterations; i++) {
+		bool oddIteration = i % 2 != 0;
 		if (settings.enableSurfaceFiltering) {
+			// This helps control the propagation of the normals across the mip
+			// chain. If we allow the mip regeneration to happen for every
+			// iteration, the depth-based filter quickly becomes overwhelmed by
+			// the footprint of smaller mips.
+			surfaceFilteringA->GetRenderPass()->SetMipRegenerationEnabled(
+				oddIteration
+			);
+			surfaceFilteringB->GetRenderPass()->SetMipRegenerationEnabled(
+				oddIteration
+			);
+
 			surfaceFilteringA->Run();
 			surfaceFilteringB->Run();
 		}

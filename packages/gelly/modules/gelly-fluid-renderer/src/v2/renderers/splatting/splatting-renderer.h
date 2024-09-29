@@ -36,6 +36,8 @@ private:
 
 class SplattingRenderer {
 public:
+	float ALBEDO_OUTPUT_SCALE = 0.1f;
+
 	struct Settings {
 		unsigned int filterIterations = 5;
 		/**
@@ -65,8 +67,9 @@ public:
 	static auto Create(const SplattingRendererCreateInfo &&createInfo)
 		-> std::shared_ptr<SplattingRenderer>;
 
-	auto Render() const -> void;
-	auto UpdateFrameParams(cbuffer::FluidRenderCBufferData &data) const -> void;
+	auto Render() -> void;
+	auto UpdateFrameParams(cbuffer::FluidRenderCBufferData &data) -> void;
+	auto SetFrameResolution(float width, float height) -> void;
 	auto GetSettings() const -> Settings;
 	auto UpdateSettings(const Settings &settings) -> void;
 	[[nodiscard]] auto GetAbsorptionModifier() const
@@ -80,10 +83,12 @@ private:
 
 	PipelineInfo pipelineInfo;
 	PipelinePtr ellipsoidSplatting;
+	PipelinePtr albedoDownsampling;
 	PipelinePtr surfaceFilteringA;
 	PipelinePtr surfaceFilteringB;
 	PipelinePtr rawNormalEstimation;
 
+	cbuffer::FluidRenderCBufferData frameParamCopy = {};
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	RENDERDOC_API_1_1_2 *renderDoc = nullptr;
 #endif
