@@ -12,6 +12,12 @@ struct PS_OUTPUT {
 	float Thickness : SV_Target1;
 };
 
+static float gaussianKernel_3x3[9] = {
+	1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f,
+	2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
+	1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f
+};
+
 PS_OUTPUT main(VS_OUTPUT input) {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float2 uv = input.Tex;
@@ -32,10 +38,8 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	float3 albedo = 0;
 	[unroll]
 	for (int i = 0; i < 9; i++) {
-		albedo += albedoTaps[i];
+		albedo += albedoTaps[i] * gaussianKernel_3x3[i];
 	}
-
-	albedo /= 9.0f;
 
 	// For thickness we use a less expensive cross pattern
 
@@ -49,8 +53,8 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
 	float thickness = 0;
 	[unroll]
-	for (int i = 0; i < 5; i++) {
-		thickness += thicknessTaps[i];
+	for (int i_t = 0; i_t < 5; i_t++) {
+		thickness += thicknessTaps[i_t];
 	}
 
 	thickness /= 5.0f;
