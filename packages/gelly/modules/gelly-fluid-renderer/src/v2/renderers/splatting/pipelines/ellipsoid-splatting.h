@@ -20,8 +20,9 @@ namespace gelly {
 namespace renderer {
 namespace splatting {
 
-inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
-	-> std::shared_ptr<Pipeline> {
+inline auto CreateEllipsoidSplattingPipeline(
+	const PipelineInfo &info, float outputScale = 1.f
+) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
 		.depthStencilState =
@@ -81,6 +82,7 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
 				 }},
 		}},
+		.outputScale = outputScale
 	});
 
 	const auto vertexShader = VS_FROM_GSC(SplattingVS, info.device);
@@ -159,7 +161,7 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 			  }},
 		 .outputs =
 			 {OutputTexture{
-				  .texture = info.outputTextures->albedo,
+				  .texture = info.internalTextures->unfilteredAlbedo,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 0,
 				  .clearColor = {0.f, 0.f, 0.f, 0.f},
@@ -171,12 +173,10 @@ inline auto CreateEllipsoidSplattingPipeline(const PipelineInfo &info)
 				  .clearColor = {1.f, D3D11_FLOAT32_MAX, 1.f, 1.f}
 			  },
 			  OutputTexture{
-				  .texture =
-					  info.outputTextures->thickness,
+				  .texture = info.internalTextures->unfilteredThickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
-				  .clearColor =
-					  {0.f, 0.f, 0.f, 0.f}
+				  .clearColor = {0.f, 0.f, 0.f, 0.f}
 			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),

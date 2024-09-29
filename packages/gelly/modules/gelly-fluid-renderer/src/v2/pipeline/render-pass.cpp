@@ -81,8 +81,8 @@ auto RenderPass::CreateViewport() -> D3D11_VIEWPORT {
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = passInfo.viewportState.topLeftX;
 	viewport.TopLeftY = passInfo.viewportState.topLeftY;
-	viewport.Width = passInfo.viewportState.width;
-	viewport.Height = passInfo.viewportState.height;
+	viewport.Width = GetScaledWidth();
+	viewport.Height = GetScaledHeight();
 	viewport.MinDepth = passInfo.viewportState.minDepth;
 	viewport.MaxDepth = passInfo.viewportState.maxDepth;
 

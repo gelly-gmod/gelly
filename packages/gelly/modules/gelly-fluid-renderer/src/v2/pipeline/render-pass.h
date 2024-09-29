@@ -58,6 +58,16 @@ public:
 		RasterizerState rasterizerState;
 		std::optional<BlendState> blendState = std::nullopt;
 		bool enableMipRegeneration = true;
+		/**
+		 * This scales all of the output of this render pass by this factor.
+		 * So, if you have a 1920x1080 pass and you set this to 0.5, the output
+		 * is 960x540.
+		 *
+		 * It is your responsibility to let the shader know about this scale,
+		 * you may retrieve the factor with GetScaleOutput() in the render pass
+		 * object.
+		 */
+		float outputScale = 1.0f;
 	};
 
 	RenderPass(const PassInfo &passInfo);
@@ -70,6 +80,22 @@ public:
 
 	auto IsMipRegenerationEnabled() const -> bool {
 		return passInfo.enableMipRegeneration;
+	}
+
+	auto GetOutputScale() const -> float { return passInfo.outputScale; }
+
+	auto GetScaledWidth() const -> float {
+		return passInfo.viewportState.width * passInfo.outputScale;
+	}
+
+	auto GetScaledHeight() const -> float {
+		return passInfo.viewportState.height * passInfo.outputScale;
+	}
+
+	// For some use-cases, we might want to disable mip regeneration or enable
+	// it on the fly
+	auto SetMipRegenerationEnabled(bool enabled) -> void {
+		passInfo.enableMipRegeneration = enabled;
 	}
 
 private:

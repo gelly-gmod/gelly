@@ -30,7 +30,7 @@ float3 FetchNormal(float2 pixel, float eyeDepth) {
 	// This term cheaply accounts for higher depth discontinuities across
 	// high radius particles
 	float radiusAdjustmentTerm = 0.2f * g_ParticleRadius;
-	float mipLevel = 8 - 1.3f * log2((0.2f * abs(eyeDepth)) + 0.0001f) + radiusAdjustmentTerm;
+	float mipLevel = 8 - 3.f * log2((0.05f * abs(eyeDepth)) + 0.0001f) + radiusAdjustmentTerm;
 	mipLevel = clamp(mipLevel, 0, NORMAL_MIP_LEVEL);
 
 	float2 uv = pixel / float2(g_ViewportWidth, g_ViewportHeight);
