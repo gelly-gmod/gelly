@@ -36,8 +36,26 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	}
 
 	albedo /= 9.0f;
+
+	// For thickness we use a less expensive cross pattern
+
+	float thicknessTaps[5] = {
+		InputThickness.Sample(InputThicknessSampler, uv + float2(0, -1) * texelSize).r,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, 0) * texelSize).r,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(0, 0) * texelSize).r,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(1, 0) * texelSize).r,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(0, 1) * texelSize).r
+	};
+
+	float thickness = 0;
+	[unroll]
+	for (int i = 0; i < 5; i++) {
+		thickness += thicknessTaps[i];
+	}
+
+	thickness /= 5.0f;
 	
 	output.Albedo = float4(albedo, 1.0f);
-	output.Thickness = InputThickness.Sample(InputThicknessSampler, uv).r;
+	output.Thickness = thickness;
 	return output;
 }
