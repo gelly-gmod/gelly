@@ -1,0 +1,60 @@
+#color-picker {
+	display: flex;
+	width: 100%;
+
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+
+	flex: 0.1 0 64px;
+}
+
+#label {
+	color: white;
+	font-size: 1.3em;
+	font-weight: bold;
+	font-family: "Rubik", sans-serif;
+
+	text-align: right;
+	width: 100px;
+
+	cursor: none;
+}
+
+input[type="color"] {
+	display: block;
+	inline-size: 32px;
+	block-size: 32px;
+
+	margin: 20px;
+	padding: 0;
+
+	width: 32px;
+	height: 32px;
+
+	outline: none;
+	border: 2px solid #888888;
+	border-radius: 3px;
+
+	appearance: none;
+	cursor: pointer;
+
+	-webkit-appearance: none;
+
+	transition:
+		border 0.2s,
+		transform 0.2s ease;
+}
+
+input[type="color"]:hover {
+	border: 2px solid #ffffff;
+	transform: scale(1.05);
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+	border: none;
+}

@@ -33,16 +33,24 @@ struct SetFluidProperties {
 
 struct Reset {};
 
+struct Configure {
+	int substeps;
+	int iterations;
+};
+
 enum SimCommandType {
-	ADD_PARTICLE = 0b0001,
-	CHANGE_RADIUS = 0b0010,
-	RESET = 0b0100,
-	SET_FLUID_PROPERTIES = 0b1000
+	ADD_PARTICLE = 0b00001,
+	CHANGE_RADIUS = 0b00010,
+	RESET = 0b00100,
+	SET_FLUID_PROPERTIES = 0b01000,
+	CONFIGURE = 0b10000
 };
 
 struct SimCommand {
 	SimCommandType type;
-	std::variant<AddParticle, Reset, ChangeRadius, SetFluidProperties> data;
+	std::
+		variant<AddParticle, Reset, ChangeRadius, SetFluidProperties, Configure>
+			data;
 };
 }  // namespace SimCommands
 }  // namespace Gelly

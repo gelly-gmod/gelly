@@ -1,14 +1,28 @@
 GELLY_SIM_TIMESCALE = 10
+GELLY_SIM_RATE_HZ = 60
 SIMULATE_GELLY = true
 
 local lastTimescale = GELLY_SIM_TIMESCALE
+local lastRate = GELLY_SIM_RATE_HZ
 
 local function isGellyActive()
 	return gelly.GetStatus().ActiveParticles > 0
 end
 
 hook.Add("GellyLoaded", "gelly.update-loop", function()
-	timer.Create("gelly.flex-update-timer", 1 / 60, 0, function()
+	-- by this point GellyX has loaded already
+	gellyx.settings.registerOnChange("simulation_rate", function()
+		GELLY_SIM_RATE_HZ = gellyx.settings.get("simulation_rate"):GetInt()
+	end)
+
+	GELLY_SIM_RATE_HZ = gellyx.settings.get("simulation_rate"):GetInt()
+
+	timer.Create("gelly.flex-update-timer", 1 / GELLY_SIM_RATE_HZ, 0, function()
+		if lastRate ~= GELLY_SIM_RATE_HZ then
+			lastRate = GELLY_SIM_RATE_HZ
+			timer.Adjust("gelly.flex-update-timer", 1 / GELLY_SIM_RATE_HZ, 0)
+		end
+
 		if SIMULATE_GELLY then -- we don't check if gelly is active because we do need to update deferred particles (to prevent flicker)
 			if lastTimescale ~= GELLY_SIM_TIMESCALE then
 				lastTimescale = GELLY_SIM_TIMESCALE

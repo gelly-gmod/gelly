@@ -1,0 +1,110 @@
+#slider {
+	display: flex;
+	width: 100%;
+
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+
+	flex: 0.1 0 64px;
+}
+
+#label {
+	color: white;
+	font-size: 1.3em;
+	font-weight: bold;
+	font-family: "Rubik", sans-serif;
+
+	text-align: right;
+	width: 100px;
+
+	cursor: none;
+}
+
+input[type="range"] {
+	width: 70%;
+	height: 8px;
+
+	outline: none;
+	border: none;
+
+	appearance: none;
+	border-radius: 4px;
+	background: linear-gradient(to right, #333 0%, #434343 100%);
+	cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+	width: 16px;
+	height: 16px;
+
+	background: #acacac;
+	box-shadow: 0 0 4px #333;
+	border-radius: 50%;
+	cursor: pointer;
+	appearance: none;
+
+	transition: box-shadow 0.3s ease;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+	box-shadow: 0 0 8px #888;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+#value {
+	color: white;
+	font-size: 1.5em;
+	font-weight: bold;
+	text-align: right;
+
+	border: 1px solid #555;
+	border-radius: 4px;
+	padding: 10px;
+}
+
+#value-display {
+	display: flex;
+	width: 30px;
+
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+
+	cursor: pointer;
+}
+
+@keyframes fadeIn {
+	from {
+		transform: translateY(10px) scale(0.9);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+}
+
+.slider-value-dropdown {
+	appearance: none;
+	outline: none;
+	background: transparent;
+	border-radius: 4px;
+	border: 2px dashed #555;
+	color: white;
+
+	font-size: 1em;
+	font-family: "Rubik", sans-serif;
+	font-weight: normal;
+
+	width: 30px;
+	padding: 4px;
+
+	animation: fadeIn 0.33s cubic-bezier(0, 1.27, 0.97, 0.99);
+}

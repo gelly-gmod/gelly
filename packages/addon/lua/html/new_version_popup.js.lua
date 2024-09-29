@@ -4,6 +4,10 @@ const MARKDOWN_TO_HTML_CONVERTERS = [
 		replace: "<h3>$1</h3>"
 	},
 	{
+		regex: /\*\*(\w+)\*\*/g,
+		replace: "<b>$1</b>"
+	},
+	{
 		regex: /- (.+\r?\n?[^-]*)/g,
 		replace: "<p class='bullet'><span class='bullet-point'>&#x2022;</span> $1</p>"
 	},

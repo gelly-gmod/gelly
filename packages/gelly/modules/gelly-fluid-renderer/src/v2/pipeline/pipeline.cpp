@@ -50,7 +50,6 @@ auto Pipeline::Run(const std::optional<int> vertexCount) -> void {
 		);
 	}
 
-	UpdateMipsForMipmappedTextures();
 	SetupRenderPass();
 	SetupInputAssembler();
 	SetupOutputMerger();
@@ -60,6 +59,10 @@ auto Pipeline::Run(const std::optional<int> vertexCount) -> void {
 	deviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	deviceContext->ClearState();
 	createInfo.device->GetPerformanceMarker()->EndEvent();
+
+	if (createInfo.renderPass->IsMipRegenerationEnabled()) {
+		UpdateMipsForMipmappedTextures();
+	}
 }
 
 auto Pipeline::SetupRenderPass() -> void { createInfo.renderPass->Apply(); }

@@ -1,0 +1,132 @@
+body {
+	font-family: "Roboto", sans-serif;
+	font-size: 14px;
+	color: #333;
+
+	margin: 0;
+	padding: 0;
+
+	width: 100vw;
+	height: 100vh;
+
+	overflow: hidden;
+	box-sizing: border-box;
+
+	background: rgba(39, 18, 18, 0.76);
+}
+
+@keyframes bodyFadeOut {
+	from {
+		background: rgba(39, 18, 18, 0.76);
+		opacity: 1;
+	}
+	to {
+		background: rgba(41, 41, 41, 0.3);
+		opacity: 0.35;
+	}
+}
+
+body.translucent {
+	animation: bodyFadeOut 0.5s ease forwards;
+}
+
+#root {
+	width: 100%;
+	height: 100%;
+}
+
+main {
+	width: 100%;
+	height: 100%;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-content: center;
+
+	background:
+		linear-gradient(90deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.03)),
+		url("https://github.com/gelly-gmod/gelly/blob/master/branding/gellylogo.png?raw=true")
+			no-repeat;
+}
+
+header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+
+	gap: 10px;
+	background-color: rgba(60, 4, 4, 0.62);
+
+	flex: 0.1 0 40px;
+}
+
+#tabs-list {
+	width: 100%;
+	height: 32px;
+
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 20px;
+
+	padding: 10px;
+}
+
+.tab-button {
+	width: fit-content;
+	height: 100%;
+	padding: 3px;
+
+	background: transparent;
+	appearance: none;
+	border: none;
+	border-bottom: 1px solid transparent;
+
+	cursor: pointer;
+	color: #888;
+
+	transition: all 0.3s ease;
+	will-change: transform;
+
+	font-size: 1.3em;
+	font-weight: bold;
+	font-family: "Rubik", sans-serif;
+	/* remove default outline */
+	outline: none;
+}
+
+.tab-button:hover {
+	color: white;
+	transform: scale(1.05);
+}
+
+.tab-button.active {
+	color: #ddd;
+	border-bottom: 1px solid #bbb;
+}
+
+.tab-button[disabled] {
+	color: #666;
+	cursor: not-allowed;
+}
+
+.tab-button[disabled]:hover {
+	transform: none;
+}
+
+* {
+	scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+	width: 6px;
+	height: 12px;
+}
+
+*::-webkit-scrollbar-thumb {
+	background: #333;
+	border-radius: 6px;
+}
