@@ -48,7 +48,7 @@ void StandardTextures::CreateFeatureTextures() {
 		*/
 
 	std::tie(gmodTextures.albedo, sharedHandles.albedo) =
-		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.1f);
+		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.25f);
 
 	std::tie(gmodTextures.normal, sharedHandles.normals) =
 		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F);
@@ -60,7 +60,7 @@ void StandardTextures::CreateFeatureTextures() {
 		CreateTexture("gelly-gmod/position", D3DFMT_A32B32G32R32F);
 
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
-		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.1f);
+		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.25f);
 
 	std::tie(gmodTextures.foam, sharedHandles.foam) =
 		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);

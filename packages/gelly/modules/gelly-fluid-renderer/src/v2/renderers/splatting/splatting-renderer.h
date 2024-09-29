@@ -36,7 +36,7 @@ private:
 
 class SplattingRenderer {
 public:
-	float ALBEDO_OUTPUT_SCALE = 0.1f;
+	float ALBEDO_OUTPUT_SCALE = 0.25f;
 
 	struct Settings {
 		unsigned int filterIterations = 5;
