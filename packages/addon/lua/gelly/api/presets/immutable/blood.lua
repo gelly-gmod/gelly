@@ -3,12 +3,12 @@ return {
 	Radius = 3,
 	DiffuseScale = 0,
 	SolverParams = {
-		Viscosity = 1,
+		Viscosity = 10,
 		SurfaceTension = 0.0,
-		Adhesion = 0.15,
-		Cohesion = 0.45,
+		Adhesion = 0.3,
+		Cohesion = 0.2,
 		VorticityConfinement = 0,
-		DynamicFriction = 0.5,
+		DynamicFriction = 1.1,
 		RestDistanceRatio = 0.55,
 	},
 	Material = {
