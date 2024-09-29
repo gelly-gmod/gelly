@@ -222,7 +222,19 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
 	}
 
 	for (int i = 0; i < iterations; i++) {
+		bool oddIteration = i % 2 != 0;
 		if (settings.enableSurfaceFiltering) {
+			// This helps control the propagation of the normals across the mip
+			// chain. If we allow the mip regeneration to happen for every
+			// iteration, the depth-based filter quickly becomes overwhelmed by
+			// the footprint of smaller mips.
+			surfaceFilteringA->GetRenderPass()->SetMipRegenerationEnabled(
+				oddIteration
+			);
+			surfaceFilteringB->GetRenderPass()->SetMipRegenerationEnabled(
+				oddIteration
+			);
+
 			surfaceFilteringA->Run();
 			surfaceFilteringB->Run();
 		}

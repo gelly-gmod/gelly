@@ -92,6 +92,12 @@ public:
 		return passInfo.viewportState.height * passInfo.outputScale;
 	}
 
+	// For some use-cases, we might want to disable mip regeneration or enable
+	// it on the fly
+	auto SetMipRegenerationEnabled(bool enabled) -> void {
+		passInfo.enableMipRegeneration = enabled;
+	}
+
 private:
 	PassInfo passInfo;
 	ComPtr<ID3D11DepthStencilState> depthStencilState;

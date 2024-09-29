@@ -173,7 +173,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 				  .clearColor = {1.f, D3D11_FLOAT32_MAX, 1.f, 1.f}
 			  },
 			  OutputTexture{
-				  .texture = info.outputTextures->thickness,
+				  .texture = info.internalTextures->unfilteredThickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
 				  .clearColor = {0.f, 0.f, 0.f, 0.f}

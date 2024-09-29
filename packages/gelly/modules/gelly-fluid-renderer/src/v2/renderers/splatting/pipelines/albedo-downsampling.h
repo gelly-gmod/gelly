@@ -50,13 +50,25 @@ inline auto CreateAlbedoDownsamplingPipeline(
 				  .texture = info.internalTextures->unfilteredAlbedo,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
+			  },
+			  InputTexture{
+				  .texture = info.internalTextures->unfilteredThickness,
+				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				  .slot = 1
 			  }},
-		 .outputs = {OutputTexture{
-			 .texture = info.outputTextures->albedo,
-			 .bindFlag = D3D11_BIND_RENDER_TARGET,
-			 .slot = 0,
-			 .clearColor = {0.f, 0.f, 0.f, 0.f}
-		 }},
+		 .outputs =
+			 {OutputTexture{
+				  .texture = info.outputTextures->albedo,
+				  .bindFlag = D3D11_BIND_RENDER_TARGET,
+				  .slot = 0,
+				  .clearColor = {0.f, 0.f, 0.f, 0.f}
+			  },
+			  OutputTexture{
+				  .texture = info.outputTextures->thickness,
+				  .bindFlag = D3D11_BIND_RENDER_TARGET,
+				  .slot = 1,
+				  .clearColor = {0.f, 0.f, 0.f, 0.f}
+			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(AlbedoDownsamplePS, info.device),
 			  .vertexShader = screenQuad.GetVertexShader(),
