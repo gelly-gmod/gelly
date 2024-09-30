@@ -88,7 +88,7 @@ function ENT:Think()
 		local transform = self:GetWorldTransformMatrix()
 
 		gellyx.emitters.Cube({
-			center = Vector(0, 0, 50),
+			center = Vector(0, 0, 80),
 			velocity = Vector(0, 0, self:GetSpeed()),
 			bounds = Vector(2.3 * gellyx.presets.getEffectiveRadius(), 1.6 * gellyx.presets.getEffectiveRadius(), 80),
 			density = self:GetDensity(),
