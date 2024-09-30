@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.22.6] - 2024-09-30
+
+### Fixed
+
+- Fixed disc emitter leaking particles
+- Fixed rest distance ratio being in the range of [0, 1] instead of [0.5, 0.7]
+
 ## [1.22.5] - 2024-09-29
 
 ### Added

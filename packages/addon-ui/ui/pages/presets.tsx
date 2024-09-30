@@ -93,8 +93,8 @@ export default function Presets() {
 					onInputEnd={disableTemporaryTranslucency}
 				/>
 				<Slider
-					min={0}
-					max={1}
+					min={0.5}
+					max={0.7}
 					step={0.01}
 					unit=""
 					label="Rest Distance Ratio"
