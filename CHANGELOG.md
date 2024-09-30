@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed disc emitter leaking particles
+- Fixed rest distance ratio being in the range of [0, 1] instead of [0.5, 0.7]
 
 ## [1.22.5] - 2024-09-29
 
