@@ -9,6 +9,7 @@
 
 // arbitrary constant for controlling the light spread for the sun, higher = less spread (concentrated)
 #define SUN_SPREAD_CONSTRAIN 256.f
+#define NORMAL_LIGHT_SPREAD_CONSTRAIN 280.f
 
 // useful defines for offline debugging
 //#define NORMALS_VIEW
@@ -58,7 +59,7 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
     for (int i = 0; i < 2; i++) {
         float3 lightDir = normalize(lights[i].Position.xyz - position);
         float3 reflectionDir = reflect(-lightDir, normal);
-        float specularRadiance = pow(max(dot(reflectionDir, eyeDir), 0.0), 64.0) * 4.f; // Source-engine-like specular
+        float specularRadiance = pow(max(dot(reflectionDir, eyeDir), 0.0), NORMAL_LIGHT_SPREAD_CONSTRAIN);
 
         radiance += lights[i].LightInfo.xyz * specularRadiance * lights[i].Enabled.x;
     }
