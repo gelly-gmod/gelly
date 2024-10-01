@@ -27,7 +27,6 @@ hook.Add("GellyLoaded", "gelly.initialize-sun", function()
 
 		local shadowTrace = util.QuickTrace(eyePos, sunPos, LocalPlayer())
 		local sunVisible = shadowTrace.HitSky
-		print("Sun visible:", sunVisible)
 		gelly.SetSunEnabled(sunVisible)
 	end)
 end)
