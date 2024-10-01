@@ -41,6 +41,8 @@ struct CompositeConstants {
 	PipelineFluidMaterial material;
 
 	XMFLOAT4X4 viewProj;
+	float sunDirection[3];
+	float sunEnabled = 0.f;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
