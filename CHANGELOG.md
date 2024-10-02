@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.1] - 2024-10-01
+
+### Fixed
+
+- Fixed the **infamous** teleportation bug that caused the fluid to teleport randomly when props were spawned.
+- Fixed the forcefield bug in which a silhouette of the last spawned prop would appear when the forcefield was active.
+
 ## [1.23.0] - 2024-10-01
 
 ### Added
