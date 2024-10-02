@@ -144,8 +144,15 @@ void CFlexSimScene::SetObjectPosition(
 	ObjectHandle handle, float x, float y, float z
 ) {
 	auto &object = objects.at(handle);
-	if (object.position[0] == x && object.position[1] == y &&
-		object.position[2] == z) {
+
+	if (handle != WORLD_HANDLE && x == 0 && y == 0 && z == 0) {
+		// Prevents teleportation bugs from bad addons/maps that delay setting
+		// the real position
+		return;
+	}
+
+	if (object.appliedPosition[0] == x && object.appliedRotation[1] == y &&
+		object.appliedPosition[2] == z) {
 		return;
 	}
 
@@ -164,8 +171,8 @@ void CFlexSimScene::SetObjectQuaternion(
 	ObjectHandle handle, float x, float y, float z, float w
 ) {
 	auto &object = objects.at(handle);
-	if (object.rotation[0] == x && object.rotation[1] == y &&
-		object.rotation[2] == z && object.rotation[3] == w) {
+	if (object.appliedRotation[0] == x && object.appliedRotation[1] == y &&
+		object.appliedRotation[2] == z && object.appliedRotation[3] == w) {
 		return;
 	}
 
@@ -226,6 +233,10 @@ void CFlexSimScene::Update() {
 				forceField.mMode = originalForceField.mode;
 				forceField.mLinearFalloff = originalForceField.linearFalloff;
 
+				object.second.appliedPosition[0] = object.second.position[0];
+				object.second.appliedPosition[1] = object.second.position[1];
+				object.second.appliedPosition[2] = object.second.position[2];
+
 				rawForceFields.push_back(forceField);
 				continue;
 			}
@@ -284,6 +295,14 @@ void CFlexSimScene::Update() {
 			rotations[valueIndex].z = object.second.rotation[2];
 			rotations[valueIndex].w = object.second.rotation[3];
 
+			object.second.appliedPosition[0] = object.second.position[0];
+			object.second.appliedPosition[1] = object.second.position[1];
+			object.second.appliedPosition[2] = object.second.position[2];
+
+			object.second.appliedRotation[0] = object.second.rotation[0];
+			object.second.appliedRotation[1] = object.second.rotation[1];
+			object.second.appliedRotation[2] = object.second.rotation[2];
+
 			flags[valueIndex] = NvFlexMakeShapeFlags(
 				GetFlexShapeType(object.second.shape), true
 			);
@@ -306,6 +325,13 @@ void CFlexSimScene::Update() {
 		);
 	}
 
+	auto forceFieldCount = 0;
+	for (const auto &object : objects) {
+		if (object.second.shape == ObjectShape::FORCEFIELD) {
+			forceFieldCount++;
+		}
+	}
+
 	NvFlexSetShapes(
 		solver,
 		geometry.info,
@@ -314,7 +340,7 @@ void CFlexSimScene::Update() {
 		geometry.prevPositions,
 		geometry.prevRotations,
 		geometry.flags,
-		objects.size()
+		objects.size() - forceFieldCount
 	);
 }
 
