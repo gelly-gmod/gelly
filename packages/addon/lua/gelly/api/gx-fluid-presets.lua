@@ -142,29 +142,28 @@ gellyx.settings.registerMultipleOnChange(EPHEMERAL_FLUID_SETTING_NAMES, function
 	selectPreset(newPreset)
 end)
 
-gellyx.settings.registerMultipleOnChange({ "fluid_color_hex", "fluid_color_scale", "fluid_roughness" }, function()
-	if not GELLY_ACTIVE_PRESET then
-		return
-	end
+gellyx.settings.registerMultipleOnChange({ "fluid_color_hex", "fluid_color_scale", "fluid_roughness", "fluid_opaque" },
+	function()
+		if not GELLY_ACTIVE_PRESET then
+			return
+		end
 
-	-- CSS-style: #rrggbb
-	local colorHex = gellyx.settings.get("fluid_color_hex"):GetString()
-	local colorScale = gellyx.settings.get("fluid_color_scale"):GetFloat()
+		-- CSS-style: #rrggbb
+		local colorHex = gellyx.settings.get("fluid_color_hex"):GetString()
+		local colorScale = gellyx.settings.get("fluid_color_scale"):GetFloat()
 
-	local numericR = tonumber(colorHex:sub(2, 3), 16) / 255
-	local numericG = tonumber(colorHex:sub(4, 5), 16) / 255
-	local numericB = tonumber(colorHex:sub(6, 7), 16) / 255
+		local numericR = tonumber(colorHex:sub(2, 3), 16) / 255
+		local numericG = tonumber(colorHex:sub(4, 5), 16) / 255
+		local numericB = tonumber(colorHex:sub(6, 7), 16) / 255
 
-	-- invert and multiply by the scale to hopefully approach the absorption that the user wants
-	local color = Vector(1 - numericR, 1 - numericG, 1 - numericB) * colorScale
-	local diffuseColor = Vector(numericR, numericG, numericB)
+		-- invert and multiply by the scale to hopefully approach the absorption that the user wants
+		local color = Vector(1 - numericR, 1 - numericG, 1 - numericB) * colorScale
+		local diffuseColor = Vector(numericR, numericG, numericB)
 
-	print(color, diffuseColor)
-
-	local newPreset = gellyx.presets.getActivePreset()
-	newPreset.Material.Absorption = color
-	newPreset.Material.DiffuseColor = diffuseColor
-	newPreset.Material.Roughness = gellyx.settings.get("fluid_roughness"):GetFloat()
-
-	selectPreset(newPreset)
-end)
+		local newPreset = gellyx.presets.getActivePreset()
+		newPreset.Material.Absorption = color
+		newPreset.Material.DiffuseColor = diffuseColor
+		newPreset.Material.Roughness = gellyx.settings.get("fluid_roughness"):GetFloat()
+		newPreset.Material.IsSpecularTransmission = not gellyx.settings.get("fluid_opaque"):GetBool()
+		selectPreset(newPreset)
+	end)

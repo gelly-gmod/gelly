@@ -274,6 +274,11 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.aspectRatio =
 		static_cast<float>(viewSetup.width) / viewSetup.height;
 
+	compositeConstants.sunDirection[0] = config.sunDirection[0];
+	compositeConstants.sunDirection[1] = config.sunDirection[1];
+	compositeConstants.sunDirection[2] = config.sunDirection[2];
+	compositeConstants.sunEnabled = config.sunEnabled;
+
 	renderer->UpdateFrameParams(renderParams);
 
 	std::memcpy(

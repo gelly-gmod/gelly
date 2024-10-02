@@ -765,6 +765,37 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 	return 0;
 }
 
+// We split these into free functions since these will likely be called very
+// often
+LUA_FUNCTION(gelly_SetSunDirection) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+
+	const auto sunDirection = LUA->GetVector(1);
+	auto config = compositor->GetConfig();
+
+	config.sunDirection[0] = sunDirection.x;
+	config.sunDirection[1] = sunDirection.y;
+	config.sunDirection[2] = sunDirection.z;
+
+	compositor->SetConfig(config);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
+LUA_FUNCTION(gelly_SetSunEnabled) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Bool);
+
+	const auto enabled = LUA->GetBool(1);
+	auto config = compositor->GetConfig();
+	config.sunEnabled = enabled ? 1.f : 0.f;
+
+	compositor->SetConfig(config);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	GarrysMod::Lua::ILuaBase *LUA = L->luabase;
 #ifndef PRODUCTION_BUILD
@@ -921,6 +952,8 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetGellySettings);
 	DEFINE_LUA_FUNC(gelly, GetGellySettings);
 	DEFINE_LUA_FUNC(gelly, ConfigureSim);
+	DEFINE_LUA_FUNC(gelly, SetSunDirection);
+	DEFINE_LUA_FUNC(gelly, SetSunEnabled);
 	DumpLuaStack("After defining functions", LUA);
 	LUA->SetField(-2, "gelly");
 	DumpLuaStack("Setting gelly table", LUA);

@@ -5,7 +5,7 @@ return {
 	SolverParams = {
 		Viscosity = 0,
 		SurfaceTension = 0,
-		Adhesion = 0.0009,
+		Adhesion = 0.05,
 		Cohesion = 0.1,
 		VorticityConfinement = 0,
 		DynamicFriction = 1.1,
@@ -15,7 +15,7 @@ return {
 		Roughness = 0,           -- blood isn't rough at all
 		IsSpecularTransmission = true, -- blood is translucent
 		RefractiveIndex = 1.373, -- blood has a slightly higher refractive index than water
-		Absorption = Vector(0.3, 1.1, 1.1) * 8,
+		Absorption = Vector(0.3, 1.1, 1.1) * 40,
 		DiffuseColor = Vector(0, 0, 0),
 	},
 }

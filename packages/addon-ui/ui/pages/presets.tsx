@@ -17,6 +17,7 @@ import {
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
 import ColorPicker from "../components/ColorPicker.tsx";
+import CheckBox from "../components/CheckBox.tsx";
 
 export default function Presets() {
 	const [fluidRadius, setFluidRadius] = useSettingValue("fluid_radius");
@@ -31,6 +32,7 @@ export default function Presets() {
 		useSettingValueString("fluid_color_hex");
 	const [colorScale, setColorScale] = useSettingValue("fluid_color_scale");
 	const [roughness, setRoughness] = useSettingValue("fluid_roughness");
+	const [opaque, setOpaque] = useSettingValue("fluid_opaque");
 
 	return (
 		<SlidersExplanationLayout>
@@ -133,6 +135,12 @@ export default function Presets() {
 					setValue={setRoughness}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<CheckBox
+					label="Opaque"
+					checked={opaque}
+					onChange={setOpaque}
 				/>
 			</Sliders>
 			<Separator />
