@@ -230,6 +230,7 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations)
 		pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
 			frameParamCopy
 		);
+
 		if (settings.enableSurfaceFiltering) {
 			// This helps control the propagation of the normals across the mip
 			// chain. If we allow the mip regeneration to happen for every
