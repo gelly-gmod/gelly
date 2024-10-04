@@ -164,13 +164,14 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		gelly.SetGellySettings(gellySettings)
 	end
 
-	local reloadModsButton = vgui.Create("DButton")
-	reloadModsButton:SetPos(ScrW() - 200, 500)
-	reloadModsButton:SetSize(200, 50)
-	reloadModsButton:SetText("Reload Mods")
-	reloadModsButton.DoClick = function()
-		gellyx.mods.loadMods()
-		gellyx.mods.initializeMods() -- have to manually initialize mods
+	if gelly.IsRWDIBuild() then
+		local reloadShadersButton = vgui.Create("DButton")
+		reloadShadersButton:SetPos(ScrW() - 200, 500)
+		reloadShadersButton:SetSize(200, 50)
+		reloadShadersButton:SetText("Reload Shaders")
+		reloadShadersButton.DoClick = function()
+			gelly.ReloadAllShaders()
+		end
 	end
 
 	local resetButton = vgui.Create("DButton")

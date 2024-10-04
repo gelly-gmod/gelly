@@ -23,6 +23,8 @@ struct float3 {
 	float y;
 	float z;
 };
+
+using uint = unsigned int;
 #endif
 CBUFFER_DECLARATION(FluidRenderCBufferData) {
 	float4x4 g_View;
@@ -44,6 +46,9 @@ CBUFFER_DECLARATION(FluidRenderCBufferData) {
 
 	float g_DiffuseMotionBlur;
 	float3 padding2;
+
+	uint g_SmoothingPassIndex;
+	float3 padding3;
 };
 #ifdef __cplusplus
 }

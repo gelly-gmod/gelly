@@ -13,6 +13,7 @@ public:
 private:
 	ShaderFile shaderFile;
 	ShaderBytecodePtr bytecode;
+	std::filesystem::path compiledPath;
 	bool isDebugEnabled;
 
 	void CompileToBytecode();
@@ -28,6 +29,7 @@ public:
 
 	[[nodiscard]] ShaderBytecodePtr GetBytecode() const;
 	[[nodiscard]] const ShaderFile &GetShaderFile() const;
+	[[nodiscard]] std::filesystem::path GetCompiledPath() const;
 };
 
 #endif	// SHADERFILECOMPILER_H

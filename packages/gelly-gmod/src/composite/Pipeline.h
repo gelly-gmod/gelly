@@ -78,6 +78,13 @@ public:
 	 * Called when the pipeline should render the Gelly frame.
 	 */
 	virtual void Render() = 0;
+
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	/**
+	 * Called when the pipeline should reload all shaders.
+	 */
+	virtual void ReloadAllShaders() = 0;
+#endif
 };
 
 #endif	// PIPELINE_H

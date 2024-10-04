@@ -107,6 +107,10 @@ public:
 	void Composite() override;
 
 	void Render() override;
+
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	void ReloadAllShaders() override;
+#endif
 };
 
 #endif	// STANDARDPIPELINE_H

@@ -26,6 +26,8 @@ private:
 	ShaderProfile profile;
 	ShaderModel model;
 
+	bool debug;
+
 	void LoadSource();
 	void ComputeFriendlyNameAndProfile();
 
@@ -34,13 +36,14 @@ public:
 	 * \brief May throw if the path is invalid or the file could not be read.
 	 * \param path Path to the shader file, either relative or absolute.
 	 */
-	explicit ShaderFile(fs::path path);
+	explicit ShaderFile(fs::path path, bool debug);
 
 	[[nodiscard]] ShaderSourcePtr GetSource() const;
 	[[nodiscard]] const fs::path &GetPath() const;
 	[[nodiscard]] const std::string &GetFriendlyName() const;
 	[[nodiscard]] ShaderProfile GetProfile() const;
 	[[nodiscard]] ShaderModel GetModel() const;
+	[[nodiscard]] bool IsDebugEnabled() const;
 };
 
 #endif	// SHADERFILE_H
