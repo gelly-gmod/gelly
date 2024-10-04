@@ -451,3 +451,10 @@ void StandardPipeline::Render() {
 	UpdateGellyRenderParams();
 	RenderGellyFrame();
 }
+
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+void StandardPipeline::ReloadAllShaders() {
+	CreateCompositeShader();
+	CreateQuadVertexShader();
+}
+#endif

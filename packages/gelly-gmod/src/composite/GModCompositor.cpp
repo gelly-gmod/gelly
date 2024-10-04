@@ -2,6 +2,7 @@
 
 #include "../logging/global-macros.h"
 #include "Pipeline.h"
+#include "reload-shaders.h"
 #include "standard/StandardPipeline.h"
 
 GModCompositor::GModCompositor(
@@ -55,5 +56,7 @@ void GModCompositor::Render() { pipeline->Render(); }
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 void GModCompositor::ReloadAllShaders() {
 	gellyResources.splattingRenderer->ReloadAllShaders();
+	gelly::gmod::renderer::ReloadAllGSCShaders();
+	pipeline->ReloadAllShaders();
 }
 #endif

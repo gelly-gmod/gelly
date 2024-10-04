@@ -4,7 +4,9 @@
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
 #include "pipelines/surface-filtering.h"
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 #include "reload-shaders.h"
+#endif
 
 namespace gelly {
 namespace renderer {
