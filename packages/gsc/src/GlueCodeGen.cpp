@@ -45,6 +45,7 @@ std::string ConvertBytesToCharArray(
 }
 
 const std::string HEADER_GLUECODE_TEMPLATE = R"(
+{HOT_RELOAD_FLAG}
 #ifndef {NAME}_GLUECODE_H
 #define {NAME}_GLUECODE_H
 
@@ -55,6 +56,9 @@ namespace gsc {
 namespace {NAME} {
 	const uint8_t *GetBytecode();
 	const size_t GetBytecodeSize();
+#ifdef GSC_HOT_RELOAD_ENABLED
+	void ReloadFromDisk();
+#endif
 }
 }
 
@@ -66,20 +70,57 @@ void GlueCodeGen::GenerateHeaderFile() {
 	const std::string name = shaderFile.GetFriendlyName();
 
 	StringReplaceAll(headerFile, "{NAME}", name);
+	if (shaderFile.IsDebugEnabled()) {
+		StringReplaceAll(
+			headerFile, "{HOT_RELOAD_FLAG}", "#define GSC_HOT_RELOAD_ENABLED\n"
+		);
+	}
 }
 
 const std::string SOURCE_GLUECODE_TEMPLATE = R"(
+{HOT_RELOAD_FLAG}
 #include "{NAME}.h"
+#ifdef GSC_HOT_RELOAD_ENABLED
+#include <string>
+#include <fstream>
+#include <stdexcept>
+#include <vector>
+static std::shared_ptr<std::vector<uint8_t>> hotReloadBytecode;
+#endif
 
 {BYTECODE}
 
 const uint8_t *gsc::{NAME}::GetBytecode() {
-	return {NAME}_BC;
+	return hotReloadBytecode ? hotReloadBytecode->data() : {NAME}_BC;
 }
 
 const size_t gsc::{NAME}::GetBytecodeSize() {
-	return {BYTECODE_SIZE};
+	return hotReloadBytecode ? hotReloadBytecode->size() : {BYTECODE_SIZE};
 }
+
+#ifdef GSC_HOT_RELOAD_ENABLED
+void gsc::{NAME}::ReloadFromDisk() {
+	const std::string filePath = "{HOT_RELOAD_PATH}";
+	std::ifstream file(filePath, std::ios::binary);
+	if (!file.is_open()) {
+		throw std::runtime_error("Could not open shader file for hot reloading" + filePath);
+		return;
+	}
+
+	file.seekg(0, std::ios::end);
+	auto fileSize = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	hotReloadBytecode = std::make_shared<std::vector<uint8_t>>();
+	hotReloadBytecode->resize(fileSize);
+	hotReloadBytecode->assign(
+		std::istreambuf_iterator<char>(file),
+		std::istreambuf_iterator<char>()
+	);
+
+	file.close();
+}
+#endif
 )";
 
 void GlueCodeGen::GenerateSourceFile() {
@@ -94,12 +135,26 @@ void GlueCodeGen::GenerateSourceFile() {
 	StringReplaceAll(
 		sourceFile, "{BYTECODE_SIZE}", std::to_string(bytecode.size())
 	);
+
+	if (shaderFile.IsDebugEnabled()) {
+		StringReplaceAll(
+			sourceFile, "{HOT_RELOAD_FLAG}", "#define GSC_HOT_RELOAD_ENABLED\n"
+		);
+		StringReplaceAll(
+			sourceFile, "{HOT_RELOAD_PATH}", compiledPath.string()
+		);
+		StringReplaceAll(sourceFile, "\\", "/");
+	}
 }
 
 GlueCodeGen::GlueCodeGen(
-	ShaderFileCompiler::ShaderBytecodePtr bytecode, const ShaderFile &shaderFile
-)
-	: bytecode(std::move(bytecode)), shaderFile(shaderFile) {
+	ShaderFileCompiler::ShaderBytecodePtr bytecode,
+	const ShaderFile &shaderFile,
+	const std::filesystem::path &compiledPath
+) :
+	bytecode(std::move(bytecode)),
+	shaderFile(shaderFile),
+	compiledPath(compiledPath) {
 	GenerateHeaderFile();
 	GenerateSourceFile();
 }

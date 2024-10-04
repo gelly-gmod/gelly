@@ -4,6 +4,7 @@
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
 #include "pipelines/surface-filtering.h"
+#include "reload-shaders.h"
 
 namespace gelly {
 namespace renderer {
@@ -252,6 +253,13 @@ auto SplattingRenderer::CreateAbsorptionModifier(
 }
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+auto SplattingRenderer::ReloadAllShaders() -> void {
+	// gsc hotreloads are global, so we simply just need to remove all the
+	// pipelines and remake them
+	ReloadAllGSCShaders();
+	CreatePipelines();
+}
+
 auto SplattingRenderer::InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 * {
 	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");
 

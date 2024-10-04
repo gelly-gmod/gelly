@@ -75,6 +75,9 @@ public:
 	[[nodiscard]] auto GetAbsorptionModifier() const
 		-> std::shared_ptr<AbsorptionModifier>;
 
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	auto ReloadAllShaders() -> void;
+#endif
 private:
 	SplattingRendererCreateInfo createInfo;
 	std::shared_ptr<AbsorptionModifier> absorptionModifier;
