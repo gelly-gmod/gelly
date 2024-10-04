@@ -74,6 +74,10 @@ void GlueCodeGen::GenerateHeaderFile() {
 		StringReplaceAll(
 			headerFile, "{HOT_RELOAD_FLAG}", "#define GSC_HOT_RELOAD_ENABLED\n"
 		);
+	} else {
+		StringReplaceAll(
+			headerFile, "{HOT_RELOAD_FLAG}", "// Hot reloading was disabled. \n"
+		);
 	}
 }
 
@@ -91,11 +95,19 @@ static std::shared_ptr<std::vector<uint8_t>> hotReloadBytecode;
 {BYTECODE}
 
 const uint8_t *gsc::{NAME}::GetBytecode() {
+#ifdef GSC_HOT_RELOAD_ENABLED
 	return hotReloadBytecode ? hotReloadBytecode->data() : {NAME}_BC;
+#else
+	return {NAME}_BC;
+#endif
 }
 
 const size_t gsc::{NAME}::GetBytecodeSize() {
+#ifdef GSC_HOT_RELOAD_ENABLED
 	return hotReloadBytecode ? hotReloadBytecode->size() : {BYTECODE_SIZE};
+#else
+	return {BYTECODE_SIZE};
+#endif
 }
 
 #ifdef GSC_HOT_RELOAD_ENABLED
@@ -144,6 +156,10 @@ void GlueCodeGen::GenerateSourceFile() {
 			sourceFile, "{HOT_RELOAD_PATH}", compiledPath.string()
 		);
 		StringReplaceAll(sourceFile, "\\", "/");
+	} else {
+		StringReplaceAll(
+			sourceFile, "{HOT_RELOAD_FLAG}", "// Hot reloading was disabled. \n"
+		);
 	}
 }
 

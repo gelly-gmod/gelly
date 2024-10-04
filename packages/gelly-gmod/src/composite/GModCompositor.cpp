@@ -2,7 +2,9 @@
 
 #include "../logging/global-macros.h"
 #include "Pipeline.h"
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 #include "reload-shaders.h"
+#endif
 #include "standard/StandardPipeline.h"
 
 GModCompositor::GModCompositor(
