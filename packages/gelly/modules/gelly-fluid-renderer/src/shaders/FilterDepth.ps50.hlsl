@@ -57,7 +57,6 @@ inline bool IsNormalAllOne(float3 normal) {
 	return dot(normal, normal) == 3.f;
 }
 
-
 float IGN_PassCorrelated(float pixelX, float pixelY, int passIndex) {
     passIndex = passIndex % 64;
     float x = float(pixelX) + 5.588238f * float(passIndex);
