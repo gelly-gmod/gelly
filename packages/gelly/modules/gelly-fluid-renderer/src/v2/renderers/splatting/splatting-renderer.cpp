@@ -198,8 +198,8 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 	);
 }
 
-auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
-) const -> void {
+auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations)
+	-> void {
 	if (iterations == 0) {
 		const auto context = createInfo.device->GetRawDeviceContext();
 		// we'll just want to copy unfilted depth to the filtered depth output
@@ -226,6 +226,10 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
 
 	for (int i = 0; i < iterations; i++) {
 		bool oddIteration = i % 2 != 0;
+		frameParamCopy.g_SmoothingPassIndex = i;
+		pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
+			frameParamCopy
+		);
 		if (settings.enableSurfaceFiltering) {
 			// This helps control the propagation of the normals across the mip
 			// chain. If we allow the mip regeneration to happen for every

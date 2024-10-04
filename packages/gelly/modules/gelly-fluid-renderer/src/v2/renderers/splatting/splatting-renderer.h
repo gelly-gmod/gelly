@@ -100,7 +100,7 @@ private:
 	auto CreatePipelineInfo() const -> PipelineInfo;
 	auto LinkBuffersToSimData() const -> void;
 
-	auto RunSurfaceFilteringPipeline(unsigned int iterations) const -> void;
+	auto RunSurfaceFilteringPipeline(unsigned int iterations) -> void;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 *;
