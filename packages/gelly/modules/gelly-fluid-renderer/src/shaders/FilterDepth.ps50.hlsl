@@ -11,6 +11,7 @@ SamplerState InputNormalSampler : register(s1);
 
 static const float INVALID_EYE_DEPTH_EPSILON = 0.001f;
 static const float NORMAL_MIP_LEVEL = 8.f;
+static const float FILTER_RADIUS = 8.f;
 
 struct PS_OUTPUT {
     float4 FilteredNormal : SV_Target0;
@@ -56,35 +57,22 @@ inline bool IsNormalAllOne(float3 normal) {
 	return dot(normal, normal) == 3.f;
 }
 
-float IGN_DemoFox(float pixelX, float pixelY, int frame)
-{
-    frame = frame % 64;
-    float x = float(pixelX) + 5.588238f * float(frame);
-    float y = float(pixelY) + 5.588238f * float(frame);
+
+float IGN_PassCorrelated(float pixelX, float pixelY, int passIndex) {
+    passIndex = passIndex % 64;
+    float x = float(pixelX) + 5.588238f * float(passIndex);
+    float y = float(pixelY) + 5.588238f * float(passIndex);
 
     return fmod(52.9829189f * fmod(0.06711056f*x + 0.00583715f*y, 1.0f), 1.0f);
 }
 
-float F(float v, float2 coord, float frameBias) {
-    float FILTER_RADIUS = 8.f;
-    return v * (IGN_DemoFox(coord.x, coord.y, frameBias + g_SmoothingPassIndex) * FILTER_RADIUS);
+// Shorthand for dispersing a filter point along the filter radius according to pass-correlated noise
+float F(float v, float2 coord, float passBias) {
+    return v * (IGN_PassCorrelated(coord.x, coord.y, passBias + g_SmoothingPassIndex) * FILTER_RADIUS);
 }
 
 float3 CreateIsosurfaceNormals(float2 tex) {
-    // We compute the normal of the isosurface at the given pixel by sampling the depth and normal textures
     float2 centerPixel = tex * float2(g_ViewportWidth, g_ViewportHeight);
-
-    /*
-	3x3 isosurface normal kernel
-    [ 0 ] [ 1 ] [ 2 ]
-    [ 3 ] [ 4 ] [ 5 ]
-    [ 6 ] [ 7 ] [ 8 ]
-
-    We, at filter-time, generate a kernel which remaps the depth values from the maximum being 1/9 to zero.
-    This allows us to sample the depth values in a way that is more robust to noise, and properly filters out discontinuities.
-	We also retain 50% of the last generation's normal to prevent losing features and valid data which may have too small of a footprint to
-	be considered otherwise.
-    */
     
     float kernel[9] = {
         FetchEyeDepth(centerPixel + float2(F(-1, centerPixel, 1), F(-1, centerPixel, 1))),
