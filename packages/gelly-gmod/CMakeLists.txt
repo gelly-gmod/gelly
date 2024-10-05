@@ -115,6 +115,7 @@ add_library(
         src/util/parse-asset-from-filesystem.h
         ${GBP_SOURCE_FILES}
         src/binaries/gbp.h
+        src/composite/reload-shaders.h
 )
 
 # Propagate GELLY_ENABLE_RENDERDOC_CAPTURES down to compile definitions

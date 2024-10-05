@@ -80,8 +80,8 @@ void ShaderFile::ComputeFriendlyNameAndProfile() {
 	friendlyName = name + shaderTypeString;
 }
 
-ShaderFile::ShaderFile(fs::path path)
-	: path(std::move(path)), profile(ShaderProfile::VS) {
+ShaderFile::ShaderFile(fs::path path, bool debug) :
+	path(std::move(path)), profile(ShaderProfile::VS), debug(debug) {
 	LoadSource();
 	ComputeFriendlyNameAndProfile();
 }
@@ -91,3 +91,4 @@ const fs::path &ShaderFile::GetPath() const { return path; }
 const std::string &ShaderFile::GetFriendlyName() const { return friendlyName; }
 ShaderProfile ShaderFile::GetProfile() const { return profile; }
 ShaderModel ShaderFile::GetModel() const { return model; }
+bool ShaderFile::IsDebugEnabled() const { return debug; }

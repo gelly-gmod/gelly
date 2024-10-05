@@ -13,9 +13,11 @@ import {
 	disableTemporaryTranslucency,
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
+import CheckBox from "../components/CheckBox.tsx";
 
 export default function Graphics() {
 	const [smoothness, setSmoothness] = useSettingValue("smoothness");
+	const [sunVisible, setSunVisible] = useSettingValue("sun_visible");
 
 	return (
 		<SlidersExplanationLayout>
@@ -30,6 +32,12 @@ export default function Graphics() {
 					label="Smoothness"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<CheckBox
+					label="Sun Enabled"
+					checked={sunVisible}
+					onChange={setSunVisible}
 				/>
 			</Sliders>
 			<Separator />

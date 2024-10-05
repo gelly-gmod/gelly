@@ -4,6 +4,9 @@
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
 #include "pipelines/surface-filtering.h"
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+#include "reload-shaders.h"
+#endif
 
 namespace gelly {
 namespace renderer {
@@ -195,8 +198,8 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 	);
 }
 
-auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
-) const -> void {
+auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations)
+	-> void {
 	if (iterations == 0) {
 		const auto context = createInfo.device->GetRawDeviceContext();
 		// we'll just want to copy unfilted depth to the filtered depth output
@@ -223,6 +226,11 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations
 
 	for (int i = 0; i < iterations; i++) {
 		bool oddIteration = i % 2 != 0;
+		frameParamCopy.g_SmoothingPassIndex = i;
+		pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
+			frameParamCopy
+		);
+
 		if (settings.enableSurfaceFiltering) {
 			// This helps control the propagation of the normals across the mip
 			// chain. If we allow the mip regeneration to happen for every
@@ -252,6 +260,13 @@ auto SplattingRenderer::CreateAbsorptionModifier(
 }
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+auto SplattingRenderer::ReloadAllShaders() -> void {
+	// gsc hotreloads are global, so we simply just need to remove all the
+	// pipelines and remake them
+	ReloadAllGSCShaders();
+	CreatePipelines();
+}
+
 auto SplattingRenderer::InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 * {
 	const HMODULE renderDocModule = GetModuleHandle("renderdoc.dll");
 

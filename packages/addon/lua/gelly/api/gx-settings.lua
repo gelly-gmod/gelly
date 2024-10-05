@@ -17,13 +17,16 @@ gellyx.settings.convars = {
 	fluid_cohesion = settingConvar("fluid_cohesion", 1, "Controls the cohesion of the fluid", 0, 1),
 	fluid_adhesion = settingConvar("fluid_adhesion", 1, "Controls the adhesion of the fluid", 0, 1),
 	fluid_friction = settingConvar("fluid_friction", 1, "Controls the friction of the fluid", 0, 10),
-	fluid_rest_distance_ratio = settingConvar("fluid_rest_distance_ratio", 1,
-		"Controls the rest distance ratio of the fluid", 0, 1),
+	fluid_rest_distance_ratio = settingConvar("fluid_rest_distance_ratio", 0.65,
+		"Controls the rest distance ratio of the fluid", 0.5, 0.7),
 	fluid_color_hex = settingConvar("fluid_color_hex", "", "Controls the color of the fluid"),
 	fluid_color_scale = settingConvar("fluid_color_scale", 1, "Controls the color scale of the fluid", 0, 10),
 	fluid_roughness = settingConvar("fluid_roughness", 1, "Controls the roughness of the fluid", 0, 1),
+	fluid_opaque = settingConvar("fluid_opaque", 0, "Controls the opacity of the fluid (0 = transparent, 1 = opaque)", 0,
+		1),
 	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
 		1500000),
+	sun_visible = settingConvar("sun_visible", 1, "Controls the visibility of the sun (0 = no sun, 1 = sun)", 0, 1),
 }
 
 function gellyx.settings.registerOnChange(name, callback)

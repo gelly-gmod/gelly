@@ -15,6 +15,8 @@ struct PipelineConfig {
 	float refractionStrength = 0.03f;
 
 	float diffuseColor[3] = {0.8f, 0.8f, 0.8f};
+	float sunDirection[3] = {0.5f, 0.5f, 0.5f};
+	float sunEnabled = 0.f;
 };
 
 #endif	// PIPELINECONFIG_H

@@ -24,6 +24,10 @@ struct ObjectData {
 	ObjectShape shape{};
 	float position[3]{};
 	float rotation[4]{};
+
+	float appliedPosition[3]{};
+	float appliedRotation[4]{};
+
 	bool firstFrame = true;
 
 	std::variant<TriangleMesh, Capsule, ObjectCreationParams::Forcefield>

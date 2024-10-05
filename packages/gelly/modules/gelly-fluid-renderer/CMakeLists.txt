@@ -49,6 +49,7 @@ add_library(
         src/v2/renderers/splatting/pipelines/surface-filtering.h
         src/v2/renderers/splatting/splatting-renderer.cpp
         src/v2/renderers/splatting/splatting-renderer.h
+        src/v2/renderers/splatting/reload-shaders.h
 )
 
 target_include_directories(

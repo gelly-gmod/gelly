@@ -7,6 +7,10 @@
 #include "material/Diffuse.hlsli"
 #include "util/CMRMap.hlsli"
 
+// arbitrary constant for controlling the light spread for the sun, higher = less spread (concentrated)
+#define SUN_SPREAD_CONSTRAIN 256.f
+#define NORMAL_LIGHT_SPREAD_CONSTRAIN 280.f
+
 // useful defines for offline debugging
 //#define NORMALS_VIEW
 //#define NORMALS_VIEW_DEBUG_CURVATURE
@@ -32,21 +36,30 @@ float4 aspectRatio : register(c8);
 float4 ambientCube[6] : register(c9);
 FluidMaterial material : register(c15);
 float4x4 viewProjMatrix : register(c17);
+float4 sunDir : register(c21);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
     float Depth : SV_DEPTH;
 };
 
+float3 ComputeSunRadiance(float3 eyeDir, float3 normal) {
+    float3 sunReflectionDir = reflect(-sunDir.xyz, normal);
+    float3 sunSpecular = float3(1, 1, 1) * sunDir.w * 200.f; // Arbitrary multiplier
+
+    return sunSpecular * pow(max(dot(sunReflectionDir, eyeDir), 0.0), SUN_SPREAD_CONSTRAIN);
+}
+
 float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 eyePos) {
     float3 radiance = float3(0.0, 0.0, 0.0);
+    float3 eyeDir = normalize(eyePos - position);
+    radiance += ComputeSunRadiance(eyeDir, normal);
 
     [unroll]
     for (int i = 0; i < 2; i++) {
         float3 lightDir = normalize(lights[i].Position.xyz - position);
         float3 reflectionDir = reflect(-lightDir, normal);
-        float3 eyeDir = normalize(eyePos - position);
-        float specularRadiance = pow(max(dot(reflectionDir, eyeDir), 0.0), 64.0) * 4.f; // Source-engine-like specular
+        float specularRadiance = pow(max(dot(reflectionDir, eyeDir), 0.0), NORMAL_LIGHT_SPREAD_CONSTRAIN);
 
         radiance += lights[i].LightInfo.xyz * specularRadiance * lights[i].Enabled.x;
     }
@@ -104,7 +117,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption) + fresnel * specular;
     // inverse fresnel is already applied to the diffuse lobe
     float3 diffuseSpecularLobe = diffuse + fresnel * specular;
-        float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
+    float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
 
     specularTransmissionLobe *= material.r_st_ior.y;
     roughLobe *= (1.f - material.r_st_ior.y);

@@ -36,6 +36,9 @@ public:
 
 	void Composite();
 	void Render();
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	void ReloadAllShaders();
+#endif
 
 	[[nodiscard]] unsigned int GetWidth() const { return width; }
 

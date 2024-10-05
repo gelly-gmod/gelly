@@ -765,6 +765,57 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 	return 0;
 }
 
+// We split these into free functions since these will likely be called very
+// often
+LUA_FUNCTION(gelly_SetSunDirection) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Vector);
+
+	const auto sunDirection = LUA->GetVector(1);
+	auto config = compositor->GetConfig();
+
+	config.sunDirection[0] = sunDirection.x;
+	config.sunDirection[1] = sunDirection.y;
+	config.sunDirection[2] = sunDirection.z;
+
+	compositor->SetConfig(config);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
+LUA_FUNCTION(gelly_SetSunEnabled) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Bool);
+
+	const auto enabled = LUA->GetBool(1);
+	auto config = compositor->GetConfig();
+	config.sunEnabled = enabled ? 1.f : 0.f;
+
+	compositor->SetConfig(config);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
+LUA_FUNCTION(gelly_IsRWDIBuild) {
+	START_GELLY_EXCEPTIONS();
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	LUA->PushBool(true);
+#else
+	LUA->PushBool(false);
+#endif
+	CATCH_GELLY_EXCEPTIONS();
+	return 1;
+}
+
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+LUA_FUNCTION(gelly_ReloadAllShaders) {
+	START_GELLY_EXCEPTIONS();
+	compositor->ReloadAllShaders();
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+#endif
+
 extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	GarrysMod::Lua::ILuaBase *LUA = L->luabase;
 #ifndef PRODUCTION_BUILD
@@ -921,6 +972,12 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetGellySettings);
 	DEFINE_LUA_FUNC(gelly, GetGellySettings);
 	DEFINE_LUA_FUNC(gelly, ConfigureSim);
+	DEFINE_LUA_FUNC(gelly, SetSunDirection);
+	DEFINE_LUA_FUNC(gelly, SetSunEnabled);
+	DEFINE_LUA_FUNC(gelly, IsRWDIBuild);
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	DEFINE_LUA_FUNC(gelly, ReloadAllShaders);
+#endif
 	DumpLuaStack("After defining functions", LUA);
 	LUA->SetField(-2, "gelly");
 	DumpLuaStack("Setting gelly table", LUA);

@@ -5,17 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.0] - 2024-10-04
+
+### Added
+
+- A new surface filter, which should work very well at 5 smoothness, 768p to 1080p.
+
+## [1.23.1] - 2024-10-01
+
+### Fixed
+
+- Fixed the **infamous** teleportation bug that caused the fluid to teleport randomly when props were spawned.
+- Fixed the forcefield bug in which a silhouette of the last spawned prop would appear when the forcefield was active.
+
+## [1.23.0] - 2024-10-01
+
+### Added
+
+- Sun lighting! The fluid now reacts to the sun and reflects it when it's in view.
+- Fluids can now be turned opaque with the new "Opaque" switch in the Presets tab of the customization menu.
+
+### Changed
+
+- All lights are significantly less wide in the fluid reflections to prevent the fluid from looking too bright.
+- Blood preset is significantly more opaque.
+- Blood sticks to surfaces more.
+
+### Fixed
+
+- Fixed cubemaps sometimes not updating properly
+- Removed several debug prints that were left in the code
+
+## [1.22.6] - 2024-09-30
+
+### Fixed
+
+- Fixed disc emitter leaking particles
+- Fixed rest distance ratio being in the range of [0, 1] instead of [0.5, 0.7]
+
+## [1.22.5] - 2024-09-29
+
+### Added
+
+- Added color overrides to disc emitters, which allows you to change the color of the fluid emitted by any disc emitter.
+
 ## [1.22.4] - 2024-09-29
 
 ### Changed
 
-- Improved bullet and explosion damage
-- Added a blood quantity system so that there is a limited amout of blood inside a NPC or ragdoll
-- Improved blood preset
-
-### Fixed
-
-- Weapon being null sometimes
+- Adjusted albedo/thickness scaling up to a quarter
+- Implemented new cross filtering technique to reduce thickness artifacts
 
 ## [1.22.3] - 2024-09-28
 

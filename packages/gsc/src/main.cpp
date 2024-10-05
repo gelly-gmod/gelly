@@ -21,11 +21,12 @@ int main(const int argc, char *argv[]) {
 			printf("[gsc] debug mode enabled\n");
 		}
 
-		const auto shaderFile = ShaderFile(shaderFilePath);
+		const auto shaderFile = ShaderFile(shaderFilePath, debug);
 		const auto compiler = ShaderFileCompiler(shaderFile, debug);
 		const auto bytecode = compiler.GetBytecode();
 		const auto &file = compiler.GetShaderFile();
-		const auto glueCodeGen = GlueCodeGen(bytecode, file);
+		const auto glueCodeGen =
+			GlueCodeGen(bytecode, file, compiler.GetCompiledPath());
 
 		glueCodeGen.WriteFiles();
 		printf("[gsc] compiled %s\n", shaderFilePath);

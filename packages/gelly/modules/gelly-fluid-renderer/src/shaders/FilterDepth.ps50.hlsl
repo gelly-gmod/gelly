@@ -11,6 +11,7 @@ SamplerState InputNormalSampler : register(s1);
 
 static const float INVALID_EYE_DEPTH_EPSILON = 0.001f;
 static const float NORMAL_MIP_LEVEL = 8.f;
+static const float FILTER_RADIUS = 8.f;
 
 struct PS_OUTPUT {
     float4 FilteredNormal : SV_Target0;
@@ -30,7 +31,7 @@ float3 FetchNormal(float2 pixel, float eyeDepth) {
 	// This term cheaply accounts for higher depth discontinuities across
 	// high radius particles
 	float radiusAdjustmentTerm = 0.2f * g_ParticleRadius;
-	float mipLevel = 8 - 3.f * log2((0.05f * abs(eyeDepth)) + 0.0001f) + radiusAdjustmentTerm;
+	float mipLevel = 8 - 2.f * log2((0.09f * abs(eyeDepth)) + 0.0001f) + radiusAdjustmentTerm;
 	mipLevel = clamp(mipLevel, 0, NORMAL_MIP_LEVEL);
 
 	float2 uv = pixel / float2(g_ViewportWidth, g_ViewportHeight);
@@ -56,44 +57,44 @@ inline bool IsNormalAllOne(float3 normal) {
 	return dot(normal, normal) == 3.f;
 }
 
+float IGN_PassCorrelated(float pixelX, float pixelY, int passIndex) {
+    passIndex = passIndex % 64;
+    float x = float(pixelX) + 5.588238f * float(passIndex);
+    float y = float(pixelY) + 5.588238f * float(passIndex);
+
+    return fmod(52.9829189f * fmod(0.06711056f*x + 0.00583715f*y, 1.0f), 1.0f);
+}
+
+// Shorthand for dispersing a filter point along the filter radius according to pass-correlated noise
+float F(float v, float2 coord, float passBias) {
+    return v * (IGN_PassCorrelated(coord.x, coord.y, passBias + g_SmoothingPassIndex) * FILTER_RADIUS);
+}
+
 float3 CreateIsosurfaceNormals(float2 tex) {
-    // We compute the normal of the isosurface at the given pixel by sampling the depth and normal textures
     float2 centerPixel = tex * float2(g_ViewportWidth, g_ViewportHeight);
-
-    /*
-	3x3 isosurface normal kernel
-    [ 0 ] [ 1 ] [ 2 ]
-    [ 3 ] [ 4 ] [ 5 ]
-    [ 6 ] [ 7 ] [ 8 ]
-
-    We, at filter-time, generate a kernel which remaps the depth values from the maximum being 1/9 to zero.
-    This allows us to sample the depth values in a way that is more robust to noise, and properly filters out discontinuities.
-	We also retain 50% of the last generation's normal to prevent losing features and valid data which may have too small of a footprint to
-	be considered otherwise.
-    */
-
+    
     float kernel[9] = {
-        FetchEyeDepth(centerPixel + float2(-1, -1)),
-        FetchEyeDepth(centerPixel + float2( 0, -1)),
-        FetchEyeDepth(centerPixel + float2( 1, -1)),
-        FetchEyeDepth(centerPixel + float2(-1,  0)),
-        FetchEyeDepth(centerPixel + float2( 0,  0)),
-        FetchEyeDepth(centerPixel + float2( 1,  0)),
-        FetchEyeDepth(centerPixel + float2(-1,  1)),
-        FetchEyeDepth(centerPixel + float2( 0,  1)),
-        FetchEyeDepth(centerPixel + float2( 1,  1))
+        FetchEyeDepth(centerPixel + float2(F(-1, centerPixel, 1), F(-1, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F( 0, centerPixel, 1), F(-1, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F( 1, centerPixel, 1), F(-1, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F(-1, centerPixel, 1), F( 0, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F( 0, centerPixel, 1), F( 0, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F( 1, centerPixel, 1), F( 0, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F(-1, centerPixel, 1), F( 1, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F( 0, centerPixel, 1), F( 1, centerPixel, 1))),
+        FetchEyeDepth(centerPixel + float2(F( 1, centerPixel, 1), F( 1, centerPixel, 1)))
     };
 	
     float3 normalTaps[9] = {
-        FetchNormal(centerPixel + float2(-1, -1), kernel[0]),
-        FetchNormal(centerPixel + float2( 0, -1), kernel[1]),
-        FetchNormal(centerPixel + float2( 1, -1), kernel[2]),
-        FetchNormal(centerPixel + float2(-1,  0), kernel[3]),
-        FetchNormal(centerPixel + float2( 0,  0), kernel[4]),
-        FetchNormal(centerPixel + float2( 1,  0), kernel[5]),
-        FetchNormal(centerPixel + float2(-1,  1), kernel[6]),
-        FetchNormal(centerPixel + float2( 0,  1), kernel[7]),
-        FetchNormal(centerPixel + float2( 1,  1), kernel[8])
+        FetchNormal(centerPixel + float2(F(-1, centerPixel, 1), F(-1, centerPixel, 1)), kernel[0]),
+        FetchNormal(centerPixel + float2(F( 0, centerPixel, 1), F(-1, centerPixel, 1)), kernel[1]),
+        FetchNormal(centerPixel + float2(F( 1, centerPixel, 1), F(-1, centerPixel, 1)), kernel[2]),
+        FetchNormal(centerPixel + float2(F(-1, centerPixel, 1), F( 0, centerPixel, 1)), kernel[3]),
+        FetchNormal(centerPixel + float2(F( 0, centerPixel, 1), F( 0, centerPixel, 1)), kernel[4]),
+        FetchNormal(centerPixel + float2(F( 1, centerPixel, 1), F( 0, centerPixel, 1)), kernel[5]),
+        FetchNormal(centerPixel + float2(F(-1, centerPixel, 1), F( 1, centerPixel, 1)), kernel[6]),
+        FetchNormal(centerPixel + float2(F( 0, centerPixel, 1), F( 1, centerPixel, 1)), kernel[7]),
+        FetchNormal(centerPixel + float2(F( 1, centerPixel, 1), F( 1, centerPixel, 1)), kernel[8])
     };
 
     [loop]
@@ -114,7 +115,7 @@ float3 CreateIsosurfaceNormals(float2 tex) {
             continue;
         }
 
-		kernel[j] = abs(kernel[j] - centerKernel) * 20.f;
+		kernel[j] = abs(kernel[j] - centerKernel) * 120.f;
 		// scale the difference to be between 0 and 1
 		kernel[j] /= -centerKernel; // flip since we're in negative space
 		kernel[j] = saturate(kernel[j]);

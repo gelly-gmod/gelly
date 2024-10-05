@@ -67,6 +67,7 @@ struct ObjectCreationParams {
 using ObjectHandle = uint;
 
 constexpr ObjectHandle INVALID_OBJECT_HANDLE = 0xFFFFFFFF;
+constexpr ObjectHandle WORLD_HANDLE = 0;
 }  // namespace Gelly
 
 using namespace Gelly;

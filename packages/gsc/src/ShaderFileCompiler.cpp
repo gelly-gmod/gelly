@@ -48,6 +48,8 @@ void ShaderFileCompiler::CompileToBytecode() {
 
 	auto tempPath = fs::temp_directory_path();
 	tempPath /= shaderFile.GetFriendlyName() + ".dxbc";
+	compiledPath = tempPath;
+
 	fxcCommand += tempPath.string();
 	fxcCommand += " ";
 	fxcCommand += shaderFile.GetPath().string();
@@ -112,4 +114,8 @@ ShaderFileCompiler::ShaderBytecodePtr ShaderFileCompiler::GetBytecode() const {
 
 const ShaderFile &ShaderFileCompiler::GetShaderFile() const {
 	return shaderFile;
+}
+
+std::filesystem::path ShaderFileCompiler::GetCompiledPath() const {
+	return compiledPath;
 }

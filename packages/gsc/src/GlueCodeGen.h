@@ -14,13 +14,16 @@ private:
 	ShaderFileCompiler::ShaderBytecodePtr bytecode;
 	const ShaderFile &shaderFile;
 
+	std::filesystem::path compiledPath;
+
 	void GenerateHeaderFile();
 	void GenerateSourceFile();
 
 public:
 	explicit GlueCodeGen(
 		ShaderFileCompiler::ShaderBytecodePtr bytecode,
-		const ShaderFile &shaderFile
+		const ShaderFile &shaderFile,
+		const std::filesystem::path &compiledPath
 	);
 
 	[[nodiscard]] const GlueCode &GetHeaderFile() const;
