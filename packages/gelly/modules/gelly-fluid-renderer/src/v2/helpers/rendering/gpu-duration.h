@@ -22,6 +22,7 @@ public:
 	 * @return The duration of the GPU operation in milliseconds.
 	 */
 	auto GetDuration() -> float;
+	auto IsDisjoint() -> bool;
 
 private:
 	std::shared_ptr<Device> device;
@@ -33,6 +34,8 @@ private:
 	UINT64 timestampBeginValue;
 	UINT64 timestampEndValue;
 	D3D11_QUERY_DATA_TIMESTAMP_DISJOINT timestampDisjointData;
+
+	bool dataFetched = false;
 
 	auto CreateTimestampQuery() -> ComPtr<ID3D11Query>;
 	auto CreateTimestampDisjointQuery() -> ComPtr<ID3D11Query>;

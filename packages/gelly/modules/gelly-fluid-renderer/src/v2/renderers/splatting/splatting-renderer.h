@@ -47,6 +47,8 @@ public:
 		float albedoDownsampling = 0.0f;
 		float surfaceFiltering = 0.0f;
 		float rawNormalEstimation = 0.0f;
+
+		bool isDisjoint = false;
 	};
 
 	struct Settings {
@@ -123,6 +125,8 @@ private:
 		util::GPUDuration surfaceFiltering;
 		util::GPUDuration rawNormalEstimation;
 	} durations;
+
+	Timings latestTimings;
 
 	auto CreatePipelines() -> void;
 	auto CreatePipelineInfo() const -> PipelineInfo;

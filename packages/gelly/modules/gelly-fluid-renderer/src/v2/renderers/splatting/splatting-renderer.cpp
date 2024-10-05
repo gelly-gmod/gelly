@@ -37,7 +37,13 @@ SplattingRenderer::SplattingRenderer(
 ) :
 	createInfo(createInfo),
 	pipelineInfo(CreatePipelineInfo()),
-	query(CreateQuery()) {
+	query(CreateQuery()),
+	durations(
+		{.ellipsoidSplatting = createInfo.device,
+		 .albedoDownsampling = createInfo.device,
+		 .surfaceFiltering = createInfo.device,
+		 .rawNormalEstimation = createInfo.device}
+	) {
 	CreatePipelines();
 	LinkBuffersToSimData();
 	absorptionModifier = CreateAbsorptionModifier(
@@ -63,18 +69,44 @@ auto SplattingRenderer::Render() -> void {
 	}
 #endif
 
+	if (settings.enableGPUTiming) {
+		durations.ellipsoidSplatting.Start();
+	}
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
+	if (settings.enableGPUTiming) {
+		durations.ellipsoidSplatting.End();
+	}
+
 	SetFrameResolution(
 		albedoDownsampling->GetRenderPass()->GetScaledWidth(),
 		albedoDownsampling->GetRenderPass()->GetScaledHeight()
 	);
+	if (settings.enableGPUTiming) {
+		durations.albedoDownsampling.Start();
+	}
 	albedoDownsampling->Run();
+	if (settings.enableGPUTiming) {
+		durations.albedoDownsampling.End();
+	}
 	SetFrameResolution(
 		surfaceFilteringA->GetRenderPass()->GetScaledWidth(),
 		surfaceFilteringA->GetRenderPass()->GetScaledHeight()
 	);
+	if (settings.enableGPUTiming) {
+		durations.rawNormalEstimation.Start();
+	}
 	rawNormalEstimation->Run();
+	if (settings.enableGPUTiming) {
+		durations.rawNormalEstimation.End();
+	}
+
+	if (settings.enableGPUTiming) {
+		durations.surfaceFiltering.Start();
+	}
 	RunSurfaceFilteringPipeline(settings.filterIterations);
+	if (settings.enableGPUTiming) {
+		durations.surfaceFiltering.End();
+	}
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->EndFrameCapture(
@@ -93,6 +125,22 @@ auto SplattingRenderer::Render() -> void {
 			Sleep(0);
 		}
 	}
+
+	if (settings.enableGPUTiming) {
+		latestTimings.ellipsoidSplatting =
+			durations.ellipsoidSplatting.GetDuration();
+		latestTimings.albedoDownsampling =
+			durations.albedoDownsampling.GetDuration();
+		latestTimings.surfaceFiltering =
+			durations.surfaceFiltering.GetDuration();
+		latestTimings.rawNormalEstimation =
+			durations.rawNormalEstimation.GetDuration();
+
+		latestTimings.isDisjoint = durations.ellipsoidSplatting.IsDisjoint() ||
+								   durations.albedoDownsampling.IsDisjoint() ||
+								   durations.surfaceFiltering.IsDisjoint() ||
+								   durations.rawNormalEstimation.IsDisjoint();
+	}
 }
 
 auto SplattingRenderer::GetAbsorptionModifier() const
@@ -105,6 +153,8 @@ auto SplattingRenderer::GetSettings() const -> Settings { return settings; }
 auto SplattingRenderer::UpdateSettings(const Settings &settings) -> void {
 	this->settings = settings;
 }
+
+auto SplattingRenderer::FetchTimings() -> Timings { return latestTimings; }
 
 auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data)
 	-> void {

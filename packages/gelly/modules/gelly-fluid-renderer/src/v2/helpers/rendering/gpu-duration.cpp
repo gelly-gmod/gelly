@@ -48,10 +48,14 @@ auto GPUDuration::WaitForData() -> void {
 		   ) != S_OK) {
 		Sleep(0);
 	}
+
+	dataFetched = true;
 }
 
 auto GPUDuration::GetDuration() -> float {
-	WaitForData();
+	if (!dataFetched) {
+		WaitForData();
+	}
 
 	auto delta = timestampEndValue - timestampBeginValue;
 	auto frequency = timestampDisjointData.Frequency;
@@ -60,6 +64,14 @@ auto GPUDuration::GetDuration() -> float {
 		static_cast<float>(delta) / static_cast<float>(frequency);
 
 	return deltaInSeconds * 1000.0f;
+}
+
+auto GPUDuration::IsDisjoint() -> bool {
+	if (!dataFetched) {
+		WaitForData();
+	}
+
+	return timestampDisjointData.Disjoint == TRUE;
 }
 
 auto GPUDuration::CreateTimestampQuery() -> ComPtr<ID3D11Query> {
