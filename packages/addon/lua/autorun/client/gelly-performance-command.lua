@@ -12,10 +12,9 @@ local function performanceDebugger()
 		return
 	end
 
+	gui.HideGameUI()
 	gelly.Reset()
 	gellyx.presets.select("Water")
-	gelly.ChangeMaxParticles(128000)
-	gellyx.presets.select("Water") -- for safety
 
 	local sampler = TimingSampler.new()
 
@@ -49,20 +48,53 @@ local function performanceDebugger()
 	end
 
 	sampler:InjectTimingHooks()
-	gelly.SetTimeStepMultiplier(3)
+	gelly.SetTimeStepMultiplier(1)
 
 	timer.Simple(5, function()
+		local settings = gelly.GetGellySettings()
+		settings.EnableGPUTiming = true
+		gelly.SetGellySettings(settings)
+
+		gelly.Render()
+
+		local timings = gelly.GetGellyTimings()
+		settings.EnableGPUTiming = false
+		gelly.SetGellySettings(settings)
+
+		local totalGPUTimeMs = timings.EllipsoidSplatting + timings.AlbedoDownsampling + timings.RawNormalEstimation +
+			timings.SurfaceFiltering
 		sampler:RemoveTimingHooks()
 		gelly.SetTimeStepMultiplier(1)
 		gelly.Reset()
 		hook.Remove("CalcView", "gelly.performance-debugger")
 		print("Performance test complete.")
-		print(("Render time (ms): %.2f"):format(sampler:GetRenderAverage()))
+		print(("Render time (CPU, ms): %.2f"):format(sampler:GetRenderAverage()))
+		print(("    + Ellipsoid splatting: %.2fms"):format(timings.EllipsoidSplatting))
+		print(("    + Albedo downsampling: %.2fms"):format(timings.AlbedoDownsampling))
+		print(("    + Raw normal estimation: %.2fms"):format(timings.RawNormalEstimation))
+		print(("    + Surface filtering: %.2fms"):format(timings.SurfaceFiltering))
+		print(("Render time (GPU, ms): %.2f"):format(totalGPUTimeMs))
 		print(("Simulate time (ms): %.2f"):format(sampler:GetSimulateAverage()))
 		print(("Composite time (ms): %.2f"):format(sampler:GetCompositeAverage()))
 		print("----------------------")
 		print(("GPU: %s"):format(gelly.GetStatus().ComputeDeviceName))
 		print(("Branch: %s"):format(BRANCH))
+		print(("Sim iterations: %d"):format(gellyx.settings.get("simulation_iterations"):GetInt()))
+		print(("Sim substeps: %d"):format(gellyx.settings.get("simulation_substeps"):GetInt()))
+		print(("Sim rate: %dHz"):format(gellyx.settings.get("simulation_rate"):GetInt()))
+		print(("Smoothness: %d"):format(gellyx.settings.get("smoothness"):GetInt()))
+		print(("Screen resolution: %dx%d"):format(ScrW(), ScrH()))
+		print(("Max particles: %d"):format(gellyx.settings.get("max_particles"):GetInt()))
+		print(("Preset radius scale: %.2f"):format(gellyx.settings.get("preset_radius_scale"):GetFloat()))
+
+		if timings.IsDisjoint then
+			print("WARNING !!!")
+			print("----------------------")
+			print(
+				"The GPU timings are disjointed. Typically, this is a sign of heavy power or thermal throttling, such as Laptop Power Savings or AC Power Savings mode.")
+		end
+
+		gui.ActivateGameUI()
 	end)
 end
 
