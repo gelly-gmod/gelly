@@ -36,7 +36,8 @@ local Y_SWAY_AMPLITUDE = 0.2
 local PARTICLE_LIMIT_WARNING_PERCENT = 0.4
 
 local GRABBER_KEY = IN_USE
-local FORCEFIELD_DISTANCE_RAY = 100
+local FORCEFIELD_SPRITE_TIME = 0.1
+local FORCEFIELD_SPRITE_SIZE = 32
 
 function SWEP:Initialize()
 	self:SetHoldType("pistol")
@@ -75,6 +76,7 @@ function SWEP:OnGrabberKeyPressed()
 		})
 
 		self.InitialDistance = self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos())
+		self.ForcefieldActivationTime = CurTime()
 	end
 end
 
@@ -181,11 +183,26 @@ function SWEP:IsInputBlocked()
 	return vgui.GetKeyboardFocus() or gui.IsConsoleVisible() or gui.IsGameUIVisible()
 end
 
+local forcefieldSprite
+if CLIENT then
+	forcefieldSprite = Material("sprites/light_glow02_add")
+end
+
 function SWEP:ViewModelDrawn(vm)
 	-- draw some 3D status indicators on the viewmodel
-
 	-- top left corner
 	local muzzleOrigin = vm:GetAttachment(vm:LookupAttachment("muzzle")).Pos
+	if self.Forcefield then
+		render.SetMaterial(forcefieldSprite)
+		local deltaTime = math.min(CurTime() - self.ForcefieldActivationTime, FORCEFIELD_SPRITE_TIME) /
+			FORCEFIELD_SPRITE_TIME
+		-- sine ease out: https://easings.net/#easeOutSine
+		deltaTime = math.sin((deltaTime * math.pi) / 2)
+
+		local spriteSize = FORCEFIELD_SPRITE_SIZE * deltaTime
+		render.DrawSprite(muzzleOrigin + self.Owner:GetAimVector() * 30, spriteSize, spriteSize, Color(100, 100, 255))
+	end
+
 	-- convert that to local space
 	muzzleOrigin = vm:WorldToLocal(muzzleOrigin)
 
