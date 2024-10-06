@@ -53,10 +53,6 @@ function App() {
 							tab={tabKey as CustomizationTab}
 							currentTab={tab}
 							setTab={setTab}
-							disabled={
-								(tabKey as CustomizationTab) ===
-								CustomizationTab.Mods
-							}
 						/>
 					))}
 				</section>
