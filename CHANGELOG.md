@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the new Gelly Forcefield object to Entities, which allows you to create physical forcefields to control the
   fluid.
 
+### Changed
+
+- Error messages are now more thorough when a graphical error happens on the GMod side.
+
+### Removed
+
+- Removed old foam system
+
 ## [1.24.2] - 2024-10-07
 
 ### Fixed
