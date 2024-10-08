@@ -16,18 +16,33 @@ function ENT:UpdateTransmitState()
 	return TRANSMIT_ALWAYS
 end
 
+function ENT:AddForcefieldObject()
+	if SERVER then
+		return
+	end
+
+	self.ForcefieldHandle = gelly.AddForcefieldObject({
+		Position = self:GetPos(),
+		Radius = self:GetRadius(),
+		Strength = self:GetStrength(),
+		LinearFalloff = self:GetLinearFalloff(),
+		Mode = self:GetMode(),
+	})
+end
+
 function ENT:Initialize()
 	self:SetModel("models/props_junk/PopCan01a.mdl")
 	self:SetNoDraw(true)
 
 	if CLIENT then
-		self.ForcefieldHandle = gelly.AddForcefieldObject({
-			Position = Vector(),
-			Radius = self.Radius,
-			Strength = self.Strength,
-			LinearFalloff = self.LinearFalloff,
-			Mode = self.Mode,
-		})
+		self:AddForcefieldObject()
+
+		hook.Add("GellyRestarted", self, function()
+			if self.ForcefieldHandle then
+				gelly.RemoveForcefieldObject(self.ForcefieldHandle)
+				self:AddForcefieldObject()
+			end
+		end)
 
 		self:SetNextClientThink(CurTime())
 	end
@@ -50,6 +65,7 @@ function ENT:OnRemove()
 	if CLIENT then
 		if self.ForcefieldHandle then
 			gelly.RemoveForcefieldObject(self.ForcefieldHandle)
+			hook.Remove("GellyRestarted", self)
 		end
 	end
 end
