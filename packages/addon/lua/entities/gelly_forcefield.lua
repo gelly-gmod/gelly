@@ -20,6 +20,7 @@ function ENT:SetupDataTables()
 		{ name = "Radius",   type = "Float", min = 1,     max = 1000 },
 		{ name = "Strength", type = "Float", min = -1000, max = 1000 },
 		{ name = "Visible",  type = "Bool" },
+		{ name = "Type",     type = "Int",   min = 0,     max = 2 },
 	})
 end
 
@@ -27,6 +28,7 @@ function ENT:InitializeDefaultSettings()
 	self:SetRadius(100)
 	self:SetStrength(-100)
 	self:SetVisible(true)
+	self:SetType(0)
 end
 
 function ENT:UpdateTransmitState()
@@ -38,12 +40,13 @@ function ENT:CreateForcefield()
 
 	self.LastRadius = self:GetRadius()
 	self.LastStrength = self:GetStrength()
+	self.LastType = self:GetType()
 	return gellyx.forcefield.create({
 		Position = self:GetPos(),
 		Radius = self:GetRadius(),
 		Strength = self:GetStrength(),
 		LinearFalloff = false,
-		Mode = gellyx.forcefield.Mode.Force,
+		Mode = self:GetType(),
 	})
 end
 
@@ -79,16 +82,22 @@ function ENT:OnRemove()
 	end
 end
 
+function ENT:IsOutOfDate()
+	return self.LastRadius ~= self:GetRadius() or self.LastStrength ~= self:GetStrength() or
+		self.LastType ~= self:GetType()
+end
+
 function ENT:Think()
 	if SERVER then
 		return
 	end
 
-	if not IsValid(self.Forcefield) or self.LastRadius ~= self:GetRadius() or self.LastStrength ~= self:GetStrength() then
+	if not IsValid(self.Forcefield) or self:IsOutOfDate() then
 		if self.Forcefield then
 			self.Forcefield:Remove()
 		end
 
+		print(self:GetType())
 		self.Forcefield = self:CreateForcefield()
 	end
 
