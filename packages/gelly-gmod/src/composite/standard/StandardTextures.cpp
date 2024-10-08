@@ -8,19 +8,33 @@ std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
 	HANDLE sharedHandle = nullptr;
 	ComPtr<IDirect3DTexture9> gmodTexture;
 
-	if (FAILED(gmodResources.device->CreateTexture(
-			width * scale,
-			height * scale,
-			levels,
-			D3DUSAGE_RENDERTARGET,
-			format,
-			D3DPOOL_DEFAULT,
-			gmodTexture.GetAddressOf(),
-			&sharedHandle
-		))) {
-		throw std::runtime_error(
-			"Failed to create GMod texture '" + std::string(name) + "')"
-		);
+	const auto result = gmodResources.device->CreateTexture(
+		width * scale,
+		height * scale,
+		levels,
+		D3DUSAGE_RENDERTARGET,
+		format,
+		D3DPOOL_DEFAULT,
+		gmodTexture.GetAddressOf(),
+		&sharedHandle
+	);
+
+	if (FAILED(result)) {
+		auto errorMessage =
+			std::string("Failed to create texture: \"") + name + "\", reason: ";
+
+		switch (result) {
+			case D3DERR_INVALIDCALL:
+				errorMessage += "D3DERR_INVALIDCALL";
+			case D3DERR_OUTOFVIDEOMEMORY:
+				errorMessage += "D3DERR_OUTOFVIDEOMEMORY";
+			case E_OUTOFMEMORY:
+				errorMessage += "E_OUTOFMEMORY";
+			default:
+				errorMessage += "Unknown error";
+		}
+
+		throw std::runtime_error(errorMessage);
 	}
 
 	return {gmodTexture, sharedHandle};
@@ -61,9 +75,6 @@ void StandardTextures::CreateFeatureTextures() {
 
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
 		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.25f);
-
-	std::tie(gmodTextures.foam, sharedHandles.foam) =
-		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);
 }
 
 StandardTextures::StandardTextures(

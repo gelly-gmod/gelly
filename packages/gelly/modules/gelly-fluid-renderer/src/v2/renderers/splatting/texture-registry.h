@@ -17,7 +17,6 @@ struct InputSharedHandles {
 	HANDLE albedo = nullptr;
 	HANDLE normals = nullptr;
 	HANDLE positions = nullptr;
-	HANDLE foam = nullptr;
 };
 
 struct OutputTextures {
@@ -26,7 +25,6 @@ struct OutputTextures {
 	std::shared_ptr<Texture> albedo = nullptr;
 	std::shared_ptr<Texture> normals = nullptr;
 	std::shared_ptr<Texture> positions = nullptr;
-	std::shared_ptr<Texture> foam = nullptr;
 
 	OutputTextures(
 		const std::shared_ptr<Device> &device, const InputSharedHandles &handles
@@ -65,14 +63,7 @@ struct OutputTextures {
 				 {.device = device, .sharedHandle = handles.positions}
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		foam(Texture::CreateTexture(
-			{.device = device,
-			 .image = SharedImage::CreateSharedImage(
-				 {.device = device, .sharedHandle = handles.foam}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)){};
+		)) {}
 };
 
 struct InternalTextures {

@@ -50,6 +50,10 @@ main {
 			no-repeat;
 }
 
+section {
+	padding: 20px;
+}
+
 header {
 	display: flex;
 	flex-direction: row;

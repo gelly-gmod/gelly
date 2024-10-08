@@ -87,7 +87,6 @@ private:
 	void SetCompositeSamplerState(
 		int index, D3DTEXTUREFILTERTYPE filter, bool srgb
 	) const;
-	void CompositeFoam(bool withGellyRendered) const;
 
 public:
 	StandardPipeline(unsigned int width, unsigned int height);

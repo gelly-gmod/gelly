@@ -337,8 +337,9 @@ LUA_FUNCTION(gelly_AddForcefieldObject) {
 	const float radius = luaTable.Get("Radius", 0.f);
 	const float strength = luaTable.Get("Strength", 0.f);
 	const bool linearFalloff = luaTable.Get("LinearFalloff", false);
-	const int mode =
-		luaTable.Get("Mode", NvFlexExtForceMode::eNvFlexExtModeForce);
+	const int mode = luaTable.Get(
+		"Mode", static_cast<int>(NvFlexExtForceMode::eNvFlexExtModeForce)
+	);
 
 	ObjectCreationParams forcefield = {};
 	forcefield.shape = ObjectShape::FORCEFIELD;

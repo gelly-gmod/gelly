@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.0] - 2024-10-08
+
+### Added
+
+- Brand-new customization panel for the Gelly Gun (to get there, press M, hit "Mods").
+- Added more effects and polished the Gelly Gun.
+- Added a new control system for the grabber mode (middle click + E), it should be a lot easier to control fluid now.
+- Added the new Gelly Forcefield object to Entities, which allows you to create physical forcefields to control the
+  fluid.
+- A new spawnmenu tab for Gelly, which allows you to easily spawn Gelly objects.
+
+### Changed
+
+- Error messages are now more thorough when a graphical error happens on the GMod side.
+
+### Removed
+
+- Removed old foam system
+
 ## [1.24.2] - 2024-10-07
 
 ### Fixed

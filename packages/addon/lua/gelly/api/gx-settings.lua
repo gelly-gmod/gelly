@@ -27,6 +27,20 @@ gellyx.settings.convars = {
 	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
 		1500000),
 	sun_visible = settingConvar("sun_visible", 1, "Controls the visibility of the sun (0 = no sun, 1 = sun)", 0, 1),
+
+	gelly_gun_forcefield_strength = settingConvar("gelly_gun_forcefield_strength", -100,
+		"Controls the strength of the forcefield", -1000, 1000),
+	gelly_gun_forcefield_radius = settingConvar("gelly_gun_forcefield_radius", 100,
+		"Controls the radius of the forcefield", 1, 1000),
+	gelly_gun_distance = settingConvar("gelly_gun_distance", 110, "Controls the distance of the emission from the camera",
+		10, 400),
+	gelly_gun_primary_size = settingConvar("gelly_gun_primary_size", 5, "Controls the size of the primary emission", 1,
+		10),
+	gelly_gun_secondary_size = settingConvar("gelly_gun_secondary_size", 5, "Controls the size of the secondary emission",
+		1, 10),
+	gelly_gun_secondary_velocity = settingConvar("gelly_gun_secondary_velocity", 70,
+		"Controls the velocity of the secondary emission", 10, 220),
+	gelly_gun_density = settingConvar("gelly_gun_density", 150, "Controls the density of the emission", 1, 1000),
 }
 
 function gellyx.settings.registerOnChange(name, callback)
