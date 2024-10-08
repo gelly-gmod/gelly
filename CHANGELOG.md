@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new control system for the grabber mode (middle click + E), it should be a lot easier to control fluid now.
 - Added the new Gelly Forcefield object to Entities, which allows you to create physical forcefields to control the
   fluid.
+- A new spawnmenu tab for Gelly, which allows you to easily spawn Gelly objects.
 
 ### Changed
 
