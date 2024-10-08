@@ -62,6 +62,7 @@ void StandardTextures::CreateFeatureTextures() {
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
 		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.25f);
 
+	// TODO: remove
 	std::tie(gmodTextures.foam, sharedHandles.foam) =
 		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);
 }
