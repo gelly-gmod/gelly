@@ -724,11 +724,13 @@ LUA_FUNCTION(gelly_SetGellySettings) {
 
 	GET_LUA_TABLE_MEMBER(float, FilterIterations);
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUSynchronization);
+	GET_LUA_TABLE_MEMBER(bool, EnableGPUTiming);
 
 	int filterIterations = static_cast<int>(FilterIterations);
 	auto currentSettings = compositor->GetGellySettings();
 	currentSettings.filterIterations = filterIterations;
 	currentSettings.enableGPUSynchronization = EnableGPUSynchronization_b;
+	currentSettings.enableGPUTiming = EnableGPUTiming_b;
 
 	compositor->UpdateGellySettings(currentSettings);
 	CATCH_GELLY_EXCEPTIONS();
@@ -744,6 +746,28 @@ LUA_FUNCTION(gelly_GetGellySettings) {
 	LUA->SetField(-2, "FilterIterations");
 	LUA->PushBool(currentSettings.enableGPUSynchronization);
 	LUA->SetField(-2, "EnableGPUSynchronization");
+	LUA->PushBool(currentSettings.enableGPUTiming);
+	LUA->SetField(-2, "EnableGPUTiming");
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 1;
+}
+
+LUA_FUNCTION(gelly_GetGellyTimings) {
+	START_GELLY_EXCEPTIONS();
+	auto timings = compositor->FetchGellyTimings();
+
+	LUA->CreateTable();
+	LUA->PushNumber(timings.albedoDownsampling);
+	LUA->SetField(-2, "AlbedoDownsampling");
+	LUA->PushNumber(timings.ellipsoidSplatting);
+	LUA->SetField(-2, "EllipsoidSplatting");
+	LUA->PushNumber(timings.surfaceFiltering);
+	LUA->SetField(-2, "SurfaceFiltering");
+	LUA->PushNumber(timings.rawNormalEstimation);
+	LUA->SetField(-2, "RawNormalEstimation");
+	LUA->PushBool(timings.isDisjoint);
+	LUA->SetField(-2, "IsDisjoint");
 
 	CATCH_GELLY_EXCEPTIONS();
 	return 1;
@@ -971,6 +995,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, GetVersion);
 	DEFINE_LUA_FUNC(gelly, SetGellySettings);
 	DEFINE_LUA_FUNC(gelly, GetGellySettings);
+	DEFINE_LUA_FUNC(gelly, GetGellyTimings);
 	DEFINE_LUA_FUNC(gelly, ConfigureSim);
 	DEFINE_LUA_FUNC(gelly, SetSunDirection);
 	DEFINE_LUA_FUNC(gelly, SetSunEnabled);

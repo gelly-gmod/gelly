@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.2] - 2024-10-07
+
+### Fixed
+
+- Fixed Gelly failing to load on the October 7th update of Garry's Mod.
+
+## [1.24.1] - 2024-10-05
+
+### Added
+
+- Added more information to `gelly_performance_debugger`, which is incredibly useful for debugging slow performance.
+
+### Fixed
+
+- Fixed flushing rendering commands when the query would do it anyways
+
 ## [1.24.0] - 2024-10-04
 
 ### Added

@@ -63,6 +63,10 @@ public:
 	) const {
 		gellyResources.splattingRenderer->UpdateSettings(settings);
 	}
+
+	[[nodiscard]] SplattingRenderer::Timings FetchGellyTimings() const {
+		return gellyResources.splattingRenderer->FetchTimings();
+	}
 };
 
 #endif	// COMPOSITE_H
