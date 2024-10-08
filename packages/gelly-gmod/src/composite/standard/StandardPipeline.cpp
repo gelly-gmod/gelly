@@ -358,38 +358,6 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 	fluidMaterial = material;
 }
 
-void StandardPipeline::CompositeFoam(bool withGellyRendered) const {
-	auto &device = gmodResources.device;
-
-	stateBlock->Capture();
-
-	SetCompositeShaderConstants();
-	device->SetVertexShader(quadVertexShader.Get());
-	device->SetPixelShader(compositeFoamShader.Get());
-
-	SetCompositeSamplerState(0, D3DTEXF_POINT);
-
-	device->SetTexture(0, textures->gmodTextures.foam.Get());
-	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
-	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
-
-	device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	device->SetRenderState(
-		D3DRS_ZWRITEENABLE, withGellyRendered ? TRUE : FALSE
-	);
-
-	// We do actually want to use an alpha blend here
-	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-
-	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-
-	stateBlock->Apply();
-}
-
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
