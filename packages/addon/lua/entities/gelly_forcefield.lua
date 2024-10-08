@@ -21,6 +21,7 @@ function ENT:SetupDataTables()
 		{ name = "Strength", type = "Float", min = -1000, max = 1000 },
 		{ name = "Visible",  type = "Bool" },
 		{ name = "Type",     type = "Int",   min = 0,     max = 2 },
+		{ name = "Falloff",  type = "Bool" }
 	})
 end
 
@@ -28,6 +29,7 @@ function ENT:InitializeDefaultSettings()
 	self:SetRadius(100)
 	self:SetStrength(-100)
 	self:SetVisible(true)
+	self:SetFalloff(false) -- typically people want their forcefields to be strong and defined, falloff makes it more like gravitational pull
 	self:SetType(0)
 end
 
@@ -41,11 +43,12 @@ function ENT:CreateForcefield()
 	self.LastRadius = self:GetRadius()
 	self.LastStrength = self:GetStrength()
 	self.LastType = self:GetType()
+	self.LastFalloff = self:GetFalloff()
 	return gellyx.forcefield.create({
 		Position = self:GetPos(),
 		Radius = self:GetRadius(),
 		Strength = self:GetStrength(),
-		LinearFalloff = false,
+		LinearFalloff = self:GetFalloff(),
 		Mode = self:GetType(),
 	})
 end
@@ -84,7 +87,7 @@ end
 
 function ENT:IsOutOfDate()
 	return self.LastRadius ~= self:GetRadius() or self.LastStrength ~= self:GetStrength() or
-		self.LastType ~= self:GetType()
+		self.LastType ~= self:GetType() or self.LastFalloff ~= self:GetFalloff()
 end
 
 function ENT:Think()
@@ -97,7 +100,6 @@ function ENT:Think()
 			self.Forcefield:Remove()
 		end
 
-		print(self:GetType())
 		self.Forcefield = self:CreateForcefield()
 	end
 
