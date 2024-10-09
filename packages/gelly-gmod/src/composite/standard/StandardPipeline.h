@@ -43,6 +43,8 @@ struct CompositeConstants {
 	XMFLOAT4X4 viewProj;
 	float sunDirection[3];
 	float sunEnabled = 0.f;
+
+	float sourceLightScale[4] = {1.f, 1.f, 1.f, 1.f};
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -71,6 +73,8 @@ private:
 
 	unsigned int width;
 	unsigned int height;
+
+	float sourceLightScale[4] = {1.f, 1.f, 1.f, 1.f};
 
 	void CreateCompositeShader();
 	void CreateQuadVertexShader();

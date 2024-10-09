@@ -37,6 +37,9 @@ float4 ambientCube[6] : register(c9);
 FluidMaterial material : register(c15);
 float4x4 viewProjMatrix : register(c17);
 float4 sunDir : register(c21);
+float4 lightScaling : register(c22);
+
+#define CUBEMAP_SCALE lightScaling.z
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
@@ -105,7 +108,10 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
 
     float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), material.r_st_ior.z);
 
-    float3 specular = texCUBE(cubemapTex, reflectionDir).xyz * refractAndCubemapStrength.y + ComputeSpecularRadianceFromLights(position, normal, eyePos.xyz);
+    float3 specular = texCUBE(cubemapTex, reflectionDir).xyz;
+	specular *= CUBEMAP_SCALE;
+	specular += ComputeSpecularRadianceFromLights(position, normal, eyePos.xyz);
+	
     float3 diffuseIrradiance = SampleAmbientCube(ambientCube, normal);
     float3 diffuse = Fr_DisneyDiffuse(
         GetNdotV(normal, eyeDir),

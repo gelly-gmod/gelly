@@ -249,6 +249,11 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.refractionStrength = config.refractionStrength;
 	compositeConstants.viewProj = viewProj;
 
+	compositeConstants.sourceLightScale[0] = sourceLightScale[0];
+	compositeConstants.sourceLightScale[1] = sourceLightScale[1];
+	compositeConstants.sourceLightScale[2] = sourceLightScale[2];
+	compositeConstants.sourceLightScale[3] = sourceLightScale[3];
+
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
 
@@ -366,6 +371,8 @@ void StandardPipeline::Composite() {
 
 	stateBlock->Capture();
 
+	device->GetPixelShaderConstantF(30, sourceLightScale, 1);
+
 	SetCompositeShaderConstants();
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeShader.Get());
@@ -375,7 +382,7 @@ void StandardPipeline::Composite() {
 	SetCompositeSamplerState(2, D3DTEXF_POINT);
 	SetCompositeSamplerState(3, D3DTEXF_POINT, true);
 	SetCompositeSamplerState(4, D3DTEXF_LINEAR);
-	SetCompositeSamplerState(5, D3DTEXF_LINEAR);
+	SetCompositeSamplerState(5, D3DTEXF_LINEAR, true);
 	SetCompositeSamplerState(6, D3DTEXF_LINEAR);
 
 	device->SetTexture(0, textures->gmodTextures.depth.Get());
