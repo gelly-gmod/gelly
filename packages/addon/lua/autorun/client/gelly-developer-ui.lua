@@ -192,18 +192,6 @@ hook.Add("GellyLoaded", "gelly.init-dev-ui", function()
 		toggleSimulationButton:SetText(("Toggle Simulation %s"):format(suffix))
 	end
 
-	local cubemapStrengthSlider = vgui.Create("DNumSlider")
-	cubemapStrengthSlider:SetPos(ScrW() - 200, 650)
-	cubemapStrengthSlider:SetSize(200, 50)
-	cubemapStrengthSlider:SetText("Cubemap Strength")
-	cubemapStrengthSlider:SetMin(1)
-	cubemapStrengthSlider:SetMax(10)
-	cubemapStrengthSlider:SetDecimals(2)
-	cubemapStrengthSlider:SetValue(1)
-	cubemapStrengthSlider.OnValueChanged = function(_, value)
-		gelly.SetCubemapStrength(value)
-	end
-
 	local diffuseScaleSlider = vgui.Create("DNumSlider")
 	diffuseScaleSlider:SetPos(ScrW() - 200, 700)
 	diffuseScaleSlider:SetSize(200, 50)
