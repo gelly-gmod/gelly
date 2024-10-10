@@ -50,6 +50,7 @@ function SWEP:PrimaryAttack()
 	local effectData = EffectData()
 	effectData:SetOrigin(hitPos)
 	util.Effect("gelly_liquify", effectData)
+	util.ScreenShake(hitPos, 5, 45, 1, 1000)
 end
 
 function SWEP:PreDrawViewModel(vm, weapon, ply)
