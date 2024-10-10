@@ -18,7 +18,7 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic = true
 SWEP.Secondary.Ammo = ""
 
-SWEP.TriangleDensity = 25
+SWEP.TriangleDensity = 5
 SWEP.FireRate = 1 -- projectiles per second
 
 function SWEP:Initialize()
@@ -35,18 +35,21 @@ function SWEP:PrimaryAttack()
 
 	if SERVER then
 		self:CallOnClient("PrimaryAttack")
-		print("CallOnClient")
 		SafeRemoveEntityDelayed(hitEntity, 0) -- a tick later
 		return
 	end
 
-	print("Primary attack")
 	gellyx.emitters.Mesh({
 		entity = hitEntity,
 		density = self.TriangleDensity,
 	})
+
 	CreateParticleSystemNoEntity("Liquifier_ChargeBlast", hitPos)
 	self:SetNextPrimaryFire(CurTime() + 1 / self.FireRate)
+
+	local effectData = EffectData()
+	effectData:SetOrigin(hitPos)
+	util.Effect("gelly_liquify", effectData)
 end
 
 function SWEP:PreDrawViewModel(vm, weapon, ply)
