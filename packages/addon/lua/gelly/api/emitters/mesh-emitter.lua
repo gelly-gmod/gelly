@@ -96,7 +96,6 @@ function gellyx.emitters.Mesh(params)
 		end
 	end
 
-	print("Triangles")
 	for _, triangle in ipairs(triangles) do
 		if determineSampleMethod(triangle[4]) then
 			if #particles > MAX_MESH_PARTICLES then
