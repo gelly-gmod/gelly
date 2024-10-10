@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.3] - 2024-10-09
+
+### Added
+
+- Added all missing icons for every entity or weapon in the addon
+- Added a new icon for the spawnmenu tab
+
+### Fixed
+
+- Fixed the liquifier gun being pretty much unusable
+
 ## [1.25.2] - 2024-10-08
 
 ### Fixed
