@@ -23,7 +23,13 @@ export default function Simulation() {
 	const [presetRadiusScale, setPresetRadiusScale] = useSettingValue(
 		"preset_radius_scale",
 	);
-
+	const [relaxation, setRelaxation] = useSettingValue(
+		"simulation_relaxation",
+	);
+	const [collisionDistance, setCollisionDistance] = useSettingValue(
+		"simulation_collision_distance",
+	);
+	const [gravity, setGravity] = useSettingValue("simulation_gravity");
 	const [maxParticles, setMaxParticles] = useSettingValue("max_particles");
 
 	return (
@@ -88,6 +94,42 @@ export default function Simulation() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 					onlySetValuesOnMouseUp
+				/>
+
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit=""
+					value={relaxation}
+					setValue={setRelaxation}
+					label="Relaxation Factor"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<Slider
+					min={0}
+					max={5}
+					step={0.25}
+					unit="hu"
+					value={collisionDistance}
+					setValue={setCollisionDistance}
+					label="Collision Distance"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<Slider
+					min={-100}
+					max={100}
+					step={0.5}
+					unit="hu/s²"
+					value={gravity}
+					setValue={setGravity}
+					label="Gravity"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
 				/>
 			</Sliders>
 			<Separator />

@@ -36,6 +36,9 @@ struct Reset {};
 struct Configure {
 	int substeps;
 	int iterations;
+	float relaxationFactor = 1.f;
+	float collisionDistance = 0.6f;
+	float gravity = -4.f;
 };
 
 enum SimCommandType {

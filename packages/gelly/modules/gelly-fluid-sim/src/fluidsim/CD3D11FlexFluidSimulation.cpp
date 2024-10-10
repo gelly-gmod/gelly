@@ -115,8 +115,6 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	solverDesc.maxParticles = maxParticles;
 	// soon...
 	solverDesc.maxDiffuseParticles = simData->GetMaxFoamParticles();
-	solverDesc.maxNeighborsPerParticle = 64;
-	solverDesc.maxContactsPerParticle = maxContactsPerParticle;
 	solverDesc.featureMode = eNvFlexFeatureModeSimpleFluids;
 
 	solver = NvFlexCreateSolver(library, &solverDesc);
@@ -272,6 +270,9 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 				} else if constexpr (std::is_same_v<T, Configure>) {
 					substeps = arg.substeps;
 					solverParams.numIterations = arg.iterations;
+					solverParams.relaxationFactor = arg.relaxationFactor;
+					solverParams.collisionDistance = arg.collisionDistance;
+					solverParams.gravity[2] = arg.gravity;
 				}
 			},
 			command.data
@@ -408,7 +409,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.radius = particleRadius;
 	solverParams.gravity[0] = 0.f;
 	solverParams.gravity[1] = 0.f;
-	solverParams.gravity[2] = -4.f;
+	// Z component is configured by the user
 
 	solverParams.viscosity = 0.0f;
 	solverParams.dynamicFriction = 0.1f;
@@ -432,8 +433,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.damping = 0.0f;
 	solverParams.particleCollisionMargin = 0.f;
 	solverParams.shapeCollisionMargin = 0.4f;
-	solverParams.collisionDistance = solverParams.fluidRestDistance;
-	solverParams.sleepThreshold = 0.01f;
+	solverParams.sleepThreshold = 0.1f;
 	solverParams.shockPropagation = 0.0f;
 	solverParams.restitution = 1.0f;
 
@@ -441,8 +441,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.maxAcceleration = 100.0f;	// approximately 10x gravity
 
 	solverParams.relaxationMode = eNvFlexRelaxationLocal;
-	solverParams.relaxationFactor = 1.f;
-	solverParams.solidPressure = 5.0f;
+	solverParams.solidPressure = 0.5f;
 	solverParams.adhesion = 0.0f;
 	solverParams.cohesion = 0.02f;
 	solverParams.surfaceTension = 1.0f;

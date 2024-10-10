@@ -767,11 +767,21 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 
 	GET_LUA_TABLE_MEMBER(float, Substeps);
 	GET_LUA_TABLE_MEMBER(float, Iterations);
+	GET_LUA_TABLE_MEMBER(float, RelaxationFactor);
+	GET_LUA_TABLE_MEMBER(float, CollisionDistance);
+	GET_LUA_TABLE_MEMBER(float, Gravity);
 
 	int substeps = static_cast<int>(Substeps);
 	int iterations = static_cast<int>(Iterations);
 
-	scene->Configure(substeps, iterations);
+	scene->Configure(
+		{.substeps = substeps,
+		 .iterations = iterations,
+		 .relaxationFactor = RelaxationFactor,
+		 .collisionDistance = CollisionDistance,
+		 .gravity = Gravity}
+	);
+
 	CATCH_GELLY_EXCEPTIONS();
 
 	return 0;

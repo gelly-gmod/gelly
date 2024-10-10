@@ -102,9 +102,9 @@ public:
 		return sim->GetSimulationData();
 	}
 
-	void Configure(int substeps, int iterations) {
+	void Configure(::Configure &&config) {
 		const auto commandList = sim->CreateCommandList();
-		commandList->AddCommand({CONFIGURE, ::Configure{substeps, iterations}});
+		commandList->AddCommand({CONFIGURE, config});
 		sim->ExecuteCommandList(commandList);
 		sim->DestroyCommandList(commandList);
 	}
