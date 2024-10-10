@@ -5,14 +5,12 @@ local SPAWNMENU_SCHEMA = {
 			{
 				nicename = "Disc Emitter",
 				spawnname = "gelly_disc_emitter",
-				material = "",
 				weapon = false,
 				admin = false,
 			},
 			{
 				nicename = "Forcefield Ball",
 				spawnname = "gelly_forcefield",
-				material = "",
 				weapon = false,
 				admin = false,
 			}
@@ -24,14 +22,12 @@ local SPAWNMENU_SCHEMA = {
 			{
 				nicename = "Gelly Gun",
 				spawnname = "gelly_gun",
-				material = "",
 				weapon = true,
 				admin = false,
 			},
 			{
 				nicename = "Gelly Liquifier",
 				spawnname = "gelly_liquifier",
-				material = "",
 				weapon = true,
 				admin = false,
 			}
@@ -52,7 +48,7 @@ hook.Add("PopulateGellyItems", "gelly.add-spawnmenu-items", function(pnlContent,
 			for _, item in ipairs(info.children) do
 				spawnmenu.CreateContentIcon(item.weapon and "weapon" or "entity", self.PropPanel, {
 					nicename = item.nicename,
-					material = item.material,
+					material = item.material or "entities/" .. item.spawnname .. ".png",
 					admin = item.admin,
 					weapon = item.weapon,
 					spawnname = item.spawnname
@@ -79,4 +75,4 @@ local function createGellyTab()
 	return containerPanel
 end
 
-spawnmenu.AddCreationTab("Gelly", createGellyTab, "icon16/ruby.png", 10, "All things Gelly")
+spawnmenu.AddCreationTab("Gelly", createGellyTab, "icon16/gelly.png", 10, "All things Gelly")

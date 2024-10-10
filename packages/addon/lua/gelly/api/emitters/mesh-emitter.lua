@@ -5,7 +5,7 @@ gellyx = gellyx or {}
 gellyx.emitters = gellyx.emitters or {}
 
 --- Prevents huge amounts of particles from being emitted at once, particularly with ragdolls.
-local MAX_MESH_PARTICLES = 16000
+local MAX_MESH_PARTICLES = 100000
 
 --- Parameters for the mesh emitter, density controls how many particles are emitted per triangle of the mesh.
 ---@alias gx.emitters.MeshParams {entity: Entity, density: number, material: table|nil}
@@ -67,7 +67,8 @@ function gellyx.emitters.Mesh(params)
 	end
 
 	local function sampleRandomly(particles, triangle)
-		for _ = 1, params.density do
+		local areaBoost = math.max(math.floor(triangle[4] * 50), 1)
+		for _ = 1, params.density + areaBoost do
 			local x = math.random()
 			local y = math.random()
 			if x + y > 1 then
@@ -76,6 +77,7 @@ function gellyx.emitters.Mesh(params)
 			end
 
 			local position = triangle[1] * x + triangle[2] * y + triangle[3] * (1 - x - y)
+
 			table.insert(particles, {
 				pos = position,
 				vel = Vector(0, 0, 0),
@@ -90,7 +92,7 @@ function gellyx.emitters.Mesh(params)
 		end
 	else
 		determineSampleMethod = function(area)
-			return math.random() < area
+			return math.random() < 0.5
 		end
 	end
 
