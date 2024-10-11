@@ -8,6 +8,9 @@ local BINARY_MODULE_RELATED_SETTINGS = {
 	"smoothness",
 	"simulation_substeps",
 	"simulation_iterations",
+	"simulation_relaxation",
+	"simulation_collision_distance",
+	"simulation_gravity",
 	"max_particles"
 }
 
@@ -16,11 +19,6 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 	gelly.SetGellySettings({
 		FilterIterations = gellyx.settings.get("smoothness"):GetInt(),
 		EnableGPUSynchronization = true
-	})
-
-	gelly.ConfigureSim({
-		Substeps = gellyx.settings.get("simulation_substeps"):GetInt(),
-		Iterations = gellyx.settings.get("simulation_iterations"):GetInt(),
 	})
 
 	if changedConvar == nil or changedConvar == gellyx.settings.getFullName("max_particles") then
@@ -33,6 +31,14 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 
 		logging.warn("Max particles set to " .. gellyx.settings.get("max_particles"):GetInt() .. "!")
 	end
+
+	gelly.ConfigureSim({
+		Substeps = gellyx.settings.get("simulation_substeps"):GetInt(),
+		Iterations = gellyx.settings.get("simulation_iterations"):GetInt(),
+		RelaxationFactor = gellyx.settings.get("simulation_relaxation"):GetFloat(),
+		CollisionDistance = gellyx.settings.get("simulation_collision_distance"):GetFloat(),
+		Gravity = gellyx.settings.get("simulation_gravity"):GetFloat()
+	})
 end
 
 gellyx.settings.registerMultipleOnChange(BINARY_MODULE_RELATED_SETTINGS, gellyx.settings.updateBinaryModuleSettings)
