@@ -21,6 +21,11 @@ SWEP.Secondary.Ammo = ""
 SWEP.TriangleDensity = 5
 SWEP.FireRate = 1 -- projectiles per second
 
+local POP_SOUND = Sound("garrysmod/balloon_pop_cute.wav")
+local function getRandomTadaSound()
+	return "garrysmod/save_load" .. math.random(1, 4) .. ".wav"
+end
+
 function SWEP:Initialize()
 	self:SetHoldType("pistol")
 end
@@ -34,6 +39,7 @@ function SWEP:PrimaryAttack()
 	end
 
 	if SERVER then
+		self:GetOwner():ViewPunch(AngleRand(-10, 10))
 		self:CallOnClient("PrimaryAttack")
 		SafeRemoveEntityDelayed(hitEntity, 0) -- a tick later
 		return
@@ -51,6 +57,13 @@ function SWEP:PrimaryAttack()
 	effectData:SetOrigin(hitPos)
 	util.Effect("gelly_liquify", effectData)
 	util.ScreenShake(hitPos, 5, 45, 1, 1000)
+	self:EmitSounds()
+end
+
+function SWEP:EmitSounds()
+	local pitch = math.Rand(100, 180)
+	sound.Play(POP_SOUND, self:GetOwner():GetShootPos(), 125, pitch, 1)
+	surface.PlaySound(getRandomTadaSound())
 end
 
 function SWEP:PreDrawViewModel(vm, weapon, ply)
