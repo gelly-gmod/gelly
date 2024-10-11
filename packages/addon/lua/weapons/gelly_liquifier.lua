@@ -33,7 +33,6 @@ end
 function SWEP:PrimaryAttack()
 	local eyeTrace = self:GetOwner():GetEyeTrace()
 	local hitEntity = eyeTrace.Entity
-	local hitPos = eyeTrace.HitPos
 	if not IsValid(hitEntity) then
 		return
 	end
@@ -50,14 +49,18 @@ function SWEP:PrimaryAttack()
 		density = self.TriangleDensity,
 	})
 
-	CreateParticleSystemNoEntity("Liquifier_ChargeBlast", hitPos)
+	self:EmitEffects()
+	self:EmitSounds()
 	self:SetNextPrimaryFire(CurTime() + 1 / self.FireRate)
+end
+
+function SWEP:EmitEffects()
+	CreateParticleSystemNoEntity("Liquifier_ChargeBlast", hitPos)
 
 	local effectData = EffectData()
 	effectData:SetOrigin(hitPos)
 	util.Effect("gelly_liquify", effectData)
 	util.ScreenShake(hitPos, 5, 45, 1, 1000)
-	self:EmitSounds()
 end
 
 function SWEP:EmitSounds()
