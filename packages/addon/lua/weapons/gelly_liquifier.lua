@@ -49,12 +49,12 @@ function SWEP:PrimaryAttack()
 		density = self.TriangleDensity,
 	})
 
-	self:EmitEffects()
+	self:EmitEffects(eyeTrace.HitPos)
 	self:EmitSounds()
 	self:SetNextPrimaryFire(CurTime() + 1 / self.FireRate)
 end
 
-function SWEP:EmitEffects()
+function SWEP:EmitEffects(hitPos)
 	CreateParticleSystemNoEntity("Liquifier_ChargeBlast", hitPos)
 
 	local effectData = EffectData()
@@ -64,8 +64,7 @@ function SWEP:EmitEffects()
 end
 
 function SWEP:EmitSounds()
-	local pitch = math.Rand(100, 180)
-	sound.Play(POP_SOUND, self:GetOwner():GetShootPos(), 125, pitch, 1)
+	sound.Play(POP_SOUND, self:GetOwner():GetShootPos(), 125, math.Rand(100, 180), 1)
 	surface.PlaySound(getRandomTadaSound())
 end
 
