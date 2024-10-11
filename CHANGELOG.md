@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2024-10-10
+
+### Added
+
+- Added three new sliders to the customization menu.
+- Relaxation: controls fluid simulation convergence speed (dont mess with this unless you know what you're doing)
+- Gravity: self-explanatory! have fun with it
+- Collision Distance: controls how much of an offset the fluid has from the surface it's colliding with
+
+### Changed
+
+- Made blood significantly less bad looking, it should now be more like blood.
+- Improved the liquifier
+- Changed up a lot of the internal simulation details, so expect different behavior
+
+### Fixed
+
+- Fixed a sort of rare bug where the iterations/substeps would not apply on game start unless you modified a setting.
+
 ## [1.25.3] - 2024-10-09
 
 ### Added
