@@ -119,7 +119,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
 		discard;
 	}
 
-    output.PositiveNormal = float4(normal, 1.f);
+    output.PositiveNormal = float4(normal, centerTapEye);
     output.WorldPosition = float4(WorldPosFromDepthF(input.Tex, centerTap.r), 1.f);
     return output;
 }

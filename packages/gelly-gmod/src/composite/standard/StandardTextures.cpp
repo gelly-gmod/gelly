@@ -71,7 +71,7 @@ void StandardTextures::CreateFeatureTextures() {
 		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F);
 
 	std::tie(gmodTextures.position, sharedHandles.positions) =
-		CreateTexture("gelly-gmod/position", D3DFMT_A32B32G32R32F);
+		CreateTexture("gelly-gmod/position", D3DFMT_A16B16G16R16F);
 
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
 		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.25f);
