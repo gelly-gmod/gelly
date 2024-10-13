@@ -30,9 +30,7 @@ public:
 	struct {
 		ComPtr<IDirect3DTexture9> albedo;
 		ComPtr<IDirect3DTexture9> normal;
-		ComPtr<IDirect3DTexture9> backNormal;
 		ComPtr<IDirect3DTexture9> depth;
-		ComPtr<IDirect3DTexture9> position;
 		ComPtr<IDirect3DTexture9> thickness;
 		ComPtr<IDirect3DTexture9> foam;
 	} gmodTextures;

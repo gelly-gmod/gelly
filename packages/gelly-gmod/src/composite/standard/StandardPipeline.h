@@ -45,6 +45,7 @@ struct CompositeConstants {
 	float sunEnabled = 0.f;
 
 	float sourceLightScale[4] = {1.f, 1.f, 1.f, 1.f};
+	XMFLOAT4X4 invViewProj;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);

@@ -43,7 +43,6 @@ float3 WorldPosFromDepthF(float2 tex, float depth) {
 
 struct PS_OUTPUT {
     float4 PositiveNormal : SV_Target0;
-    float4 WorldPosition : SV_Target1;
 };
 
 PS_OUTPUT main(VS_OUTPUT input) {
@@ -120,6 +119,5 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	}
 
     output.PositiveNormal = float4(normal, centerTapEye);
-    output.WorldPosition = float4(WorldPosFromDepthF(input.Tex, centerTap.r), 1.f);
     return output;
 }

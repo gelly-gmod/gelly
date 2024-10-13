@@ -16,7 +16,6 @@ struct InputSharedHandles {
 	HANDLE thickness = nullptr;
 	HANDLE albedo = nullptr;
 	HANDLE normals = nullptr;
-	HANDLE positions = nullptr;
 };
 
 struct OutputTextures {
@@ -24,7 +23,6 @@ struct OutputTextures {
 	std::shared_ptr<Texture> thickness = nullptr;
 	std::shared_ptr<Texture> albedo = nullptr;
 	std::shared_ptr<Texture> normals = nullptr;
-	std::shared_ptr<Texture> positions = nullptr;
 
 	OutputTextures(
 		const std::shared_ptr<Device> &device, const InputSharedHandles &handles
@@ -56,21 +54,11 @@ struct OutputTextures {
 				 {.device = device, .sharedHandle = handles.normals}
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		positions(Texture::CreateTexture(
-			{.device = device,
-			 .image = SharedImage::CreateSharedImage(
-				 {.device = device, .sharedHandle = handles.positions}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
 		)) {}
 };
 
 struct InternalTextures {
 	std::shared_ptr<Texture> unfilteredEllipsoidDepth = nullptr;
-	std::shared_ptr<Texture> unfilteredBackEllipsoidDepth = nullptr;
-	std::shared_ptr<Texture> filteredBackEllipsoidDepth = nullptr;
-
 	std::shared_ptr<Texture> unfilteredThickness = nullptr;
 	std::shared_ptr<Texture> unfilteredAlbedo = nullptr;
 	std::shared_ptr<Texture> unfilteredNormals = nullptr;
@@ -99,24 +87,6 @@ struct InternalTextures {
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
 		)),
-		filteredBackEllipsoidDepth(Texture::CreateTexture(
-			{.device = device,
-			 .image = NativeImage::CreateNativeImage(
-				 {.device = device,
-				  .width = width,
-				  .height = height,
-				  .format = DXGI_FORMAT_R32G32_FLOAT,
-				  .usage = D3D11_USAGE_DEFAULT,
-				  .bindFlags =
-					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
-				  .cpuAccessFlags = 0,
-				  .miscFlags = 0,
-				  .arraySize = 1,
-				  .mipLevels = 1,
-				  .name = "Filtered Back Ellipsoid Depth"}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
 		unfilteredThickness(Texture::CreateTexture(
 			{.device = device,
 			 .image = NativeImage::CreateNativeImage(
@@ -135,31 +105,13 @@ struct InternalTextures {
 			 ),
 			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
 		)),
-		unfilteredBackEllipsoidDepth(Texture::CreateTexture(
-			{.device = device,
-			 .image = NativeImage::CreateNativeImage(
-				 {.device = device,
-				  .width = width,
-				  .height = height,
-				  .format = DXGI_FORMAT_R32G32_FLOAT,
-				  .usage = D3D11_USAGE_DEFAULT,
-				  .bindFlags =
-					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
-				  .cpuAccessFlags = 0,
-				  .miscFlags = 0,
-				  .arraySize = 1,
-				  .mipLevels = 1,
-				  .name = "Unfiltered Back Ellipsoid Depth"}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
 		unfilteredAlbedo(Texture::CreateTexture(
 			{.device = device,
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
 				  .width = width,
 				  .height = height,
-				  .format = DXGI_FORMAT_R16G16B16A16_UNORM,
+				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
 					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
