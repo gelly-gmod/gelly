@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.0] - 2024-10-14
+
+### Added
+
+- Added a new slider, "Resolution Scale" in Graphics. This slider allows you to scale the resolution of the fluid
+  simulation, which can be useful for performance tuning.
+- Added a display for the version in the menu, it's in the top right corner.
+- Added a new switch to Graphics for disabling the Glunk Lighting Fix, which *may* conflict with other mods.
+- The Glunk Lighting Fix, a feature which makes Glunk look better by default in most maps.
+
+### Changed
+
+- Massive optimizations across the board, the fluid should be significantly faster now.
+- Reduced default resolution scale to 0.75
+- Optimize the surface filter to be more efficient particularly on low-bandwidth systems
+
+### Fixed
+
+- Fixed the Gelly Gun's grabber mode not working properly after 1.25.0
+- Fixed resolution changes breaking the fluid simulation
+- Fixed the UI not matching up to the resolution when changed.
+
+### Removed
+
+- Removed old legacy textures, the only reason this is mentioned is that it may particularly benefit low-VRAM systems.
+
 ## [1.26.0] - 2024-10-10
 
 ### Added
