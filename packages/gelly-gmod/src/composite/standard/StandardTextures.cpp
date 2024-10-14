@@ -65,10 +65,10 @@ void StandardTextures::CreateFeatureTextures() {
 		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.25f);
 
 	std::tie(gmodTextures.normal, sharedHandles.normals) =
-		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F);
+		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F, 1, 0.75f);
 
 	std::tie(gmodTextures.depth, sharedHandles.ellipsoidDepth) =
-		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F);
+		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F, 1, 0.75f);
 
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
 		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.25f);

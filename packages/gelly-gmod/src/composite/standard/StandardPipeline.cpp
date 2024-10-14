@@ -249,6 +249,9 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	renderParams.g_CameraPosition.y = viewSetup.origin.y;
 	renderParams.g_CameraPosition.z = viewSetup.origin.z;
 
+	renderParams.g_InvViewport.x = 1.f / static_cast<float>(viewSetup.width);
+	renderParams.g_InvViewport.y = 1.f / static_cast<float>(viewSetup.height);
+
 	compositeConstants.eyePos[0] = viewSetup.origin.x;
 	compositeConstants.eyePos[1] = viewSetup.origin.y;
 	compositeConstants.eyePos[2] = viewSetup.origin.z;

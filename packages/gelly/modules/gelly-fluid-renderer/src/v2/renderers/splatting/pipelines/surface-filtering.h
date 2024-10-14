@@ -37,7 +37,8 @@ inline auto CreateSurfaceFilteringPipeline(
 			 .maxDepth = 1.f},
 		.rasterizerState =
 			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE},
-		.enableMipRegeneration = false
+		.enableMipRegeneration = false,
+		.outputScale = 0.75f
 	});
 
 	const util::ScreenQuad screenQuad({.device = info.device});

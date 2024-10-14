@@ -53,7 +53,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
     }
 
     // We perform our own taps
-    float2 texelSize = 1.f / float2(g_ViewportWidth, g_ViewportHeight);
     float centerTapEye = -centerTap.g;
 
     /**    float c0 = texelFetch(depth,p           ,0).w;
@@ -104,10 +103,10 @@ PS_OUTPUT main(VS_OUTPUT input) {
     
     // float3 normal = -normalize(cross(dpdx, dpdy));
 
-    float3 l1 = WorldPosFromDepth(input.Tex - float2(1, 0) * texelSize, centerTapEye);
-    float3 r1 = WorldPosFromDepth(input.Tex + float2(1, 0) * texelSize, centerTapEye);
-    float3 t1 = WorldPosFromDepth(input.Tex + float2(0, 1) * texelSize, centerTapEye);
-    float3 b1 = WorldPosFromDepth(input.Tex - float2(0, 1) * texelSize, centerTapEye);
+    float3 l1 = WorldPosFromDepth(input.Tex - float2(1, 0) * g_InvViewport, centerTapEye);
+    float3 r1 = WorldPosFromDepth(input.Tex + float2(1, 0) * g_InvViewport, centerTapEye);
+    float3 t1 = WorldPosFromDepth(input.Tex + float2(0, 1) * g_InvViewport, centerTapEye);
+    float3 b1 = WorldPosFromDepth(input.Tex - float2(0, 1) * g_InvViewport, centerTapEye);
 
     float3 dpdx = r1 - l1;
     float3 dpdy = t1 - b1;

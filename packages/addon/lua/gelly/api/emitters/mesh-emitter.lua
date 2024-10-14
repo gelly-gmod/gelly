@@ -80,7 +80,7 @@ function gellyx.emitters.Mesh(params)
 
 			table.insert(particles, {
 				pos = position,
-				vel = Vector(0, 0, 0),
+				vel = Vector(0, 0, 10),
 			})
 		end
 	end

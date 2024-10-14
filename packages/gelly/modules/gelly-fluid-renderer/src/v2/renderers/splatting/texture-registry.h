@@ -73,8 +73,12 @@ struct InternalTextures {
 			{.device = device,
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
-				  .width = width,
-				  .height = height,
+				  .width = static_cast<unsigned int>(
+					  static_cast<float>(width) * 0.75f
+				  ),
+				  .height = static_cast<unsigned int>(
+					  static_cast<float>(height) * 0.75f
+				  ),
 				  .format = DXGI_FORMAT_R32G32_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
@@ -91,8 +95,12 @@ struct InternalTextures {
 			{.device = device,
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
-				  .width = width,
-				  .height = height,
+				  .width = static_cast<unsigned int>(
+					  static_cast<float>(width) * 0.75f
+				  ),
+				  .height = static_cast<unsigned int>(
+					  static_cast<float>(height) * 0.75f
+				  ),
 				  .format = DXGI_FORMAT_R16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
@@ -109,8 +117,12 @@ struct InternalTextures {
 			{.device = device,
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
-				  .width = width,
-				  .height = height,
+				  .width = static_cast<unsigned int>(
+					  static_cast<float>(width) * 0.75f
+				  ),
+				  .height = static_cast<unsigned int>(
+					  static_cast<float>(height) * 0.75f
+				  ),
 				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
@@ -127,8 +139,12 @@ struct InternalTextures {
 			{.device = device,
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
-				  .width = width,
-				  .height = height,
+				  .width = static_cast<unsigned int>(
+					  static_cast<float>(width) * 0.75f
+				  ),
+				  .height = static_cast<unsigned int>(
+					  static_cast<float>(height) * 0.75f
+				  ),
 				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
@@ -149,8 +165,12 @@ struct InternalTextures {
 				 {.device = device,
 				  .image = NativeImage::CreateNativeImage(
 					  {.device = device,
-					   .width = width,
-					   .height = height,
+					   .width = static_cast<unsigned int>(
+						   static_cast<float>(width) * 0.75f
+					   ),
+					   .height = static_cast<unsigned int>(
+						   static_cast<float>(height) * 0.75f
+					   ),
 					   .format = DXGI_FORMAT_D24_UNORM_S8_UINT,
 					   .usage = D3D11_USAGE_DEFAULT,
 					   .bindFlags = D3D11_BIND_DEPTH_STENCIL,

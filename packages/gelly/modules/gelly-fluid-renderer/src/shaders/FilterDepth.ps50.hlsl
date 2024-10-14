@@ -17,12 +17,6 @@ struct PS_OUTPUT {
     float4 FilteredNormal : SV_Target0;
 };
 
-float FetchEyeDepth(float2 pixel) {
-    float eyeDepth = InputDepth.SampleLevel(InputDepthSampler, pixel / float2(g_ViewportWidth, g_ViewportHeight), 0).g;
-	// only return negative if it is positive
-	return sign(eyeDepth) == -1.f ? eyeDepth : -eyeDepth;
-}
-
 float4 FetchNormal(float2 pixel, float eyeDepth, out float mipLevel) {
 	// In order to increase our kernel's footprint cheaply, we can compute the size of the pixel in world space to determine the mip level to sample from
 	// This is a cheap way to increase the kernel's footprint without having to do any expensive calculations
@@ -34,7 +28,7 @@ float4 FetchNormal(float2 pixel, float eyeDepth, out float mipLevel) {
 	mipLevel = 8 - 2.f * log2((0.09f * abs(eyeDepth)) + 0.0001f) + radiusAdjustmentTerm;
 	mipLevel = clamp(mipLevel, 0, NORMAL_MIP_LEVEL);
 
-	float2 uv = pixel / float2(g_ViewportWidth, g_ViewportHeight);
+	float2 uv = pixel * g_InvViewport;
     // improve the incoming bilinear sample
     uv = uv * float2(g_ViewportWidth, g_ViewportHeight) + 0.5f;
     float2 iuv = floor(uv);

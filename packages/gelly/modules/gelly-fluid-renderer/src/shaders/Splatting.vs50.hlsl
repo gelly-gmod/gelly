@@ -65,8 +65,8 @@ VS_OUTPUT main(VS_INPUT input) {
     output.InvQuadric = invQuadric;
 
     // and to speed things up we'll pass down the NDC position for frustum culling in the GS
-    output.NDCPos = mul(g_Projection, mul(g_View, float4(input.Pos.xyz, 1.f)));
-    output.NDCPos /= output.NDCPos.w;
+    float4 ndcPos = mul(g_Projection, mul(g_View, float4(input.Pos.xyz, 1.f)));
+    output.NDCPos = ndcPos.xy / ndcPos.w;
 
 	output.Absorption = g_Absorption[input.ID];
     return output;

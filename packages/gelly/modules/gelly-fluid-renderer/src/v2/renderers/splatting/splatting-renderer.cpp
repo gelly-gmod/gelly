@@ -72,6 +72,10 @@ auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUTiming) {
 		durations.ellipsoidSplatting.Start();
 	}
+	SetFrameResolution(
+		ellipsoidSplatting->GetRenderPass()->GetScaledWidth(),
+		ellipsoidSplatting->GetRenderPass()->GetScaledHeight()
+	);
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
 	if (settings.enableGPUTiming) {
 		durations.ellipsoidSplatting.End();
@@ -95,6 +99,10 @@ auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUTiming) {
 		durations.rawNormalEstimation.Start();
 	}
+	SetFrameResolution(
+		rawNormalEstimation->GetRenderPass()->GetScaledWidth(),
+		rawNormalEstimation->GetRenderPass()->GetScaledHeight()
+	);
 	rawNormalEstimation->Run();
 	if (settings.enableGPUTiming) {
 		durations.rawNormalEstimation.End();
@@ -167,13 +175,15 @@ auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data)
 auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 	frameParamCopy.g_ViewportWidth = width;
 	frameParamCopy.g_ViewportHeight = height;
+	frameParamCopy.g_InvViewport.x = 1.f / width;
+	frameParamCopy.g_InvViewport.y = 1.f / height;
 
 	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(frameParamCopy
 	);
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
-	ellipsoidSplatting = CreateEllipsoidSplattingPipeline(pipelineInfo);
+	ellipsoidSplatting = CreateEllipsoidSplattingPipeline(pipelineInfo, 0.75f);
 	albedoDownsampling =
 		CreateAlbedoDownsamplingPipeline(pipelineInfo, ALBEDO_OUTPUT_SCALE);
 
@@ -272,6 +282,11 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations)
 			depthClearColor
 		);
 	}
+
+	SetFrameResolution(
+		surfaceFilteringA->GetRenderPass()->GetScaledWidth(),
+		surfaceFilteringA->GetRenderPass()->GetScaledHeight()
+	);
 
 	for (int i = 0; i < iterations; i++) {
 		bool oddIteration = i % 2 != 0;

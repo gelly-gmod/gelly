@@ -35,7 +35,8 @@ inline auto CreateNormalEstimationPipeline(
 			 .minDepth = 0.f,
 			 .maxDepth = 1.f},
 		.rasterizerState =
-			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE}
+			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE},
+		.outputScale = 0.75f
 	});
 
 	const util::ScreenQuad screenQuad({.device = info.device});

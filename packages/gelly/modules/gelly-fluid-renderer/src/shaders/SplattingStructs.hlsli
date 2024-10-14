@@ -10,7 +10,7 @@ struct VS_OUTPUT {
     float4 Pos : SV_Position;
     float4 Bounds : BOUNDS;
     float4x4 InvQuadric : INVQUADRIC;
-    float4 NDCPos : NDCPos;
+    float2 NDCPos : NDCPos;
 	float3 Absorption : ABSORPTION;
 	float Variance : VARIANCE;
 };
