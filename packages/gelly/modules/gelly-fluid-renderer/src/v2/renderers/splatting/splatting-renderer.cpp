@@ -220,6 +220,9 @@ auto SplattingRenderer::UpdateTextureRegistry(
 	createInfo.inputSharedHandles = inputSharedHandles;
 	createInfo.scale = scale;
 
+	pipelineInfo.width = width;
+	pipelineInfo.height = height;
+
 	pipelineInfo.internalTextures = std::make_shared<InternalTextures>(
 		createInfo.device, createInfo.width, createInfo.height, createInfo.scale
 	);
