@@ -91,6 +91,11 @@ function SWEP:OnGrabberThink()
 
 	local owner = self:GetOwner()
 	local forcefieldPosition = owner:GetShootPos() + owner:GetAimVector() * self:GetForcefieldDistance()
+	if self.LastForcefieldPosition then
+		self.Forcefield:SetPos(LerpVector(0.02, self.Forcefield:GetPos(), self.LastForcefieldPosition))
+	else
+		self.Forcefield:SetPos(forcefieldPosition)
+	end
 	self.LastForcefieldPosition = forcefieldPosition
 end
 
