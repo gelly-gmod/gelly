@@ -183,7 +183,8 @@ auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
-	ellipsoidSplatting = CreateEllipsoidSplattingPipeline(pipelineInfo, 0.75f);
+	ellipsoidSplatting =
+		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
 	albedoDownsampling =
 		CreateAlbedoDownsamplingPipeline(pipelineInfo, ALBEDO_OUTPUT_SCALE);
 
@@ -206,11 +207,37 @@ auto SplattingRenderer::CreatePipelines() -> void {
 	);
 }
 
+auto SplattingRenderer::UpdateTextureRegistry(
+	const InputSharedHandles &inputSharedHandles,
+	float width,
+	float height,
+	float scale
+) -> void {
+	createInfo.width = width;
+	createInfo.height = height;
+	createInfo.inputSharedHandles = inputSharedHandles;
+	createInfo.scale = scale;
+
+	pipelineInfo.internalTextures = std::make_shared<InternalTextures>(
+		createInfo.device, createInfo.width, createInfo.height, createInfo.scale
+	);
+
+	pipelineInfo.outputTextures = std::make_shared<OutputTextures>(
+		createInfo.device, createInfo.inputSharedHandles
+	);
+
+	// Re-initialize all pipelines
+	CreatePipelines();
+}
+
 auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {
 	return {
 		.device = createInfo.device,
 		.internalTextures = std::make_shared<InternalTextures>(
-			createInfo.device, createInfo.width, createInfo.height
+			createInfo.device,
+			createInfo.width,
+			createInfo.height,
+			createInfo.scale
 		),
 		.outputTextures = std::make_shared<OutputTextures>(
 			createInfo.device, createInfo.inputSharedHandles

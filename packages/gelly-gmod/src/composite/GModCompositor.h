@@ -20,7 +20,8 @@ public:
 		const std::shared_ptr<gelly::renderer::Device> &device,
 		unsigned int width,
 		unsigned int height,
-		unsigned int maxParticles
+		unsigned int maxParticles,
+		float scale
 	);
 
 	GModCompositor(const GModCompositor &) = delete;

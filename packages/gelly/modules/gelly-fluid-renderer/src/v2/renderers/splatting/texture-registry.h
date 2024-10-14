@@ -67,17 +67,18 @@ struct InternalTextures {
 	InternalTextures(
 		const std::shared_ptr<Device> &device,
 		unsigned int width,
-		unsigned int height
+		unsigned int height,
+		float scale
 	) :
 		unfilteredEllipsoidDepth(Texture::CreateTexture(
 			{.device = device,
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
 				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * 0.75f
+					  static_cast<float>(width) * scale
 				  ),
 				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * 0.75f
+					  static_cast<float>(height) * scale
 				  ),
 				  .format = DXGI_FORMAT_R32G32_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
@@ -96,10 +97,10 @@ struct InternalTextures {
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
 				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * 0.75f
+					  static_cast<float>(width) * scale
 				  ),
 				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * 0.75f
+					  static_cast<float>(height) * scale
 				  ),
 				  .format = DXGI_FORMAT_R16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
@@ -118,10 +119,10 @@ struct InternalTextures {
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
 				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * 0.75f
+					  static_cast<float>(width) * scale
 				  ),
 				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * 0.75f
+					  static_cast<float>(height) * scale
 				  ),
 				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
@@ -140,10 +141,10 @@ struct InternalTextures {
 			 .image = NativeImage::CreateNativeImage(
 				 {.device = device,
 				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * 0.75f
+					  static_cast<float>(width) * scale
 				  ),
 				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * 0.75f
+					  static_cast<float>(height) * scale
 				  ),
 				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
@@ -166,10 +167,10 @@ struct InternalTextures {
 				  .image = NativeImage::CreateNativeImage(
 					  {.device = device,
 					   .width = static_cast<unsigned int>(
-						   static_cast<float>(width) * 0.75f
+						   static_cast<float>(width) * scale
 					   ),
 					   .height = static_cast<unsigned int>(
-						   static_cast<float>(height) * 0.75f
+						   static_cast<float>(height) * scale
 					   ),
 					   .format = DXGI_FORMAT_D24_UNORM_S8_UINT,
 					   .usage = D3D11_USAGE_DEFAULT,

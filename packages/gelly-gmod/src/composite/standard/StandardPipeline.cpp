@@ -346,12 +346,16 @@ StandardPipeline::~StandardPipeline() { RemoveAmbientLightCubeHooks(); }
 
 gelly::renderer::splatting::InputSharedHandles
 StandardPipeline::CreatePipelineLocalResources(
-	const GellyResources &gelly, const UnownedResources &gmod
+	const GellyResources &gelly,
+	const UnownedResources &gmod,
+	unsigned int width,
+	unsigned int height,
+	float scale
 ) {
 	gellyResources = gelly;
 	gmodResources = gmod;
 
-	textures.emplace(gmodResources, width, height);
+	textures.emplace(gmodResources, width, height, scale);
 	CreateCompositeShader();
 	CreateQuadVertexShader();
 	CreateNDCQuad();

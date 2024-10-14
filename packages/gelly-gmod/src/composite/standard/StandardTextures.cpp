@@ -40,45 +40,29 @@ std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
 	return {gmodTexture, sharedHandle};
 }
 
-void StandardTextures::CreateFeatureTextures() {
-	/*
-	std::tie(gmodTextures.albedo, gellyTextures.albedo) =
-		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F);
-
-	std::tie(gmodTextures.normal, gellyTextures.normal) =
-		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F);
-
-	std::tie(gmodTextures.depth, gellyTextures.depth) =
-		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F);
-
-	std::tie(gmodTextures.position, gellyTextures.position) =
-		CreateTexture("gelly-gmod/position", D3DFMT_A32B32G32R32F);
-
-	std::tie(gmodTextures.thickness, gellyTextures.thickness) =
-		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F);
-
-	std::tie(gmodTextures.foam, gellyTextures.foam) =
-		CreateTexture("gelly-gmod/foam", D3DFMT_A16B16G16R16F);
-		*/
-
+void StandardTextures::CreateFeatureTextures(float scale) {
+	// albedo and thickness are always fixed at quarter resolution
 	std::tie(gmodTextures.albedo, sharedHandles.albedo) =
 		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.25f);
 
 	std::tie(gmodTextures.normal, sharedHandles.normals) =
-		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F, 1, 0.75f);
+		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F, 1, scale);
 
 	std::tie(gmodTextures.depth, sharedHandles.ellipsoidDepth) =
-		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F, 1, 0.75f);
+		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F, 1, scale);
 
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
 		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.25f);
 }
 
 StandardTextures::StandardTextures(
-	const UnownedResources &gmod, unsigned int width, unsigned int height
+	const UnownedResources &gmod,
+	unsigned int width,
+	unsigned int height,
+	float scale
 ) :
 	gmodResources(gmod), width(width), height(height) {
-	CreateFeatureTextures();
+	CreateFeatureTextures(scale);
 }
 
 gelly::renderer::splatting::InputSharedHandles
