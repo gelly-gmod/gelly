@@ -11,6 +11,7 @@ local BINARY_MODULE_RELATED_SETTINGS = {
 	"simulation_relaxation",
 	"simulation_collision_distance",
 	"simulation_gravity",
+	"resolution_scale",
 	"max_particles"
 }
 
@@ -30,6 +31,19 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		hook.Run("GellyRestarted")
 
 		logging.warn("Max particles set to " .. gellyx.settings.get("max_particles"):GetInt() .. "!")
+	end
+
+	if changedConvar == nil or changedConvar == gellyx.settings.getFullName("resolution_scale") then
+		-- Thankfully the sim and renderer are decoupled enough such that we dont
+		-- need to restart Gelly in this case
+		gelly.ChangeResolution(
+			ScrW(),
+			ScrH(),
+			gellyx.settings.get("resolution_scale"):GetFloat()
+		)
+
+		logging.warn("Rendering at %dx%d with a scale of %.2f!", ScrW(), ScrH(),
+			gellyx.settings.get("resolution_scale"):GetFloat())
 	end
 
 	gelly.ConfigureSim({

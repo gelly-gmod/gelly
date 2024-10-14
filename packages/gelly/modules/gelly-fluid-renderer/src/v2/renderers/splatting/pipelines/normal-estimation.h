@@ -19,7 +19,7 @@ inline auto CreateNormalEstimationPipeline(
 	const PipelineInfo &info,
 	const std::shared_ptr<Texture> &inputDepth,
 	const std::shared_ptr<Texture> &outputNormal,
-	bool outputPositions = true
+	float scale = 0.75f
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -36,7 +36,7 @@ inline auto CreateNormalEstimationPipeline(
 			 .maxDepth = 1.f},
 		.rasterizerState =
 			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE},
-		.outputScale = 0.75f
+		.outputScale = scale
 	});
 
 	const util::ScreenQuad screenQuad({.device = info.device});

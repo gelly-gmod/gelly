@@ -191,19 +191,21 @@ auto SplattingRenderer::CreatePipelines() -> void {
 	surfaceFilteringA = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
 		pipelineInfo.internalTextures->unfilteredNormals,
-		pipelineInfo.outputTextures->normals
+		pipelineInfo.outputTextures->normals,
+		createInfo.scale
 	);
 	surfaceFilteringB = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
 		pipelineInfo.outputTextures->normals,
-		pipelineInfo.internalTextures->unfilteredNormals
+		pipelineInfo.internalTextures->unfilteredNormals,
+		createInfo.scale
 	);
 
 	rawNormalEstimation = CreateNormalEstimationPipeline(
 		pipelineInfo,
 		pipelineInfo.outputTextures->ellipsoidDepth,
 		pipelineInfo.internalTextures->unfilteredNormals,
-		true
+		createInfo.scale
 	);
 }
 
