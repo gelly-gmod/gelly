@@ -12,6 +12,7 @@ private:
 
 	unsigned int width;
 	unsigned int height;
+	float scale;
 
 public:
 	GModCompositor(
@@ -37,6 +38,26 @@ public:
 
 	void Composite();
 	void Render();
+
+	void ChangeResolution(
+		unsigned int newWidth, unsigned int newHeight, float scale
+	) {
+		auto newHandles = pipeline->CreatePipelineLocalResources(
+			gellyResources,
+			Resources::FindGModResources(),
+			newWidth,
+			newHeight,
+			scale
+		);
+
+		gellyResources.splattingRenderer->UpdateTextureRegistry(
+			newHandles, newWidth, newHeight, scale
+		);
+
+		width = newWidth;
+		height = newHeight;
+		this->scale = scale;
+	}
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	void ReloadAllShaders();
 #endif
@@ -44,6 +65,8 @@ public:
 	[[nodiscard]] unsigned int GetWidth() const { return width; }
 
 	[[nodiscard]] unsigned int GetHeight() const { return height; }
+
+	[[nodiscard]] float GetScale() const { return scale; }
 
 	// any non-const access to the GellyResources should be avoided
 	[[nodiscard]] const GellyResources &GetGellyResources() const {

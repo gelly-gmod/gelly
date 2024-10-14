@@ -16,7 +16,11 @@ GModCompositor::GModCompositor(
 	unsigned int maxParticles,
 	float scale
 ) :
-	pipeline(nullptr), gellyResources(), width(width), height(height) {
+	pipeline(nullptr),
+	gellyResources(),
+	width(width),
+	height(height),
+	scale(scale) {
 	using namespace gelly::renderer::splatting;
 
 	gellyResources.device = device;

@@ -662,6 +662,7 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	// although the sim context should be fine
 	unsigned int originalWidth = compositor->GetWidth();
 	unsigned int originalHeight = compositor->GetHeight();
+	float originalScale = compositor->GetScale();
 
 	sim.reset();
 	sim = MakeFluidSimulation(simContext.get());
@@ -674,7 +675,8 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 		rendererDevice,
 		originalWidth,
 		originalHeight,
-		newMax
+		newMax,
+		originalScale
 	);
 
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
@@ -838,6 +840,19 @@ LUA_FUNCTION(gelly_ReloadAllShaders) {
 }
 #endif
 
+LUA_FUNCTION(gelly_ChangeResolution) {
+	START_GELLY_EXCEPTIONS();
+	float width = static_cast<float>(LUA->GetNumber(1));
+	float height = static_cast<float>(LUA->GetNumber(2));
+	float scale = static_cast<float>(LUA->GetNumber(3)
+	);	// used when the scale is changed but not resolution
+
+	compositor->ChangeResolution(width, height, scale);
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	GarrysMod::Lua::ILuaBase *LUA = L->luabase;
 #ifndef PRODUCTION_BUILD
@@ -938,7 +953,8 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		rendererDevice,
 		currentView.width,
 		currentView.height,
-		DEFAULT_MAX_PARTICLES
+		DEFAULT_MAX_PARTICLES,
+		1.f
 	);
 
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
@@ -997,6 +1013,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetSunDirection);
 	DEFINE_LUA_FUNC(gelly, SetSunEnabled);
 	DEFINE_LUA_FUNC(gelly, IsRWDIBuild);
+	DEFINE_LUA_FUNC(gelly, ChangeResolution);
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	DEFINE_LUA_FUNC(gelly, ReloadAllShaders);
 #endif
