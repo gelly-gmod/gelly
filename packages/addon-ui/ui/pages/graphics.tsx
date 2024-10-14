@@ -20,6 +20,8 @@ export default function Graphics() {
 	const [resolutionScale, setResolutionScale] =
 		useSettingValue("resolution_scale");
 	const [sunVisible, setSunVisible] = useSettingValue("sun_visible");
+	const [glunkLightingFix, setGlunkLightingFix] =
+		useSettingValue("glunk_lighting_fix");
 
 	return (
 		<SlidersExplanationLayout>
@@ -53,6 +55,12 @@ export default function Graphics() {
 					label="Sun Enabled"
 					checked={sunVisible}
 					onChange={setSunVisible}
+				/>
+
+				<CheckBox
+					label="Glunk Lighting Fix"
+					checked={glunkLightingFix}
+					onChange={setGlunkLightingFix}
 				/>
 			</Sliders>
 			<Separator />

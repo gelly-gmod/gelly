@@ -12,6 +12,7 @@ local BINARY_MODULE_RELATED_SETTINGS = {
 	"simulation_collision_distance",
 	"simulation_gravity",
 	"resolution_scale",
+	"glunk_lighting_fix",
 	"max_particles"
 }
 
@@ -53,6 +54,14 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		CollisionDistance = gellyx.settings.get("simulation_collision_distance"):GetFloat(),
 		Gravity = gellyx.settings.get("simulation_gravity"):GetFloat()
 	})
+
+	local isLightingFixEnabled = gellyx.settings.get("glunk_lighting_fix"):GetBool()
+
+	if isLightingFixEnabled then
+		RunConsoleCommand("r_worldlights", "0")
+	else
+		RunConsoleCommand("r_worldlights", "4")
+	end
 end
 
 gellyx.settings.registerMultipleOnChange(BINARY_MODULE_RELATED_SETTINGS, gellyx.settings.updateBinaryModuleSettings)
