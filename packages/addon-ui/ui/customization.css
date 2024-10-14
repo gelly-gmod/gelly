@@ -66,6 +66,15 @@ header {
 	flex: 0.1 0 40px;
 }
 
+#version {
+	color: gray;
+	font-size: 1em;
+	font-weight: normal;
+	font-family: "Rubik", sans-serif;
+
+	padding: 4px;
+}
+
 #tabs-list {
 	width: 100%;
 	height: 32px;

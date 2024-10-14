@@ -1,5 +1,5 @@
 import { render } from "preact";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import "./customization.css";
 import Presets from "./pages/presets.tsx";
 import Graphics from "./pages/graphics.tsx";
@@ -43,6 +43,11 @@ function TabButton({
 }
 function App() {
 	const [tab, setTab] = useState(CustomizationTab.Presets);
+	const [version, setVersion] = useState("");
+
+	useEffect(() => {
+		gelly.getVersion(setVersion);
+	}, []);
 
 	return (
 		<main>
@@ -56,6 +61,8 @@ function App() {
 						/>
 					))}
 				</section>
+
+				<span id="version">{version}</span>
 			</header>
 
 			{tab === CustomizationTab.Presets ? <Presets /> : null}

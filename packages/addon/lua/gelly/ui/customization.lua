@@ -98,6 +98,10 @@ function PANEL:SetupJSEnvironment()
 	self.HTML:AddFunction("gelly", "hide", function()
 		self:Hide()
 	end)
+
+	self.HTML:AddFunction("gelly", "getVersion", function()
+		return gelly.GetVersion() .. (gelly.IsRWDIBuild() and "+RWDI" or "")
+	end)
 end
 
 function PANEL:ForceSettingUpdate()
