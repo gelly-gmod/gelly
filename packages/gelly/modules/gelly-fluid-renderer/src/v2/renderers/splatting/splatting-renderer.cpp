@@ -72,6 +72,10 @@ auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUTiming) {
 		durations.ellipsoidSplatting.Start();
 	}
+	SetFrameResolution(
+		ellipsoidSplatting->GetRenderPass()->GetScaledWidth(),
+		ellipsoidSplatting->GetRenderPass()->GetScaledHeight()
+	);
 	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
 	if (settings.enableGPUTiming) {
 		durations.ellipsoidSplatting.End();
@@ -95,6 +99,10 @@ auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUTiming) {
 		durations.rawNormalEstimation.Start();
 	}
+	SetFrameResolution(
+		rawNormalEstimation->GetRenderPass()->GetScaledWidth(),
+		rawNormalEstimation->GetRenderPass()->GetScaledHeight()
+	);
 	rawNormalEstimation->Run();
 	if (settings.enableGPUTiming) {
 		durations.rawNormalEstimation.End();
@@ -167,40 +175,74 @@ auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data)
 auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 	frameParamCopy.g_ViewportWidth = width;
 	frameParamCopy.g_ViewportHeight = height;
+	frameParamCopy.g_InvViewport.x = 1.f / width;
+	frameParamCopy.g_InvViewport.y = 1.f / height;
 
 	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(frameParamCopy
 	);
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
-	ellipsoidSplatting = CreateEllipsoidSplattingPipeline(pipelineInfo);
+	ellipsoidSplatting =
+		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
 	albedoDownsampling =
 		CreateAlbedoDownsamplingPipeline(pipelineInfo, ALBEDO_OUTPUT_SCALE);
 
 	surfaceFilteringA = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
 		pipelineInfo.internalTextures->unfilteredNormals,
-		pipelineInfo.outputTextures->normals
+		pipelineInfo.outputTextures->normals,
+		createInfo.scale
 	);
 	surfaceFilteringB = CreateSurfaceFilteringPipeline(
 		pipelineInfo,
 		pipelineInfo.outputTextures->normals,
-		pipelineInfo.internalTextures->unfilteredNormals
+		pipelineInfo.internalTextures->unfilteredNormals,
+		createInfo.scale
 	);
 
 	rawNormalEstimation = CreateNormalEstimationPipeline(
 		pipelineInfo,
 		pipelineInfo.outputTextures->ellipsoidDepth,
 		pipelineInfo.internalTextures->unfilteredNormals,
-		true
+		createInfo.scale
 	);
+}
+
+auto SplattingRenderer::UpdateTextureRegistry(
+	const InputSharedHandles &inputSharedHandles,
+	float width,
+	float height,
+	float scale
+) -> void {
+	createInfo.width = width;
+	createInfo.height = height;
+	createInfo.inputSharedHandles = inputSharedHandles;
+	createInfo.scale = scale;
+
+	pipelineInfo.width = width;
+	pipelineInfo.height = height;
+
+	pipelineInfo.internalTextures = std::make_shared<InternalTextures>(
+		createInfo.device, createInfo.width, createInfo.height, createInfo.scale
+	);
+
+	pipelineInfo.outputTextures = std::make_shared<OutputTextures>(
+		createInfo.device, createInfo.inputSharedHandles
+	);
+
+	// Re-initialize all pipelines
+	CreatePipelines();
 }
 
 auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {
 	return {
 		.device = createInfo.device,
 		.internalTextures = std::make_shared<InternalTextures>(
-			createInfo.device, createInfo.width, createInfo.height
+			createInfo.device,
+			createInfo.width,
+			createInfo.height,
+			createInfo.scale
 		),
 		.outputTextures = std::make_shared<OutputTextures>(
 			createInfo.device, createInfo.inputSharedHandles
@@ -272,6 +314,11 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations)
 			depthClearColor
 		);
 	}
+
+	SetFrameResolution(
+		surfaceFilteringA->GetRenderPass()->GetScaledWidth(),
+		surfaceFilteringA->GetRenderPass()->GetScaledHeight()
+	);
 
 	for (int i = 0; i < iterations; i++) {
 		bool oddIteration = i % 2 != 0;

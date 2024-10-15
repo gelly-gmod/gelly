@@ -15,9 +15,13 @@ function PANEL:Init()
 	self.HTML:OpenURL(localhostUI and "http://127-0-0-1.nip.io/customization.html" or
 		"asset://garrysmod/lua/html/gelly-ui/customization.html.lua")
 	self:SetVisible(false)
+	self:AdjustSize()
+	self:SetupJSEnvironment()
+end
+
+function PANEL:AdjustSize()
 	self:SetSize(ScrW() * 0.8, ScrH() * 0.6)
 	self:Center()
-	self:SetupJSEnvironment()
 end
 
 function PANEL:Hide()
@@ -93,6 +97,10 @@ function PANEL:SetupJSEnvironment()
 
 	self.HTML:AddFunction("gelly", "hide", function()
 		self:Hide()
+	end)
+
+	self.HTML:AddFunction("gelly", "getVersion", function()
+		return gelly.GetVersion() .. (gelly.IsRWDIBuild() and "+RWDI" or "")
 	end)
 end
 

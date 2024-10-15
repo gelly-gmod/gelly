@@ -13,9 +13,14 @@ GModCompositor::GModCompositor(
 	const std::shared_ptr<gelly::renderer::Device> &device,
 	unsigned int width,
 	unsigned int height,
-	unsigned int maxParticles
+	unsigned int maxParticles,
+	float scale
 ) :
-	pipeline(nullptr), gellyResources(), width(width), height(height) {
+	pipeline(nullptr),
+	gellyResources(),
+	width(width),
+	height(height),
+	scale(scale) {
 	using namespace gelly::renderer::splatting;
 
 	gellyResources.device = device;
@@ -23,7 +28,7 @@ GModCompositor::GModCompositor(
 	if (type == PipelineType::STANDARD) {
 		pipeline = std::make_unique<StandardPipeline>(width, height);
 		const auto sharedHandles = pipeline->CreatePipelineLocalResources(
-			gellyResources, Resources::FindGModResources()
+			gellyResources, Resources::FindGModResources(), width, height, scale
 		);
 
 		gellyResources.splattingRenderer = SplattingRenderer::Create(
@@ -32,7 +37,8 @@ GModCompositor::GModCompositor(
 			 .inputSharedHandles = sharedHandles,
 			 .width = width,
 			 .height = height,
-			 .maxParticles = maxParticles}
+			 .maxParticles = maxParticles,
+			 .scale = scale}
 		);
 
 		pipeline->UpdateGellyResources(gellyResources);

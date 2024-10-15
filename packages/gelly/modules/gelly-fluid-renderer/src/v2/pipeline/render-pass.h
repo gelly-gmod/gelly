@@ -85,11 +85,11 @@ public:
 	auto GetOutputScale() const -> float { return passInfo.outputScale; }
 
 	auto GetScaledWidth() const -> float {
-		return passInfo.viewportState.width * passInfo.outputScale;
+		return floorf(passInfo.viewportState.width * passInfo.outputScale);
 	}
 
 	auto GetScaledHeight() const -> float {
-		return passInfo.viewportState.height * passInfo.outputScale;
+		return floorf(passInfo.viewportState.height * passInfo.outputScale);
 	}
 
 	// For some use-cases, we might want to disable mip regeneration or enable

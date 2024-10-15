@@ -80,6 +80,7 @@ public:
 		unsigned int width;
 		unsigned int height;
 		unsigned int maxParticles;
+		float scale = 1.f;
 	};
 
 	explicit SplattingRenderer(const SplattingRendererCreateInfo &createInfo);
@@ -97,6 +98,17 @@ public:
 
 	[[nodiscard]] auto GetAbsorptionModifier() const
 		-> std::shared_ptr<AbsorptionModifier>;
+
+	/**
+	 * Destroys every single old texture, takes in new shared handles and
+	 * resolution + scale.
+	 */
+	auto UpdateTextureRegistry(
+		const InputSharedHandles &inputSharedHandles,
+		float width,
+		float height,
+		float scale
+	) -> void;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto ReloadAllShaders() -> void;

@@ -45,6 +45,7 @@ struct CompositeConstants {
 	float sunEnabled = 0.f;
 
 	float sourceLightScale[4] = {1.f, 1.f, 1.f, 1.f};
+	XMFLOAT4X4 invViewProj;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -97,7 +98,11 @@ public:
 	~StandardPipeline() override;
 
 	gelly::renderer::splatting::InputSharedHandles CreatePipelineLocalResources(
-		const GellyResources &gelly, const UnownedResources &gmod
+		const GellyResources &gelly,
+		const UnownedResources &gmod,
+		unsigned int width,
+		unsigned int height,
+		float scale
 	) override;
 
 	void UpdateGellyResources(const GellyResources &newResources) override;

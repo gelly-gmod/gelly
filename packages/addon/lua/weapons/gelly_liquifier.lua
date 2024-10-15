@@ -18,7 +18,7 @@ SWEP.Secondary.DefaultClip = -1
 SWEP.Secondary.Automatic = true
 SWEP.Secondary.Ammo = ""
 
-SWEP.TriangleDensity = 5
+SWEP.TriangleDensity = 76
 SWEP.FireRate = 1 -- projectiles per second
 
 local POP_SOUND = Sound("garrysmod/balloon_pop_cute.wav")

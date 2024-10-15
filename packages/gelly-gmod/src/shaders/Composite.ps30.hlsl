@@ -16,11 +16,10 @@
 //#define NORMALS_VIEW_DEBUG_CURVATURE
 sampler2D depthTex : register(s0);
 sampler2D normalTex : register(s1);
-sampler2D positionTex : register(s2);
-sampler2D backbufferTex : register(s3);
-sampler2D thicknessTex : register(s4);
-samplerCUBE cubemapTex : register(s5);
-sampler2D absorptionTex : register(s6);
+sampler2D backbufferTex : register(s2);
+sampler2D thicknessTex : register(s3);
+samplerCUBE cubemapTex : register(s4);
+sampler2D absorptionTex : register(s5);
 
 float4 eyePos : register(c0);
 float4 refractAndCubemapStrength : register(c1);
@@ -38,6 +37,7 @@ FluidMaterial material : register(c15);
 float4x4 viewProjMatrix : register(c17);
 float4 sunDir : register(c21);
 float4 lightScaling : register(c22);
+float4x4 invViewProjMatrix : register(c23);
 
 #define CUBEMAP_SCALE lightScaling.z
 
@@ -45,6 +45,13 @@ struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
     float Depth : SV_DEPTH;
 };
+
+float3 WorldPosFromDepth(in float2 tex, in float depth) {
+	float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
+    pos = mul(invViewProjMatrix, pos);
+    pos.xyz /= pos.w;
+    return pos.xyz;
+}
 
 float3 ComputeSunRadiance(float3 eyeDir, float3 normal) {
     float3 sunReflectionDir = reflect(-sunDir.xyz, normal);
@@ -100,7 +107,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
 
     float thickness = tex2D(thicknessTex, input.Tex).x;
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
-    float3 position = tex2D(positionTex, input.Tex).xyz;
+    float3 position = WorldPosFromDepth(input.Tex, projectedDepth);
     float3 normal = tex2D(normalTex, input.Tex).xyz;
     
     float3 eyeDir = normalize(eyePos.xyz - position);

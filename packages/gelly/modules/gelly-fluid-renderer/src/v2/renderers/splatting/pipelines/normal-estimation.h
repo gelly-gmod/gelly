@@ -19,7 +19,7 @@ inline auto CreateNormalEstimationPipeline(
 	const PipelineInfo &info,
 	const std::shared_ptr<Texture> &inputDepth,
 	const std::shared_ptr<Texture> &outputNormal,
-	bool outputPositions = true
+	float scale = 0.75f
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -35,7 +35,8 @@ inline auto CreateNormalEstimationPipeline(
 			 .minDepth = 0.f,
 			 .maxDepth = 1.f},
 		.rasterizerState =
-			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE}
+			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE},
+		.outputScale = scale
 	});
 
 	const util::ScreenQuad screenQuad({.device = info.device});
@@ -53,20 +54,12 @@ inline auto CreateNormalEstimationPipeline(
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
 			  }},
-		 .outputs =
-			 {OutputTexture{
-				  .texture = outputNormal,
-				  .bindFlag = D3D11_BIND_RENDER_TARGET,
-				  .slot = 0,
-				  .clearColor = {0.f, 0.f, 0.f, 0.f}
-			  },
-			  OutputTexture{
-				  .texture = info.outputTextures->positions,
-				  .bindFlag = D3D11_BIND_RENDER_TARGET,
-				  .slot = 1,
-				  .clearColor = {0.f, 0.f, 0.f, 0.f},
-				  .enabled = outputPositions
-			  }},
+		 .outputs = {OutputTexture{
+			 .texture = outputNormal,
+			 .bindFlag = D3D11_BIND_RENDER_TARGET,
+			 .slot = 0,
+			 .clearColor = {0.f, 0.f, 0.f, 0.f}
+		 }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
 			  .vertexShader = screenQuad.GetVertexShader(),
