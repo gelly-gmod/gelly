@@ -1,3 +1,4 @@
+local setupEditableVars = include("gelly/util/setup-editable-vars.lua")
 local DISC_MODEL = "models/props_phx/trains/wheel_medium.mdl"
 AddCSLuaFile()
 
@@ -9,22 +10,8 @@ ENT.Spawnable = true
 ENT.AdminOnly = false
 ENT.Editable = true
 
---- Setups the given list of network vars
---- To get a color picker, use type "Vector" and editType "VectorColor"
----@param vars {name: string, type: string, editType: string?, min: number?, max: number?}[]
-function ENT:SetupEditableNetworkVars(vars)
-	local perTypeCounters = {}
-	for index, var in ipairs(vars) do
-		perTypeCounters[var.type] = perTypeCounters[var.type] or 0
-		local counter = perTypeCounters[var.type]
-		self:NetworkVar(var.type, counter, var.name,
-			{ KeyName = var.name:lower(), Edit = { type = var.editType and var.editType or var.type, order = index + 1, min = var.min, max = var.max } })
-		perTypeCounters[var.type] = counter + 1
-	end
-end
-
 function ENT:SetupDataTables()
-	self:SetupEditableNetworkVars({
+	setupEditableVars(self, {
 		{ name = "Density",       type = "Float",  min = 50,                max = 1000 },
 		{ name = "Speed",         type = "Float",  min = 1,                 max = 255 },
 		{ name = "ColorOverride", type = "Vector", editType = "VectorColor" },

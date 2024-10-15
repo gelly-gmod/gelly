@@ -50,6 +50,10 @@ main {
 			no-repeat;
 }
 
+section {
+	padding: 20px;
+}
+
 header {
 	display: flex;
 	flex-direction: row;
@@ -60,6 +64,15 @@ header {
 	background-color: rgba(60, 4, 4, 0.62);
 
 	flex: 0.1 0 40px;
+}
+
+#version {
+	color: gray;
+	font-size: 1em;
+	font-weight: normal;
+	font-family: "Rubik", sans-serif;
+
+	padding: 4px;
 }
 
 #tabs-list {

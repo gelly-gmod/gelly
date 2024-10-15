@@ -66,9 +66,9 @@ jobs:
                     cmake -DGELLY_PRODUCTION_BUILD=ON --fresh --preset ${{ matrix.presets.configure }} -S . -B bin/${{ matrix.presets.configure }} -DCMAKE_PROGRAM_PATH="$(Get-Location)"
                     cmake --build --target gelly-gmod --preset ${{ matrix.presets.build }}
 
-            -   name: Add addon to release
+            -   name: Add addon to release (no GMA)
                 run: |
-                    scripts/gmad.exe create -folder packages/addon -out release/garrysmod/addons/gelly/gelly.gma
+                    Copy-Item -Path "packages/addon/*" -Destination "release/garrysmod/addons/gelly" -Recurse -Force -Verbose
 
             -   name: Upload release
                 uses: actions/upload-artifact@v4

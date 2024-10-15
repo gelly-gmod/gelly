@@ -9,7 +9,7 @@ return {
 		Cohesion = 0.1,
 		VorticityConfinement = 0,
 		DynamicFriction = 1.1,
-		RestDistanceRatio = 0.60
+		RestDistanceRatio = 0.55
 	},
 	Material = {
 		Roughness = 0,           -- blood isn't rough at all

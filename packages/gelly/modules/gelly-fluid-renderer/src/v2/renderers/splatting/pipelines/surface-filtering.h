@@ -20,7 +20,8 @@ namespace splatting {
 inline auto CreateSurfaceFilteringPipeline(
 	const PipelineInfo &info,
 	const std::shared_ptr<Texture> &inputNormal,
-	const std::shared_ptr<Texture> &outputNormal
+	const std::shared_ptr<Texture> &outputNormal,
+	float scale = 0.75f
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -37,7 +38,8 @@ inline auto CreateSurfaceFilteringPipeline(
 			 .maxDepth = 1.f},
 		.rasterizerState =
 			{.fillMode = D3D11_FILL_SOLID, .cullMode = D3D11_CULL_NONE},
-		.enableMipRegeneration = false
+		.enableMipRegeneration = false,
+		.outputScale = scale
 	});
 
 	const util::ScreenQuad screenQuad({.device = info.device});

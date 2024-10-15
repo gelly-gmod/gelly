@@ -17,7 +17,11 @@ import CheckBox from "../components/CheckBox.tsx";
 
 export default function Graphics() {
 	const [smoothness, setSmoothness] = useSettingValue("smoothness");
+	const [resolutionScale, setResolutionScale] =
+		useSettingValue("resolution_scale");
 	const [sunVisible, setSunVisible] = useSettingValue("sun_visible");
+	const [glunkLightingFix, setGlunkLightingFix] =
+		useSettingValue("glunk_lighting_fix");
 
 	return (
 		<SlidersExplanationLayout>
@@ -34,10 +38,29 @@ export default function Graphics() {
 					onInputEnd={disableTemporaryTranslucency}
 				/>
 
+				<Slider
+					min={0.25}
+					max={1.25}
+					step={0.05}
+					value={resolutionScale}
+					setValue={setResolutionScale}
+					unit=""
+					label="Resolution Scale"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onlySetValuesOnMouseUp
+				/>
+
 				<CheckBox
 					label="Sun Enabled"
 					checked={sunVisible}
 					onChange={setSunVisible}
+				/>
+
+				<CheckBox
+					label="Glunk Lighting Fix"
+					checked={glunkLightingFix}
+					onChange={setGlunkLightingFix}
 				/>
 			</Sliders>
 			<Separator />
@@ -53,6 +76,14 @@ export default function Graphics() {
 					<ExplanationText>
 						In particular, a higher smoothness value will result in
 						less performance--but a smoother appearance.
+					</ExplanationText>
+
+					<ExplanationText warning>
+						Lowering the resolution scale will reduce the quality of
+						the fluid by a lot, but it will increase the
+						performance. Likewise, increasing the resolution scale
+						will increase the quality of the fluid, but it will
+						decrease the performance.
 					</ExplanationText>
 				</Explanation>
 			</ExplanationColumn>

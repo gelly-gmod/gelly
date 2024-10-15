@@ -1,6 +1,7 @@
 #include "FluidRenderCBuffer.hlsli"
 #include "SplattingStructs.hlsli"
 #include "util/SolveQuadratic.hlsli"
+#include "util/Half.hlsli"
 
 float sqr(float x) {
     return x * x;
@@ -10,16 +11,9 @@ PS_OUTPUT main(GS_OUTPUT input) {
     PS_OUTPUT output = (PS_OUTPUT)0;
 	
 	float4x4 invQuadric = input.InvQuadric;
-    float4 position = input.Pos;
-
-    float2 invViewport = rcp(float2(
-    	g_ViewportWidth,
-        g_ViewportHeight
-    ));
-	
     float4 ndcPos = float4(
-        mad(input.Pos.x, invViewport.x * 2.f, -1.f),
-        (1.f - input.Pos.y * invViewport.y) * 2.f - 1.f,
+        mad(input.Pos.x, g_InvViewport.x * 2.f, -1.f),
+        (1.f - input.Pos.y * g_InvViewport.y) * 2.f - 1.f,
         0.f,
         1.f
     );
@@ -52,13 +46,6 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
 	output.FrontDepth = float2(projectionDepth, -eyeDepth);
-
-    float internalDistance = abs(maxT - minT);
-    float featheringGaussianWidth = 0.73f; // arbitrary value
-    float thicknessFeatheringGaussian = exp(-sqr(internalDistance) / 2.f * sqr(featheringGaussianWidth));
-
-    // we want lower thickness for thin parts, so we will invert the value
-    thicknessFeatheringGaussian = 1.f - thicknessFeatheringGaussian;
-	output.Thickness = 0.1f * thicknessFeatheringGaussian; // arbitrary value, gets added up to form the thickness
+	output.Thickness = 0.1f; // arbitrary value, gets added up to form the thickness
     return output;
 }

@@ -36,6 +36,8 @@ local Y_SWAY_AMPLITUDE = 0.2
 local PARTICLE_LIMIT_WARNING_PERCENT = 0.4
 
 local GRABBER_KEY = IN_USE
+local FORCEFIELD_SPRITE_TIME = 1
+local FORCEFIELD_SPRITE_SIZE = 32
 
 function SWEP:Initialize()
 	self:SetHoldType("pistol")
@@ -54,6 +56,10 @@ function SWEP:InitializeGrabberHooks()
 	end)
 end
 
+function SWEP:GetForcefieldDistance()
+	return math.min(self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos()), self.InitialDistance)
+end
+
 function SWEP:OnGrabberKeyPressed()
 	if self.Forcefield then
 		surface.PlaySound("buttons/button10.wav")
@@ -63,13 +69,14 @@ function SWEP:OnGrabberKeyPressed()
 		surface.PlaySound("buttons/button9.wav")
 		self.Forcefield = gellyx.forcefield.create({
 			Position = self:GetOwner():GetShootPos(),
-			Radius = 100,
-			Strength = -100,
+			Radius = gellyx.settings.get("gelly_gun_forcefield_radius"):GetFloat(),
+			Strength = gellyx.settings.get("gelly_gun_forcefield_strength"):GetFloat(),
 			LinearFalloff = false,
 			Mode = gellyx.forcefield.Mode.Force,
 		})
 
-		self.ForcefieldDistance = self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos())
+		self.InitialDistance = self:GetOwner():GetEyeTrace().HitPos:Distance(self:GetOwner():GetShootPos())
+		self.ForcefieldActivationTime = CurTime()
 	end
 end
 
@@ -78,10 +85,28 @@ function SWEP:OnGrabberThink()
 		return
 	end
 
-	local owner = self:GetOwner()
+	if self.LastForcefieldPosition then
+		self.Forcefield:SetPos(LerpVector(0.02, self.Forcefield:GetPos(), self.LastForcefieldPosition))
+	end
 
-	local forcefieldPosition = owner:GetShootPos() + owner:GetAimVector() * self.ForcefieldDistance
-	self.Forcefield:SetPos(forcefieldPosition)
+	local owner = self:GetOwner()
+	local forcefieldPosition = owner:GetShootPos() + owner:GetAimVector() * self:GetForcefieldDistance()
+	if self.LastForcefieldPosition then
+		self.Forcefield:SetPos(LerpVector(0.02, self.Forcefield:GetPos(), self.LastForcefieldPosition))
+	else
+		self.Forcefield:SetPos(forcefieldPosition)
+	end
+	self.LastForcefieldPosition = forcefieldPosition
+end
+
+function SWEP:GetPrimaryBounds()
+	local size = gellyx.settings.get("gelly_gun_primary_size"):GetFloat()
+	return Vector(size, size, size)
+end
+
+function SWEP:GetSecondaryBounds()
+	local size = gellyx.settings.get("gelly_gun_secondary_size"):GetFloat()
+	return Vector(size, size, size)
 end
 
 function SWEP:PrimaryAttack()
@@ -93,10 +118,10 @@ function SWEP:PrimaryAttack()
 	local owner = self:GetOwner()
 
 	gellyx.emitters.Cube({
-		center = owner:GetShootPos() + owner:GetAimVector() * 110,
+		center = owner:GetShootPos() + owner:GetAimVector() * gellyx.settings.get("gelly_gun_distance"):GetFloat(),
 		velocity = owner:GetAimVector() * 2,
-		bounds = Vector(5, 5, 5),
-		density = self.ParticleDensity,
+		bounds = self:GetPrimaryBounds(),
+		density = gellyx.settings.get("gelly_gun_density"):GetInt()
 	})
 
 	self:SetNextPrimaryFire(CurTime() + 1 / self.FireRate)
@@ -110,10 +135,10 @@ function SWEP:SecondaryAttack()
 
 	local owner = self:GetOwner()
 	gellyx.emitters.Cube({
-		center = owner:GetShootPos() + owner:GetAimVector() * 110,
-		velocity = owner:GetAimVector() * 70,
-		bounds = Vector(5, 5, 5),
-		density = self.ParticleDensity
+		center = owner:GetShootPos() + owner:GetAimVector() * gellyx.settings.get("gelly_gun_distance"):GetFloat(),
+		velocity = owner:GetAimVector() * gellyx.settings.get("gelly_gun_secondary_velocity"):GetFloat(),
+		bounds = self:GetSecondaryBounds(),
+		density = gellyx.settings.get("gelly_gun_density"):GetInt()
 	})
 
 	self:SetNextSecondaryFire(CurTime() + 1 / self.FireRate * self.RapidFireBoost)
@@ -163,11 +188,26 @@ function SWEP:IsInputBlocked()
 	return vgui.GetKeyboardFocus() or gui.IsConsoleVisible() or gui.IsGameUIVisible()
 end
 
+local forcefieldSprite
+if CLIENT then
+	forcefieldSprite = Material("sprites/light_glow02_add")
+end
+
 function SWEP:ViewModelDrawn(vm)
 	-- draw some 3D status indicators on the viewmodel
-
 	-- top left corner
 	local muzzleOrigin = vm:GetAttachment(vm:LookupAttachment("muzzle")).Pos
+	if self.Forcefield then
+		render.SetMaterial(forcefieldSprite)
+		local deltaTime = math.min(CurTime() - self.ForcefieldActivationTime, FORCEFIELD_SPRITE_TIME) /
+			FORCEFIELD_SPRITE_TIME
+		-- sine ease out: https://easings.net/#easeOutSine
+		deltaTime = math.sin((deltaTime * math.pi) / 2)
+
+		local spriteSize = FORCEFIELD_SPRITE_SIZE * deltaTime
+		render.DrawSprite(muzzleOrigin + self.Owner:GetAimVector() * 30, spriteSize, spriteSize, Color(100, 100, 255))
+	end
+
 	-- convert that to local space
 	muzzleOrigin = vm:WorldToLocal(muzzleOrigin)
 

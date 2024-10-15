@@ -49,6 +49,9 @@ CBUFFER_DECLARATION(FluidRenderCBufferData) {
 
 	uint g_SmoothingPassIndex;
 	float3 padding3;
+
+	float2 g_InvViewport;
+	float2 padding4;
 };
 #ifdef __cplusplus
 }

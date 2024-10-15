@@ -1,3 +1,4 @@
+local logging = include("gelly/logging.lua")
 local ENVBALLS_MODEL_PATH = "models/shadertest/envballs.mdl"
 
 GELLY_SIM_TIMESCALE = 10
@@ -38,7 +39,19 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 		end
 	end)
 
+	local lastScrW = ScrW()
+	local lastScrH = ScrH()
 	hook.Add("RenderScene", "gelly.render", function()
+		if lastScrW ~= ScrW() or lastScrH ~= ScrH() then
+			lastScrW = ScrW()
+			lastScrH = ScrH()
+			gelly.ChangeResolution(ScrW(), ScrH(), gellyx.settings.get("resolution_scale"):GetFloat())
+			GELLY_CUSTOMIZATION:AdjustSize()
+
+			logging.warn("Rendering at %dx%d with a scale of %.2f! (detected resolution change)", ScrW(), ScrH(),
+				gellyx.settings.get("resolution_scale"):GetFloat())
+		end
+
 		if not isGellyActive() then return end
 		gelly.Render()
 	end)

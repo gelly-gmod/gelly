@@ -337,8 +337,9 @@ LUA_FUNCTION(gelly_AddForcefieldObject) {
 	const float radius = luaTable.Get("Radius", 0.f);
 	const float strength = luaTable.Get("Strength", 0.f);
 	const bool linearFalloff = luaTable.Get("LinearFalloff", false);
-	const int mode =
-		luaTable.Get("Mode", NvFlexExtForceMode::eNvFlexExtModeForce);
+	const int mode = luaTable.Get(
+		"Mode", static_cast<int>(NvFlexExtForceMode::eNvFlexExtModeForce)
+	);
 
 	ObjectCreationParams forcefield = {};
 	forcefield.shape = ObjectShape::FORCEFIELD;
@@ -563,19 +564,6 @@ LUA_FUNCTION(gelly_SetFluidMaterial) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_SetCubemapStrength) {
-	START_GELLY_EXCEPTIONS();
-	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
-
-	const float strength = static_cast<float>(LUA->GetNumber(1));
-	PipelineConfig config = compositor->GetConfig();
-	config.cubemapStrength = strength;
-	compositor->SetConfig(config);
-
-	CATCH_GELLY_EXCEPTIONS();
-	return 0;
-}
-
 LUA_FUNCTION(gelly_ChangeParticleRadius) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
@@ -674,6 +662,7 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	// although the sim context should be fine
 	unsigned int originalWidth = compositor->GetWidth();
 	unsigned int originalHeight = compositor->GetHeight();
+	float originalScale = compositor->GetScale();
 
 	sim.reset();
 	sim = MakeFluidSimulation(simContext.get());
@@ -686,7 +675,8 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 		rendererDevice,
 		originalWidth,
 		originalHeight,
-		newMax
+		newMax,
+		originalScale
 	);
 
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
@@ -779,11 +769,21 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 
 	GET_LUA_TABLE_MEMBER(float, Substeps);
 	GET_LUA_TABLE_MEMBER(float, Iterations);
+	GET_LUA_TABLE_MEMBER(float, RelaxationFactor);
+	GET_LUA_TABLE_MEMBER(float, CollisionDistance);
+	GET_LUA_TABLE_MEMBER(float, Gravity);
 
 	int substeps = static_cast<int>(Substeps);
 	int iterations = static_cast<int>(Iterations);
 
-	scene->Configure(substeps, iterations);
+	scene->Configure(
+		{.substeps = substeps,
+		 .iterations = iterations,
+		 .relaxationFactor = RelaxationFactor,
+		 .collisionDistance = CollisionDistance,
+		 .gravity = Gravity}
+	);
+
 	CATCH_GELLY_EXCEPTIONS();
 
 	return 0;
@@ -839,6 +839,19 @@ LUA_FUNCTION(gelly_ReloadAllShaders) {
 	return 0;
 }
 #endif
+
+LUA_FUNCTION(gelly_ChangeResolution) {
+	START_GELLY_EXCEPTIONS();
+	float width = static_cast<float>(LUA->GetNumber(1));
+	float height = static_cast<float>(LUA->GetNumber(2));
+	float scale = static_cast<float>(LUA->GetNumber(3)
+	);	// used when the scale is changed but not resolution
+
+	compositor->ChangeResolution(width, height, scale);
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
 
 extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	GarrysMod::Lua::ILuaBase *LUA = L->luabase;
@@ -940,7 +953,8 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		rendererDevice,
 		currentView.width,
 		currentView.height,
-		DEFAULT_MAX_PARTICLES
+		DEFAULT_MAX_PARTICLES,
+		1.f
 	);
 
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
@@ -983,7 +997,6 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	DEFINE_LUA_FUNC(gelly, SetFluidMaterial);
-	DEFINE_LUA_FUNC(gelly, SetCubemapStrength);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
@@ -1000,6 +1013,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetSunDirection);
 	DEFINE_LUA_FUNC(gelly, SetSunEnabled);
 	DEFINE_LUA_FUNC(gelly, IsRWDIBuild);
+	DEFINE_LUA_FUNC(gelly, ChangeResolution);
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	DEFINE_LUA_FUNC(gelly, ReloadAllShaders);
 #endif

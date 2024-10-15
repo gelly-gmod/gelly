@@ -43,6 +43,9 @@ struct CompositeConstants {
 	XMFLOAT4X4 viewProj;
 	float sunDirection[3];
 	float sunEnabled = 0.f;
+
+	float sourceLightScale[4] = {1.f, 1.f, 1.f, 1.f};
+	XMFLOAT4X4 invViewProj;
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -72,6 +75,8 @@ private:
 	unsigned int width;
 	unsigned int height;
 
+	float sourceLightScale[4] = {1.f, 1.f, 1.f, 1.f};
+
 	void CreateCompositeShader();
 	void CreateQuadVertexShader();
 	void CreateNDCQuad();
@@ -87,14 +92,17 @@ private:
 	void SetCompositeSamplerState(
 		int index, D3DTEXTUREFILTERTYPE filter, bool srgb
 	) const;
-	void CompositeFoam(bool withGellyRendered) const;
 
 public:
 	StandardPipeline(unsigned int width, unsigned int height);
 	~StandardPipeline() override;
 
 	gelly::renderer::splatting::InputSharedHandles CreatePipelineLocalResources(
-		const GellyResources &gelly, const UnownedResources &gmod
+		const GellyResources &gelly,
+		const UnownedResources &gmod,
+		unsigned int width,
+		unsigned int height,
+		float scale
 	) override;
 
 	void UpdateGellyResources(const GellyResources &newResources) override;

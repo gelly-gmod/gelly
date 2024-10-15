@@ -199,6 +199,11 @@ void StandardPipeline::UpdateGellyRenderParams() {
 		)
 	);
 
+	XMFLOAT4X4 invViewProj = {};
+	XMStoreFloat4x4(
+		&invViewProj, XMMatrixInverse(nullptr, XMLoadFloat4x4(&viewProj))
+	);
+
 	// Transpose all matrices
 	XMStoreFloat4x4(
 		&viewMatrix, XMMatrixTranspose(XMLoadFloat4x4(&viewMatrix))
@@ -219,6 +224,9 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	);
 
 	XMStoreFloat4x4(&viewProj, XMMatrixTranspose(XMLoadFloat4x4(&viewProj)));
+	XMStoreFloat4x4(
+		&invViewProj, XMMatrixTranspose(XMLoadFloat4x4(&invViewProj))
+	);
 
 	gelly::renderer::cbuffer::FluidRenderCBufferData renderParams = {};
 	renderParams.g_View = XMMatrixToFloat4x4(viewMatrix);
@@ -241,6 +249,9 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	renderParams.g_CameraPosition.y = viewSetup.origin.y;
 	renderParams.g_CameraPosition.z = viewSetup.origin.z;
 
+	renderParams.g_InvViewport.x = 1.f / static_cast<float>(viewSetup.width);
+	renderParams.g_InvViewport.y = 1.f / static_cast<float>(viewSetup.height);
+
 	compositeConstants.eyePos[0] = viewSetup.origin.x;
 	compositeConstants.eyePos[1] = viewSetup.origin.y;
 	compositeConstants.eyePos[2] = viewSetup.origin.z;
@@ -248,6 +259,13 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.cubemapStrength = config.cubemapStrength;
 	compositeConstants.refractionStrength = config.refractionStrength;
 	compositeConstants.viewProj = viewProj;
+
+	compositeConstants.sourceLightScale[0] = sourceLightScale[0];
+	compositeConstants.sourceLightScale[1] = sourceLightScale[1];
+	compositeConstants.sourceLightScale[2] = sourceLightScale[2];
+	compositeConstants.sourceLightScale[3] = sourceLightScale[3];
+
+	compositeConstants.invViewProj = invViewProj;
 
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
@@ -328,12 +346,16 @@ StandardPipeline::~StandardPipeline() { RemoveAmbientLightCubeHooks(); }
 
 gelly::renderer::splatting::InputSharedHandles
 StandardPipeline::CreatePipelineLocalResources(
-	const GellyResources &gelly, const UnownedResources &gmod
+	const GellyResources &gelly,
+	const UnownedResources &gmod,
+	unsigned int width,
+	unsigned int height,
+	float scale
 ) {
 	gellyResources = gelly;
 	gmodResources = gmod;
 
-	textures.emplace(gmodResources, width, height);
+	textures.emplace(gmodResources, width, height, scale);
 	CreateCompositeShader();
 	CreateQuadVertexShader();
 	CreateNDCQuad();
@@ -358,38 +380,6 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 	fluidMaterial = material;
 }
 
-void StandardPipeline::CompositeFoam(bool withGellyRendered) const {
-	auto &device = gmodResources.device;
-
-	stateBlock->Capture();
-
-	SetCompositeShaderConstants();
-	device->SetVertexShader(quadVertexShader.Get());
-	device->SetPixelShader(compositeFoamShader.Get());
-
-	SetCompositeSamplerState(0, D3DTEXF_POINT);
-
-	device->SetTexture(0, textures->gmodTextures.foam.Get());
-	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
-	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
-
-	device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	device->SetRenderState(
-		D3DRS_ZWRITEENABLE, withGellyRendered ? TRUE : FALSE
-	);
-
-	// We do actually want to use an alpha blend here
-	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-
-	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
-	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-
-	stateBlock->Apply();
-}
-
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
@@ -398,25 +388,25 @@ void StandardPipeline::Composite() {
 
 	stateBlock->Capture();
 
+	device->GetPixelShaderConstantF(30, sourceLightScale, 1);
+
 	SetCompositeShaderConstants();
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeShader.Get());
 
 	SetCompositeSamplerState(0, D3DTEXF_POINT);
 	SetCompositeSamplerState(1, D3DTEXF_POINT);
-	SetCompositeSamplerState(2, D3DTEXF_POINT);
-	SetCompositeSamplerState(3, D3DTEXF_POINT, true);
-	SetCompositeSamplerState(4, D3DTEXF_LINEAR);
+	SetCompositeSamplerState(2, D3DTEXF_POINT, true);
+	SetCompositeSamplerState(3, D3DTEXF_LINEAR);
+	SetCompositeSamplerState(4, D3DTEXF_LINEAR, true);
 	SetCompositeSamplerState(5, D3DTEXF_LINEAR);
-	SetCompositeSamplerState(6, D3DTEXF_LINEAR);
 
 	device->SetTexture(0, textures->gmodTextures.depth.Get());
 	device->SetTexture(1, textures->gmodTextures.normal.Get());
-	device->SetTexture(2, textures->gmodTextures.position.Get());
-	device->SetTexture(3, backBuffer.Get());
-	device->SetTexture(4, textures->gmodTextures.thickness.Get());
-	device->SetTexture(5, GetCubemap());
-	device->SetTexture(6, textures->gmodTextures.albedo.Get());
+	device->SetTexture(2, backBuffer.Get());
+	device->SetTexture(3, textures->gmodTextures.thickness.Get());
+	device->SetTexture(4, GetCubemap());
+	device->SetTexture(5, textures->gmodTextures.albedo.Get());
 
 	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);

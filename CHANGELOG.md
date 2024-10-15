@@ -5,6 +5,93 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.0] - 2024-10-14
+
+### Added
+
+- Added a new slider, "Resolution Scale" in Graphics. This slider allows you to scale the resolution of the fluid
+  simulation, which can be useful for performance tuning.
+- Added a display for the version in the menu, it's in the top right corner.
+- Added a new switch to Graphics for disabling the Glunk Lighting Fix, which *may* conflict with other mods.
+- The Glunk Lighting Fix, a feature which makes Glunk look better by default in most maps.
+
+### Changed
+
+- Massive optimizations across the board, the fluid should be significantly faster now.
+- Reduced default resolution scale to 0.75
+- Optimize the surface filter to be more efficient particularly on low-bandwidth systems
+
+### Fixed
+
+- Fixed the Gelly Gun's grabber mode not working properly after 1.25.0
+- Fixed resolution changes breaking the fluid simulation
+- Fixed the UI not matching up to the resolution when changed.
+
+### Removed
+
+- Removed old legacy textures, the only reason this is mentioned is that it may particularly benefit low-VRAM systems.
+
+## [1.26.0] - 2024-10-10
+
+### Added
+
+- Added three new sliders to the customization menu.
+- Relaxation: controls fluid simulation convergence speed (dont mess with this unless you know what you're doing)
+- Gravity: self-explanatory! have fun with it
+- Collision Distance: controls how much of an offset the fluid has from the surface it's colliding with
+
+### Changed
+
+- Made blood significantly less bad looking, it should now be more like blood.
+- Improved the liquifier
+- Changed up a lot of the internal simulation details, so expect different behavior
+
+### Fixed
+
+- Fixed a sort of rare bug where the iterations/substeps would not apply on game start unless you modified a setting.
+
+## [1.25.3] - 2024-10-09
+
+### Added
+
+- Added all missing icons for every entity or weapon in the addon
+- Added a new icon for the spawnmenu tab
+
+### Fixed
+
+- Fixed the liquifier gun being pretty much unusable
+
+## [1.25.2] - 2024-10-08
+
+### Fixed
+
+- Fixed reflections being slightly off from the game's color correction.
+
+## [1.25.1] - 2024-10-08
+
+### Fixed
+
+- Fixed forcefields not working anymore after the max particles slider was changed.
+
+## [1.25.0] - 2024-10-08
+
+### Added
+
+- Brand-new customization panel for the Gelly Gun (to get there, press M, hit "Mods").
+- Added more effects and polished the Gelly Gun.
+- Added a new control system for the grabber mode (middle click + E), it should be a lot easier to control fluid now.
+- Added the new Gelly Forcefield object to Entities, which allows you to create physical forcefields to control the
+  fluid.
+- A new spawnmenu tab for Gelly, which allows you to easily spawn Gelly objects.
+
+### Changed
+
+- Error messages are now more thorough when a graphical error happens on the GMod side.
+
+### Removed
+
+- Removed old foam system
+
 ## [1.24.2] - 2024-10-07
 
 ### Fixed
