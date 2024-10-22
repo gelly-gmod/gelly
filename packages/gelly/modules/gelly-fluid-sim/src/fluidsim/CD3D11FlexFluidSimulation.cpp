@@ -84,7 +84,8 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		);
 	}
 
-	if (!simData->IsBufferLinked(SimBufferType::VELOCITY)) {
+	if (!simData->IsBufferLinked(SimBufferType::VELOCITY0) ||
+		!simData->IsBufferLinked(SimBufferType::VELOCITY1)) {
 		throw std::runtime_error(
 			"CD3D11FlexFluidSimulation::Initialize: velocity buffer must be "
 			"linked before initializing the simulation."
@@ -167,9 +168,16 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		sizeof(FlexFloat4)
 	);
 
-	sharedBuffers.velocities = NvFlexRegisterD3DBuffer(
+	sharedBuffers.velocities0 = NvFlexRegisterD3DBuffer(
 		library,
-		simData->GetLinkedBuffer(SimBufferType::VELOCITY),
+		simData->GetLinkedBuffer(SimBufferType::VELOCITY0),
+		maxParticles,
+		sizeof(FlexFloat3)
+	);
+
+	sharedBuffers.velocities1 = NvFlexRegisterD3DBuffer(
+		library,
+		simData->GetLinkedBuffer(SimBufferType::VELOCITY1),
 		maxParticles,
 		sizeof(FlexFloat3)
 	);
@@ -395,7 +403,13 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 	);
 	// We always want to fetch velocities to our GPU shared buffer, the
 	// buffers.velocities is for particle updates
-	NvFlexGetVelocities(solver, sharedBuffers.velocities, &copyDesc);
+	NvFlexGetVelocities(
+		solver,
+		sharedBuffers.velocityBufferSwapped ? sharedBuffers.velocities1
+											: sharedBuffers.velocities0,
+		&copyDesc
+	);
+	sharedBuffers.velocityBufferSwapped = !sharedBuffers.velocityBufferSwapped;
 
 	simData->SetActiveFoamParticles(0);
 }

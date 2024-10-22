@@ -1,6 +1,7 @@
 #include "splatting-renderer.h"
 
 #include "pipelines/albedo-downsampling.h"
+#include "pipelines/compute-acceleration.h"
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
 #include "pipelines/surface-filtering.h"
@@ -68,6 +69,11 @@ auto SplattingRenderer::Render() -> void {
 		);
 	}
 #endif
+	computeAcceleration->Dispatch(
+		{static_cast<unsigned int>(createInfo.simData->GetActiveParticles()),
+		 1,
+		 1}
+	);
 
 	if (settings.enableGPUTiming) {
 		durations.ellipsoidSplatting.Start();
@@ -183,6 +189,7 @@ auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
+	computeAcceleration = CreateComputeAccelerationPipeline(pipelineInfo);
 	ellipsoidSplatting =
 		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
 	albedoDownsampling =
@@ -264,8 +271,13 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 	);
 
 	simData->LinkBuffer(
-		SimBufferType::VELOCITY,
-		pipelineInfo.internalBuffers->particleVelocities->GetRawBuffer().Get()
+		SimBufferType::VELOCITY0,
+		pipelineInfo.internalBuffers->particleVelocities0->GetRawBuffer().Get()
+	);
+
+	simData->LinkBuffer(
+		SimBufferType::VELOCITY1,
+		pipelineInfo.internalBuffers->particleVelocities1->GetRawBuffer().Get()
 	);
 
 	simData->LinkBuffer(

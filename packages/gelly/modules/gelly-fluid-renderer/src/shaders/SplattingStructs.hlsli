@@ -12,7 +12,7 @@ struct VS_OUTPUT {
     float4x4 InvQuadric : INVQUADRIC;
     float2 NDCPos : NDCPos;
 	float3 Absorption : ABSORPTION;
-	float3 Velocity : VELOCITY;
+	float Acceleration : ACCELERATION;
 	float Variance : VARIANCE;
 };
 
@@ -20,7 +20,7 @@ struct GS_OUTPUT {
     float4 Pos : SV_Position;
     float4x4 InvQuadric : INVQUADRIC;
 	float3 Absorption : ABSORPTION;
-	float3 Velocity : VELOCITY;
+	float Acceleration : ACCELERATION;
 };
 
 struct PS_OUTPUT {

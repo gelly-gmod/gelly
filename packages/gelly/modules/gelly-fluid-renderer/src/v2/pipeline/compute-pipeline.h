@@ -33,6 +33,7 @@ public:
 		const std::vector<Input> inputs;
 		const std::vector<Output> outputs;
 		const std::vector<std::shared_ptr<Buffer>> constantBuffers;
+		const WorkSize threadGroupSize;
 		const unsigned int repeatCount = 1;
 	};
 
@@ -50,6 +51,7 @@ private:
 	auto SetupReadOnlyInputs() -> void;
 	auto SetupRWInputsAndOutputs() -> void;
 	auto SetupConstantBuffers() -> void;
+	auto TeardownOutputs() -> void;
 };
 
 }  // namespace renderer

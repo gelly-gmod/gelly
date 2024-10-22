@@ -3,7 +3,7 @@
 #include "util/SolveQuadratic.hlsli"
 
 Buffer<float3> g_Absorption : register(t0);
-Buffer<float3> g_Velocity : register(t1);
+Buffer<float> g_Acceleration : register(t1);
 
 float DotInvW(float4 a, float4 b) {
     return a.x*b.x + a.y*b.y + a.z*b.z - a.w*b.w;
@@ -70,7 +70,6 @@ VS_OUTPUT main(VS_INPUT input) {
     output.NDCPos = ndcPos.xy / ndcPos.w;
 
 	output.Absorption = g_Absorption[input.ID];
-	output.Velocity = g_Velocity[input.ID];
-	
+	output.Acceleration = g_Acceleration[input.ID];
     return output;
 }

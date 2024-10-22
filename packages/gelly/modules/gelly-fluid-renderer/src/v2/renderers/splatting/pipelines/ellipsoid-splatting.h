@@ -147,7 +147,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 				  .slot = 0
 			  },
 			  InputBuffer{
-				  .buffer = info.internalBuffers->particleVelocities,
+				  .buffer = info.internalBuffers->particleAccelerations,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 1
 			  },

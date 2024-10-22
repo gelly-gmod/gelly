@@ -4,13 +4,12 @@
 // cuts out tiny particles that are just gonna be noise in the final image
 #define VARIANCE_THRESHOLD 0.7f
 
-
 [maxvertexcount(4)]
 void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
     GS_OUTPUT output = (GS_OUTPUT)0;
 	float4x4 invQuadric = input[0].InvQuadric;
 	float3 absorption = input[0].Absorption;
-	float3 velocity = input[0].Velocity;
+	float acceleration = input[0].Acceleration;
 	float variance = input[0].Variance;
 	float2 ndcPos = input[0].NDCPos;
 
@@ -35,7 +34,7 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> triStream) {
 
     output.InvQuadric = invQuadric;
 	output.Absorption = absorption;
-	output.Velocity = velocity;
+	output.Acceleration = acceleration;
 
     output.Pos = float4(xmin, ymax, 0.5f, 1.0f);
     triStream.Append(output);

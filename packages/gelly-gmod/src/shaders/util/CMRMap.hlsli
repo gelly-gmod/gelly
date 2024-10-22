@@ -14,6 +14,7 @@ source: https://www.shadertoy.com/view/Nd3fR2
 
 namespace util {
 	float3 CMRMapFloat(float t) {
+		t = min(1.f, t);
 		const float3 c0 = float3(-0.046981, 0.001239, 0.005501);
 		const float3 c1 = float3(4.080583, 1.192717, 3.049337);
 		const float3 c2 = float3(-38.877409, 1.524425, 20.200215);

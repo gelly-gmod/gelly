@@ -106,7 +106,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         return float4(transmission * absorption, 1.f); // simple underwater effect
     }
 
-    float velocity = tex2D(depthTex, input.Tex).b * 0.01f;
+    float velocity = tex2D(depthTex, input.Tex).b * 0.002f;
     float thickness = tex2D(thicknessTex, input.Tex).x;
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = WorldPosFromDepth(input.Tex, projectedDepth);
@@ -129,13 +129,16 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         material.r_st_ior.x * material.r_st_ior.x
     ) * diffuseIrradiance * material.diffuseAlbedo;
 
-    float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption) + fresnel * specular;
+	float3 transmission = SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption);
+	transmission += lerp(diffuseIrradiance, float3(1, 1, 1), 0.03f) * velocity;
+
+    float3 specularTransmissionLobe = (1.f - fresnel) * transmission + fresnel * specular;
+
     // inverse fresnel is already applied to the diffuse lobe
     float3 diffuseSpecularLobe = diffuse + fresnel * specular;
     float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
 
     specularTransmissionLobe *= material.r_st_ior.y;
-    specularTransmissionLobe += float3(1.f, 1.f, 1.f) * velocity; // a crude way to mix in aeration
     roughLobe *= (1.f - material.r_st_ior.y);
 
 #if defined(NORMALS_VIEW)
@@ -146,7 +149,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     float curvature = length(fwidth(normal));
     return float4(util::CMRMapFloat(curvature), 1.f);
 #elif defined(VELOCITY_VIEW)
-    return float4(util::CMRMapFloat(tex2D(depthTex, input.Tex).b * 0.1f), 1.f);
+    return float4(util::CMRMapFloat(tex2D(depthTex, input.Tex).b * 0.002f), 1.f);
 #else
     float3 weight = specularTransmissionLobe + roughLobe;
 	return float4(weight, 1.f);

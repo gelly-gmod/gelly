@@ -42,12 +42,15 @@ private:
 	 */
 	struct {
 		NvFlexBuffer *positions;
-		NvFlexBuffer *velocities;
+		NvFlexBuffer *velocities0;
+		NvFlexBuffer *velocities1;
 		NvFlexBuffer *foamPositions;
 		NvFlexBuffer *foamVelocities;
 		NvFlexBuffer *anisotropyQ1Buffer;
 		NvFlexBuffer *anisotropyQ2Buffer;
 		NvFlexBuffer *anisotropyQ3Buffer;
+
+		bool velocityBufferSwapped = false;
 	} sharedBuffers{};
 
 	NvFlexLibrary *library{};

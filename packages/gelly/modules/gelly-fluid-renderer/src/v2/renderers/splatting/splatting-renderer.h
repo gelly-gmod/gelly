@@ -6,6 +6,7 @@
 #include "device.h"
 #include "fluidsim/ISimData.h"
 #include "helpers/rendering/gpu-duration.h"
+#include "pipeline/compute-pipeline.h"
 #include "pipeline/pipeline.h"
 #include "pipelines/pipeline-info.h"
 #include "renderdoc_app.h"
@@ -15,6 +16,7 @@ namespace gelly {
 namespace renderer {
 namespace splatting {
 using PipelinePtr = std::shared_ptr<Pipeline>;
+using ComputePipelinePtr = std::shared_ptr<ComputePipeline>;
 
 class AbsorptionModifier {
 public:
@@ -120,6 +122,7 @@ private:
 	ComPtr<ID3D11Query> query;
 
 	PipelineInfo pipelineInfo;
+	ComputePipelinePtr computeAcceleration;
 	PipelinePtr ellipsoidSplatting;
 	PipelinePtr albedoDownsampling;
 	PipelinePtr surfaceFilteringA;

@@ -22,9 +22,14 @@ auto ComputePipeline::Dispatch(const WorkSize &workSize) -> void {
 
 	for (unsigned int i = 0; i < createInfo.repeatCount; i++) {
 		deviceContext->Dispatch(
-			workSize.width / 4, workSize.height, workSize.depth
+			workSize.width / createInfo.threadGroupSize.width,
+			workSize.height / createInfo.threadGroupSize.height,
+			workSize.depth / createInfo.threadGroupSize.depth
 		);
 	}
+
+	TeardownOutputs();	// surprisingly important! other pipelines wont be able
+						// to use the outputs if we don't do this
 }
 
 auto ComputePipeline::SetupReadOnlyInputs() -> void {
@@ -94,5 +99,13 @@ auto ComputePipeline::SetupConstantBuffers() -> void {
 	}
 }
 
+auto ComputePipeline::TeardownOutputs() -> void {
+	const auto deviceContext = createInfo.device->GetRawDeviceContext();
+	const std::vector<ID3D11UnorderedAccessView *> nullUAVs(8, nullptr);
+
+	deviceContext->CSSetUnorderedAccessViews(
+		0, nullUAVs.size(), nullUAVs.data(), nullptr
+	);
+}
 }  // namespace renderer
 }  // namespace gelly
