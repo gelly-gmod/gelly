@@ -34,6 +34,13 @@ struct InternalBuffers {
 	std::shared_ptr<Buffer> foamPositions = nullptr;
 	std::shared_ptr<Buffer> foamVelocities = nullptr;
 
+	/**
+	 * Nothing to do with acceleration structures, this is just a buffer that
+	 * contains the acceleration vector for each particle, it's used for the
+	 * foam rendering.
+	 */
+	std::shared_ptr<Buffer> particleAccelerations = nullptr;
+
 	cbuffer::FluidRenderCBuffer fluidRenderCBuffer;
 
 	InternalBuffers(
@@ -59,6 +66,17 @@ struct InternalBuffers {
 				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
 				 .cpuAccessFlags = D3D11_CPU_ACCESS_WRITE,
 				 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
+			))
+		),
+		particleAccelerations(
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS}
 			))
 		),
 		anisotropyQ1(
@@ -116,6 +134,7 @@ struct InternalBuffers {
 				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
 			))
 		),
+
 		fluidRenderCBuffer({.device = device}){};
 };
 
