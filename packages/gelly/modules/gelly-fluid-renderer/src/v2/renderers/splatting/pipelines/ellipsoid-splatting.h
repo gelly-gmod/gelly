@@ -26,8 +26,8 @@ inline auto CreateEllipsoidSplattingPipeline(
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
 		.depthStencilState =
-			{.depthTestEnabled = false,
-			 .depthWriteEnabled = false,
+			{.depthTestEnabled = true,
+			 .depthWriteEnabled = true,
 			 .depthComparisonFunc = D3D11_COMPARISON_LESS},
 		.viewportState =
 			{
@@ -61,7 +61,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 					 // manually which is important for the calculating front
 					 // and back
 					 // depth efficiently
-					 .BlendEnable = true,
+					 .BlendEnable = false,
 					 .SrcBlend = D3D11_BLEND_ONE,
 					 .DestBlend = D3D11_BLEND_ONE,
 					 .BlendOp = D3D11_BLEND_OP_MIN,
@@ -146,6 +146,11 @@ inline auto CreateEllipsoidSplattingPipeline(
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
 			  },
+			  InputBuffer{
+				  .buffer = info.internalBuffers->particleVelocities,
+				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				  .slot = 1
+			  },
 			  InputVertexBuffer{
 				  .vertexBuffer = info.internalBuffers->particlePositions,
 				  .slot = 0
@@ -184,7 +189,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 			  .geometryShader = {GS_FROM_GSC(SplattingGS, info.device)},
 			  .constantBuffers =
 				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
-		 .depthBuffer = std::nullopt,
+		 .depthBuffer = info.internalTextures->ellipsoidDepthBuffer,
 		 .defaultVertexCount = 0}
 	);
 }

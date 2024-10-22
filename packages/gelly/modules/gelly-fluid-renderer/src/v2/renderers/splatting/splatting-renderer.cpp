@@ -265,8 +265,7 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 
 	simData->LinkBuffer(
 		SimBufferType::VELOCITY,
-		pipelineInfo.internalBuffers->particleAccelerations->GetRawBuffer().Get(
-		)
+		pipelineInfo.internalBuffers->particleVelocities->GetRawBuffer().Get()
 	);
 
 	simData->LinkBuffer(

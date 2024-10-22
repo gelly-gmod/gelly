@@ -84,6 +84,13 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		);
 	}
 
+	if (!simData->IsBufferLinked(SimBufferType::VELOCITY)) {
+		throw std::runtime_error(
+			"CD3D11FlexFluidSimulation::Initialize: velocity buffer must be "
+			"linked before initializing the simulation."
+		);
+	}
+
 	if (!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q1) ||
 		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q2) ||
 		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q3)) {
@@ -158,6 +165,13 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		simData->GetLinkedBuffer(SimBufferType::POSITION),
 		maxParticles,
 		sizeof(FlexFloat4)
+	);
+
+	sharedBuffers.velocities = NvFlexRegisterD3DBuffer(
+		library,
+		simData->GetLinkedBuffer(SimBufferType::VELOCITY),
+		maxParticles,
+		sizeof(FlexFloat3)
 	);
 
 	sharedBuffers.foamPositions = NvFlexRegisterD3DBuffer(
@@ -379,21 +393,11 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 		sharedBuffers.anisotropyQ3Buffer,
 		&copyDesc
 	);
-	NvFlexGetDiffuseParticles(
-		solver,
-		sharedBuffers.foamPositions,
-		sharedBuffers.foamVelocities,
-		buffers.diffuseParticleCount
-	);
+	// We always want to fetch velocities to our GPU shared buffer, the
+	// buffers.velocities is for particle updates
+	NvFlexGetVelocities(solver, sharedBuffers.velocities, &copyDesc);
 
-	// unfortunately, the GPU runs the diffuse spawning code now so we really
-	// gotta synchronize our CPU particles with the GPU
-	const auto *diffuseParticleCount = static_cast<int *>(
-		NvFlexMap(buffers.diffuseParticleCount, eNvFlexMapWait)
-	);
-
-	simData->SetActiveFoamParticles(*diffuseParticleCount);
-	NvFlexUnmap(buffers.diffuseParticleCount);
+	simData->SetActiveFoamParticles(0);
 }
 
 void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier

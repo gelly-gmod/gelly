@@ -42,6 +42,7 @@ private:
 	 */
 	struct {
 		NvFlexBuffer *positions;
+		NvFlexBuffer *velocities;
 		NvFlexBuffer *foamPositions;
 		NvFlexBuffer *foamVelocities;
 		NvFlexBuffer *anisotropyQ1Buffer;

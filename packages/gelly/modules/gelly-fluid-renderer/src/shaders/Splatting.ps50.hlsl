@@ -45,7 +45,8 @@ PS_OUTPUT main(GS_OUTPUT input) {
     float eyeDepth = eyePos.z;
 
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
-	output.FrontDepth = float2(projectionDepth, -eyeDepth);
+	output.FrontDepth = float3(projectionDepth, -eyeDepth, length(input.Velocity));
 	output.Thickness = 0.1f; // arbitrary value, gets added up to form the thickness
+	output.Depth = projectionDepth;
     return output;
 }

@@ -14,6 +14,7 @@
 // useful defines for offline debugging
 //#define NORMALS_VIEW
 //#define NORMALS_VIEW_DEBUG_CURVATURE
+//#define VELOCITY_VIEW
 sampler2D depthTex : register(s0);
 sampler2D normalTex : register(s1);
 sampler2D backbufferTex : register(s2);
@@ -105,6 +106,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         return float4(transmission * absorption, 1.f); // simple underwater effect
     }
 
+    float velocity = tex2D(depthTex, input.Tex).b * 0.01f;
     float thickness = tex2D(thicknessTex, input.Tex).x;
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = WorldPosFromDepth(input.Tex, projectedDepth);
@@ -133,6 +135,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
 
     specularTransmissionLobe *= material.r_st_ior.y;
+    specularTransmissionLobe += float3(1.f, 1.f, 1.f) * velocity; // a crude way to mix in aeration
     roughLobe *= (1.f - material.r_st_ior.y);
 
 #if defined(NORMALS_VIEW)
@@ -142,6 +145,8 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     // so we just divide by the worldspace size of the fragment
     float curvature = length(fwidth(normal));
     return float4(util::CMRMapFloat(curvature), 1.f);
+#elif defined(VELOCITY_VIEW)
+    return float4(util::CMRMapFloat(tex2D(depthTex, input.Tex).b * 0.1f), 1.f);
 #else
     float3 weight = specularTransmissionLobe + roughLobe;
 	return float4(weight, 1.f);

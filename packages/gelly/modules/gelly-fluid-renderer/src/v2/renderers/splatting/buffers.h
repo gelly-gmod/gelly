@@ -64,7 +64,7 @@ struct InternalBuffers {
 				 .maxElementCount = maxParticles,
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
-				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
 				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
 				 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
 			))
@@ -86,7 +86,10 @@ struct InternalBuffers {
 				 .maxElementCount = maxParticles,
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
-				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
+				 .format =
+					 DXGI_FORMAT_R32_FLOAT,	 // We simply store the magnitude,
+											 // but also know that anything else
+											 // wont work since its a typed UAV.
 				 .bindFlags =
 					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS}
 			))
