@@ -10,7 +10,8 @@ void main(uint3 DTid : SV_DispatchThreadID) {
 	float3 prevVel = previousVelocity[index];
 	float3 currVel = currentVelocity[index];
 	float3 dv = currVel - prevVel;
-	float3 accel = dv / 0.016f; // the simulation has a fixed timestep of 60Hz
-
-	acceleration[index] = length(accel);
+	float3 accel = dv / 0.001f; // the simulation has a fixed timestep of 60Hz
+	float accelMagnitude = length(accel);
+	accelMagnitude /= 400.f;
+	acceleration[index] = accelMagnitude * accelMagnitude;
 }

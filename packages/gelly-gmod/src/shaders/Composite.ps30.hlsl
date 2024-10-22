@@ -106,7 +106,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         return float4(transmission * absorption, 1.f); // simple underwater effect
     }
 
-    float velocity = tex2D(depthTex, input.Tex).b * 0.002f;
+    float velocity = min(tex2D(depthTex, input.Tex).b * 0.008f, 1.f);
     float thickness = tex2D(thicknessTex, input.Tex).x;
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = WorldPosFromDepth(input.Tex, projectedDepth);
@@ -115,7 +115,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     float3 eyeDir = normalize(eyePos.xyz - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
 
-    float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), material.r_st_ior.z);
+    float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), material.r_st_ior.z);``
 
     float3 specular = texCUBE(cubemapTex, reflectionDir).xyz;
 	specular *= CUBEMAP_SCALE;
@@ -130,7 +130,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     ) * diffuseIrradiance * material.diffuseAlbedo;
 
 	float3 transmission = SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption);
-	transmission += lerp(diffuseIrradiance, float3(1, 1, 1), 0.03f) * velocity;
+	transmission += lerp(diffuseIrradiance, diffuseIrradiance * float3(1.5f, 1.5f, 1.5f), 0.03f) * velocity;
 
     float3 specularTransmissionLobe = (1.f - fresnel) * transmission + fresnel * specular;
 

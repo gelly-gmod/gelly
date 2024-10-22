@@ -22,6 +22,7 @@ inline auto ReloadAllGSCShaders() -> void {
 	gsc::EstimateNormalPS::ReloadFromDisk();
 	gsc::ScreenQuadVS::ReloadFromDisk();
 	gsc::FilterDepthPS::ReloadFromDisk();
+	gsc::ComputeAccelerationCS::ReloadFromDisk();
 }
 }  // namespace gelly::renderer::splatting
 #endif	// RELOAD_SHADERS_H
