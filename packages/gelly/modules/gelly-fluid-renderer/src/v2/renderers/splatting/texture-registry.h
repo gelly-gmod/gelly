@@ -68,7 +68,8 @@ struct InternalTextures {
 		const std::shared_ptr<Device> &device,
 		unsigned int width,
 		unsigned int height,
-		float scale
+		float scale,
+		float auxillaryScale
 	) :
 		unfilteredEllipsoidDepth(Texture::CreateTexture(
 			{.device = device,
@@ -102,7 +103,7 @@ struct InternalTextures {
 				  .height = static_cast<unsigned int>(
 					  static_cast<float>(height) * scale
 				  ),
-				  .format = DXGI_FORMAT_R16_FLOAT,
+				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
 				  .usage = D3D11_USAGE_DEFAULT,
 				  .bindFlags =
 					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,

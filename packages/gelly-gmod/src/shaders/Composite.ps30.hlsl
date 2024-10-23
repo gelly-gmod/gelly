@@ -106,8 +106,10 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         return float4(transmission * absorption, 1.f); // simple underwater effect
     }
 
-    float velocity = min(tex2D(depthTex, input.Tex).b * 0.008f, 1.f);
-    float thickness = tex2D(thicknessTex, input.Tex).x;
+    float2 thicknessAndVelocity = tex2D(thicknessTex, input.Tex).xy;
+    float thickness = thicknessAndVelocity.x;
+    float velocity = min(thicknessAndVelocity.y * 0.001f, 1.f);
+
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = WorldPosFromDepth(input.Tex, projectedDepth);
     float3 normal = tex2D(normalTex, input.Tex).xyz;
@@ -115,7 +117,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     float3 eyeDir = normalize(eyePos.xyz - position);
     float3 reflectionDir = reflect(-eyeDir, normal);
 
-    float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), material.r_st_ior.z);``
+    float fresnel = Schlicks(max(dot(normal, eyeDir), 0.0), material.r_st_ior.z);
 
     float3 specular = texCUBE(cubemapTex, reflectionDir).xyz;
 	specular *= CUBEMAP_SCALE;
@@ -149,7 +151,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     float curvature = length(fwidth(normal));
     return float4(util::CMRMapFloat(curvature), 1.f);
 #elif defined(VELOCITY_VIEW)
-    return float4(util::CMRMapFloat(tex2D(depthTex, input.Tex).b * 0.002f), 1.f);
+    return float4(util::CMRMapFloat(velocity), 1.f);
 #else
     float3 weight = specularTransmissionLobe + roughLobe;
 	return float4(weight, 1.f);

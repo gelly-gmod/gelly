@@ -5,6 +5,7 @@
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
 #include "pipelines/surface-filtering.h"
+#include "pipelines/thickness-splatting.h"
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 #include "reload-shaders.h"
 #endif
@@ -86,6 +87,13 @@ auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUTiming) {
 		durations.ellipsoidSplatting.End();
 	}
+
+	SetFrameResolution(
+		thicknessSplatting->GetRenderPass()->GetScaledWidth(),
+		thicknessSplatting->GetRenderPass()->GetScaledHeight()
+	);
+
+	thicknessSplatting->Run(createInfo.simData->GetActiveParticles());
 
 	SetFrameResolution(
 		albedoDownsampling->GetRenderPass()->GetScaledWidth(),
@@ -192,6 +200,8 @@ auto SplattingRenderer::CreatePipelines() -> void {
 	computeAcceleration = CreateComputeAccelerationPipeline(pipelineInfo);
 	ellipsoidSplatting =
 		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
+	thicknessSplatting =
+		CreateThicknessSplattingPipeline(pipelineInfo, createInfo.scale);
 	albedoDownsampling =
 		CreateAlbedoDownsamplingPipeline(pipelineInfo, ALBEDO_OUTPUT_SCALE);
 
@@ -231,7 +241,11 @@ auto SplattingRenderer::UpdateTextureRegistry(
 	pipelineInfo.height = height;
 
 	pipelineInfo.internalTextures = std::make_shared<InternalTextures>(
-		createInfo.device, createInfo.width, createInfo.height, createInfo.scale
+		createInfo.device,
+		createInfo.width,
+		createInfo.height,
+		createInfo.scale,
+		ALBEDO_OUTPUT_SCALE
 	);
 
 	pipelineInfo.outputTextures = std::make_shared<OutputTextures>(
@@ -249,7 +263,8 @@ auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {
 			createInfo.device,
 			createInfo.width,
 			createInfo.height,
-			createInfo.scale
+			createInfo.scale,
+			ALBEDO_OUTPUT_SCALE
 		),
 		.outputTextures = std::make_shared<OutputTextures>(
 			createInfo.device, createInfo.inputSharedHandles

@@ -61,7 +61,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 					 // manually which is important for the calculating front
 					 // and back
 					 // depth efficiently
-					 .BlendEnable = false,
+					 .BlendEnable = true,
 					 .SrcBlend = D3D11_BLEND_ONE,
 					 .DestBlend = D3D11_BLEND_ONE,
 					 .BlendOp = D3D11_BLEND_OP_MIN,
@@ -72,12 +72,12 @@ inline auto CreateEllipsoidSplattingPipeline(
 				 },
 				 D3D11_RENDER_TARGET_BLEND_DESC{
 					 // thickness, we just want to add the values
-					 .BlendEnable = true,
+					 .BlendEnable = false,
 					 .SrcBlend = D3D11_BLEND_ONE,
-					 .DestBlend = D3D11_BLEND_ONE,
+					 .DestBlend = D3D11_BLEND_ZERO,
 					 .BlendOp = D3D11_BLEND_OP_ADD,
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
-					 .DestBlendAlpha = D3D11_BLEND_ONE,
+					 .DestBlendAlpha = D3D11_BLEND_ZERO,
 					 .BlendOpAlpha = D3D11_BLEND_OP_ADD,
 					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
 				 }},

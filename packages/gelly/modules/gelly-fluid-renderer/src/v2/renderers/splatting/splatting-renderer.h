@@ -39,7 +39,7 @@ private:
 
 class SplattingRenderer {
 public:
-	float ALBEDO_OUTPUT_SCALE = 0.25f;
+	float ALBEDO_OUTPUT_SCALE = 0.5f;
 
 	/**
 	 * Timings of all the passes in milliseconds.
@@ -124,6 +124,7 @@ private:
 	PipelineInfo pipelineInfo;
 	ComputePipelinePtr computeAcceleration;
 	PipelinePtr ellipsoidSplatting;
+	PipelinePtr thicknessSplatting;
 	PipelinePtr albedoDownsampling;
 	PipelinePtr surfaceFilteringA;
 	PipelinePtr surfaceFilteringB;
