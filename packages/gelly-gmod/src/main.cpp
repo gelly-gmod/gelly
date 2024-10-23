@@ -748,10 +748,14 @@ LUA_FUNCTION(gelly_GetGellyTimings) {
 	auto timings = compositor->FetchGellyTimings();
 
 	LUA->CreateTable();
+	LUA->PushNumber(timings.computeAcceleration);
+	LUA->SetField(-2, "ComputeAcceleration");
 	LUA->PushNumber(timings.albedoDownsampling);
 	LUA->SetField(-2, "AlbedoDownsampling");
 	LUA->PushNumber(timings.ellipsoidSplatting);
 	LUA->SetField(-2, "EllipsoidSplatting");
+	LUA->PushNumber(timings.thicknessSplatting);
+	LUA->SetField(-2, "ThicknessSplatting");
 	LUA->PushNumber(timings.surfaceFiltering);
 	LUA->SetField(-2, "SurfaceFiltering");
 	LUA->PushNumber(timings.rawNormalEstimation);

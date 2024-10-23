@@ -61,15 +61,20 @@ local function performanceDebugger()
 		settings.EnableGPUTiming = false
 		gelly.SetGellySettings(settings)
 
-		local totalGPUTimeMs = timings.EllipsoidSplatting + timings.AlbedoDownsampling + timings.RawNormalEstimation +
-			timings.SurfaceFiltering
+		local totalGPUTimeMs = 0
+		for _, timing in ipairs(timings) do
+			totalGPUTimeMs = totalGPUTimeMs + timing
+		end
+
 		sampler:RemoveTimingHooks()
 		gelly.SetTimeStepMultiplier(1)
 		gelly.Reset()
 		hook.Remove("CalcView", "gelly.performance-debugger")
 		print("Performance test complete.")
 		print(("Render time (CPU, ms): %.2f"):format(sampler:GetRenderAverage()))
+		print(("    + Compute acceleration: %.2fms"):format(timings.ComputeAcceleration))
 		print(("    + Ellipsoid splatting: %.2fms"):format(timings.EllipsoidSplatting))
+		print(("    + Thickness splatting: %.2fms"):format(timings.ThicknessSplatting))
 		print(("    + Albedo downsampling: %.2fms"):format(timings.AlbedoDownsampling))
 		print(("    + Raw normal estimation: %.2fms"):format(timings.RawNormalEstimation))
 		print(("    + Surface filtering: %.2fms"):format(timings.SurfaceFiltering))

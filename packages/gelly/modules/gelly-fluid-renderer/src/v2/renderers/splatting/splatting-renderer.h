@@ -45,7 +45,9 @@ public:
 	 * Timings of all the passes in milliseconds.
 	 */
 	struct Timings {
+		float computeAcceleration = 0.0f;
 		float ellipsoidSplatting = 0.0f;
+		float thicknessSplatting = 0.0f;
 		float albedoDownsampling = 0.0f;
 		float surfaceFiltering = 0.0f;
 		float rawNormalEstimation = 0.0f;
@@ -136,7 +138,9 @@ private:
 #endif
 
 	struct {
+		util::GPUDuration computeAcceleration;
 		util::GPUDuration ellipsoidSplatting;
+		util::GPUDuration thicknessSplatting;
 		util::GPUDuration albedoDownsampling;
 		util::GPUDuration surfaceFiltering;
 		util::GPUDuration rawNormalEstimation;

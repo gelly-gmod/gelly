@@ -41,7 +41,9 @@ SplattingRenderer::SplattingRenderer(
 	pipelineInfo(CreatePipelineInfo()),
 	query(CreateQuery()),
 	durations(
-		{.ellipsoidSplatting = createInfo.device,
+		{.computeAcceleration = createInfo.device,
+		 .ellipsoidSplatting = createInfo.device,
+		 .thicknessSplatting = createInfo.device,
 		 .albedoDownsampling = createInfo.device,
 		 .surfaceFiltering = createInfo.device,
 		 .rawNormalEstimation = createInfo.device}
@@ -70,11 +72,17 @@ auto SplattingRenderer::Render() -> void {
 		);
 	}
 #endif
+	if (settings.enableGPUTiming) {
+		durations.computeAcceleration.Start();
+	}
 	computeAcceleration->Dispatch(
 		{static_cast<unsigned int>(createInfo.simData->GetActiveParticles()),
 		 1,
 		 1}
 	);
+	if (settings.enableGPUTiming) {
+		durations.computeAcceleration.End();
+	}
 
 	if (settings.enableGPUTiming) {
 		durations.ellipsoidSplatting.Start();
@@ -93,7 +101,13 @@ auto SplattingRenderer::Render() -> void {
 		thicknessSplatting->GetRenderPass()->GetScaledHeight()
 	);
 
+	if (settings.enableGPUTiming) {
+		durations.thicknessSplatting.Start();
+	}
 	thicknessSplatting->Run(createInfo.simData->GetActiveParticles());
+	if (settings.enableGPUTiming) {
+		durations.thicknessSplatting.End();
+	}
 
 	SetFrameResolution(
 		albedoDownsampling->GetRenderPass()->GetScaledWidth(),
@@ -149,8 +163,12 @@ auto SplattingRenderer::Render() -> void {
 	}
 
 	if (settings.enableGPUTiming) {
+		latestTimings.computeAcceleration =
+			durations.computeAcceleration.GetDuration();
 		latestTimings.ellipsoidSplatting =
 			durations.ellipsoidSplatting.GetDuration();
+		latestTimings.thicknessSplatting =
+			durations.thicknessSplatting.GetDuration();
 		latestTimings.albedoDownsampling =
 			durations.albedoDownsampling.GetDuration();
 		latestTimings.surfaceFiltering =
@@ -158,7 +176,9 @@ auto SplattingRenderer::Render() -> void {
 		latestTimings.rawNormalEstimation =
 			durations.rawNormalEstimation.GetDuration();
 
-		latestTimings.isDisjoint = durations.ellipsoidSplatting.IsDisjoint() ||
+		latestTimings.isDisjoint = durations.computeAcceleration.IsDisjoint() ||
+								   durations.ellipsoidSplatting.IsDisjoint() ||
+								   durations.thicknessSplatting.IsDisjoint() ||
 								   durations.albedoDownsampling.IsDisjoint() ||
 								   durations.surfaceFiltering.IsDisjoint() ||
 								   durations.rawNormalEstimation.IsDisjoint();
