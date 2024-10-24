@@ -62,6 +62,7 @@ private:
 	uint maxContactsPerParticle = 6;
 	int substeps = 3;
 	float timeStepMultiplier = 1.f;
+	float diffuseLifetime = 2.f;
 
 	struct {
 		bool deferFlag : 1;

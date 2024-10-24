@@ -50,7 +50,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
 		albedo += albedoTaps[i] * gaussianKernel_3x3[i];
 	};
 
-	float2 foamDepth = InputThickness.Sample(InputThicknessSampler, uv).gb;
+	float foamThickness = InputThickness.Sample(InputThicknessSampler, uv).b;
 	float2 thicknessTaps[9] = {
 		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, -1) * texelSize).ra,
 		InputThickness.Sample(InputThicknessSampler, uv + float2(0, -1) * texelSize).ra,
@@ -78,6 +78,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	}
 	
 	output.Albedo = float4(albedo, 1.0f);
-	output.Thickness = float4(thickness, foamDepth); // preserve depth and reorder to (thickness, acceleration, foam, depth)
+	output.Thickness = float4(thickness.r, 0.f, foamThickness, thickness.g); // R: Thickness, G: Unused B: Foam Thickness, A: Acceleration
 	return output;
 }

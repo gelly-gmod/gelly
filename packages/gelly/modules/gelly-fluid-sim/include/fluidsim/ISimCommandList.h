@@ -31,6 +31,14 @@ struct SetFluidProperties {
 	float restDistanceRatio = 0.73f;
 };
 
+struct SetDiffuseProperties {
+	float ballisticCount = 0.f;
+	float kineticThreshold = 0.f;
+	float buoyancy = 0.f;
+	float drag = 0.f;
+	float lifetime = 0.f;
+};
+
 struct Reset {};
 
 struct Configure {
@@ -42,11 +50,12 @@ struct Configure {
 };
 
 enum SimCommandType {
-	ADD_PARTICLE = 0b00001,
-	CHANGE_RADIUS = 0b00010,
-	RESET = 0b00100,
-	SET_FLUID_PROPERTIES = 0b01000,
-	CONFIGURE = 0b10000
+	ADD_PARTICLE = 0b000001,
+	CHANGE_RADIUS = 0b000010,
+	RESET = 0b000100,
+	SET_FLUID_PROPERTIES = 0b001000,
+	CONFIGURE = 0b010000,
+	SET_DIFFUSE_PROPERTIES = 0b100000,
 };
 
 struct SimCommand {

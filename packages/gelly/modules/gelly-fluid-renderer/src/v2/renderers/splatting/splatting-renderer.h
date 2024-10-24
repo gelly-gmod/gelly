@@ -127,6 +127,7 @@ private:
 	PipelineInfo pipelineInfo;
 	ComputePipelinePtr computeAcceleration;
 	PipelinePtr spraySplatting;
+	PipelinePtr spraySplattingDepth;
 	PipelinePtr ellipsoidSplatting;
 	PipelinePtr thicknessSplatting;
 	PipelinePtr albedoDownsampling;

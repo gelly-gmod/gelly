@@ -8,6 +8,7 @@
 #include <memory>
 #include <optional>
 
+#include "FoamDepthPS.h"
 #include "FoamGS.h"
 #include "FoamPS.h"
 #include "FoamVS.h"
@@ -24,13 +25,13 @@ namespace renderer {
 namespace splatting {
 
 inline auto CreateSpraySplattingPipeline(
-	const PipelineInfo &info, float outputScale = 1.f
+	const PipelineInfo &info, float outputScale = 1.f, bool depthOnly = false
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
 		.depthStencilState =
-			{.depthTestEnabled = true,
-			 .depthWriteEnabled = true,
+			{.depthTestEnabled = depthOnly,
+			 .depthWriteEnabled = depthOnly,
 			 .depthComparisonFunc = D3D11_COMPARISON_LESS},
 		.viewportState =
 			{
@@ -52,20 +53,21 @@ inline auto CreateSpraySplattingPipeline(
 				// thickness, we just want to add the values
 				.BlendEnable = true,
 				.SrcBlend = D3D11_BLEND_ONE,
-				.DestBlend = D3D11_BLEND_ZERO,
+				.DestBlend = !depthOnly ? D3D11_BLEND_ONE : D3D11_BLEND_ZERO,
 				.BlendOp = D3D11_BLEND_OP_ADD,
 				.SrcBlendAlpha = D3D11_BLEND_ONE,
-				.DestBlendAlpha = D3D11_BLEND_ZERO,
+				.DestBlendAlpha =
+					!depthOnly ? D3D11_BLEND_ONE : D3D11_BLEND_ZERO,
 				.BlendOpAlpha = D3D11_BLEND_OP_ADD,
-				.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED |
-										 D3D11_COLOR_WRITE_ENABLE_GREEN |
-										 D3D11_COLOR_WRITE_ENABLE_BLUE,
+				.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_BLUE
 			}},
 		}},
 		.outputScale = outputScale
 	});
 
 	const auto vertexShader = VS_FROM_GSC(FoamVS, info.device);
+	const auto pixelShader = depthOnly ? PS_FROM_GSC(FoamDepthPS, info.device)
+									   : PS_FROM_GSC(FoamPS, info.device);
 
 	const auto inputLayout =
 		std::make_shared<InputLayout>(InputLayout::InputLayoutCreateInfo{
@@ -107,19 +109,25 @@ inline auto CreateSpraySplattingPipeline(
 				  .slot = 1
 			  }},
 		 .outputs = {OutputTexture{
-			 .texture = info.internalTextures->unfilteredThickness,
+			 .texture = depthOnly ? info.outputTextures->ellipsoidDepth
+								  : info.internalTextures->unfilteredThickness,
 			 .bindFlag = D3D11_BIND_RENDER_TARGET,
 			 .slot = 0,
 			 .clearColor = {0.f, 0.f, 0.f, 0.f},
 			 .clear = false,
 		 }},
 		 .shaderGroup =
-			 {.pixelShader = PS_FROM_GSC(FoamPS, info.device),
+			 {.pixelShader = pixelShader,
 			  .vertexShader = vertexShader,
 			  .geometryShader = {GS_FROM_GSC(FoamGS, info.device)},
 			  .constantBuffers =
 				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
-		 .depthBuffer = info.internalTextures->ellipsoidDepthBuffer,
+		 .depthBuffer =
+			 depthOnly
+				 ? std::optional<
+					   std::shared_ptr<DepthBuffer>>{info.internalTextures
+														 ->ellipsoidDepthBuffer}
+				 : std::nullopt,
 		 .defaultVertexCount = 0}
 	);
 }

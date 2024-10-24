@@ -65,7 +65,9 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 void CD3D11FlexFluidSimulation::SetMaxParticles(const int maxParticles) {
 	this->maxParticles = maxParticles;
 	simData->SetMaxParticles(maxParticles);
-	simData->SetMaxFoamParticles(maxParticles);
+	simData->SetMaxFoamParticles(
+		static_cast<int>(static_cast<float>(maxParticles) * 2.f)
+	);
 }
 
 void CD3D11FlexFluidSimulation::Initialize() {
@@ -295,6 +297,13 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					solverParams.relaxationFactor = arg.relaxationFactor;
 					solverParams.collisionDistance = arg.collisionDistance;
 					solverParams.gravity[2] = arg.gravity;
+				} else if constexpr (std::is_same_v<T, SetDiffuseProperties>) {
+					solverParams.diffuseThreshold = arg.kineticThreshold;
+					solverParams.diffuseBallistic = arg.ballisticCount;
+					solverParams.diffuseBuoyancy = arg.buoyancy;
+					solverParams.diffuseDrag = arg.drag;
+					solverParams.diffuseLifetime =
+						arg.lifetime * timeStepMultiplier;
 				}
 			},
 			command.data
@@ -432,7 +441,7 @@ void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier
 ) {
 	this->timeStepMultiplier = timeStepMultiplier;
 
-	solverParams.diffuseLifetime = 2.f * timeStepMultiplier;
+	solverParams.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
@@ -480,11 +489,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.vorticityConfinement = 1.0f;
 	solverParams.buoyancy = 1.0f;
 
-	solverParams.diffuseBallistic = 0;
-	solverParams.diffuseThreshold = 100.f;
-	solverParams.diffuseBuoyancy = 1.f;
-	solverParams.diffuseDrag = 0.2f;
-	solverParams.diffuseLifetime = 2.f * timeStepMultiplier;
+	solverParams.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
 }
 
 void CD3D11FlexFluidSimulation::DebugDumpParams() {

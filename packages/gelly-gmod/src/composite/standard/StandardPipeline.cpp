@@ -383,7 +383,7 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
-	CompositeFoam();
+	CompositeFoam(false);
 	UpdateBackBuffer();
 
 	stateBlock->Capture();
@@ -433,10 +433,10 @@ void StandardPipeline::Composite() {
 
 	// Then we composite foam again so that the foam's alpha blend includes the
 	// newly rendered composite, otherwise it's going to show the background
-	CompositeFoam();
+	CompositeFoam(false);
 }
 
-void StandardPipeline::CompositeFoam() {
+void StandardPipeline::CompositeFoam(bool writeDepth) {
 	auto &device = gmodResources.device;
 	stateBlock->Capture();
 
@@ -444,14 +444,16 @@ void StandardPipeline::CompositeFoam() {
 	device->SetPixelShader(compositeFoamShader.Get());
 
 	SetCompositeSamplerState(0, D3DTEXF_LINEAR);
+	SetCompositeSamplerState(1, D3DTEXF_POINT);
 
 	device->SetTexture(0, textures->gmodTextures.thickness.Get());
+	device->SetTexture(1, textures->gmodTextures.depth.Get());
 
 	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
 	device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+	device->SetRenderState(D3DRS_ZWRITEENABLE, writeDepth);
 
 	// Ensures that any left over decal rendering doesn't interfere with the
 	// composite
@@ -459,7 +461,6 @@ void StandardPipeline::CompositeFoam() {
 	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 

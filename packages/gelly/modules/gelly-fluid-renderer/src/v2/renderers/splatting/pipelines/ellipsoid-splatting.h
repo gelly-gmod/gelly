@@ -68,7 +68,8 @@ inline auto CreateEllipsoidSplattingPipeline(
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
 					 .DestBlendAlpha = D3D11_BLEND_ONE,
 					 .BlendOpAlpha = D3D11_BLEND_OP_MIN,
-					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED |
+											  D3D11_COLOR_WRITE_ENABLE_GREEN
 				 },
 				 D3D11_RENDER_TARGET_BLEND_DESC{
 					 // thickness, we just want to add the values
@@ -181,7 +182,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 				  .texture = info.internalTextures->unfilteredThickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
-				  .clearColor = {0.f, 0.f, 1.f, 0.f},
+				  .clearColor = {0.f, 0.f, 0.f, 0.f},
 				  .clear = true
 			  }},
 		 .shaderGroup =

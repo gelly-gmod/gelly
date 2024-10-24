@@ -92,6 +92,13 @@ auto SplattingRenderer::Render() -> void {
 		createInfo.simData->GetActiveParticles()
 	);
 
+	// populate depth only, the next pass populates density (additive)
+	RunPipeline(
+		spraySplattingDepth,
+		durations.spraySplatting,
+		createInfo.simData->GetActiveFoamParticles()
+	);
+
 	RunPipeline(
 		spraySplatting,
 		durations.spraySplatting,
@@ -192,6 +199,8 @@ auto SplattingRenderer::CreatePipelines() -> void {
 	computeAcceleration = CreateComputeAccelerationPipeline(pipelineInfo);
 	spraySplatting =
 		CreateSpraySplattingPipeline(pipelineInfo, createInfo.scale);
+	spraySplattingDepth =
+		CreateSpraySplattingPipeline(pipelineInfo, createInfo.scale, true);
 	ellipsoidSplatting =
 		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
 	thicknessSplatting =

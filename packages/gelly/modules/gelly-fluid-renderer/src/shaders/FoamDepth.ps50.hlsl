@@ -1,3 +1,4 @@
+#define ADD_DEPTH
 #include "FoamStructs.hlsli"
 #include "FluidRenderCBuffer.hlsli"
 
@@ -26,12 +27,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
     CalculateNormal(input.Tex, normal, magnitude);
     ClipQuadCorners(magnitude);
 
-    float lifetime = input.LifeTime;
-    float lifeTimeFade = min(1.f, lifetime * 0.125f);
-    float velocityFade = input.ViewVelocity.w;
-
-    float foamThickness = lifeTimeFade * velocityFade * sqr(normal.z) * 0.8f;
-
-    output.Thickness = float3(0.f, 0.f, foamThickness);
+	output.HighPrecisionDepth = float3(0.f, 0.f, input.Pos.z);
+    output.Depth = input.Pos.z;
     return output;
 }
