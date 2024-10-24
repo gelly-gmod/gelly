@@ -12,6 +12,12 @@ static float2 corners[4] = {
 void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
 	float4 viewPosition = float4(input[0].Pos.xyz, 1.f);
 	viewPosition = mul(g_View, viewPosition);
+	float4 cullingNDCPos = mul(g_Projection, viewPosition);
+	cullingNDCPos /= cullingNDCPos.w;
+
+	if (any(abs(cullingNDCPos.xy)) > 1.0) {
+		return;
+	}
 
 	[unroll]
 	for (int i = 0; i < 4; i++) {

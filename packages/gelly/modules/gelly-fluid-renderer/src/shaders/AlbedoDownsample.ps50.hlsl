@@ -18,6 +18,14 @@ static float gaussianKernel_3x3[9] = {
 	1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f
 };
 
+// we extend out a max of 24 pixels, but to save on time we'll bake a jittered kernel since
+// it's *really* hard to tell the pattern and it's not worth the time to compute it like the
+// depth filter, where we have pass-correlated random noise such that we can't see the pattern
+static float albedo_jitter[9] = {
+	13.73, 21.31, 13.73,
+	17.61, 8.32f, 11.61,
+	3.73, 16.31, 9.73
+};
 
 PS_OUTPUT main(VS_OUTPUT input) {
 	PS_OUTPUT output = (PS_OUTPUT)0;
@@ -25,15 +33,15 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	float2 texelSize = float2(1.0 / g_ViewportWidth, 1.0 / g_ViewportHeight);
 
 	float3 albedoTaps[9] = {
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(-1, -1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(0, -1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(1, -1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(-1, 0) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(0, 0) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(1, 0) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(-1, 1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(0, 1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(1, 1) * texelSize).rgb
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, -1) * albedo_jitter[0]) * texelSize).rgb,
+	InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, -1) * albedo_jitter[1]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(1, -1) * albedo_jitter[2]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, 0) * albedo_jitter[3]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, 0) * albedo_jitter[4]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(1, 0) * albedo_jitter[5]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, 1) * albedo_jitter[6]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, 1) * albedo_jitter[7]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(1, 1) * albedo_jitter[8]) * texelSize).rgb
 	};
 
 	float3 albedo = 0;

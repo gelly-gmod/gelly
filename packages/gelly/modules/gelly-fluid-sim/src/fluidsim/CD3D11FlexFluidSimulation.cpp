@@ -401,6 +401,13 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 		sharedBuffers.anisotropyQ3Buffer,
 		&copyDesc
 	);
+	NvFlexGetDiffuseParticles(
+		solver,
+		sharedBuffers.foamPositions,
+		sharedBuffers.foamVelocities,
+		buffers.diffuseParticleCount
+	);
+
 	// We always want to fetch velocities to our GPU shared buffer, the
 	// buffers.velocities is for particle updates
 	NvFlexGetVelocities(
@@ -411,7 +418,14 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 	);
 	sharedBuffers.velocityBufferSwapped = !sharedBuffers.velocityBufferSwapped;
 
-	simData->SetActiveFoamParticles(0);
+	// unfortunately, the GPU runs the diffuse spawning code now so we really
+	// gotta synchronize our CPU particles with the GPU
+	const auto *diffuseParticleCount = static_cast<int *>(
+		NvFlexMap(buffers.diffuseParticleCount, eNvFlexMapWait)
+	);
+
+	simData->SetActiveFoamParticles(*diffuseParticleCount);
+	NvFlexUnmap(buffers.diffuseParticleCount);
 }
 
 void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier
