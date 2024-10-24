@@ -60,9 +60,14 @@ enum SimCommandType {
 
 struct SimCommand {
 	SimCommandType type;
-	std::
-		variant<AddParticle, Reset, ChangeRadius, SetFluidProperties, Configure>
-			data;
+	std::variant<
+		AddParticle,
+		Reset,
+		ChangeRadius,
+		SetFluidProperties,
+		SetDiffuseProperties,
+		Configure>
+		data;
 };
 }  // namespace SimCommands
 }  // namespace Gelly

@@ -612,6 +612,34 @@ LUA_FUNCTION(gelly_SetRenderSettings) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetDiffuseProperties) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
+
+	gelly::gmod::helpers::LuaTable diffuseTable(LUA);
+	const auto ballisticCount = diffuseTable.Get("BallisticCount", 0.f);
+	const auto kineticThreshold = diffuseTable.Get("KineticThreshold", 0.f);
+	const auto buoyancy = diffuseTable.Get("Buoyancy", 0.f);
+	const auto drag = diffuseTable.Get("Drag", 0.f);
+	const auto lifetime = diffuseTable.Get("Lifetime", 0.f);
+
+	SetDiffuseProperties command = {
+		.ballisticCount = ballisticCount,
+		.kineticThreshold = kineticThreshold,
+		.buoyancy = buoyancy,
+		.drag = drag,
+		.lifetime = lifetime
+	};
+
+	const auto commandList = sim->CreateCommandList();
+	commandList->AddCommand(
+		SimCommand{SET_DIFFUSE_PROPERTIES, SetDiffuseProperties{command}}
+	);
+	sim->ExecuteCommandList(commandList);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 LUA_FUNCTION(gelly_SetDiffuseScale) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);

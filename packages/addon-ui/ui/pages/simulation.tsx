@@ -5,6 +5,7 @@ import Explanation, {
 } from "../components/Explanation.tsx";
 import SlidersExplanationLayout, {
 	ExplanationColumn,
+	HorizontalSeparator,
 	Separator,
 	Sliders,
 } from "../layouts/SlidersExplanationLayout.tsx";
@@ -31,6 +32,14 @@ export default function Simulation() {
 	);
 	const [gravity, setGravity] = useSettingValue("simulation_gravity");
 	const [maxParticles, setMaxParticles] = useSettingValue("max_particles");
+	const [sprayThreshold, setSprayThreshold] =
+		useSettingValue("spray_threshold");
+	const [sprayDrag, setSprayDrag] = useSettingValue("spray_drag");
+	const [sprayBuoyancy, setSprayBuoyancy] = useSettingValue("spray_buoyancy");
+	const [sprayLifetime, setSprayLifetime] = useSettingValue("spray_lifetime");
+	const [sprayScale, setSprayScale] = useSettingValue("spray_scale");
+	const [sprayMotionBlur, setSprayMotionBlur] =
+		useSettingValue("spray_motion_blur");
 
 	return (
 		<SlidersExplanationLayout>
@@ -128,6 +137,81 @@ export default function Simulation() {
 					value={gravity}
 					setValue={setGravity}
 					label="Gravity"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<ExplanationHeader>Spray Settings</ExplanationHeader>
+				<HorizontalSeparator />
+
+				<Slider
+					min={0}
+					max={250}
+					step={1}
+					unit={"hu/s"}
+					label="Spray Threshold"
+					value={sprayThreshold}
+					setValue={setSprayThreshold}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<Slider
+					min={0}
+					max={3}
+					step={0.1}
+					unit=""
+					label="Spray Drag"
+					value={sprayDrag}
+					setValue={setSprayDrag}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit=""
+					label="Spray Buoyancy"
+					value={sprayBuoyancy}
+					setValue={setSprayBuoyancy}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<Slider
+					min={0}
+					max={10}
+					step={0.1}
+					unit="s"
+					label="Spray Lifetime"
+					value={sprayLifetime}
+					setValue={setSprayLifetime}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<Slider
+					min={0}
+					max={4}
+					step={0.1}
+					unit="x"
+					label="Spray Scale"
+					value={sprayScale}
+					setValue={setSprayScale}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+				/>
+
+				<Slider
+					min={0}
+					max={10}
+					step={0.1}
+					unit=""
+					label="Spray Motion Blur"
+					value={sprayMotionBlur}
+					setValue={setSprayMotionBlur}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 				/>
