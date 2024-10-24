@@ -181,7 +181,8 @@ inline auto CreateEllipsoidSplattingPipeline(
 				  .texture = info.internalTextures->unfilteredThickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
-				  .clearColor = {0.f, 0.f, 0.f, 0.f}
+				  .clearColor = {0.f, 0.f, 0.f, 0.f},
+				  .clear = false,
 			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),

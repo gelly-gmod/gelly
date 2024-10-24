@@ -46,6 +46,7 @@ public:
 	 */
 	struct Timings {
 		float computeAcceleration = 0.0f;
+		float spraySplatting = 0.0f;
 		float ellipsoidSplatting = 0.0f;
 		float thicknessSplatting = 0.0f;
 		float albedoDownsampling = 0.0f;
@@ -125,6 +126,7 @@ private:
 
 	PipelineInfo pipelineInfo;
 	ComputePipelinePtr computeAcceleration;
+	PipelinePtr spraySplatting;
 	PipelinePtr ellipsoidSplatting;
 	PipelinePtr thicknessSplatting;
 	PipelinePtr albedoDownsampling;
@@ -139,6 +141,7 @@ private:
 
 	struct {
 		util::GPUDuration computeAcceleration;
+		util::GPUDuration spraySplatting;
 		util::GPUDuration ellipsoidSplatting;
 		util::GPUDuration thicknessSplatting;
 		util::GPUDuration albedoDownsampling;
