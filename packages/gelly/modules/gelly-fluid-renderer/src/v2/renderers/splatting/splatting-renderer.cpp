@@ -85,72 +85,26 @@ auto SplattingRenderer::Render() -> void {
 		durations.computeAcceleration.End();
 	}
 
-	if (settings.enableGPUTiming) {
-		durations.spraySplatting.Start();
-	}
-
-	SetFrameResolution(
-		spraySplatting->GetRenderPass()->GetScaledWidth(),
-		spraySplatting->GetRenderPass()->GetScaledHeight()
+	RunPipeline(
+		spraySplatting,
+		durations.spraySplatting,
+		createInfo.simData->GetActiveFoamParticles()
 	);
 
-	spraySplatting->Run(createInfo.simData->GetActiveFoamParticles());
-
-	if (settings.enableGPUTiming) {
-		durations.spraySplatting.End();
-	}
-
-	if (settings.enableGPUTiming) {
-		durations.ellipsoidSplatting.Start();
-	}
-	SetFrameResolution(
-		ellipsoidSplatting->GetRenderPass()->GetScaledWidth(),
-		ellipsoidSplatting->GetRenderPass()->GetScaledHeight()
-	);
-	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
-	if (settings.enableGPUTiming) {
-		durations.ellipsoidSplatting.End();
-	}
-
-	SetFrameResolution(
-		thicknessSplatting->GetRenderPass()->GetScaledWidth(),
-		thicknessSplatting->GetRenderPass()->GetScaledHeight()
+	RunPipeline(
+		ellipsoidSplatting,
+		durations.ellipsoidSplatting,
+		createInfo.simData->GetActiveParticles()
 	);
 
-	if (settings.enableGPUTiming) {
-		durations.thicknessSplatting.Start();
-	}
-	thicknessSplatting->Run(createInfo.simData->GetActiveParticles());
-	if (settings.enableGPUTiming) {
-		durations.thicknessSplatting.End();
-	}
+	RunPipeline(
+		thicknessSplatting,
+		durations.thicknessSplatting,
+		createInfo.simData->GetActiveParticles()
+	);
 
-	SetFrameResolution(
-		albedoDownsampling->GetRenderPass()->GetScaledWidth(),
-		albedoDownsampling->GetRenderPass()->GetScaledHeight()
-	);
-	if (settings.enableGPUTiming) {
-		durations.albedoDownsampling.Start();
-	}
-	albedoDownsampling->Run();
-	if (settings.enableGPUTiming) {
-		durations.albedoDownsampling.End();
-	}
-	SetFrameResolution(
-		surfaceFilteringA->GetRenderPass()->GetScaledWidth(),
-		surfaceFilteringA->GetRenderPass()->GetScaledHeight()
-	);
-	if (settings.enableGPUTiming) {
-		durations.rawNormalEstimation.Start();
-	}
-	SetFrameResolution(
-		rawNormalEstimation->GetRenderPass()->GetScaledWidth(),
-		rawNormalEstimation->GetRenderPass()->GetScaledHeight()
-	);
-	rawNormalEstimation->Run();
-	if (settings.enableGPUTiming) {
-		durations.rawNormalEstimation.End();
-	}
+	RunPipeline(albedoDownsampling, durations.albedoDownsampling);
+	RunPipeline(rawNormalEstimation, durations.rawNormalEstimation);
 
 	if (settings.enableGPUTiming) {
 		durations.surfaceFiltering.Start();
@@ -159,6 +113,7 @@ auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUTiming) {
 		durations.surfaceFiltering.End();
 	}
+
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->EndFrameCapture(
@@ -472,6 +427,27 @@ auto SplattingRenderer::CreateQuery() -> ComPtr<ID3D11Query> {
 	);
 
 	return query;
+}
+
+auto SplattingRenderer::RunPipeline(
+	PipelinePtr pipeline,
+	util::GPUDuration &duration,
+	const std::optional<int> vertexCount
+) -> void {
+	if (settings.enableGPUTiming) {
+		duration.Start();
+	}
+
+	SetFrameResolution(
+		pipeline->GetRenderPass()->GetScaledWidth(),
+		pipeline->GetRenderPass()->GetScaledHeight()
+	);
+
+	pipeline->Run(vertexCount);
+
+	if (settings.enableGPUTiming) {
+		duration.End();
+	}
 }
 
 }  // namespace splatting

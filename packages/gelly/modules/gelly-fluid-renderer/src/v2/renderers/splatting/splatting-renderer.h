@@ -165,6 +165,12 @@ private:
 	auto CreateAbsorptionModifier(
 		const std::shared_ptr<Buffer> &absorptionBuffer
 	) const -> std::shared_ptr<AbsorptionModifier>;
+
+	auto RunPipeline(
+		PipelinePtr pipeline,
+		util::GPUDuration &duration,
+		std::optional<int> vertexCount = std::nullopt
+	) -> void;
 };
 
 }  // namespace splatting
