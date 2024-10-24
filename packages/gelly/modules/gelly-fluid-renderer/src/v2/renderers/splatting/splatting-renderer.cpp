@@ -87,15 +87,15 @@ auto SplattingRenderer::Render() -> void {
 	}
 
 	RunPipeline(
-		spraySplatting,
-		durations.spraySplatting,
-		createInfo.simData->GetActiveFoamParticles()
-	);
-
-	RunPipeline(
 		ellipsoidSplatting,
 		durations.ellipsoidSplatting,
 		createInfo.simData->GetActiveParticles()
+	);
+
+	RunPipeline(
+		spraySplatting,
+		durations.spraySplatting,
+		createInfo.simData->GetActiveFoamParticles()
 	);
 
 	RunPipeline(

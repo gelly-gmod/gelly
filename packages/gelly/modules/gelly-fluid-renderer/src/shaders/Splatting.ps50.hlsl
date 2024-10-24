@@ -46,7 +46,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
 	output.Absorption = float4(input.Absorption.xyz, 1.f);
 	output.FrontDepth = float2(projectionDepth, -eyeDepth);
-	output.Thickness = float2(0.f, input.Acceleration); // another pass handles the thickness (r channel), we just set acceleration (g channel),
+	output.Thickness = float4(0.f, 0.f, 1.f, input.Acceleration); // another pass handles the thickness (r channel), we just set acceleration (g channel),
 														// it may seem complicated but it's extremely efficient on the client side (gmod needs to just do 1 sample)
 	output.Depth = projectionDepth;
     return output;

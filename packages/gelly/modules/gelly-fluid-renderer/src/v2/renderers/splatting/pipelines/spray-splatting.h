@@ -50,14 +50,16 @@ inline auto CreateSpraySplattingPipeline(
 			.independentBlendEnable = true,
 			.renderTarget = {D3D11_RENDER_TARGET_BLEND_DESC{
 				// thickness, we just want to add the values
-				.BlendEnable = false,
+				.BlendEnable = true,
 				.SrcBlend = D3D11_BLEND_ONE,
 				.DestBlend = D3D11_BLEND_ZERO,
 				.BlendOp = D3D11_BLEND_OP_ADD,
 				.SrcBlendAlpha = D3D11_BLEND_ONE,
 				.DestBlendAlpha = D3D11_BLEND_ZERO,
 				.BlendOpAlpha = D3D11_BLEND_OP_ADD,
-				.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+				.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED |
+										 D3D11_COLOR_WRITE_ENABLE_GREEN |
+										 D3D11_COLOR_WRITE_ENABLE_BLUE,
 			}},
 		}},
 		.outputScale = outputScale
@@ -108,7 +110,8 @@ inline auto CreateSpraySplattingPipeline(
 			 .texture = info.internalTextures->unfilteredThickness,
 			 .bindFlag = D3D11_BIND_RENDER_TARGET,
 			 .slot = 0,
-			 .clearColor = {0.f, 0.f, 0.f, 1.f}
+			 .clearColor = {0.f, 0.f, 0.f, 0.f},
+			 .clear = false,
 		 }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(FoamPS, info.device),

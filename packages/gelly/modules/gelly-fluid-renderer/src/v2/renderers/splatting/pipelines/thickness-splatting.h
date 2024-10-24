@@ -56,8 +56,7 @@ inline auto CreateThicknessSplattingPipeline(
 				.SrcBlendAlpha = D3D11_BLEND_ONE,
 				.DestBlendAlpha = D3D11_BLEND_ONE,
 				.BlendOpAlpha = D3D11_BLEND_OP_ADD,
-				.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL
-
+				.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED,
 			}},
 		}},
 		.outputScale = outputScale

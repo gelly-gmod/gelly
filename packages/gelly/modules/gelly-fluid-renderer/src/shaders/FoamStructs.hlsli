@@ -15,6 +15,6 @@ struct GS_OUTPUT {
 };
 
 struct PS_OUTPUT {
-    float4 Thickness : SV_TARGET0;
+    float3 Thickness : SV_TARGET0;
     float Depth : SV_DEPTH;
 };
