@@ -4,6 +4,7 @@
 #include "pipelines/compute-acceleration.h"
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
+#include "pipelines/spray-splatting.h"
 #include "pipelines/surface-filtering.h"
 #include "pipelines/thickness-splatting.h"
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
@@ -82,6 +83,21 @@ auto SplattingRenderer::Render() -> void {
 	);
 	if (settings.enableGPUTiming) {
 		durations.computeAcceleration.End();
+	}
+
+	if (settings.enableGPUTiming) {
+		durations.spraySplatting.Start();
+	}
+
+	SetFrameResolution(
+		spraySplatting->GetRenderPass()->GetScaledWidth(),
+		spraySplatting->GetRenderPass()->GetScaledHeight()
+	);
+
+	spraySplatting->Run(createInfo.simData->GetActiveFoamParticles());
+
+	if (settings.enableGPUTiming) {
+		durations.spraySplatting.End();
 	}
 
 	if (settings.enableGPUTiming) {
@@ -218,6 +234,8 @@ auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 
 auto SplattingRenderer::CreatePipelines() -> void {
 	computeAcceleration = CreateComputeAccelerationPipeline(pipelineInfo);
+	spraySplatting =
+		CreateSpraySplattingPipeline(pipelineInfo, createInfo.scale);
 	ellipsoidSplatting =
 		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
 	thicknessSplatting =
