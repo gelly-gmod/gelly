@@ -9,7 +9,7 @@ SamplerState InputThicknessSampler : register(s1);
 
 struct PS_OUTPUT {
 	float4 Albedo : SV_Target0;
-	float2 Thickness : SV_Target1;
+	float4 Thickness : SV_Target1;
 };
 
 static float gaussianKernel_3x3[9] = {
@@ -34,7 +34,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
 
 	float3 albedoTaps[9] = {
 		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, -1) * albedo_jitter[0]) * texelSize).rgb,
-	InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, -1) * albedo_jitter[1]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, -1) * albedo_jitter[1]) * texelSize).rgb,
 		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(1, -1) * albedo_jitter[2]) * texelSize).rgb,
 		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, 0) * albedo_jitter[3]) * texelSize).rgb,
 		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, 0) * albedo_jitter[4]) * texelSize).rgb,
@@ -50,6 +50,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
 		albedo += albedoTaps[i] * gaussianKernel_3x3[i];
 	};
 
+	float2 foamDepth = InputThickness.Sample(InputThicknessSampler, uv).ba;
 	float2 thicknessTaps[9] = {
 		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, -1) * texelSize).rg,
 		InputThickness.Sample(InputThicknessSampler, uv + float2(0, -1) * texelSize).rg,
@@ -77,6 +78,6 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	}
 	
 	output.Albedo = float4(albedo, 1.0f);
-	output.Thickness = thickness;
+	output.Thickness = float4(thickness, foamDepth); // preserve depth
 	return output;
 }

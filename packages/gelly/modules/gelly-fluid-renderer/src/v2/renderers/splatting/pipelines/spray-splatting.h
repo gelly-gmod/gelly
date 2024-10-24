@@ -108,7 +108,7 @@ inline auto CreateSpraySplattingPipeline(
 			 .texture = info.internalTextures->unfilteredThickness,
 			 .bindFlag = D3D11_BIND_RENDER_TARGET,
 			 .slot = 0,
-			 .clearColor = {0.f, 0.f, 0.f, 0.f}
+			 .clearColor = {0.f, 0.f, 0.f, 1.f}
 		 }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(FoamPS, info.device),
