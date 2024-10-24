@@ -750,6 +750,8 @@ LUA_FUNCTION(gelly_GetGellyTimings) {
 	LUA->CreateTable();
 	LUA->PushNumber(timings.computeAcceleration);
 	LUA->SetField(-2, "ComputeAcceleration");
+	LUA->PushNumber(timings.spraySplatting);
+	LUA->SetField(-2, "SpraySplatting");
 	LUA->PushNumber(timings.albedoDownsampling);
 	LUA->SetField(-2, "AlbedoDownsampling");
 	LUA->PushNumber(timings.ellipsoidSplatting);

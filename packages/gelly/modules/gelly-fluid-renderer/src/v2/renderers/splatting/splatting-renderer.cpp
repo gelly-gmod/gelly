@@ -43,6 +43,7 @@ SplattingRenderer::SplattingRenderer(
 	query(CreateQuery()),
 	durations(
 		{.computeAcceleration = createInfo.device,
+		 .spraySplatting = createInfo.device,
 		 .ellipsoidSplatting = createInfo.device,
 		 .thicknessSplatting = createInfo.device,
 		 .albedoDownsampling = createInfo.device,

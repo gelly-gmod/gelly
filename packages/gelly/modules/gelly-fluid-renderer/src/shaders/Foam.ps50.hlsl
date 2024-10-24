@@ -32,7 +32,7 @@ PS_OUTPUT main(GS_OUTPUT input) {
 
     float foamThickness = lifeTimeFade * velocityFade * sqr(normal.z) * 0.01f;
 
-    output.FoamEncoding = float4(0.f, 0.f, foamThickness, input.Pos.z);
+    output.Thickness = float4(0.f, 0.f, foamThickness, input.Pos.z);
     output.Depth = input.Pos.z;
     return output;
 }
