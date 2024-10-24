@@ -40,7 +40,7 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	[unroll]
 	for (int i = 0; i < 9; i++) {
 		albedo += albedoTaps[i] * gaussianKernel_3x3[i];
-	}
+	};
 
 	float2 thicknessTaps[9] = {
 		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, -1) * texelSize).rg,
@@ -55,9 +55,17 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	};
 
 	float2 thickness = float2(0, 0);
+	float centerAcceleration = thicknessTaps[4].g;
+	float threshold = 400.f;
 	[unroll]
-	for (int i_t = 0; i_t < 5; i_t++) {
-		thickness += thicknessTaps[i_t] * gaussianKernel_3x3[i_t];
+	for (int i_t = 0; i_t < 9; i_t++) {
+		float2 tap = thicknessTaps[i_t] * gaussianKernel_3x3[i_t];
+		float acceleration = abs(centerAcceleration - tap.g);
+		if (acceleration > threshold || tap.g <= 0) {
+			tap.g = centerAcceleration * gaussianKernel_3x3[i_t];
+		}
+
+		thickness += tap;
 	}
 	
 	output.Albedo = float4(albedo, 1.0f);

@@ -62,7 +62,11 @@ local function performanceDebugger()
 		gelly.SetGellySettings(settings)
 
 		local totalGPUTimeMs = 0
-		for _, timing in ipairs(timings) do
+		for _, timing in pairs(timings) do
+			if type(timing) ~= "number" then
+				continue
+			end
+
 			totalGPUTimeMs = totalGPUTimeMs + timing
 		end
 
