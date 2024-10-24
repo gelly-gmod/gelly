@@ -113,6 +113,7 @@ public:
 	void SetFluidMaterial(const PipelineFluidMaterial &material) override;
 
 	void Composite() override;
+	void CompositeFoam();
 
 	void Render() override;
 

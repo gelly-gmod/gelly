@@ -21,6 +21,9 @@ inline auto ReloadAllGSCShaders() -> void {
 	gsc::ThicknessVS::ReloadFromDisk();
 	gsc::ThicknessGS::ReloadFromDisk();
 	gsc::ThicknessPS::ReloadFromDisk();
+	gsc::FoamVS::ReloadFromDisk();
+	gsc::FoamGS::ReloadFromDisk();
+	gsc::FoamPS::ReloadFromDisk();
 	gsc::AlbedoDownsamplePS::ReloadFromDisk();
 	gsc::EstimateNormalPS::ReloadFromDisk();
 	gsc::ScreenQuadVS::ReloadFromDisk();

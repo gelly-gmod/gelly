@@ -383,7 +383,7 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
-	// CompositeFoam(false);  // so that it can be seen in water
+	CompositeFoam();
 	UpdateBackBuffer();
 
 	stateBlock->Capture();
@@ -432,9 +432,43 @@ void StandardPipeline::Composite() {
 	stateBlock->Apply();
 
 	// Then we composite foam again so that the foam's alpha blend includes the
-	// composite
+	// newly rendered composite, otherwise it's going to show the background
+	CompositeFoam();
+}
 
-	// CompositeFoam(true);
+void StandardPipeline::CompositeFoam() {
+	auto &device = gmodResources.device;
+	stateBlock->Capture();
+
+	device->SetVertexShader(quadVertexShader.Get());
+	device->SetPixelShader(compositeFoamShader.Get());
+
+	SetCompositeSamplerState(0, D3DTEXF_LINEAR);
+
+	device->SetTexture(0, textures->gmodTextures.thickness.Get());
+
+	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
+	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+
+	device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+	// Ensures that any left over decal rendering doesn't interfere with the
+	// composite
+	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
+	// we also want to disable any sort of fixed-function color transforms,
+	// a notable example is when the fluid flickers to purple randomly
+	device->SetRenderState(D3DRS_FOGENABLE, FALSE);
+	device->SetRenderState(D3DRS_STENCILENABLE, FALSE);
+	device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	device->SetRenderState(D3DRS_COLORVERTEX, FALSE);
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	stateBlock->Apply();
 }
 
 void StandardPipeline::Render() {
