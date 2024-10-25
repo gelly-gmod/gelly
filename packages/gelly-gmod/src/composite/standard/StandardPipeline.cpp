@@ -440,6 +440,8 @@ void StandardPipeline::CompositeFoam(bool writeDepth) {
 	auto &device = gmodResources.device;
 	stateBlock->Capture();
 
+	SetCompositeShaderConstants();
+
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeFoamShader.Get());
 
