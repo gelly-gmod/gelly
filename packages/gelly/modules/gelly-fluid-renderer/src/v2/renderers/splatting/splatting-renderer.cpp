@@ -146,6 +146,7 @@ auto SplattingRenderer::Render() -> void {
 			durations.computeAcceleration.GetDuration();
 		latestTimings.ellipsoidSplatting =
 			durations.ellipsoidSplatting.GetDuration();
+		latestTimings.spraySplatting = durations.spraySplatting.GetDuration();
 		latestTimings.thicknessSplatting =
 			durations.thicknessSplatting.GetDuration();
 		latestTimings.albedoDownsampling =
@@ -157,6 +158,7 @@ auto SplattingRenderer::Render() -> void {
 
 		latestTimings.isDisjoint = durations.computeAcceleration.IsDisjoint() ||
 								   durations.ellipsoidSplatting.IsDisjoint() ||
+								   durations.spraySplatting.IsDisjoint() ||
 								   durations.thicknessSplatting.IsDisjoint() ||
 								   durations.albedoDownsampling.IsDisjoint() ||
 								   durations.surfaceFiltering.IsDisjoint() ||
