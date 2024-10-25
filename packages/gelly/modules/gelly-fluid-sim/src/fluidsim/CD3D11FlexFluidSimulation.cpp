@@ -302,6 +302,7 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					solverParams.diffuseBallistic = arg.ballisticCount;
 					solverParams.diffuseBuoyancy = arg.buoyancy;
 					solverParams.diffuseDrag = arg.drag;
+					diffuseLifetime = arg.lifetime;
 					solverParams.diffuseLifetime =
 						arg.lifetime * timeStepMultiplier;
 				}

@@ -1035,6 +1035,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
 	DEFINE_LUA_FUNC(gelly, SetRenderSettings);
+	DEFINE_LUA_FUNC(gelly, SetDiffuseProperties);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseScale);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseMotionBlur);
 	DEFINE_LUA_FUNC(gelly, SetTimeStepMultiplier);

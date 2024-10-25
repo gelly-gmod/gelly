@@ -13,7 +13,7 @@ private:
 	static constexpr SimCommandType supportedCommands =
 		static_cast<SimCommandType>(
 			RESET | ADD_PARTICLE | CHANGE_RADIUS | SET_FLUID_PROPERTIES |
-			CONFIGURE
+			CONFIGURE | SET_DIFFUSE_PROPERTIES
 		);
 
 	CD3D11CPUSimData *simData;
