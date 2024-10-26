@@ -15,7 +15,9 @@ void main(point VS_OUTPUT input[1], inout TriangleStream<GS_OUTPUT> stream) {
 	float4 cullingNDCPos = mul(g_Projection, viewPosition);
 	cullingNDCPos /= cullingNDCPos.w;
 
-	if (any(abs(cullingNDCPos.xy)) > 1.0) {
+	// Note, it's actually important to cull the particles in the Z direction as well,
+	// or else particles that are behind the camera will still be rendered.
+	if (abs(cullingNDCPos.x) > 1.f || abs(cullingNDCPos.y) > 1.f || cullingNDCPos.z > 1.f) {
 		return;
 	}
 
