@@ -14,6 +14,7 @@ import {
 	disableTemporaryTranslucency,
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
+import CheckBox from "../components/CheckBox.tsx";
 
 export default function Simulation() {
 	const [simRate, setSimRate] = useSettingValue("simulation_rate");
@@ -40,6 +41,8 @@ export default function Simulation() {
 	const [sprayScale, setSprayScale] = useSettingValue("spray_scale");
 	const [sprayMotionBlur, setSprayMotionBlur] =
 		useSettingValue("spray_motion_blur");
+	const [whitewaterEnabled, setWhitewaterEnabled] =
+		useSettingValue("whitewater_enabled");
 
 	return (
 		<SlidersExplanationLayout>
@@ -141,8 +144,14 @@ export default function Simulation() {
 					onInputEnd={disableTemporaryTranslucency}
 				/>
 
-				<ExplanationHeader>Spray Settings</ExplanationHeader>
+				<ExplanationHeader>Whitewater Settings</ExplanationHeader>
 				<HorizontalSeparator />
+
+				<CheckBox
+					label="Whitewater Enabled"
+					checked={whitewaterEnabled}
+					onChange={setWhitewaterEnabled}
+				/>
 
 				<Slider
 					min={0}

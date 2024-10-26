@@ -25,13 +25,6 @@ local BINARY_MODULE_RELATED_SETTINGS = {
 }
 
 function gellyx.settings.updateBinaryModuleSettings(changedConvar)
-	-- The binary module's settings are ephemeral, which is why we synchronize them with the convars
-	gelly.SetGellySettings({
-		FilterIterations = gellyx.settings.get("smoothness"):GetInt(),
-		EnableGPUSynchronization = true,
-		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool(),
-	})
-
 	if changedConvar == nil or changedConvar == gellyx.settings.getFullName("max_particles") then
 		-- This is one of our most expensive changes so we ensure it's only done when necessary
 		-- But on initialization, we need to set it again so we check if there even was a changed convar.
@@ -55,6 +48,12 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		logging.warn("Rendering at %dx%d with a scale of %.2f!", ScrW(), ScrH(),
 			gellyx.settings.get("resolution_scale"):GetFloat())
 	end
+
+	gelly.SetGellySettings({
+		FilterIterations = gellyx.settings.get("smoothness"):GetInt(),
+		EnableGPUSynchronization = true,
+		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool(),
+	})
 
 	gelly.ConfigureSim({
 		Substeps = gellyx.settings.get("simulation_substeps"):GetInt(),
