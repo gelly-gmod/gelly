@@ -6,7 +6,8 @@ local objects = {}
 local WHITELISTED_ENTITY_CLASSES = {
 	"prop_physics",
 	"gmod_wheel",
-	"func_*"
+	"func_*",
+	"prop_door_rotating",
 }
 
 local function isClassWhitelisted(entity)
