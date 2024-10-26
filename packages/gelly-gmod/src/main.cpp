@@ -743,12 +743,14 @@ LUA_FUNCTION(gelly_SetGellySettings) {
 	GET_LUA_TABLE_MEMBER(float, FilterIterations);
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUSynchronization);
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUTiming);
+	GET_LUA_TABLE_MEMBER(bool, EnableWhitewater);
 
 	int filterIterations = static_cast<int>(FilterIterations);
 	auto currentSettings = compositor->GetGellySettings();
 	currentSettings.filterIterations = filterIterations;
 	currentSettings.enableGPUSynchronization = EnableGPUSynchronization_b;
 	currentSettings.enableGPUTiming = EnableGPUTiming_b;
+	currentSettings.enableWhitewater = EnableWhitewater_b;
 
 	compositor->UpdateGellySettings(currentSettings);
 	CATCH_GELLY_EXCEPTIONS();
@@ -766,6 +768,8 @@ LUA_FUNCTION(gelly_GetGellySettings) {
 	LUA->SetField(-2, "EnableGPUSynchronization");
 	LUA->PushBool(currentSettings.enableGPUTiming);
 	LUA->SetField(-2, "EnableGPUTiming");
+	LUA->PushBool(currentSettings.enableWhitewater);
+	LUA->SetField(-2, "EnableWhitewater");
 
 	CATCH_GELLY_EXCEPTIONS();
 	return 1;
@@ -806,6 +810,7 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 	GET_LUA_TABLE_MEMBER(float, RelaxationFactor);
 	GET_LUA_TABLE_MEMBER(float, CollisionDistance);
 	GET_LUA_TABLE_MEMBER(float, Gravity);
+	GET_LUA_TABLE_MEMBER(bool, EnableWhitewater);
 
 	int substeps = static_cast<int>(Substeps);
 	int iterations = static_cast<int>(Iterations);
@@ -815,7 +820,8 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 		 .iterations = iterations,
 		 .relaxationFactor = RelaxationFactor,
 		 .collisionDistance = CollisionDistance,
-		 .gravity = Gravity}
+		 .gravity = Gravity,
+		 .enableWhitewater = EnableWhitewater_b}
 	);
 
 	CATCH_GELLY_EXCEPTIONS();
