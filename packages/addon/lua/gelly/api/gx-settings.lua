@@ -17,6 +17,7 @@ gellyx.settings.convars = {
 	simulation_collision_distance = settingConvar("simulation_collision_distance", 0.6,
 		"Controls the collision distance of the fluid", 0.01, 1),
 	simulation_gravity = settingConvar("simulation_gravity", -4, "Controls the gravity of the fluid", -100, 100),
+
 	fluid_radius = settingConvar("fluid_radius", 1, "Controls the radius of the fluid", 1, 5),
 	fluid_viscosity = settingConvar("fluid_viscosity", 1, "Controls the viscosity of the fluid", 0, 100),
 	fluid_cohesion = settingConvar("fluid_cohesion", 1, "Controls the cohesion of the fluid", 0, 1),
@@ -29,6 +30,10 @@ gellyx.settings.convars = {
 	fluid_roughness = settingConvar("fluid_roughness", 1, "Controls the roughness of the fluid", 0, 1),
 	fluid_opaque = settingConvar("fluid_opaque", 0, "Controls the opacity of the fluid (0 = transparent, 1 = opaque)", 0,
 		1),
+	fluid_use_whitewater = settingConvar("fluid_use_whitewater", 1,
+		"Controls the visibility of whitewater for the ephemeral fluid preset (0 = off, 1 = on)",
+		0, 1),
+
 	spray_scale = settingConvar("spray_scale", 0.3, "Controls the scale of spray particles.", 0, 4),
 	spray_motion_blur = settingConvar("spray_motion_blur", 4.5, "Controls the motion blur of spray particles.", 0, 10),
 	spray_lifetime = settingConvar("spray_lifetime", 0.5, "Controls the lifetime of spray particles.", 0, 10),
@@ -39,6 +44,7 @@ gellyx.settings.convars = {
 	spray_drag = settingConvar("spray_drag", 0.2, "Controls the drag of spray particles.", 0, 3),
 	whitewater_enabled = settingConvar("whitewater_enabled", 1, "Controls the visibility of whitewater (0 = off, 1 = on)",
 		0, 1),
+
 	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
 		1500000),
 	sun_visible = settingConvar("sun_visible", 1, "Controls the visibility of the sun (0 = no sun, 1 = sun)", 0, 1),
