@@ -1,7 +1,7 @@
 return {
 	Name = "Piss",
 	Radius = 3.5,
-	DiffuseScale = 0.25,
+	UseFoam = true,
 	SolverParams = {
 		Viscosity = 0,
 		SurfaceTension = 0,

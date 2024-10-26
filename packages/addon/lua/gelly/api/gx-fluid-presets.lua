@@ -35,9 +35,11 @@ end
 local function selectPreset(preset)
 	preset.SolverParams.RestDistanceRatio = preset.SolverParams.RestDistanceRatio or 0.73
 	gelly.ChangeParticleRadius(preset.Radius * gellyx.settings.get("preset_radius_scale"):GetFloat())
+	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat() *
+		gellyx.settings.get("preset_radius_scale"):GetFloat())
+
 	gelly.SetFluidProperties(preset.SolverParams)
 	gelly.SetFluidMaterial(preset.Material)
-	gelly.SetDiffuseScale(preset.DiffuseScale)
 	GELLY_ACTIVE_PRESET = preset
 	logging.info("Selected preset %s", preset.Name)
 end

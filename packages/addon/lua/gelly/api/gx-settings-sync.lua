@@ -30,17 +30,6 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		EnableGPUSynchronization = true
 	})
 
-	gelly.SetDiffuseProperties({
-		BallisticCount = gellyx.settings.get("spray_ballistic"):GetInt(),
-		KineticThreshold = gellyx.settings.get("spray_threshold"):GetInt(),
-		Drag = gellyx.settings.get("spray_drag"):GetFloat(),
-		Buoyancy = gellyx.settings.get("spray_buoyancy"):GetFloat(),
-		Lifetime = gellyx.settings.get("spray_lifetime"):GetFloat(),
-	})
-
-	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat())
-	gelly.SetDiffuseMotionBlur(gellyx.settings.get("spray_motion_blur"):GetFloat())
-
 	if changedConvar == nil or changedConvar == gellyx.settings.getFullName("max_particles") then
 		-- This is one of our most expensive changes so we ensure it's only done when necessary
 		-- But on initialization, we need to set it again so we check if there even was a changed convar.
@@ -80,6 +69,18 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 	else
 		RunConsoleCommand("r_worldlights", "4")
 	end
+
+	gelly.SetDiffuseProperties({
+		BallisticCount = gellyx.settings.get("spray_ballistic"):GetInt(),
+		KineticThreshold = gellyx.settings.get("spray_threshold"):GetInt(),
+		Drag = gellyx.settings.get("spray_drag"):GetFloat(),
+		Buoyancy = gellyx.settings.get("spray_buoyancy"):GetFloat(),
+		Lifetime = gellyx.settings.get("spray_lifetime"):GetFloat(),
+	})
+
+	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat() *
+		gellyx.settings.get("preset_radius_scale"):GetFloat())
+	gelly.SetDiffuseMotionBlur(gellyx.settings.get("spray_motion_blur"):GetFloat())
 end
 
 gellyx.settings.registerMultipleOnChange(BINARY_MODULE_RELATED_SETTINGS, gellyx.settings.updateBinaryModuleSettings)
