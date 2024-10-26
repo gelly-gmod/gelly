@@ -39,6 +39,7 @@ float4x4 viewProjMatrix : register(c17);
 float4 sunDir : register(c21);
 float4 lightScaling : register(c22);
 float4x4 invViewProjMatrix : register(c23);
+float enableWhitewater : register(c27);
 
 #define CUBEMAP_SCALE lightScaling.z
 
@@ -108,7 +109,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
 
     float2 thicknessAndVelocity = tex2D(thicknessTex, input.Tex).xw;
     float thickness = thicknessAndVelocity.x;
-    float velocity = min(thicknessAndVelocity.y * 0.001f, 1.f);
+    float velocity = min(thicknessAndVelocity.y * 0.001f, 1.f) * enableWhitewater;
 
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = WorldPosFromDepth(input.Tex, projectedDepth);

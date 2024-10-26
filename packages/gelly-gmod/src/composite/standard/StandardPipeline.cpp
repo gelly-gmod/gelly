@@ -266,6 +266,7 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.sourceLightScale[3] = sourceLightScale[3];
 
 	compositeConstants.invViewProj = invViewProj;
+	compositeConstants.enableWhitewater = IsWhitewaterEnabled();
 
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
@@ -328,6 +329,14 @@ void StandardPipeline::SetCompositeSamplerState(
 	device->SetSamplerState(index, D3DSAMP_SRGBTEXTURE, srgb);
 }
 
+bool StandardPipeline::IsWhitewaterEnabled() const {
+	if (!gellyResources.splattingRenderer) {
+		return false;
+	}
+
+	return gellyResources.splattingRenderer->GetSettings().enableWhitewater;
+}
+
 StandardPipeline::StandardPipeline(unsigned int width, unsigned height) :
 	Pipeline(),
 	gellyResources(),
@@ -383,7 +392,10 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
-	CompositeFoam(false);
+	if (IsWhitewaterEnabled()) {
+		CompositeFoam(false);
+	}
+
 	UpdateBackBuffer();
 
 	stateBlock->Capture();
@@ -431,9 +443,12 @@ void StandardPipeline::Composite() {
 
 	stateBlock->Apply();
 
-	// Then we composite foam again so that the foam's alpha blend includes the
-	// newly rendered composite, otherwise it's going to show the background
-	CompositeFoam(false);
+	if (IsWhitewaterEnabled()) {
+		// Then we composite foam again so that the foam's alpha blend includes
+		// the newly rendered composite, otherwise it's going to show the
+		// background
+		CompositeFoam(false);
+	}
 }
 
 void StandardPipeline::CompositeFoam(bool writeDepth) {

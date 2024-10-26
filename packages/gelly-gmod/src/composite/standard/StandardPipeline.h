@@ -46,6 +46,9 @@ struct CompositeConstants {
 
 	float sourceLightScale[4] = {1.f, 1.f, 1.f, 1.f};
 	XMFLOAT4X4 invViewProj;
+
+	float enableWhitewater = 1.f;
+	float pad3[3];
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
@@ -92,6 +95,8 @@ private:
 	void SetCompositeSamplerState(
 		int index, D3DTEXTUREFILTERTYPE filter, bool srgb
 	) const;
+
+	bool IsWhitewaterEnabled() const;
 
 public:
 	StandardPipeline(unsigned int width, unsigned int height);

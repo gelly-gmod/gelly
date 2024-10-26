@@ -37,6 +37,8 @@ gellyx.settings.convars = {
 	spray_ballistic = settingConvar("spray_ballistic", 0,
 		"Controls the ballistic threshold of spray particles (it is best to leave this alone).", 0, 32),
 	spray_drag = settingConvar("spray_drag", 0.2, "Controls the drag of spray particles.", 0, 3),
+	whitewater_enabled = settingConvar("whitewater_enabled", 1, "Controls the visibility of whitewater (0 = off, 1 = on)",
+		0, 1),
 	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
 		1500000),
 	sun_visible = settingConvar("sun_visible", 1, "Controls the visibility of the sun (0 = no sun, 1 = sun)", 0, 1),

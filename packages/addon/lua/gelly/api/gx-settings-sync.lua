@@ -18,6 +18,7 @@ local BINARY_MODULE_RELATED_SETTINGS = {
 	"spray_buoyancy",
 	"spray_ballistic",
 	"spray_drag",
+	"whitewater_enabled",
 	"resolution_scale",
 	"glunk_lighting_fix",
 	"max_particles"
@@ -27,7 +28,8 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 	-- The binary module's settings are ephemeral, which is why we synchronize them with the convars
 	gelly.SetGellySettings({
 		FilterIterations = gellyx.settings.get("smoothness"):GetInt(),
-		EnableGPUSynchronization = true
+		EnableGPUSynchronization = true,
+		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool(),
 	})
 
 	if changedConvar == nil or changedConvar == gellyx.settings.getFullName("max_particles") then
@@ -59,7 +61,8 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		Iterations = gellyx.settings.get("simulation_iterations"):GetInt(),
 		RelaxationFactor = gellyx.settings.get("simulation_relaxation"):GetFloat(),
 		CollisionDistance = gellyx.settings.get("simulation_collision_distance"):GetFloat(),
-		Gravity = gellyx.settings.get("simulation_gravity"):GetFloat()
+		Gravity = gellyx.settings.get("simulation_gravity"):GetFloat(),
+		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool(),
 	})
 
 	local isLightingFixEnabled = gellyx.settings.get("glunk_lighting_fix"):GetBool()
