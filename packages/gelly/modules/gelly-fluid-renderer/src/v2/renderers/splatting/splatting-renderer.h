@@ -143,6 +143,7 @@ private:
 	struct {
 		util::GPUDuration computeAcceleration;
 		util::GPUDuration spraySplatting;
+		util::GPUDuration sprayDepthSplatting;
 		util::GPUDuration ellipsoidSplatting;
 		util::GPUDuration thicknessSplatting;
 		util::GPUDuration albedoDownsampling;

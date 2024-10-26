@@ -44,6 +44,7 @@ SplattingRenderer::SplattingRenderer(
 	durations(
 		{.computeAcceleration = createInfo.device,
 		 .spraySplatting = createInfo.device,
+		 .sprayDepthSplatting = createInfo.device,
 		 .ellipsoidSplatting = createInfo.device,
 		 .thicknessSplatting = createInfo.device,
 		 .albedoDownsampling = createInfo.device,
@@ -95,7 +96,7 @@ auto SplattingRenderer::Render() -> void {
 	// populate depth only, the next pass populates density (additive)
 	RunPipeline(
 		spraySplattingDepth,
-		durations.spraySplatting,
+		durations.sprayDepthSplatting,
 		createInfo.simData->GetActiveFoamParticles()
 	);
 
@@ -146,7 +147,9 @@ auto SplattingRenderer::Render() -> void {
 			durations.computeAcceleration.GetDuration();
 		latestTimings.ellipsoidSplatting =
 			durations.ellipsoidSplatting.GetDuration();
-		latestTimings.spraySplatting = durations.spraySplatting.GetDuration();
+		latestTimings.spraySplatting =
+			durations.spraySplatting.GetDuration() +
+			durations.sprayDepthSplatting.GetDuration();
 		latestTimings.thicknessSplatting =
 			durations.thicknessSplatting.GetDuration();
 		latestTimings.albedoDownsampling =

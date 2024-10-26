@@ -32,7 +32,7 @@ local function performanceDebugger()
 	for i = 1, 40 do
 		gellyx.emitters.Cube({
 			center = EMIT_SPOT_A,
-			velocity = Vector(0, 20, 10), -- make them fly towards each other
+			velocity = Vector(0, 80, 10), -- make them fly towards each other
 			bounds = Vector(50, 50, 50),
 			density = 1000,
 		})
@@ -41,16 +41,16 @@ local function performanceDebugger()
 	for i = 1, 40 do
 		gellyx.emitters.Cube({
 			center = EMIT_SPOT_B,
-			velocity = Vector(0, -20, 10),
+			velocity = Vector(0, -80, 10),
 			bounds = Vector(50, 50, 50),
-			density = 1000,
+			density = 2000,
 		})
 	end
 
 	sampler:InjectTimingHooks()
 	gelly.SetTimeStepMultiplier(1)
 
-	timer.Simple(5, function()
+	timer.Simple(2.8, function()
 		local settings = gelly.GetGellySettings()
 		settings.EnableGPUTiming = true
 		gelly.SetGellySettings(settings)
