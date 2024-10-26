@@ -26,8 +26,8 @@ inline auto CreateEllipsoidSplattingPipeline(
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
 		.depthStencilState =
-			{.depthTestEnabled = false,
-			 .depthWriteEnabled = false,
+			{.depthTestEnabled = true,
+			 .depthWriteEnabled = true,
 			 .depthComparisonFunc = D3D11_COMPARISON_LESS},
 		.viewportState =
 			{
@@ -68,16 +68,17 @@ inline auto CreateEllipsoidSplattingPipeline(
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
 					 .DestBlendAlpha = D3D11_BLEND_ONE,
 					 .BlendOpAlpha = D3D11_BLEND_OP_MIN,
-					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED |
+											  D3D11_COLOR_WRITE_ENABLE_GREEN
 				 },
 				 D3D11_RENDER_TARGET_BLEND_DESC{
 					 // thickness, we just want to add the values
-					 .BlendEnable = true,
+					 .BlendEnable = false,
 					 .SrcBlend = D3D11_BLEND_ONE,
-					 .DestBlend = D3D11_BLEND_ONE,
+					 .DestBlend = D3D11_BLEND_ZERO,
 					 .BlendOp = D3D11_BLEND_OP_ADD,
 					 .SrcBlendAlpha = D3D11_BLEND_ONE,
-					 .DestBlendAlpha = D3D11_BLEND_ONE,
+					 .DestBlendAlpha = D3D11_BLEND_ZERO,
 					 .BlendOpAlpha = D3D11_BLEND_OP_ADD,
 					 .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
 				 }},
@@ -146,6 +147,11 @@ inline auto CreateEllipsoidSplattingPipeline(
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
 			  },
+			  InputBuffer{
+				  .buffer = info.internalBuffers->particleAccelerations,
+				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+				  .slot = 1
+			  },
 			  InputVertexBuffer{
 				  .vertexBuffer = info.internalBuffers->particlePositions,
 				  .slot = 0
@@ -176,7 +182,8 @@ inline auto CreateEllipsoidSplattingPipeline(
 				  .texture = info.internalTextures->unfilteredThickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
-				  .clearColor = {0.f, 0.f, 0.f, 0.f}
+				  .clearColor = {0.f, 0.f, 0.f, 0.f},
+				  .clear = true
 			  }},
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),
@@ -184,7 +191,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 			  .geometryShader = {GS_FROM_GSC(SplattingGS, info.device)},
 			  .constantBuffers =
 				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
-		 .depthBuffer = std::nullopt,
+		 .depthBuffer = info.internalTextures->ellipsoidDepthBuffer,
 		 .defaultVertexCount = 0}
 	);
 }

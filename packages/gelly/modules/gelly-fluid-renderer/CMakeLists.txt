@@ -52,6 +52,9 @@ add_library(
         src/v2/renderers/splatting/reload-shaders.h
         src/v2/helpers/rendering/gpu-duration.h
         src/v2/helpers/rendering/gpu-duration.cpp
+        src/v2/pipeline/compute-pipeline.cpp
+        src/v2/pipeline/compute-pipeline.h
+        src/v2/renderers/splatting/pipelines/compute-acceleration.h
 )
 
 target_include_directories(

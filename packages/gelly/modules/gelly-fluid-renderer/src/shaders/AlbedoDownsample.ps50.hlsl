@@ -9,7 +9,7 @@ SamplerState InputThicknessSampler : register(s1);
 
 struct PS_OUTPUT {
 	float4 Albedo : SV_Target0;
-	float Thickness : SV_Target1;
+	float4 Thickness : SV_Target1;
 };
 
 static float gaussianKernel_3x3[9] = {
@@ -18,48 +18,70 @@ static float gaussianKernel_3x3[9] = {
 	1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f
 };
 
+// we extend out a max of 24 pixels, but to save on time we'll bake a jittered kernel since
+// it's *really* hard to tell the pattern and it's not worth the time to compute it like the
+// depth filter, where we have pass-correlated random noise such that we can't see the pattern
+static float albedo_jitter[9] = {
+	/*13.73, 21.31, 13.73,
+	17.61, 8.32f, 11.61,
+	3.73, 16.31, 9.73*/
+	// temporary fix
+	1.f, 1.f, 1.f,
+	1.f, 1.f, 1.f,
+	1.f, 1.f, 1.f
+};
+
 PS_OUTPUT main(VS_OUTPUT input) {
 	PS_OUTPUT output = (PS_OUTPUT)0;
 	float2 uv = input.Tex;
 	float2 texelSize = float2(1.0 / g_ViewportWidth, 1.0 / g_ViewportHeight);
 
 	float3 albedoTaps[9] = {
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(-1, -1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(0, -1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(1, -1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(-1, 0) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(0, 0) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(1, 0) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(-1, 1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(0, 1) * texelSize).rgb,
-		InputAlbedo.Sample(InputAlbedoSampler, uv + float2(1, 1) * texelSize).rgb
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, -1) * albedo_jitter[0]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, -1) * albedo_jitter[1]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(1, -1) * albedo_jitter[2]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, 0) * albedo_jitter[3]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, 0) * albedo_jitter[4]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(1, 0) * albedo_jitter[5]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(-1, 1) * albedo_jitter[6]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(0, 1) * albedo_jitter[7]) * texelSize).rgb,
+		InputAlbedo.Sample(InputAlbedoSampler, uv + (float2(1, 1) * albedo_jitter[8]) * texelSize).rgb
 	};
 
 	float3 albedo = 0;
 	[unroll]
 	for (int i = 0; i < 9; i++) {
 		albedo += albedoTaps[i] * gaussianKernel_3x3[i];
-	}
-
-	// For thickness we use a less expensive cross pattern
-
-	float thicknessTaps[5] = {
-		InputThickness.Sample(InputThicknessSampler, uv + float2(0, -1) * texelSize).r,
-		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, 0) * texelSize).r,
-		InputThickness.Sample(InputThicknessSampler, uv + float2(0, 0) * texelSize).r,
-		InputThickness.Sample(InputThicknessSampler, uv + float2(1, 0) * texelSize).r,
-		InputThickness.Sample(InputThicknessSampler, uv + float2(0, 1) * texelSize).r
 	};
 
-	float thickness = 0;
-	[unroll]
-	for (int i_t = 0; i_t < 5; i_t++) {
-		thickness += thicknessTaps[i_t];
-	}
+	float foamThickness = InputThickness.Sample(InputThicknessSampler, uv).b;
+	float2 thicknessTaps[9] = {
+		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, -1) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(0, -1) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(1, -1) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, 0) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(0, 0) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(1, 0) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(-1, 1) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(0, 1) * texelSize).ra,
+		InputThickness.Sample(InputThicknessSampler, uv + float2(1, 1) * texelSize).ra
+	};
 
-	thickness /= 5.0f;
+	float2 thickness = float2(0, 0);
+	float centerAcceleration = thicknessTaps[4].g;
+	float threshold = 400.f;
+	[unroll]
+	for (int i_t = 0; i_t < 9; i_t++) {
+		float2 tap = thicknessTaps[i_t] * gaussianKernel_3x3[i_t];
+		float acceleration = abs(centerAcceleration - tap.g);
+		if (acceleration > threshold || tap.g <= 0) {
+			tap.g = centerAcceleration * gaussianKernel_3x3[i_t];
+		}
+
+		thickness += tap;
+	}
 	
 	output.Albedo = float4(albedo, 1.0f);
-	output.Thickness = thickness;
+	output.Thickness = float4(thickness.r, 0.f, foamThickness, thickness.g); // R: Thickness, G: Unused B: Foam Thickness, A: Acceleration
 	return output;
 }

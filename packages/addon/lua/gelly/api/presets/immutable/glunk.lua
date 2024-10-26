@@ -1,7 +1,6 @@
 return {
 	Name = "Glunk",
 	Radius = 3,
-	DiffuseScale = 0,
 	SolverParams = {
 		Viscosity = 20,
 		SurfaceTension = 0,

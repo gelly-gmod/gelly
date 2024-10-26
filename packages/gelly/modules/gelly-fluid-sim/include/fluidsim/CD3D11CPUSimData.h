@@ -10,7 +10,8 @@
 class CD3D11CPUSimData : public ISimData {
 private:
 	ID3D11Buffer *positionBuffer;
-	ID3D11Buffer *velocityBuffer;
+	ID3D11Buffer *velocity0Buffer;
+	ID3D11Buffer *velocity1Buffer;
 	ID3D11Buffer *foamPositionBuffer;
 	ID3D11Buffer *foamVelocityBuffer;
 	ID3D11Buffer *anisotropyQ1Buffer;

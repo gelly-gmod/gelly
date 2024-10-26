@@ -6,6 +6,7 @@
 #include "device.h"
 #include "fluidsim/ISimData.h"
 #include "helpers/rendering/gpu-duration.h"
+#include "pipeline/compute-pipeline.h"
 #include "pipeline/pipeline.h"
 #include "pipelines/pipeline-info.h"
 #include "renderdoc_app.h"
@@ -15,6 +16,7 @@ namespace gelly {
 namespace renderer {
 namespace splatting {
 using PipelinePtr = std::shared_ptr<Pipeline>;
+using ComputePipelinePtr = std::shared_ptr<ComputePipeline>;
 
 class AbsorptionModifier {
 public:
@@ -37,13 +39,16 @@ private:
 
 class SplattingRenderer {
 public:
-	float ALBEDO_OUTPUT_SCALE = 0.25f;
+	float ALBEDO_OUTPUT_SCALE = 0.5f;
 
 	/**
 	 * Timings of all the passes in milliseconds.
 	 */
 	struct Timings {
+		float computeAcceleration = 0.0f;
+		float spraySplatting = 0.0f;
 		float ellipsoidSplatting = 0.0f;
+		float thicknessSplatting = 0.0f;
 		float albedoDownsampling = 0.0f;
 		float surfaceFiltering = 0.0f;
 		float rawNormalEstimation = 0.0f;
@@ -70,6 +75,11 @@ public:
 		 * less than a GPU profiler.
 		 */
 		bool enableGPUTiming = false;
+		/**
+		 * Enables the various systems that are used to render the whitewater,
+		 * which may be disabled for performance reasons.
+		 */
+		bool enableWhitewater = true;
 	};
 
 	struct SplattingRendererCreateInfo {
@@ -120,7 +130,11 @@ private:
 	ComPtr<ID3D11Query> query;
 
 	PipelineInfo pipelineInfo;
+	ComputePipelinePtr computeAcceleration;
+	PipelinePtr spraySplatting;
+	PipelinePtr spraySplattingDepth;
 	PipelinePtr ellipsoidSplatting;
+	PipelinePtr thicknessSplatting;
 	PipelinePtr albedoDownsampling;
 	PipelinePtr surfaceFilteringA;
 	PipelinePtr surfaceFilteringB;
@@ -132,7 +146,11 @@ private:
 #endif
 
 	struct {
+		util::GPUDuration computeAcceleration;
+		util::GPUDuration spraySplatting;
+		util::GPUDuration sprayDepthSplatting;
 		util::GPUDuration ellipsoidSplatting;
+		util::GPUDuration thicknessSplatting;
 		util::GPUDuration albedoDownsampling;
 		util::GPUDuration surfaceFiltering;
 		util::GPUDuration rawNormalEstimation;
@@ -154,6 +172,12 @@ private:
 	auto CreateAbsorptionModifier(
 		const std::shared_ptr<Buffer> &absorptionBuffer
 	) const -> std::shared_ptr<AbsorptionModifier>;
+
+	auto RunPipeline(
+		PipelinePtr pipeline,
+		util::GPUDuration &duration,
+		std::optional<int> vertexCount = std::nullopt
+	) -> void;
 };
 
 }  // namespace splatting

@@ -18,6 +18,9 @@ GPUDuration::GPUDuration(const std::shared_ptr<Device> &device) :
 	timestampDisjointData() {}
 
 auto GPUDuration::Start() -> void {
+	// Ensure we dont use old data
+	dataFetched = false;
+
 	device->GetRawDeviceContext()->Begin(timestampDisjoint.Get());
 	device->GetRawDeviceContext()->End(timestampBegin.Get());
 }

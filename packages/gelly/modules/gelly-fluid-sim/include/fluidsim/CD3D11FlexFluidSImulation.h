@@ -13,7 +13,7 @@ private:
 	static constexpr SimCommandType supportedCommands =
 		static_cast<SimCommandType>(
 			RESET | ADD_PARTICLE | CHANGE_RADIUS | SET_FLUID_PROPERTIES |
-			CONFIGURE
+			CONFIGURE | SET_DIFFUSE_PROPERTIES
 		);
 
 	CD3D11CPUSimData *simData;
@@ -42,11 +42,15 @@ private:
 	 */
 	struct {
 		NvFlexBuffer *positions;
+		NvFlexBuffer *velocities0;
+		NvFlexBuffer *velocities1;
 		NvFlexBuffer *foamPositions;
 		NvFlexBuffer *foamVelocities;
 		NvFlexBuffer *anisotropyQ1Buffer;
 		NvFlexBuffer *anisotropyQ2Buffer;
 		NvFlexBuffer *anisotropyQ3Buffer;
+
+		bool velocityBufferSwapped = false;
 	} sharedBuffers{};
 
 	NvFlexLibrary *library{};
@@ -58,6 +62,9 @@ private:
 	uint maxContactsPerParticle = 6;
 	int substeps = 3;
 	float timeStepMultiplier = 1.f;
+	float diffuseLifetime = 2.f;
+
+	bool enableWhitewater = true;
 
 	struct {
 		bool deferFlag : 1;

@@ -33,6 +33,9 @@ export default function Presets() {
 	const [colorScale, setColorScale] = useSettingValue("fluid_color_scale");
 	const [roughness, setRoughness] = useSettingValue("fluid_roughness");
 	const [opaque, setOpaque] = useSettingValue("fluid_opaque");
+	const [useWhitewater, setUseWhitewater] = useSettingValue(
+		"fluid_use_whitewater",
+	);
 
 	return (
 		<SlidersExplanationLayout>
@@ -141,6 +144,12 @@ export default function Presets() {
 					label="Opaque"
 					checked={opaque}
 					onChange={setOpaque}
+				/>
+
+				<CheckBox
+					label="Use Whitewater"
+					checked={useWhitewater}
+					onChange={setUseWhitewater}
 				/>
 			</Sliders>
 			<Separator />
