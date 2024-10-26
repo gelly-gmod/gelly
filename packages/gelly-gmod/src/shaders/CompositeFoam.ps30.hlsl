@@ -20,6 +20,12 @@ PS_OUTPUT main(VS_INPUT input) {
     
     PS_OUTPUT output = (PS_OUTPUT)0;
 	float3 irradiance = SampleAmbientCube(ambientCube, float3(0.f, 0.f, 1.f));
+    irradiance = max(irradiance, SampleAmbientCube(ambientCube, float3(0.f, 0.f, -1.f)));
+    irradiance = max(irradiance, SampleAmbientCube(ambientCube, float3(0.f, 1.f, 0.f)));
+    irradiance = max(irradiance, SampleAmbientCube(ambientCube, float3(0.f, -1.f, 0.f)));
+    irradiance = max(irradiance, SampleAmbientCube(ambientCube, float3(1.f, 0.f, 0.f)));
+    irradiance = max(irradiance, SampleAmbientCube(ambientCube, float3(-1.f, 0.f, 0.f)));
+
     output.Color = float4(irradiance, min(foam.b, 1.f)); // We do want it to blend with the background
     output.Depth = depth;
     return output;
