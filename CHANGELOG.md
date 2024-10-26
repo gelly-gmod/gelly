@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- The model used to properly resolve the cubemaps appearing when using the camera tool
+- The position model used to properly resolve the cubemaps appearing when using the camera tool
 
 ## [1.27.1] - 2024-10-26
 
