@@ -411,31 +411,37 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 		sharedBuffers.anisotropyQ3Buffer,
 		&copyDesc
 	);
-	NvFlexGetDiffuseParticles(
-		solver,
-		sharedBuffers.foamPositions,
-		sharedBuffers.foamVelocities,
-		buffers.diffuseParticleCount
-	);
 
-	// We always want to fetch velocities to our GPU shared buffer, the
-	// buffers.velocities is for particle updates
-	NvFlexGetVelocities(
-		solver,
-		sharedBuffers.velocityBufferSwapped ? sharedBuffers.velocities1
-											: sharedBuffers.velocities0,
-		&copyDesc
-	);
-	sharedBuffers.velocityBufferSwapped = !sharedBuffers.velocityBufferSwapped;
+	if (enableWhitewater) {
+		NvFlexGetDiffuseParticles(
+			solver,
+			sharedBuffers.foamPositions,
+			sharedBuffers.foamVelocities,
+			buffers.diffuseParticleCount
+		);
 
-	// unfortunately, the GPU runs the diffuse spawning code now so we really
-	// gotta synchronize our CPU particles with the GPU
-	const auto *diffuseParticleCount = static_cast<int *>(
-		NvFlexMap(buffers.diffuseParticleCount, eNvFlexMapWait)
-	);
+		// We always want to fetch velocities to our GPU shared buffer, the
+		// buffers.velocities is for particle updates
+		NvFlexGetVelocities(
+			solver,
+			sharedBuffers.velocityBufferSwapped ? sharedBuffers.velocities1
+												: sharedBuffers.velocities0,
+			&copyDesc
+		);
+		sharedBuffers.velocityBufferSwapped =
+			!sharedBuffers.velocityBufferSwapped;
 
-	simData->SetActiveFoamParticles(*diffuseParticleCount);
-	NvFlexUnmap(buffers.diffuseParticleCount);
+		// unfortunately, the GPU runs the diffuse spawning code now so we
+		// really gotta synchronize our CPU particles with the GPU
+		const auto *diffuseParticleCount = static_cast<int *>(
+			NvFlexMap(buffers.diffuseParticleCount, eNvFlexMapWait)
+		);
+
+		simData->SetActiveFoamParticles(*diffuseParticleCount);
+		NvFlexUnmap(buffers.diffuseParticleCount);
+	} else {
+		simData->SetActiveFoamParticles(0);
+	}
 }
 
 void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier

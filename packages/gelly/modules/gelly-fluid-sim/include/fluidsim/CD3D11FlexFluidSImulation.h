@@ -64,6 +64,8 @@ private:
 	float timeStepMultiplier = 1.f;
 	float diffuseLifetime = 2.f;
 
+	bool enableWhitewater = true;
+
 	struct {
 		bool deferFlag : 1;
 		uint newActiveCount : 31;

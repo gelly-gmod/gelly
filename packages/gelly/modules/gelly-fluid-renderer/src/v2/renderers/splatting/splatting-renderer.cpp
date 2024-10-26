@@ -75,36 +75,39 @@ auto SplattingRenderer::Render() -> void {
 		);
 	}
 #endif
-	if (settings.enableGPUTiming) {
-		durations.computeAcceleration.Start();
-	}
-	computeAcceleration->Dispatch(
-		{static_cast<unsigned int>(createInfo.simData->GetActiveParticles()),
-		 1,
-		 1}
-	);
-	if (settings.enableGPUTiming) {
-		durations.computeAcceleration.End();
-	}
-
 	RunPipeline(
 		ellipsoidSplatting,
 		durations.ellipsoidSplatting,
 		createInfo.simData->GetActiveParticles()
 	);
 
-	// populate depth only, the next pass populates density (additive)
-	RunPipeline(
-		spraySplattingDepth,
-		durations.sprayDepthSplatting,
-		createInfo.simData->GetActiveFoamParticles()
-	);
+	if (settings.enableWhitewater) {
+		if (settings.enableGPUTiming) {
+			durations.computeAcceleration.Start();
+		}
+		computeAcceleration->Dispatch(
+			{static_cast<unsigned int>(createInfo.simData->GetActiveParticles()
+			 ),
+			 1,
+			 1}
+		);
+		if (settings.enableGPUTiming) {
+			durations.computeAcceleration.End();
+		}
 
-	RunPipeline(
-		spraySplatting,
-		durations.spraySplatting,
-		createInfo.simData->GetActiveFoamParticles()
-	);
+		// populate depth only, the next pass populates density (additive)
+		RunPipeline(
+			spraySplattingDepth,
+			durations.sprayDepthSplatting,
+			createInfo.simData->GetActiveFoamParticles()
+		);
+
+		RunPipeline(
+			spraySplatting,
+			durations.spraySplatting,
+			createInfo.simData->GetActiveFoamParticles()
+		);
+	}
 
 	RunPipeline(
 		thicknessSplatting,

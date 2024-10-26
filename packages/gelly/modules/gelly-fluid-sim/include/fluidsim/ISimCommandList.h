@@ -47,6 +47,7 @@ struct Configure {
 	float relaxationFactor = 1.f;
 	float collisionDistance = 0.6f;
 	float gravity = -4.f;
+	bool enableWhitewater = true;
 };
 
 enum SimCommandType {

@@ -75,6 +75,11 @@ public:
 		 * less than a GPU profiler.
 		 */
 		bool enableGPUTiming = false;
+		/**
+		 * Enables the various systems that are used to render the whitewater,
+		 * which may be disabled for performance reasons.
+		 */
+		bool enableWhitewater = true;
 	};
 
 	struct SplattingRendererCreateInfo {
