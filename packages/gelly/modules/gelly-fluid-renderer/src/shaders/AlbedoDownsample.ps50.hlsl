@@ -22,9 +22,13 @@ static float gaussianKernel_3x3[9] = {
 // it's *really* hard to tell the pattern and it's not worth the time to compute it like the
 // depth filter, where we have pass-correlated random noise such that we can't see the pattern
 static float albedo_jitter[9] = {
-	13.73, 21.31, 13.73,
+	/*13.73, 21.31, 13.73,
 	17.61, 8.32f, 11.61,
-	3.73, 16.31, 9.73
+	3.73, 16.31, 9.73*/
+	// temporary fix
+	1.f, 1.f, 1.f,
+	1.f, 1.f, 1.f,
+	1.f, 1.f, 1.f
 };
 
 PS_OUTPUT main(VS_OUTPUT input) {
