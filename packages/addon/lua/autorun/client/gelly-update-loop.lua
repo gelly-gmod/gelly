@@ -60,11 +60,12 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 		if not isGellyActive() then return end
 
 		local viewent = LocalPlayer():GetViewEntity()
-		local viewangle = (viewent == LocalPlayer() and LocalPlayer():EyeAngles()) or viewent:GetAngles()
+		local viewpos = (viewent:IsPlayer() and LocalPlayer():EyePos()) or viewent:GetPos()
+		local viewangle = (viewent:IsPlayer() and LocalPlayer():EyeAngles()) or viewent:GetAngles()
 
 		render.Model({
 			model = ENVBALLS_MODEL_PATH,
-			pos = viewent:GetPos() - viewangle:Forward() * 40,
+			pos = viewpos - viewangle:Forward() * 40,
 			angle = viewangle,
 		}, envballsModel)
 		envballsModel:SetNoDraw(true)
