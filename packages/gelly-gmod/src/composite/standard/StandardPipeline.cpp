@@ -266,6 +266,7 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.sourceLightScale[3] = sourceLightScale[3];
 
 	compositeConstants.invViewProj = invViewProj;
+	compositeConstants.enableWhitewater = IsWhitewaterEnabled();
 
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
@@ -328,6 +329,14 @@ void StandardPipeline::SetCompositeSamplerState(
 	device->SetSamplerState(index, D3DSAMP_SRGBTEXTURE, srgb);
 }
 
+bool StandardPipeline::IsWhitewaterEnabled() const {
+	if (!gellyResources.splattingRenderer) {
+		return false;
+	}
+
+	return gellyResources.splattingRenderer->GetSettings().enableWhitewater;
+}
+
 StandardPipeline::StandardPipeline(unsigned int width, unsigned height) :
 	Pipeline(),
 	gellyResources(),
@@ -383,7 +392,10 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
-	// CompositeFoam(false);  // so that it can be seen in water
+	if (IsWhitewaterEnabled()) {
+		CompositeFoam(false);
+	}
+
 	UpdateBackBuffer();
 
 	stateBlock->Capture();
@@ -431,10 +443,47 @@ void StandardPipeline::Composite() {
 
 	stateBlock->Apply();
 
-	// Then we composite foam again so that the foam's alpha blend includes the
-	// composite
+	if (IsWhitewaterEnabled()) {
+		// Then we composite foam again so that the foam's alpha blend includes
+		// the newly rendered composite, otherwise it's going to show the
+		// background
+		CompositeFoam(false);
+	}
+}
 
-	// CompositeFoam(true);
+void StandardPipeline::CompositeFoam(bool writeDepth) {
+	auto &device = gmodResources.device;
+	stateBlock->Capture();
+
+	SetCompositeShaderConstants();
+
+	device->SetVertexShader(quadVertexShader.Get());
+	device->SetPixelShader(compositeFoamShader.Get());
+
+	SetCompositeSamplerState(0, D3DTEXF_LINEAR);
+	SetCompositeSamplerState(1, D3DTEXF_POINT);
+
+	device->SetTexture(0, textures->gmodTextures.thickness.Get());
+	device->SetTexture(1, textures->gmodTextures.depth.Get());
+
+	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
+	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+
+	device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	device->SetRenderState(D3DRS_ZWRITEENABLE, writeDepth);
+
+	// Ensures that any left over decal rendering doesn't interfere with the
+	// composite
+	device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	stateBlock->Apply();
 }
 
 void StandardPipeline::Render() {

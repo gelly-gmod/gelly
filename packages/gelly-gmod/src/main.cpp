@@ -612,6 +612,34 @@ LUA_FUNCTION(gelly_SetRenderSettings) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetDiffuseProperties) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
+
+	gelly::gmod::helpers::LuaTable diffuseTable(LUA);
+	const auto ballisticCount = diffuseTable.Get("BallisticCount", 0.f);
+	const auto kineticThreshold = diffuseTable.Get("KineticThreshold", 0.f);
+	const auto buoyancy = diffuseTable.Get("Buoyancy", 0.f);
+	const auto drag = diffuseTable.Get("Drag", 0.f);
+	const auto lifetime = diffuseTable.Get("Lifetime", 0.f);
+
+	SetDiffuseProperties command = {
+		.ballisticCount = ballisticCount,
+		.kineticThreshold = kineticThreshold,
+		.buoyancy = buoyancy,
+		.drag = drag,
+		.lifetime = lifetime
+	};
+
+	const auto commandList = sim->CreateCommandList();
+	commandList->AddCommand(
+		SimCommand{SET_DIFFUSE_PROPERTIES, SetDiffuseProperties{command}}
+	);
+	sim->ExecuteCommandList(commandList);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 LUA_FUNCTION(gelly_SetDiffuseScale) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
@@ -715,12 +743,14 @@ LUA_FUNCTION(gelly_SetGellySettings) {
 	GET_LUA_TABLE_MEMBER(float, FilterIterations);
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUSynchronization);
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUTiming);
+	GET_LUA_TABLE_MEMBER(bool, EnableWhitewater);
 
 	int filterIterations = static_cast<int>(FilterIterations);
 	auto currentSettings = compositor->GetGellySettings();
 	currentSettings.filterIterations = filterIterations;
 	currentSettings.enableGPUSynchronization = EnableGPUSynchronization_b;
 	currentSettings.enableGPUTiming = EnableGPUTiming_b;
+	currentSettings.enableWhitewater = EnableWhitewater_b;
 
 	compositor->UpdateGellySettings(currentSettings);
 	CATCH_GELLY_EXCEPTIONS();
@@ -738,6 +768,8 @@ LUA_FUNCTION(gelly_GetGellySettings) {
 	LUA->SetField(-2, "EnableGPUSynchronization");
 	LUA->PushBool(currentSettings.enableGPUTiming);
 	LUA->SetField(-2, "EnableGPUTiming");
+	LUA->PushBool(currentSettings.enableWhitewater);
+	LUA->SetField(-2, "EnableWhitewater");
 
 	CATCH_GELLY_EXCEPTIONS();
 	return 1;
@@ -748,10 +780,16 @@ LUA_FUNCTION(gelly_GetGellyTimings) {
 	auto timings = compositor->FetchGellyTimings();
 
 	LUA->CreateTable();
+	LUA->PushNumber(timings.computeAcceleration);
+	LUA->SetField(-2, "ComputeAcceleration");
+	LUA->PushNumber(timings.spraySplatting);
+	LUA->SetField(-2, "SpraySplatting");
 	LUA->PushNumber(timings.albedoDownsampling);
 	LUA->SetField(-2, "AlbedoDownsampling");
 	LUA->PushNumber(timings.ellipsoidSplatting);
 	LUA->SetField(-2, "EllipsoidSplatting");
+	LUA->PushNumber(timings.thicknessSplatting);
+	LUA->SetField(-2, "ThicknessSplatting");
 	LUA->PushNumber(timings.surfaceFiltering);
 	LUA->SetField(-2, "SurfaceFiltering");
 	LUA->PushNumber(timings.rawNormalEstimation);
@@ -772,6 +810,7 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 	GET_LUA_TABLE_MEMBER(float, RelaxationFactor);
 	GET_LUA_TABLE_MEMBER(float, CollisionDistance);
 	GET_LUA_TABLE_MEMBER(float, Gravity);
+	GET_LUA_TABLE_MEMBER(bool, EnableWhitewater);
 
 	int substeps = static_cast<int>(Substeps);
 	int iterations = static_cast<int>(Iterations);
@@ -781,7 +820,8 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 		 .iterations = iterations,
 		 .relaxationFactor = RelaxationFactor,
 		 .collisionDistance = CollisionDistance,
-		 .gravity = Gravity}
+		 .gravity = Gravity,
+		 .enableWhitewater = EnableWhitewater_b}
 	);
 
 	CATCH_GELLY_EXCEPTIONS();
@@ -1001,6 +1041,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
 	DEFINE_LUA_FUNC(gelly, SetRenderSettings);
+	DEFINE_LUA_FUNC(gelly, SetDiffuseProperties);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseScale);
 	DEFINE_LUA_FUNC(gelly, SetDiffuseMotionBlur);
 	DEFINE_LUA_FUNC(gelly, SetTimeStepMultiplier);

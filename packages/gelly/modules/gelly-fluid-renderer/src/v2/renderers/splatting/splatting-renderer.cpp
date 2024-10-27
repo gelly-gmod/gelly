@@ -1,9 +1,12 @@
 #include "splatting-renderer.h"
 
 #include "pipelines/albedo-downsampling.h"
+#include "pipelines/compute-acceleration.h"
 #include "pipelines/ellipsoid-splatting.h"
 #include "pipelines/normal-estimation.h"
+#include "pipelines/spray-splatting.h"
 #include "pipelines/surface-filtering.h"
+#include "pipelines/thickness-splatting.h"
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 #include "reload-shaders.h"
 #endif
@@ -39,7 +42,11 @@ SplattingRenderer::SplattingRenderer(
 	pipelineInfo(CreatePipelineInfo()),
 	query(CreateQuery()),
 	durations(
-		{.ellipsoidSplatting = createInfo.device,
+		{.computeAcceleration = createInfo.device,
+		 .spraySplatting = createInfo.device,
+		 .sprayDepthSplatting = createInfo.device,
+		 .ellipsoidSplatting = createInfo.device,
+		 .thicknessSplatting = createInfo.device,
 		 .albedoDownsampling = createInfo.device,
 		 .surfaceFiltering = createInfo.device,
 		 .rawNormalEstimation = createInfo.device}
@@ -68,45 +75,48 @@ auto SplattingRenderer::Render() -> void {
 		);
 	}
 #endif
+	RunPipeline(
+		ellipsoidSplatting,
+		durations.ellipsoidSplatting,
+		createInfo.simData->GetActiveParticles()
+	);
 
-	if (settings.enableGPUTiming) {
-		durations.ellipsoidSplatting.Start();
-	}
-	SetFrameResolution(
-		ellipsoidSplatting->GetRenderPass()->GetScaledWidth(),
-		ellipsoidSplatting->GetRenderPass()->GetScaledHeight()
-	);
-	ellipsoidSplatting->Run(createInfo.simData->GetActiveParticles());
-	if (settings.enableGPUTiming) {
-		durations.ellipsoidSplatting.End();
+	if (settings.enableWhitewater) {
+		if (settings.enableGPUTiming) {
+			durations.computeAcceleration.Start();
+		}
+		computeAcceleration->Dispatch(
+			{static_cast<unsigned int>(createInfo.simData->GetActiveParticles()
+			 ),
+			 1,
+			 1}
+		);
+		if (settings.enableGPUTiming) {
+			durations.computeAcceleration.End();
+		}
+
+		// populate depth only, the next pass populates density (additive)
+		RunPipeline(
+			spraySplattingDepth,
+			durations.sprayDepthSplatting,
+			createInfo.simData->GetActiveFoamParticles()
+		);
+
+		RunPipeline(
+			spraySplatting,
+			durations.spraySplatting,
+			createInfo.simData->GetActiveFoamParticles()
+		);
 	}
 
-	SetFrameResolution(
-		albedoDownsampling->GetRenderPass()->GetScaledWidth(),
-		albedoDownsampling->GetRenderPass()->GetScaledHeight()
+	RunPipeline(
+		thicknessSplatting,
+		durations.thicknessSplatting,
+		createInfo.simData->GetActiveParticles()
 	);
-	if (settings.enableGPUTiming) {
-		durations.albedoDownsampling.Start();
-	}
-	albedoDownsampling->Run();
-	if (settings.enableGPUTiming) {
-		durations.albedoDownsampling.End();
-	}
-	SetFrameResolution(
-		surfaceFilteringA->GetRenderPass()->GetScaledWidth(),
-		surfaceFilteringA->GetRenderPass()->GetScaledHeight()
-	);
-	if (settings.enableGPUTiming) {
-		durations.rawNormalEstimation.Start();
-	}
-	SetFrameResolution(
-		rawNormalEstimation->GetRenderPass()->GetScaledWidth(),
-		rawNormalEstimation->GetRenderPass()->GetScaledHeight()
-	);
-	rawNormalEstimation->Run();
-	if (settings.enableGPUTiming) {
-		durations.rawNormalEstimation.End();
-	}
+
+	RunPipeline(albedoDownsampling, durations.albedoDownsampling);
+	RunPipeline(rawNormalEstimation, durations.rawNormalEstimation);
 
 	if (settings.enableGPUTiming) {
 		durations.surfaceFiltering.Start();
@@ -115,6 +125,7 @@ auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUTiming) {
 		durations.surfaceFiltering.End();
 	}
+
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->EndFrameCapture(
@@ -135,8 +146,15 @@ auto SplattingRenderer::Render() -> void {
 	}
 
 	if (settings.enableGPUTiming) {
+		latestTimings.computeAcceleration =
+			durations.computeAcceleration.GetDuration();
 		latestTimings.ellipsoidSplatting =
 			durations.ellipsoidSplatting.GetDuration();
+		latestTimings.spraySplatting =
+			durations.spraySplatting.GetDuration() +
+			durations.sprayDepthSplatting.GetDuration();
+		latestTimings.thicknessSplatting =
+			durations.thicknessSplatting.GetDuration();
 		latestTimings.albedoDownsampling =
 			durations.albedoDownsampling.GetDuration();
 		latestTimings.surfaceFiltering =
@@ -144,7 +162,10 @@ auto SplattingRenderer::Render() -> void {
 		latestTimings.rawNormalEstimation =
 			durations.rawNormalEstimation.GetDuration();
 
-		latestTimings.isDisjoint = durations.ellipsoidSplatting.IsDisjoint() ||
+		latestTimings.isDisjoint = durations.computeAcceleration.IsDisjoint() ||
+								   durations.ellipsoidSplatting.IsDisjoint() ||
+								   durations.spraySplatting.IsDisjoint() ||
+								   durations.thicknessSplatting.IsDisjoint() ||
 								   durations.albedoDownsampling.IsDisjoint() ||
 								   durations.surfaceFiltering.IsDisjoint() ||
 								   durations.rawNormalEstimation.IsDisjoint();
@@ -183,8 +204,15 @@ auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
+	computeAcceleration = CreateComputeAccelerationPipeline(pipelineInfo);
+	spraySplatting =
+		CreateSpraySplattingPipeline(pipelineInfo, createInfo.scale);
+	spraySplattingDepth =
+		CreateSpraySplattingPipeline(pipelineInfo, createInfo.scale, true);
 	ellipsoidSplatting =
 		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
+	thicknessSplatting =
+		CreateThicknessSplattingPipeline(pipelineInfo, createInfo.scale);
 	albedoDownsampling =
 		CreateAlbedoDownsamplingPipeline(pipelineInfo, ALBEDO_OUTPUT_SCALE);
 
@@ -224,7 +252,11 @@ auto SplattingRenderer::UpdateTextureRegistry(
 	pipelineInfo.height = height;
 
 	pipelineInfo.internalTextures = std::make_shared<InternalTextures>(
-		createInfo.device, createInfo.width, createInfo.height, createInfo.scale
+		createInfo.device,
+		createInfo.width,
+		createInfo.height,
+		createInfo.scale,
+		ALBEDO_OUTPUT_SCALE
 	);
 
 	pipelineInfo.outputTextures = std::make_shared<OutputTextures>(
@@ -242,7 +274,8 @@ auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {
 			createInfo.device,
 			createInfo.width,
 			createInfo.height,
-			createInfo.scale
+			createInfo.scale,
+			ALBEDO_OUTPUT_SCALE
 		),
 		.outputTextures = std::make_shared<OutputTextures>(
 			createInfo.device, createInfo.inputSharedHandles
@@ -261,6 +294,16 @@ auto SplattingRenderer::LinkBuffersToSimData() const -> void {
 	simData->LinkBuffer(
 		SimBufferType::POSITION,
 		pipelineInfo.internalBuffers->particlePositions->GetRawBuffer().Get()
+	);
+
+	simData->LinkBuffer(
+		SimBufferType::VELOCITY0,
+		pipelineInfo.internalBuffers->particleVelocities0->GetRawBuffer().Get()
+	);
+
+	simData->LinkBuffer(
+		SimBufferType::VELOCITY1,
+		pipelineInfo.internalBuffers->particleVelocities1->GetRawBuffer().Get()
 	);
 
 	simData->LinkBuffer(
@@ -402,6 +445,27 @@ auto SplattingRenderer::CreateQuery() -> ComPtr<ID3D11Query> {
 	);
 
 	return query;
+}
+
+auto SplattingRenderer::RunPipeline(
+	PipelinePtr pipeline,
+	util::GPUDuration &duration,
+	const std::optional<int> vertexCount
+) -> void {
+	if (settings.enableGPUTiming) {
+		duration.Start();
+	}
+
+	SetFrameResolution(
+		pipeline->GetRenderPass()->GetScaledWidth(),
+		pipeline->GetRenderPass()->GetScaledHeight()
+	);
+
+	pipeline->Run(vertexCount);
+
+	if (settings.enableGPUTiming) {
+		duration.End();
+	}
 }
 
 }  // namespace splatting

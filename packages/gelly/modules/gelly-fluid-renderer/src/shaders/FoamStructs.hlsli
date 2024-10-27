@@ -15,6 +15,10 @@ struct GS_OUTPUT {
 };
 
 struct PS_OUTPUT {
-    float4 FoamEncoding : SV_TARGET0;
+	#ifdef ADD_DEPTH
+	float3 HighPrecisionDepth : SV_TARGET0;
     float Depth : SV_DEPTH;
+	#else
+	float3 Thickness : SV_TARGET0;
+	#endif
 };

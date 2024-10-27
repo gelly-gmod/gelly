@@ -14,6 +14,7 @@
 // useful defines for offline debugging
 //#define NORMALS_VIEW
 //#define NORMALS_VIEW_DEBUG_CURVATURE
+//#define VELOCITY_VIEW
 sampler2D depthTex : register(s0);
 sampler2D normalTex : register(s1);
 sampler2D backbufferTex : register(s2);
@@ -38,6 +39,7 @@ float4x4 viewProjMatrix : register(c17);
 float4 sunDir : register(c21);
 float4 lightScaling : register(c22);
 float4x4 invViewProjMatrix : register(c23);
+float enableWhitewater : register(c27);
 
 #define CUBEMAP_SCALE lightScaling.z
 
@@ -105,7 +107,10 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         return float4(transmission * absorption, 1.f); // simple underwater effect
     }
 
-    float thickness = tex2D(thicknessTex, input.Tex).x;
+    float2 thicknessAndVelocity = tex2D(thicknessTex, input.Tex).xw;
+    float thickness = thicknessAndVelocity.x;
+    float velocity = min(thicknessAndVelocity.y * 0.001f, 1.f) * enableWhitewater;
+
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = WorldPosFromDepth(input.Tex, projectedDepth);
     float3 normal = tex2D(normalTex, input.Tex).xyz;
@@ -127,7 +132,11 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         material.r_st_ior.x * material.r_st_ior.x
     ) * diffuseIrradiance * material.diffuseAlbedo;
 
-    float3 specularTransmissionLobe = (1.f - fresnel) * SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption) + fresnel * specular;
+	float3 transmission = SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption);
+	transmission += lerp(diffuseIrradiance, diffuseIrradiance * float3(1.5f, 1.5f, 1.5f), 0.03f) * velocity;
+
+    float3 specularTransmissionLobe = (1.f - fresnel) * transmission + fresnel * specular;
+
     // inverse fresnel is already applied to the diffuse lobe
     float3 diffuseSpecularLobe = diffuse + fresnel * specular;
     float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
@@ -142,6 +151,8 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     // so we just divide by the worldspace size of the fragment
     float curvature = length(fwidth(normal));
     return float4(util::CMRMapFloat(curvature), 1.f);
+#elif defined(VELOCITY_VIEW)
+    return float4(util::CMRMapFloat(velocity), 1.f);
 #else
     float3 weight = specularTransmissionLobe + roughLobe;
 	return float4(weight, 1.f);

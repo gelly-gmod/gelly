@@ -32,7 +32,7 @@ local function performanceDebugger()
 	for i = 1, 40 do
 		gellyx.emitters.Cube({
 			center = EMIT_SPOT_A,
-			velocity = Vector(0, 20, 10), -- make them fly towards each other
+			velocity = Vector(0, 80, 10), -- make them fly towards each other
 			bounds = Vector(50, 50, 50),
 			density = 1000,
 		})
@@ -41,16 +41,16 @@ local function performanceDebugger()
 	for i = 1, 40 do
 		gellyx.emitters.Cube({
 			center = EMIT_SPOT_B,
-			velocity = Vector(0, -20, 10),
+			velocity = Vector(0, -80, 10),
 			bounds = Vector(50, 50, 50),
-			density = 1000,
+			density = 2000,
 		})
 	end
 
 	sampler:InjectTimingHooks()
 	gelly.SetTimeStepMultiplier(1)
 
-	timer.Simple(5, function()
+	timer.Simple(2.8, function()
 		local settings = gelly.GetGellySettings()
 		settings.EnableGPUTiming = true
 		gelly.SetGellySettings(settings)
@@ -61,15 +61,25 @@ local function performanceDebugger()
 		settings.EnableGPUTiming = false
 		gelly.SetGellySettings(settings)
 
-		local totalGPUTimeMs = timings.EllipsoidSplatting + timings.AlbedoDownsampling + timings.RawNormalEstimation +
-			timings.SurfaceFiltering
+		local totalGPUTimeMs = 0
+		for _, timing in pairs(timings) do
+			if type(timing) ~= "number" then
+				continue
+			end
+
+			totalGPUTimeMs = totalGPUTimeMs + timing
+		end
+
 		sampler:RemoveTimingHooks()
 		gelly.SetTimeStepMultiplier(1)
 		gelly.Reset()
 		hook.Remove("CalcView", "gelly.performance-debugger")
 		print("Performance test complete.")
 		print(("Render time (CPU, ms): %.2f"):format(sampler:GetRenderAverage()))
+		print(("    + Compute acceleration: %.2fms"):format(timings.ComputeAcceleration))
+		print(("    + Spray splatting: %.2fms"):format(timings.SpraySplatting))
 		print(("    + Ellipsoid splatting: %.2fms"):format(timings.EllipsoidSplatting))
+		print(("    + Thickness splatting: %.2fms"):format(timings.ThicknessSplatting))
 		print(("    + Albedo downsampling: %.2fms"):format(timings.AlbedoDownsampling))
 		print(("    + Raw normal estimation: %.2fms"):format(timings.RawNormalEstimation))
 		print(("    + Surface filtering: %.2fms"):format(timings.SurfaceFiltering))

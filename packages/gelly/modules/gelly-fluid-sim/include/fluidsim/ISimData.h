@@ -11,7 +11,9 @@ struct SimFloat4 {
 
 enum class SimBufferType {
 	POSITION,
-	VELOCITY,
+	VELOCITY0,	// Velocity at the current time step (the order really doesn't
+				// matter)
+	VELOCITY1,	// Velocity at the previous time step
 	FOAM_POSITION,
 	FOAM_VELOCITY,
 	// Basis vectors for oriented ellipsoid surface extraction
