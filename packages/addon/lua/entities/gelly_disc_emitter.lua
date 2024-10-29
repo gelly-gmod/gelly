@@ -87,3 +87,7 @@ function ENT:Think()
 	self:SetNextClientThink(CurTime() + 0.01)
 	return true
 end
+
+function ENT:Use()
+	self:SetEnabled(not self:GetEnabled())
+end
