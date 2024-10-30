@@ -21,8 +21,8 @@ function ENT:SetupDataTables()
 end
 
 function ENT:InitializeDefaultSettings()
-	self:SetDensity(355)
-	self:SetSpeed(55)
+	self:SetDensity(200)
+	self:SetSpeed(50)
 	self:SetEnabled(true)
 end
 
@@ -75,9 +75,9 @@ function ENT:Think()
 		local transform = self:GetWorldTransformMatrix()
 
 		gellyx.emitters.Cube({
-			center = Vector(0, 0, 80),
+			center = Vector(0, 0, 3.0 * gellyx.presets.getEffectiveRadius()),
 			velocity = Vector(0, 0, self:GetSpeed()),
-			bounds = Vector(2.3 * gellyx.presets.getEffectiveRadius(), 1.6 * gellyx.presets.getEffectiveRadius(), 80),
+			bounds = Vector(2.0 * gellyx.presets.getEffectiveRadius(), 2.0 * gellyx.presets.getEffectiveRadius(), 3.0 * gellyx.presets.getEffectiveRadius()),
 			density = self:GetDensity(),
 			transform = transform,
 			material = self:IsColorOverrided() and self.PresetMaterial or nil
