@@ -21,7 +21,7 @@ function ENT:SetupDataTables()
 end
 
 function ENT:InitializeDefaultSettings()
-	self:SetDensity(250)
+	self:SetDensity(200)
 	self:SetSpeed(50)
 	self:SetEnabled(true)
 end
