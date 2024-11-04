@@ -65,7 +65,9 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 void CD3D11FlexFluidSimulation::SetMaxParticles(const int maxParticles) {
 	this->maxParticles = maxParticles;
 	simData->SetMaxParticles(maxParticles);
-	simData->SetMaxFoamParticles(maxParticles);
+	simData->SetMaxFoamParticles(
+		static_cast<int>(static_cast<float>(maxParticles) * 2.f)
+	);
 }
 
 void CD3D11FlexFluidSimulation::Initialize() {
@@ -80,6 +82,14 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		// We need to register our flex buffers at this point.
 		throw std::runtime_error(
 			"CD3D11FlexFluidSimulation::Initialize: position buffer must be "
+			"linked before initializing the simulation."
+		);
+	}
+
+	if (!simData->IsBufferLinked(SimBufferType::VELOCITY0) ||
+		!simData->IsBufferLinked(SimBufferType::VELOCITY1)) {
+		throw std::runtime_error(
+			"CD3D11FlexFluidSimulation::Initialize: velocity buffer must be "
 			"linked before initializing the simulation."
 		);
 	}
@@ -158,6 +168,20 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		simData->GetLinkedBuffer(SimBufferType::POSITION),
 		maxParticles,
 		sizeof(FlexFloat4)
+	);
+
+	sharedBuffers.velocities0 = NvFlexRegisterD3DBuffer(
+		library,
+		simData->GetLinkedBuffer(SimBufferType::VELOCITY0),
+		maxParticles,
+		sizeof(FlexFloat3)
+	);
+
+	sharedBuffers.velocities1 = NvFlexRegisterD3DBuffer(
+		library,
+		simData->GetLinkedBuffer(SimBufferType::VELOCITY1),
+		maxParticles,
+		sizeof(FlexFloat3)
 	);
 
 	sharedBuffers.foamPositions = NvFlexRegisterD3DBuffer(
@@ -273,6 +297,14 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(ISimCommandList *commandList
 					solverParams.relaxationFactor = arg.relaxationFactor;
 					solverParams.collisionDistance = arg.collisionDistance;
 					solverParams.gravity[2] = arg.gravity;
+				} else if constexpr (std::is_same_v<T, SetDiffuseProperties>) {
+					solverParams.diffuseThreshold = arg.kineticThreshold;
+					solverParams.diffuseBallistic = arg.ballisticCount;
+					solverParams.diffuseBuoyancy = arg.buoyancy;
+					solverParams.diffuseDrag = arg.drag;
+					diffuseLifetime = arg.lifetime;
+					solverParams.diffuseLifetime =
+						arg.lifetime * timeStepMultiplier;
 				}
 			},
 			command.data
@@ -379,28 +411,44 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 		sharedBuffers.anisotropyQ3Buffer,
 		&copyDesc
 	);
-	NvFlexGetDiffuseParticles(
-		solver,
-		sharedBuffers.foamPositions,
-		sharedBuffers.foamVelocities,
-		buffers.diffuseParticleCount
-	);
 
-	// unfortunately, the GPU runs the diffuse spawning code now so we really
-	// gotta synchronize our CPU particles with the GPU
-	const auto *diffuseParticleCount = static_cast<int *>(
-		NvFlexMap(buffers.diffuseParticleCount, eNvFlexMapWait)
-	);
+	if (enableWhitewater) {
+		NvFlexGetDiffuseParticles(
+			solver,
+			sharedBuffers.foamPositions,
+			sharedBuffers.foamVelocities,
+			buffers.diffuseParticleCount
+		);
 
-	simData->SetActiveFoamParticles(*diffuseParticleCount);
-	NvFlexUnmap(buffers.diffuseParticleCount);
+		// We always want to fetch velocities to our GPU shared buffer, the
+		// buffers.velocities is for particle updates
+		NvFlexGetVelocities(
+			solver,
+			sharedBuffers.velocityBufferSwapped ? sharedBuffers.velocities1
+												: sharedBuffers.velocities0,
+			&copyDesc
+		);
+		sharedBuffers.velocityBufferSwapped =
+			!sharedBuffers.velocityBufferSwapped;
+
+		// unfortunately, the GPU runs the diffuse spawning code now so we
+		// really gotta synchronize our CPU particles with the GPU
+		const auto *diffuseParticleCount = static_cast<int *>(
+			NvFlexMap(buffers.diffuseParticleCount, eNvFlexMapWait)
+		);
+
+		simData->SetActiveFoamParticles(*diffuseParticleCount);
+		NvFlexUnmap(buffers.diffuseParticleCount);
+	} else {
+		simData->SetActiveFoamParticles(0);
+	}
 }
 
 void CD3D11FlexFluidSimulation::SetTimeStepMultiplier(float timeStepMultiplier
 ) {
 	this->timeStepMultiplier = timeStepMultiplier;
 
-	solverParams.diffuseLifetime = 2.f * timeStepMultiplier;
+	solverParams.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
 }
 
 void CD3D11FlexFluidSimulation::SetupParams() {
@@ -448,11 +496,7 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	solverParams.vorticityConfinement = 1.0f;
 	solverParams.buoyancy = 1.0f;
 
-	solverParams.diffuseBallistic = 0;
-	solverParams.diffuseThreshold = 100.f;
-	solverParams.diffuseBuoyancy = 1.f;
-	solverParams.diffuseDrag = 0.2f;
-	solverParams.diffuseLifetime = 2.f * timeStepMultiplier;
+	solverParams.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
 }
 
 void CD3D11FlexFluidSimulation::DebugDumpParams() {

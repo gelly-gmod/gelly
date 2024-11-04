@@ -43,7 +43,7 @@ std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
 void StandardTextures::CreateFeatureTextures(float scale) {
 	// albedo and thickness are always fixed at quarter resolution
 	std::tie(gmodTextures.albedo, sharedHandles.albedo) =
-		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.25f);
+		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.5f);
 
 	std::tie(gmodTextures.normal, sharedHandles.normals) =
 		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F, 1, scale);
@@ -52,7 +52,7 @@ void StandardTextures::CreateFeatureTextures(float scale) {
 		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F, 1, scale);
 
 	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
-		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.25f);
+		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.5f);
 }
 
 StandardTextures::StandardTextures(

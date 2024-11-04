@@ -34,10 +34,19 @@ end
 
 local function selectPreset(preset)
 	preset.SolverParams.RestDistanceRatio = preset.SolverParams.RestDistanceRatio or 0.73
+	preset.UseWhitewater = preset.UseWhitewater or false
 	gelly.ChangeParticleRadius(preset.Radius * gellyx.settings.get("preset_radius_scale"):GetFloat())
+	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat() *
+		gellyx.settings.get("preset_radius_scale"):GetFloat())
 	gelly.SetFluidProperties(preset.SolverParams)
 	gelly.SetFluidMaterial(preset.Material)
-	gelly.SetDiffuseScale(preset.DiffuseScale)
+
+	if gellyx.settings.get("whitewater_enabled"):GetBool() then
+		local currentGellySettings = gelly.GetGellySettings()
+		currentGellySettings.EnableWhitewater = preset.UseWhitewater
+		gelly.SetGellySettings(currentGellySettings)
+	end
+
 	GELLY_ACTIVE_PRESET = preset
 	logging.info("Selected preset %s", preset.Name)
 end
@@ -142,7 +151,8 @@ gellyx.settings.registerMultipleOnChange(EPHEMERAL_FLUID_SETTING_NAMES, function
 	selectPreset(newPreset)
 end)
 
-gellyx.settings.registerMultipleOnChange({ "fluid_color_hex", "fluid_color_scale", "fluid_roughness", "fluid_opaque" },
+gellyx.settings.registerMultipleOnChange(
+	{ "fluid_color_hex", "fluid_color_scale", "fluid_roughness", "fluid_opaque", "fluid_use_whitewater" },
 	function()
 		if not GELLY_ACTIVE_PRESET then
 			return
@@ -165,5 +175,6 @@ gellyx.settings.registerMultipleOnChange({ "fluid_color_hex", "fluid_color_scale
 		newPreset.Material.DiffuseColor = diffuseColor
 		newPreset.Material.Roughness = gellyx.settings.get("fluid_roughness"):GetFloat()
 		newPreset.Material.IsSpecularTransmission = not gellyx.settings.get("fluid_opaque"):GetBool()
+		newPreset.UseWhitewater = gellyx.settings.get("fluid_use_whitewater"):GetBool()
 		selectPreset(newPreset)
 	end)

@@ -20,13 +20,18 @@ constexpr bool is_pixel_shader = std::is_same_v<ID3D11PixelShader, ShaderType>;
 template <typename ShaderType>
 constexpr bool is_geometry_shader =
 	std::is_same_v<ID3D11GeometryShader, ShaderType>;
+template <typename ShaderType>
+constexpr bool is_compute_shader =
+	std::is_same_v<ID3D11ComputeShader, ShaderType>;
+template <typename ShaderType>
+constexpr bool is_valid_shader =
+	is_vertex_shader<ShaderType> || is_pixel_shader<ShaderType> ||
+	is_geometry_shader<ShaderType> || is_compute_shader<ShaderType>;
 
 template <typename ShaderType>
 class Shader {
 	static_assert(
-		is_vertex_shader<ShaderType> || is_pixel_shader<ShaderType> ||
-			is_geometry_shader<ShaderType>,
-		"ShaderType must be a D3D11 shader type"
+		is_valid_shader<ShaderType>, "ShaderType must be a D3D11 shader type"
 	);
 
 public:
@@ -50,11 +55,13 @@ private:
 	auto CreateVertexShader() -> ComPtr<ID3D11VertexShader>;
 	auto CreatePixelShader() -> ComPtr<ID3D11PixelShader>;
 	auto CreateGeometryShader() -> ComPtr<ID3D11GeometryShader>;
+	auto CreateComputeShader() -> ComPtr<ID3D11ComputeShader>;
 };
 
 using PixelShader = Shader<ID3D11PixelShader>;
 using VertexShader = Shader<ID3D11VertexShader>;
 using GeometryShader = Shader<ID3D11GeometryShader>;
+using ComputeShader = Shader<ID3D11ComputeShader>;
 
 }  // namespace renderer
 }  // namespace gelly

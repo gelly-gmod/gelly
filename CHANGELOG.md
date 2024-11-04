@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.28.1] - 2024-10-29
+
+### Changed
+
+- Disc emitters now toggle their emission when used (when you press E and look at one)
+
+## [1.28.0] - 2024-10-26
+
+### Added
+
+- Spray! You can now enjoy seeing light and foamy particles spray out of turbulent fluids.
+- Foam! You can now see your particles begin to scatter light and foam up when they're turbulent.
+- Bubbles... technically! You can now see white particles in the fluid when it's turbulent, which is a placeholder for
+  bubbles.
+- A new checkbox in the Simulation tab, "Whitewater Enabled," which enables the new spray and foam effects. You may
+  disable this to completely disable the new effects and thus save on performance.
+- A new per-preset checkbox, "Use Whitewater," which allows you to enable or disable whitewater on a per-preset basis,
+  such that the effects aren't illogically enabled, such as Glunk or Blood.
+
+### Changed
+
+- Improved how thickness is calculated, which means thin presets like Blood should still look mostly uniform across
+  their surface.
+
+### Fixed
+
+- Fixed a long-standing but particularly rare bug where fluid behind the camera, but not necessarily "out-of-frame"
+  would appear as
+  a silhouette in the thickness buffer.
+
+### Removed
+
+- Removed the old foam system, which was a bit of a mess and didn't look very good.
+
+## [1.27.1] - 2024-10-26
+
+### Added
+
+- Added door collisions
+
 ## [1.27.0] - 2024-10-14
 
 ### Added
