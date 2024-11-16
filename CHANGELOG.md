@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed whitewater suddenly activating once the resolution scale was changed.
 
+## [1.28.1] - 2024-10-29
+
+### Changed
+
+- Disc emitters now toggle their emission when used (when you press E and look at one)
+
 ## [1.28.0] - 2024-10-26
 
 ### Added
