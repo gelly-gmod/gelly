@@ -118,6 +118,10 @@ function gellyx.presets.copyPresetMaterial(name)
 	return material
 end
 
+function gellyx.presets.isPresetUsingWhitewater()
+	return GELLY_ACTIVE_PRESET and GELLY_ACTIVE_PRESET.UseWhitewater
+end
+
 gellyx.settings.registerOnChange("preset_radius_scale", function()
 	if not GELLY_ACTIVE_PRESET then
 		return

@@ -52,7 +52,8 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 	gelly.SetGellySettings({
 		FilterIterations = gellyx.settings.get("smoothness"):GetInt(),
 		EnableGPUSynchronization = true,
-		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool(),
+		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool() and
+			gellyx.presets.isPresetUsingWhitewater()
 	})
 
 	gelly.ConfigureSim({
@@ -61,7 +62,7 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		RelaxationFactor = gellyx.settings.get("simulation_relaxation"):GetFloat(),
 		CollisionDistance = gellyx.settings.get("simulation_collision_distance"):GetFloat(),
 		Gravity = gellyx.settings.get("simulation_gravity"):GetFloat(),
-		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool(),
+		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool()
 	})
 
 	local isLightingFixEnabled = gellyx.settings.get("glunk_lighting_fix"):GetBool()
