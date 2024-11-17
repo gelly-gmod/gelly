@@ -25,6 +25,12 @@ add_library(
         include/fluidsim/ISimRigids.h
         include/fluidsim/CFlexSimRigids.h
         src/fluidsim/CFlexSimRigids.cpp
+        include/fluidsim/scene/scene.cpp
+        include/fluidsim/scene/scene.h
+        include/fluidsim/scene/object.h
+        include/fluidsim/scene/object-handler.h
+        include/fluidsim/scene/handlers/shape-handler.h
+        include/fluidsim/scene/helpers/monotonic-counter.h
 )
 
 GetFleXArchitecture()
