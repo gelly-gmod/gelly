@@ -1,6 +1,7 @@
 #ifndef SHAPE_HANDLER_H
 #define SHAPE_HANDLER_H
 
+#include <functional>
 #include <unordered_map>
 
 #include "../object-handler.h"
@@ -25,6 +26,24 @@ struct ShapeMetadata {
 			float halfHeight;
 		} capsule;
 	};
+
+	struct {
+		float position[3];
+		float rotation[4];
+	} transform;
+
+	void SetTransformPosition(float x, float y, float z) {
+		transform.position[0] = x;
+		transform.position[1] = y;
+		transform.position[2] = z;
+	}
+
+	void SetTransformRotation(float x, float y, float z, float w) {
+		transform.rotation[0] = x;
+		transform.rotation[1] = y;
+		transform.rotation[2] = z;
+		transform.rotation[3] = w;
+	}
 };
 
 using ShapeObject = Object<ShapeMetadata>;
@@ -58,22 +77,44 @@ struct ShapeCreationInfo {
 
 class ShapeHandler : public ObjectHandler {
 public:
-	explicit ShapeHandler(ObjectHandlerContext ctx);
+	using ShapeUpdateCallback = std::function<void(ShapeObject &)>;
+
+	// Maximum number of shapes that can be created.
+	// It's unlikely anyone could ever reach this limit, but it is
+	// technically possible. See the link below for more information.
+	// https://developer.valvesoftware.com/wiki/Entity_limit
+	const uint32_t MAX_SHAPES = 8192;
+
+	explicit ShapeHandler(
+		ObjectHandlerContext ctx,
+		std::shared_ptr<MonotonicCounter> objectCounter
+	);
 
 	~ShapeHandler() override;
 
 	void Update() override;
 
-	ObjectID MakeShape(const Gelly::ShapeCreationInfo &info);
+	ObjectID MakeShape(const ShapeCreationInfo &info);
 	void RemoveShape(ObjectID id);
 
-	void UpdateShapePosition(ObjectID id, float x, float y, float z);
-	void UpdateShapeRotation(ObjectID id, float x, float y, float z, float w);
+	void UpdateShape(ObjectID id, ShapeUpdateCallback callback);
 
 private:
 	ObjectHandlerContext ctx;
-	MonotonicCounter counter;
+	std::shared_ptr<MonotonicCounter> counter;
 	std::unordered_map<ObjectID, ShapeObject> objects;
+
+	struct {
+		NvFlexBuffer *positions;
+		NvFlexBuffer *rotations;
+		NvFlexBuffer *prevPositions;
+		NvFlexBuffer *prevRotations;
+		NvFlexBuffer *info;
+		NvFlexBuffer *flags;
+	} flexBuffers = {};
+
+	void CreateFleXBuffers();
+	void DestroyFleXBuffers();
 };
 
 #endif	// SHAPE_HANDLER_H

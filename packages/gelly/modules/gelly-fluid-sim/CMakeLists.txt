@@ -31,6 +31,8 @@ add_library(
         include/fluidsim/scene/object-handler.h
         include/fluidsim/scene/handlers/shape-handler.h
         include/fluidsim/scene/helpers/monotonic-counter.h
+        include/fluidsim/scene/handlers/shape-handler.cpp
+        include/fluidsim/scene/helpers/flex-types.h
 )
 
 GetFleXArchitecture()

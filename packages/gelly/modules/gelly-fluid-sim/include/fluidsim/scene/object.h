@@ -12,11 +12,6 @@ template <typename Metadata>
 struct Object {
 public:
 	ObjectType type;
-	struct {
-		float position[3];
-		float rotation[4];
-	} transform;
-
 	std::unique_ptr<Metadata> metadata;
 };
 }  // namespace Gelly
