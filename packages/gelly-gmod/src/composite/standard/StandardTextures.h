@@ -17,10 +17,15 @@ class StandardTextures {
 private:
 	UnownedResources gmodResources;
 	InputSharedHandles sharedHandles;
+	ComPtr<IDirect3DSurface9> finalSurface;
 	unsigned int width;
 	unsigned int height;
 
 	std::pair<ComPtr<IDirect3DTexture9>, HANDLE> CreateTexture(
+		const char *name, D3DFORMAT format, int levels = 1, float scale = 1.f
+	) const;
+
+	ComPtr<IDirect3DTexture9> CreateTextureUnshared(
 		const char *name, D3DFORMAT format, int levels = 1, float scale = 1.f
 	) const;
 
@@ -31,6 +36,13 @@ public:
 		ComPtr<IDirect3DTexture9> depth;
 		ComPtr<IDirect3DTexture9> thickness;
 		ComPtr<IDirect3DTexture9> foam;
+		/**
+		 * Used for anti-aliasing purposes, this texture is the final output
+		 * *USING* the current resolution *scale*. This is extremely important
+		 * as it removes pixel grid alignment issues and their associated
+		 * symptoms (jittery reflections, of course aliasing, etc).
+		 */
+		ComPtr<IDirect3DTexture9> final;
 	} gmodTextures;
 
 	StandardTextures(
@@ -49,6 +61,8 @@ public:
 	 * @param scale New scale
 	 */
 	void CreateFeatureTextures(float scale);
+
+	IDirect3DSurface9 *GetFinalSurface() const { return finalSurface.Get(); }
 };
 
 #endif	// STANDARDTEXTURES_H

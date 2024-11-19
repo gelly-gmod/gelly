@@ -403,6 +403,7 @@ void StandardPipeline::Composite() {
 	device->GetPixelShaderConstantF(30, sourceLightScale, 1);
 
 	SetCompositeShaderConstants();
+	device->SetRenderTarget(0, textures->GetFinalSurface());
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeShader.Get());
 
@@ -457,6 +458,7 @@ void StandardPipeline::CompositeFoam(bool writeDepth) {
 
 	SetCompositeShaderConstants();
 
+	device->SetRenderTarget(0, textures->GetFinalSurface());
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeFoamShader.Get());
 

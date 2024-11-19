@@ -155,14 +155,19 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     return float4(util::CMRMapFloat(velocity), 1.f);
 #else
     float3 weight = specularTransmissionLobe + roughLobe;
-	return float4(weight, 1.f);
+	return float4(weight, 1.f); // alpha 1 to mask the fluid
 #endif
 }
 
 PS_OUTPUT main(VS_INPUT input) {
     float4 depthFragment = tex2D(depthTex, input.Tex);
     if (depthFragment.r >= 1.f) {
-        discard;
+		// this might seem odd but we want to replace this with the background (alpha 0)
+		// so that we can run a proper FXAA pass later
+		PS_OUTPUT output = (PS_OUTPUT)0;
+		output.Color = float4(tex2D(backbufferTex, input.Tex).xyz, 0.f);
+		output.Depth = 0.f;
+		return output;
     }
     
     PS_OUTPUT output = (PS_OUTPUT)0;
