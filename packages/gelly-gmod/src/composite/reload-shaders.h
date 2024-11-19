@@ -3,6 +3,7 @@
 #include "CompositeFoamPS.h"
 #include "CompositePS.h"
 #include "NDCQuadVS.h"
+#include "OutputCompositePS.h"
 
 #ifndef GELLY_ENABLE_RENDERDOC_CAPTURES
 #error \
@@ -14,6 +15,7 @@ inline auto ReloadAllGSCShaders() -> void {
 	gsc::CompositePS::ReloadFromDisk();
 	gsc::CompositeFoamPS::ReloadFromDisk();
 	gsc::NDCQuadVS::ReloadFromDisk();
+	gsc::OutputCompositePS::ReloadFromDisk();
 }
 }  // namespace gelly::gmod::renderer
 #endif	// GMOD_RELOAD_SHADERS_H

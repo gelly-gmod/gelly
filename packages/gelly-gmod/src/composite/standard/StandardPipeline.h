@@ -69,6 +69,7 @@ private:
 	ComPtr<IDirect3DVertexBuffer9> ndcQuad;
 	ComPtr<IDirect3DPixelShader9> compositeShader;
 	ComPtr<IDirect3DPixelShader9> compositeFoamShader;
+	ComPtr<IDirect3DPixelShader9> outputCompositeShader;
 	ComPtr<IDirect3DVertexShader9> quadVertexShader;
 	ComPtr<IDirect3DStateBlock9> stateBlock;
 
@@ -119,6 +120,7 @@ public:
 
 	void Composite() override;
 	void CompositeFoam(bool writeDepth);
+	void OutputComposite();
 
 	void Render() override;
 

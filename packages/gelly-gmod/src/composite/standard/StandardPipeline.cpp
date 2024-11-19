@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "../../logging/global-macros.h"
+#include "OutputCompositePS.h"
 #include "shaders/out/CompositeFoamPS.h"
 #include "shaders/out/CompositePS.h"
 #include "shaders/out/NDCQuadVS.h"
@@ -41,6 +42,14 @@ void StandardPipeline::CreateCompositeShader() {
 		);
 		FAILED(hr)) {
 		throw std::runtime_error("Failed to create composite foam shader");
+	}
+
+	if (const auto hr = device->CreatePixelShader(
+			reinterpret_cast<const DWORD *>(OutputCompositePS::GetBytecode()),
+			outputCompositeShader.GetAddressOf()
+		);
+		FAILED(hr)) {
+		throw std::runtime_error("Failed to create output composite shader");
 	}
 }
 
@@ -403,7 +412,6 @@ void StandardPipeline::Composite() {
 	device->GetPixelShaderConstantF(30, sourceLightScale, 1);
 
 	SetCompositeShaderConstants();
-	device->SetRenderTarget(0, textures->GetFinalSurface());
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeShader.Get());
 
@@ -450,6 +458,8 @@ void StandardPipeline::Composite() {
 		// background
 		CompositeFoam(false);
 	}
+
+	OutputComposite();
 }
 
 void StandardPipeline::CompositeFoam(bool writeDepth) {
@@ -480,6 +490,34 @@ void StandardPipeline::CompositeFoam(bool writeDepth) {
 	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	stateBlock->Apply();
+}
+
+void StandardPipeline::OutputComposite() {
+	auto &device = gmodResources.device;
+
+	stateBlock->Capture();
+
+	device->SetVertexShader(quadVertexShader.Get());
+	device->SetPixelShader(outputCompositeShader.Get());
+
+	SetCompositeSamplerState(0, D3DTEXF_POINT);
+
+	device->SetTexture(0, textures->gmodTextures.final.Get());
+
+	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
+	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+
+	device->SetRenderState(D3DRS_ZENABLE, FALSE);
+	device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+
+	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
