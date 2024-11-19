@@ -142,7 +142,9 @@ struct InternalBuffers {
 		foamPositions(
 			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
 				{.device = device,
-				 .maxElementCount = maxParticles,
+				 .maxElementCount =
+					 maxParticles *
+					 2,	 // TODO: Fix this and use simData->maxFoamParticles
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
@@ -153,7 +155,7 @@ struct InternalBuffers {
 		foamVelocities(
 			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
 				{.device = device,
-				 .maxElementCount = maxParticles,
+				 .maxElementCount = maxParticles * 2,
 				 .initialData = nullptr,
 				 .usage = D3D11_USAGE_DEFAULT,
 				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,

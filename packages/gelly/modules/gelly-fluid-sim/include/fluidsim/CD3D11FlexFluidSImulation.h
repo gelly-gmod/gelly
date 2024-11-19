@@ -9,6 +9,12 @@
 #include "IFluidSimulation.h"
 #include "scene/scene.h"
 
+#define GUARDED_BUFFER_REMOVE(buffer) \
+	if (buffer) {                     \
+		NvFlexFreeBuffer(buffer);     \
+		buffer = nullptr;             \
+	}
+
 class CD3D11FlexFluidSimulation : public IFluidSimulation {
 private:
 	static constexpr SimCommandType supportedCommands =
@@ -76,6 +82,8 @@ private:
 	void SetupParams();
 	void DebugDumpParams();
 	void SetDeferredActiveParticleCount(uint newActiveCount);
+	void DeallocateBuffers();
+	void AllocateBuffers();
 
 public:
 	CD3D11FlexFluidSimulation();
