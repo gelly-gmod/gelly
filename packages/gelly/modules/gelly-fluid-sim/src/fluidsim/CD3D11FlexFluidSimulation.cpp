@@ -34,32 +34,15 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 	delete simData;
 	delete scene;
 
-	if (buffers.positions != nullptr) {
-		NvFlexFreeBuffer(buffers.positions);
+	DeallocateBuffers();
+
+	if (solver) {
+		NvFlexDestroySolver(solver);
 	}
 
-	if (buffers.velocities != nullptr) {
-		NvFlexFreeBuffer(buffers.velocities);
+	if (library) {
+		NvFlexShutdown(library);
 	}
-
-	if (buffers.phases != nullptr) {
-		NvFlexFreeBuffer(buffers.phases);
-	}
-
-	if (buffers.actives != nullptr) {
-		NvFlexFreeBuffer(buffers.actives);
-	}
-
-	if (buffers.contactCounts != nullptr) {
-		NvFlexFreeBuffer(buffers.contactCounts);
-	}
-
-	if (buffers.contactVelocities != nullptr) {
-		NvFlexFreeBuffer(buffers.contactVelocities);
-	}
-
-	NvFlexDestroySolver(solver);
-	NvFlexShutdown(library);
 }
 
 void CD3D11FlexFluidSimulation::SetMaxParticles(const int maxParticles) {
@@ -68,71 +51,11 @@ void CD3D11FlexFluidSimulation::SetMaxParticles(const int maxParticles) {
 	simData->SetMaxFoamParticles(
 		static_cast<int>(static_cast<float>(maxParticles) * 2.f)
 	);
+
+	DeallocateBuffers();
 }
 
-void CD3D11FlexFluidSimulation::Initialize() {
-	if (!context) {
-		throw std::runtime_error(
-			"CD3D11FlexFluidSimulation::Initialize: context must be set before "
-			"initializing the simulation."
-		);
-	}
-
-	if (!simData->IsBufferLinked(SimBufferType::POSITION)) {
-		// We need to register our flex buffers at this point.
-		throw std::runtime_error(
-			"CD3D11FlexFluidSimulation::Initialize: position buffer must be "
-			"linked before initializing the simulation."
-		);
-	}
-
-	if (!simData->IsBufferLinked(SimBufferType::VELOCITY0) ||
-		!simData->IsBufferLinked(SimBufferType::VELOCITY1)) {
-		throw std::runtime_error(
-			"CD3D11FlexFluidSimulation::Initialize: velocity buffer must be "
-			"linked before initializing the simulation."
-		);
-	}
-
-	if (!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q1) ||
-		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q2) ||
-		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q3)) {
-		throw std::runtime_error(
-			"CD3D11FlexFluidSimulation::Initialize: anisotropy buffers must be "
-			"linked before initializing the simulation."
-		);
-	}
-
-	NvFlexInitDesc initDesc = {};
-	initDesc.computeType = eNvFlexD3D11;
-	initDesc.renderDevice =
-		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE);
-#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
-	// FleX will try to use GPU extensions and compute queues which destroy most
-	// rendering debuggers
-	initDesc.enableExtensions = false;
-	initDesc.runOnRenderContext = true;
-#else
-	initDesc.enableExtensions = false;
-	initDesc.runOnRenderContext = true;
-#endif
-
-	library = NvFlexInit(NV_FLEX_VERSION, FlexErrorCallback, &initDesc);
-
-	NvFlexSolverDesc solverDesc = {};
-	NvFlexSetSolverDescDefaults(&solverDesc);
-
-	solverDesc.maxParticles = maxParticles;
-	// soon...
-	solverDesc.maxDiffuseParticles = simData->GetMaxFoamParticles();
-	solverDesc.featureMode = eNvFlexFeatureModeSimpleFluids;
-
-	solver = NvFlexCreateSolver(library, &solverDesc);
-
-	// flex params are massive so we set them up in a separate function
-	SetupParams();
-	NvFlexSetParams(solver, &solverParams);
-
+void CD3D11FlexFluidSimulation::AllocateBuffers() {
 	buffers.positions = NvFlexAllocBuffer(
 		library, maxParticles, sizeof(FlexFloat4), eNvFlexBufferHost
 	);
@@ -218,6 +141,91 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		maxParticles,
 		sizeof(FlexFloat4)
 	);
+}
+
+void CD3D11FlexFluidSimulation::DeallocateBuffers() {
+	GUARDED_BUFFER_REMOVE(buffers.positions);
+	GUARDED_BUFFER_REMOVE(buffers.velocities);
+	GUARDED_BUFFER_REMOVE(buffers.phases);
+	GUARDED_BUFFER_REMOVE(buffers.actives);
+	GUARDED_BUFFER_REMOVE(buffers.contactVelocities);
+	GUARDED_BUFFER_REMOVE(buffers.contactCounts);
+	GUARDED_BUFFER_REMOVE(buffers.diffuseParticleCount);
+
+	GUARDED_BUFFER_REMOVE(sharedBuffers.positions);
+	GUARDED_BUFFER_REMOVE(sharedBuffers.velocities0);
+	GUARDED_BUFFER_REMOVE(sharedBuffers.velocities1);
+	GUARDED_BUFFER_REMOVE(sharedBuffers.foamPositions);
+	GUARDED_BUFFER_REMOVE(sharedBuffers.foamVelocities);
+	GUARDED_BUFFER_REMOVE(sharedBuffers.anisotropyQ1Buffer);
+	GUARDED_BUFFER_REMOVE(sharedBuffers.anisotropyQ2Buffer);
+	GUARDED_BUFFER_REMOVE(sharedBuffers.anisotropyQ3Buffer);
+}
+
+void CD3D11FlexFluidSimulation::Initialize() {
+	if (!context) {
+		throw std::runtime_error(
+			"CD3D11FlexFluidSimulation::Initialize: context must be set before "
+			"initializing the simulation."
+		);
+	}
+
+	if (!simData->IsBufferLinked(SimBufferType::POSITION)) {
+		// We need to register our flex buffers at this point.
+		throw std::runtime_error(
+			"CD3D11FlexFluidSimulation::Initialize: position buffer must be "
+			"linked before initializing the simulation."
+		);
+	}
+
+	if (!simData->IsBufferLinked(SimBufferType::VELOCITY0) ||
+		!simData->IsBufferLinked(SimBufferType::VELOCITY1)) {
+		throw std::runtime_error(
+			"CD3D11FlexFluidSimulation::Initialize: velocity buffer must be "
+			"linked before initializing the simulation."
+		);
+	}
+
+	if (!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q1) ||
+		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q2) ||
+		!simData->IsBufferLinked(SimBufferType::ANISOTROPY_Q3)) {
+		throw std::runtime_error(
+			"CD3D11FlexFluidSimulation::Initialize: anisotropy buffers must be "
+			"linked before initializing the simulation."
+		);
+	}
+
+	NvFlexInitDesc initDesc = {};
+	initDesc.computeType = eNvFlexD3D11;
+	initDesc.renderDevice =
+		context->GetAPIHandle(SimContextHandle::D3D11_DEVICE);
+#ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
+	// FleX will try to use GPU extensions and compute queues which destroy most
+	// rendering debuggers
+	initDesc.enableExtensions = false;
+	initDesc.runOnRenderContext = true;
+#else
+	initDesc.enableExtensions = false;
+	initDesc.runOnRenderContext = true;
+#endif
+
+	library = NvFlexInit(NV_FLEX_VERSION, FlexErrorCallback, &initDesc);
+
+	NvFlexSolverDesc solverDesc = {};
+	NvFlexSetSolverDescDefaults(&solverDesc);
+
+	solverDesc.maxParticles = maxParticles;
+	// soon...
+	solverDesc.maxDiffuseParticles = simData->GetMaxFoamParticles();
+	solverDesc.featureMode = eNvFlexFeatureModeSimpleFluids;
+
+	solver = NvFlexCreateSolver(library, &solverDesc);
+
+	// flex params are massive so we set them up in a separate function
+	SetupParams();
+	NvFlexSetParams(solver, &solverParams);
+
+	AllocateBuffers();
 
 	delete scene;
 	scene = new CFlexSimScene(library, solver);
