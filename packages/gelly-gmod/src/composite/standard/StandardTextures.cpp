@@ -93,8 +93,9 @@ void StandardTextures::CreateFeatureTextures(float scale) {
 
 	// final output doesn't really require precision, the backbuffer has 8 bits
 	// per channel anyway
-	gmodTextures.final =
-		CreateTextureUnshared("gelly-gmod/final", D3DFMT_A8R8G8B8, 1, scale);
+	gmodTextures.final = CreateTextureUnshared(
+		"gelly-gmod/final", D3DFMT_A16B16G16R16F, 1, scale
+	);
 }
 
 StandardTextures::StandardTextures(

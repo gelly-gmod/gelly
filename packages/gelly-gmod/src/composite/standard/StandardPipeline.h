@@ -35,7 +35,9 @@ struct CompositeConstants {
 
 	CompositeLight lights[2];
 	float aspectRatio;
-	float pad2[3];
+	float viewportWidth;
+	float viewportHeight;
+	float pad2;
 
 	AmbientLightCube ambientLightCube;
 	PipelineFluidMaterial material;
@@ -72,6 +74,8 @@ private:
 	ComPtr<IDirect3DPixelShader9> outputCompositeShader;
 	ComPtr<IDirect3DVertexShader9> quadVertexShader;
 	ComPtr<IDirect3DStateBlock9> stateBlock;
+
+	IDirect3DSurface9 *savedBackBuffer = nullptr;
 
 	PipelineConfig config;
 	PipelineFluidMaterial fluidMaterial;

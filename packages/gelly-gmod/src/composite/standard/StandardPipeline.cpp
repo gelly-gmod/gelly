@@ -130,13 +130,8 @@ void StandardPipeline::CreateBackBuffer() {
 void StandardPipeline::UpdateBackBuffer() const {
 	auto &device = gmodResources.device;
 
-	IDirect3DSurface9 *backBufferSurface;
+	IDirect3DSurface9 *backBufferSurface = savedBackBuffer;
 	IDirect3DSurface9 *backBufferTextureSurface;
-
-	if (const auto hr = device->GetRenderTarget(0, &backBufferSurface);
-		FAILED(hr)) {
-		throw std::runtime_error("Failed to get back buffer surface");
-	}
 
 	if (const auto hr =
 			backBuffer->GetSurfaceLevel(0, &backBufferTextureSurface);
@@ -277,6 +272,9 @@ void StandardPipeline::UpdateGellyRenderParams() {
 	compositeConstants.invViewProj = invViewProj;
 	compositeConstants.enableWhitewater = IsWhitewaterEnabled();
 
+	compositeConstants.viewportWidth = static_cast<float>(viewSetup.width);
+	compositeConstants.viewportHeight = static_cast<float>(viewSetup.height);
+
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
 
@@ -401,6 +399,8 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
+	device->GetRenderTarget(0, &savedBackBuffer);
+
 	if (IsWhitewaterEnabled()) {
 		CompositeFoam(false);
 	}
@@ -412,6 +412,7 @@ void StandardPipeline::Composite() {
 	device->GetPixelShaderConstantF(30, sourceLightScale, 1);
 
 	SetCompositeShaderConstants();
+	device->SetRenderTarget(0, textures->GetFinalSurface());
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeShader.Get());
 
@@ -433,7 +434,7 @@ void StandardPipeline::Composite() {
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
 	device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+	device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
 	// Ensures that any left over decal rendering doesn't interfere with the
 	// composite
@@ -503,12 +504,17 @@ void StandardPipeline::OutputComposite() {
 
 	stateBlock->Capture();
 
+	SetCompositeShaderConstants();
+
+	device->SetRenderTarget(0, savedBackBuffer);
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(outputCompositeShader.Get());
 
-	SetCompositeSamplerState(0, D3DTEXF_POINT);
+	SetCompositeSamplerState(0, D3DTEXF_LINEAR, true);
+	SetCompositeSamplerState(1, D3DTEXF_POINT, true);
 
 	device->SetTexture(0, textures->gmodTextures.final.Get());
+	device->SetTexture(1, backBuffer.Get());
 
 	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
@@ -517,7 +523,10 @@ void StandardPipeline::OutputComposite() {
 	device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	device->SetRenderState(D3DRS_SRGBWRITEENABLE, FALSE);
+	device->SetRenderState(
+		D3DRS_SRGBWRITEENABLE, TRUE
+	);	// important, FXAA will collapse on itself if we dont properly handle
+		// color space
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
