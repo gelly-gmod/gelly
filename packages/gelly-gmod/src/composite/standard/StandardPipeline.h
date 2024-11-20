@@ -72,10 +72,12 @@ private:
 	ComPtr<IDirect3DPixelShader9> compositeShader;
 	ComPtr<IDirect3DPixelShader9> compositeFoamShader;
 	ComPtr<IDirect3DPixelShader9> outputCompositeShader;
+	ComPtr<IDirect3DPixelShader9> compositeBackbufferShader;
 	ComPtr<IDirect3DVertexShader9> quadVertexShader;
 	ComPtr<IDirect3DStateBlock9> stateBlock;
 
 	IDirect3DSurface9 *savedBackBuffer = nullptr;
+	IDirect3DSurface9 *savedDepthBuffer = nullptr;
 
 	PipelineConfig config;
 	PipelineFluidMaterial fluidMaterial;
@@ -124,6 +126,7 @@ public:
 
 	void Composite() override;
 	void CompositeFoam(bool writeDepth);
+	void CompositeBackbuffer();
 	void OutputComposite();
 
 	void Render() override;

@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "../../logging/global-macros.h"
+#include "CompositeBackbufferPS.h"
 #include "OutputCompositePS.h"
 #include "shaders/out/CompositeFoamPS.h"
 #include "shaders/out/CompositePS.h"
@@ -50,6 +51,16 @@ void StandardPipeline::CreateCompositeShader() {
 		);
 		FAILED(hr)) {
 		throw std::runtime_error("Failed to create output composite shader");
+	}
+
+	if (const auto hr = device->CreatePixelShader(
+			reinterpret_cast<const DWORD *>(CompositeBackbufferPS::GetBytecode()
+			),
+			compositeBackbufferShader.GetAddressOf()
+		);
+		FAILED(hr)) {
+		throw std::runtime_error("Failed to create composite backbuffer shader"
+		);
 	}
 }
 
@@ -399,20 +410,35 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 void StandardPipeline::Composite() {
 	auto &device = gmodResources.device;
 
-	device->GetRenderTarget(0, &savedBackBuffer);
+	if (!savedBackBuffer) {
+		device->GetRenderTarget(0, &savedBackBuffer);
+	}
+
+	if (!savedDepthBuffer) {
+		device->GetDepthStencilSurface(&savedDepthBuffer);
+	}
+
+	// clear before proceeding
+	stateBlock->Capture();
+	device->SetRenderTarget(0, textures->GetFinalSurface());
+	device->Clear(
+		0, nullptr, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0
+	);
+	stateBlock->Apply();
 
 	if (IsWhitewaterEnabled()) {
 		CompositeFoam(false);
 	}
 
 	UpdateBackBuffer();
-
 	stateBlock->Capture();
 
 	device->GetPixelShaderConstantF(30, sourceLightScale, 1);
 
 	SetCompositeShaderConstants();
 	device->SetRenderTarget(0, textures->GetFinalSurface());
+	device->SetDepthStencilSurface(savedDepthBuffer);
+
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeShader.Get());
 
@@ -434,7 +460,7 @@ void StandardPipeline::Composite() {
 	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
 
 	device->SetRenderState(D3DRS_ZENABLE, TRUE);
-	device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 
 	// Ensures that any left over decal rendering doesn't interfere with the
 	// composite
@@ -460,6 +486,8 @@ void StandardPipeline::Composite() {
 		CompositeFoam(false);
 	}
 
+	// fill in the background before we resolve the anti-aliased composite
+	CompositeBackbuffer();
 	OutputComposite();
 }
 
@@ -470,6 +498,8 @@ void StandardPipeline::CompositeFoam(bool writeDepth) {
 	SetCompositeShaderConstants();
 
 	device->SetRenderTarget(0, textures->GetFinalSurface());
+	device->SetDepthStencilSurface(savedDepthBuffer);
+
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(compositeFoamShader.Get());
 
@@ -499,6 +529,41 @@ void StandardPipeline::CompositeFoam(bool writeDepth) {
 	stateBlock->Apply();
 }
 
+void StandardPipeline::CompositeBackbuffer() {
+	auto &device = gmodResources.device;
+
+	stateBlock->Capture();
+
+	SetCompositeShaderConstants();
+	device->SetRenderTarget(0, textures->GetFinalSurface());
+	device->SetVertexShader(quadVertexShader.Get());
+	device->SetPixelShader(compositeBackbufferShader.Get());
+
+	SetCompositeSamplerState(0, D3DTEXF_POINT);
+	SetCompositeSamplerState(1, D3DTEXF_POINT, true);
+
+	device->SetTexture(0, textures->gmodTextures.depth.Get());
+	device->SetTexture(1, backBuffer.Get());
+
+	device->SetStreamSource(0, ndcQuad.Get(), 0, sizeof(NDCVertex));
+	device->SetFVF(D3DFVF_XYZW | D3DFVF_TEX1);
+
+	// the entire purpose of this pass is to *not* write to the depth buffer,
+	// but we do want to depth test
+	device->SetRenderState(D3DRS_ZENABLE, TRUE);
+	device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+
+	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	device->SetRenderState(D3DRS_SRGBWRITEENABLE, TRUE);
+
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	device->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	stateBlock->Apply();
+}
+
 void StandardPipeline::OutputComposite() {
 	auto &device = gmodResources.device;
 
@@ -507,6 +572,8 @@ void StandardPipeline::OutputComposite() {
 	SetCompositeShaderConstants();
 
 	device->SetRenderTarget(0, savedBackBuffer);
+	device->SetDepthStencilSurface(savedDepthBuffer);
+
 	device->SetVertexShader(quadVertexShader.Get());
 	device->SetPixelShader(outputCompositeShader.Get());
 

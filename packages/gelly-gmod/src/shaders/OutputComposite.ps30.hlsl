@@ -32,7 +32,13 @@ PS_OUTPUT main(VS_INPUT input) {
 	// fix half-pixel offset
 	input.Tex += float2(0.5f / viewport.y, 0.5f / viewport.z);
 	float4 color = tex2D(compositeTex, input.Tex);
-
+	
+	if (!any(color)) {
+		// 0,0,0,0 likely means this pixel is an artifact of
+		// the depth buffer being cleared, so bail out
+		discard;
+	}
+	
 	// dilate mask by 3x3 kernel
 	bool masks[9] = {
 		IsMaskedPixelOffset(input.Tex, float2(-1, -1)),
@@ -54,7 +60,7 @@ PS_OUTPUT main(VS_INPUT input) {
 	}
 
 	if (!masked) {
-		output.Color = tex2D(backbufferTex, input.Tex);
+		discard;
 	} else {
 		output.Color = FxaaPixelShader(
 			input.Tex,

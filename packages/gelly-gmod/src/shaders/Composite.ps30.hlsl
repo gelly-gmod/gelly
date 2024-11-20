@@ -160,14 +160,16 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
 }
 
 PS_OUTPUT main(VS_INPUT input) {
+	input.Tex += float2(0.5f / aspectRatio.y, 0.5f / aspectRatio.z);
     float4 depthFragment = tex2D(depthTex, input.Tex);
     if (depthFragment.r >= 1.f) {
-		// this might seem odd but we want to replace this with the background (alpha 0)
-		// so that we can run a proper FXAA pass later
-		PS_OUTPUT output = (PS_OUTPUT)0;
-		output.Color = float4(tex2D(backbufferTex, input.Tex).xyz, 0.f);
-		output.Depth = 0.f;
-		return output;
+		// We discard here to preserve the game's depth buffer.
+		// See CompositeBackbuffer.ps30.hlsl to see the inverse operation.
+		// We do this to ensure correct background data is in our temporary
+		// final frame so that when we run our Dilated Mask FXAA the
+		// dilated pixels (usually 1-2 bordering the real fluid) are
+		// correctly set to the background color.
+		discard;
     }
     
     PS_OUTPUT output = (PS_OUTPUT)0;

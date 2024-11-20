@@ -1,5 +1,6 @@
 #ifndef GMOD_RELOAD_SHADERS_H
 #define GMOD_RELOAD_SHADERS_H
+#include "CompositeBackbufferPS.h"
 #include "CompositeFoamPS.h"
 #include "CompositePS.h"
 #include "NDCQuadVS.h"
@@ -16,6 +17,7 @@ inline auto ReloadAllGSCShaders() -> void {
 	gsc::CompositeFoamPS::ReloadFromDisk();
 	gsc::NDCQuadVS::ReloadFromDisk();
 	gsc::OutputCompositePS::ReloadFromDisk();
+	gsc::CompositeBackbufferPS::ReloadFromDisk();
 }
 }  // namespace gelly::gmod::renderer
 #endif	// GMOD_RELOAD_SHADERS_H
