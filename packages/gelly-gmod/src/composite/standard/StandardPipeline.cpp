@@ -497,7 +497,8 @@ void StandardPipeline::CompositeFoam(bool writeDepth) {
 
 	SetCompositeShaderConstants();
 
-	device->SetRenderTarget(0, textures->GetFinalSurface());
+	// we don't antialias foam because frankly it's not worth the performance
+	device->SetRenderTarget(0, savedBackBuffer);
 	device->SetDepthStencilSurface(savedDepthBuffer);
 
 	device->SetVertexShader(quadVertexShader.Get());
