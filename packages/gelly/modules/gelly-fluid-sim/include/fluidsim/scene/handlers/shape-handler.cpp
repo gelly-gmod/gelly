@@ -41,10 +41,8 @@ void ShapeHandler::DestroyFleXBuffers() {
 	for (const auto &entry : objects) {
 		const auto &object = entry.second;
 
-		if (object.metadata->type == ShapeType::TRIANGLE_MESH) {
-			NvFlexDestroyTriangleMesh(
-				ctx.lib, object.metadata->triangleMesh.meshId
-			);
+		if (object.type == ShapeType::TRIANGLE_MESH) {
+			NvFlexDestroyTriangleMesh(ctx.lib, object.triangleMesh.meshId);
 		}
 	}
 }

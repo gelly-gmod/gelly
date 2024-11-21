@@ -14,7 +14,7 @@ enum class ShapeType : uint8_t {
 	CAPSULE,
 };
 
-struct ShapeMetadata {
+struct ShapeObject {
 	ShapeType type;
 	union {
 		struct {
@@ -45,8 +45,6 @@ struct ShapeMetadata {
 		transform.rotation[3] = w;
 	}
 };
-
-using ShapeObject = Object<ShapeMetadata>;
 
 struct ShapeCreationInfo {
 	enum class IndexType {
