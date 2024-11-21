@@ -6,6 +6,7 @@
 
 #include "../object-handler.h"
 #include "../object.h"
+#include "fluidsim/scene/helpers/flex-types.h"
 #include "fluidsim/scene/helpers/monotonic-counter.h"
 
 namespace Gelly {
@@ -113,6 +114,21 @@ private:
 
 	void CreateFleXBuffers();
 	void DestroyFleXBuffers();
+
+	struct MappedBuffers {
+		FleX::Float4 *positions;
+		FleX::Quat *rotations;
+		FleX::Float4 *prevPositions;
+		FleX::Quat *prevRotations;
+		NvFlexCollisionGeometry *info;
+		uint32_t *flags;
+	};
+
+	MappedBuffers MapFleXBuffers() const;
+	void UnmapFleXBuffers(MappedBuffers &buffers) const;
+
+	NvFlexCollisionGeometry GetCollisionGeometryInfo(const ShapeObject &object);
+	static uint32_t GetCollisionShapeFlags(const ShapeObject &object);
 };
 
 #endif	// SHAPE_HANDLER_H

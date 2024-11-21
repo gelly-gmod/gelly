@@ -15,11 +15,6 @@ struct ObjectHandlerContext {
 using namespace Gelly;
 gelly_interface ObjectHandler {
 public:
-	/**
-	 * Implementations should initialize FleX buffers and other resources here.
-	 * @param ctx
-	 */
-
 	virtual ~ObjectHandler() = default;
 	virtual void Update() = 0;
 };
