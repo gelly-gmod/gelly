@@ -47,31 +47,39 @@ struct ShapeObject {
 	}
 };
 
-struct ShapeCreationInfo {
-	enum class IndexType {
-		UINT16,
-		UINT32,
-	};
-
-	IndexType indexType;
-	/**
-	 * \brief This array is not copied, and is never modified. It is up to
-	 * the caller to ensure that this array is valid for the lifetime of the
-	 * create object function call.
-	 */
-	const float *vertices;
-
-	union {
-		const uint16_t *indices16;
-		const uint32_t *indices32;
-	};
-
-	uint32_t vertexCount;
-	uint32_t indexCount;
-
-	float scale[3];
+enum class IndexType {
+	UINT16,
+	UINT32,
 };
 
+struct ShapeCreationInfo {
+	ShapeType type;
+	union {
+		struct {
+			IndexType indexType;
+			/**
+			 * \brief This array is not copied, and is never modified. It is up
+			 * to the caller to ensure that this array is valid for the lifetime
+			 * of the create object function call.
+			 */
+			const float *vertices;
+
+			union {
+				const uint16_t *indices16;
+				const uint32_t *indices32;
+			};
+
+			uint32_t vertexCount;
+			uint32_t indexCount;
+
+			float scale[3];
+		} triMesh;
+		struct {
+			float radius;
+			float halfHeight;
+		} capsule;
+	};
+};
 };	// namespace Gelly
 
 class ShapeHandler : public ObjectHandler {
@@ -129,6 +137,10 @@ private:
 
 	NvFlexCollisionGeometry GetCollisionGeometryInfo(const ShapeObject &object);
 	static uint32_t GetCollisionShapeFlags(const ShapeObject &object);
+
+	void MakeTriangleMesh(const ShapeCreationInfo &info, ShapeObject &object);
+
+	void MakeCapsule(const ShapeCreationInfo &info, ShapeObject &object);
 };
 
 #endif	// SHAPE_HANDLER_H

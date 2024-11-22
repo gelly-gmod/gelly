@@ -40,12 +40,17 @@ void ShapeHandler::DestroyFleXBuffers() {
 	NvFlexFreeBuffer(flexBuffers.info);
 	NvFlexFreeBuffer(flexBuffers.flags);
 
-	for (const auto &entry : objects) {
-		const auto &object = entry.second;
+	// Decoupling the iteration from the removal prevents invalidating the
+	// iterator
+	std::vector<ObjectID> ids;
+	ids.reserve(objects.size());
 
-		if (object.type == ShapeType::TRIANGLE_MESH) {
-			NvFlexDestroyTriangleMesh(ctx.lib, object.triangleMesh.meshId);
-		}
+	for (const auto &entry : objects) {
+		ids.push_back(entry.first);
+	}
+
+	for (const auto id : ids) {
+		RemoveShape(id);
 	}
 }
 
@@ -169,4 +174,118 @@ void ShapeHandler::Update() {
 		flexBuffers.flags,
 		objects.size()
 	);
+}
+
+void ShapeHandler::MakeTriangleMesh(
+	const ShapeCreationInfo &info, ShapeObject &object
+) {
+	using namespace FleX;
+
+	Float3 minVertex = {FLT_MAX, FLT_MAX, FLT_MAX};
+	Float3 maxVertex = {-FLT_MAX, -FLT_MAX, -FLT_MAX};
+
+	const auto *vertices =
+		reinterpret_cast<const Float3 *>(info.triMesh.vertices);
+	for (uint32_t i = 0; i < info.triMesh.vertexCount; i++) {
+		minVertex.x = std::min(minVertex.x, vertices[i].x);
+		minVertex.y = std::min(minVertex.y, vertices[i].y);
+		minVertex.z = std::min(minVertex.z, vertices[i].z);
+
+		maxVertex.x = std::max(maxVertex.x, vertices[i].x);
+		maxVertex.y = std::max(maxVertex.y, vertices[i].y);
+		maxVertex.z = std::max(maxVertex.z, vertices[i].z);
+	}
+
+	NvFlexBuffer *indicesBuffer = NvFlexAllocBuffer(
+		ctx.lib, info.triMesh.indexCount, sizeof(uint32_t), eNvFlexBufferHost
+	);
+
+	NvFlexBuffer *verticesBuffer = NvFlexAllocBuffer(
+		ctx.lib, info.triMesh.vertexCount, sizeof(Float4), eNvFlexBufferHost
+	);
+
+	{
+		void *indicesDst = NvFlexMap(indicesBuffer, eNvFlexMapWait);
+		void *verticesDst = NvFlexMap(verticesBuffer, eNvFlexMapWait);
+
+		// We have to convert our indices since they're ushorts
+		if (info.triMesh.indexType == IndexType::UINT16) {
+			const uint16_t *indices = info.triMesh.indices16;
+			for (uint16_t i = 0; i < info.triMesh.indexCount; i++) {
+				static_cast<int *>(indicesDst)[i] =
+					static_cast<int>(indices[i]);
+			}
+		} else {
+			// We still need to convert our indices since they're uints
+			const uint32_t *indices = info.triMesh.indices32;
+			for (uint32_t i = 0; i < info.triMesh.indexCount; i++) {
+				static_cast<int *>(indicesDst)[i] =
+					static_cast<int>(indices[i]);
+			}
+		}
+
+		for (uint32_t i = 0; i < info.triMesh.vertexCount; i++) {
+			static_cast<Float4 *>(verticesDst)[i] =
+				Float4{vertices[i].x, vertices[i].y, vertices[i].z, 1.0f};
+		}
+
+		NvFlexUnmap(indicesBuffer);
+		NvFlexUnmap(verticesBuffer);
+	}
+
+	const auto meshId = NvFlexCreateTriangleMesh(ctx.lib);
+	NvFlexUpdateTriangleMesh(
+		ctx.lib,
+		meshId,
+		verticesBuffer,
+		indicesBuffer,
+		info.triMesh.vertexCount,
+		info.triMesh.indexCount / 3,
+		&minVertex.x,
+		&maxVertex.x
+	);
+
+	object.triangleMesh.meshId = meshId;
+	object.triangleMesh.scale[0] = info.triMesh.scale[0];
+	object.triangleMesh.scale[1] = info.triMesh.scale[1];
+	object.triangleMesh.scale[2] = info.triMesh.scale[2];
+}
+
+void ShapeHandler::MakeCapsule(
+	const ShapeCreationInfo &info, ShapeObject &object
+) {
+	object.capsule.radius = info.capsule.radius;
+	object.capsule.halfHeight = info.capsule.halfHeight;
+}
+
+ObjectID ShapeHandler::MakeShape(const ShapeCreationInfo &info) {
+	ShapeObject object = {};
+	object.type = info.type;
+
+	switch (object.type) {
+		case ShapeType::TRIANGLE_MESH:
+			MakeTriangleMesh(info, object);
+			break;
+		case ShapeType::CAPSULE:
+			MakeCapsule(info, object);
+			break;
+	}
+
+	const auto id = counter->Increment();
+	objects[id] = object;
+
+	return id;
+}
+
+void ShapeHandler::RemoveShape(ObjectID id) {
+	const auto it = objects.find(id);
+	if (it == objects.end()) {
+		throw std::runtime_error("Shape object not found");
+	}
+
+	if (it->second.type == ShapeType::TRIANGLE_MESH) {
+		NvFlexDestroyTriangleMesh(ctx.lib, it->second.triangleMesh.meshId);
+	}
+
+	objects.erase(it);
 }
