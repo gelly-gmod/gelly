@@ -132,7 +132,7 @@ private:
 		uint32_t *flags;
 	};
 
-	MappedBuffers MapFleXBuffers() const;
+	[[nodiscard]] MappedBuffers MapFleXBuffers() const;
 	void UnmapFleXBuffers(MappedBuffers &buffers) const;
 
 	NvFlexCollisionGeometry GetCollisionGeometryInfo(const ShapeObject &object);
