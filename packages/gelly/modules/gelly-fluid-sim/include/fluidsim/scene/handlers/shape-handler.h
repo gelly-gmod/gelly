@@ -104,7 +104,7 @@ public:
 	ObjectID MakeShape(const ShapeCreationInfo &info);
 	void RemoveShape(ObjectID id);
 
-	void UpdateShape(ObjectID id, ShapeUpdateCallback callback);
+	void UpdateShape(ObjectID id, const ShapeUpdateCallback &callback);
 
 private:
 	ObjectHandlerContext ctx;

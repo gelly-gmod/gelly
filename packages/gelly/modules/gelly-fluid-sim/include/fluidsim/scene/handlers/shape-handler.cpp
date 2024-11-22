@@ -289,3 +289,15 @@ void ShapeHandler::RemoveShape(ObjectID id) {
 
 	objects.erase(it);
 }
+
+void ShapeHandler::UpdateShape(
+	ObjectID id, const ShapeUpdateCallback &callback
+) {
+	const auto it = objects.find(id);
+	if (it == objects.end()) {
+		throw std::runtime_error("Shape object not found");
+	}
+
+	auto &object = it->second;
+	callback(object);
+}
