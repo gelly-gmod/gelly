@@ -12,6 +12,7 @@
 #include "ISimContext.h"
 #include "ISimData.h"
 #include "ISimScene.h"
+#include "scene/scene.h"
 
 using namespace DirectX;
 
@@ -48,6 +49,8 @@ public:
 	 * \return Pointer to the scene object.
 	 */
 	virtual ISimScene *GetScene() = 0;
+	virtual gelly::simulation::Scene *GetNewScene() = 0;
+
 	virtual SimContextAPI GetComputeAPI() = 0;
 	virtual void AttachToContext(GellyObserverPtr<ISimContext> context) = 0;
 

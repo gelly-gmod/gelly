@@ -37,6 +37,7 @@ public:
 
 	ISimData *GetSimulationData() override;
 	ISimScene *GetScene() override;
+	gelly::simulation::Scene *GetNewScene() override { return nullptr; }
 	SimContextAPI GetComputeAPI() override;
 
 	ISimCommandList *CreateCommandList() override;

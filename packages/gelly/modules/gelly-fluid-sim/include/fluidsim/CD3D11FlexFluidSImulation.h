@@ -7,6 +7,7 @@
 #include "CFlexSimScene.h"
 #include "CSimpleSimCommandList.h"
 #include "IFluidSimulation.h"
+#include "scene/scene.h"
 
 class CD3D11FlexFluidSimulation : public IFluidSimulation {
 private:
@@ -23,6 +24,7 @@ private:
 
 	std::vector<CSimpleSimCommandList *> commandLists;
 	CFlexSimScene *scene;
+	gelly::simulation::Scene newScene;
 
 	NvFlexParams solverParams{};
 
@@ -90,6 +92,8 @@ public:
 
 	ISimData *GetSimulationData() override;
 	ISimScene *GetScene() override;
+	gelly::simulation::Scene *GetNewScene() override;
+
 	SimContextAPI GetComputeAPI() override;
 
 	void AttachToContext(GellyObserverPtr<ISimContext> context) override;

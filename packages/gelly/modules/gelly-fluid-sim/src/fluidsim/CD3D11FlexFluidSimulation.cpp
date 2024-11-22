@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <string>
 
+using namespace gelly::simulation;
+
 // TODO: deduplicate this
 struct FlexFloat4 {
 	float x, y, z, w;
@@ -28,7 +30,8 @@ CD3D11FlexFluidSimulation::CD3D11FlexFluidSimulation() :
 	simData(new CD3D11CPUSimData()),
 	maxParticles(0),
 	commandLists({}),
-	scene(nullptr) {}
+	scene(nullptr),
+	newScene() {}
 
 CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 	delete simData;
@@ -221,10 +224,17 @@ void CD3D11FlexFluidSimulation::Initialize() {
 
 	delete scene;
 	scene = new CFlexSimScene(library, solver);
+
+	newScene = Scene({
+		.lib = library,
+		.solver = solver,
+	});
 }
 
 ISimData *CD3D11FlexFluidSimulation::GetSimulationData() { return simData; }
 ISimScene *CD3D11FlexFluidSimulation::GetScene() { return scene; }
+Scene *CD3D11FlexFluidSimulation::GetNewScene() { return &newScene; }
+
 SimContextAPI CD3D11FlexFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;
 }
@@ -400,7 +410,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 
 	NvFlexSetParams(solver, &solverParams);
 	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
-	scene->Update();
+	newScene.Update();
 
 	NvFlexUpdateSolver(solver, deltaTime * timeStepMultiplier, substeps, false);
 	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, &copyDesc);
