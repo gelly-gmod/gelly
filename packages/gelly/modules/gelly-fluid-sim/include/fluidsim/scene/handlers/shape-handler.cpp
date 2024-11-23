@@ -170,6 +170,11 @@ void ShapeHandler::Update() {
 			buffers.info[index] = GetCollisionGeometryInfo(object);
 			buffers.flags[index] = GetCollisionShapeFlags(object);
 
+			// Lock previous transforms to last timestep to significantly
+			// improve collision response
+			object.SetPreviousPositionToCurrent();
+			object.SetPreviousRotationToCurrent();
+
 			index++;
 		}
 

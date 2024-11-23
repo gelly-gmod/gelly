@@ -38,43 +38,30 @@ struct ShapeObject {
 		float prevRotation[4];
 	} transform;
 
-	bool initialized = false;
-
 	void SetTransformPosition(float x, float y, float z) {
-		if (!initialized) {
-			transform.prevPosition[0] = x;
-			transform.prevPosition[1] = y;
-			transform.prevPosition[2] = z;
-			initialized = true;
-		} else {
-			transform.prevPosition[0] = transform.position[0];
-			transform.prevPosition[1] = transform.position[1];
-			transform.prevPosition[2] = transform.position[2];
-		}
-
 		transform.position[0] = x;
 		transform.position[1] = y;
 		transform.position[2] = z;
 	}
 
 	void SetTransformRotation(float x, float y, float z, float w) {
-		if (!initialized) {
-			transform.prevRotation[0] = x;
-			transform.prevRotation[1] = y;
-			transform.prevRotation[2] = z;
-			transform.prevRotation[3] = w;
-			initialized = true;
-		} else {
-			transform.prevRotation[0] = transform.rotation[0];
-			transform.prevRotation[1] = transform.rotation[1];
-			transform.prevRotation[2] = transform.rotation[2];
-			transform.prevRotation[3] = transform.rotation[3];
-		}
-
 		transform.rotation[0] = x;
 		transform.rotation[1] = y;
 		transform.rotation[2] = z;
 		transform.rotation[3] = w;
+	}
+
+	void SetPreviousPositionToCurrent() {
+		transform.prevPosition[0] = transform.position[0];
+		transform.prevPosition[1] = transform.position[1];
+		transform.prevPosition[2] = transform.position[2];
+	}
+
+	void SetPreviousRotationToCurrent() {
+		transform.prevRotation[0] = transform.rotation[0];
+		transform.prevRotation[1] = transform.rotation[1];
+		transform.prevRotation[2] = transform.rotation[2];
+		transform.prevRotation[3] = transform.rotation[3];
 	}
 };
 
