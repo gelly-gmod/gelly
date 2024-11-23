@@ -23,10 +23,6 @@ function originalAPI:Think()
 
 	if scale ~= self.Gelly_LastScale then
 		self.Gelly_LastScale = scale
-		hook.Run("GellyPropResized", self:GetParent(), scale)
+		hook.Run("GellyXPropResized", self:GetParent(), scale)
 	end
 end
-
-hook.Add("GellyPropResized", "GellyPropResized", function(entity, scale)
-	logging.info("Prop resized: %s", tostring(entity))
-end)
