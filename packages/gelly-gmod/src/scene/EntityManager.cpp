@@ -86,7 +86,7 @@ void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 		entities[entIndex],
 		[&](ShapeObject &object) {
 			object.SetTransformRotation(
-				rotation.x, rotation.y, rotation.z, rotation.w
+				rotation.y, rotation.z, rotation.w, rotation.x
 			);
 		}
 	);
