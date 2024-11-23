@@ -33,6 +33,8 @@ struct ShapeObject {
 		float rotation[4];
 	} transform;
 
+	bool initialized = false;
+
 	void SetTransformPosition(float x, float y, float z) {
 		transform.position[0] = x;
 		transform.position[1] = y;
@@ -130,14 +132,16 @@ private:
 		FleX::Float4 *prevPositions;
 		FleX::Quat *prevRotations;
 		NvFlexCollisionGeometry *info;
-		uint32_t *flags;
+		int *flags;
 	};
 
 	[[nodiscard]] MappedBuffers MapFleXBuffers() const;
 	void UnmapFleXBuffers(MappedBuffers &buffers) const;
 
-	NvFlexCollisionGeometry GetCollisionGeometryInfo(const ShapeObject &object);
-	static uint32_t GetCollisionShapeFlags(const ShapeObject &object);
+	static NvFlexCollisionGeometry GetCollisionGeometryInfo(
+		const ShapeObject &object
+	);
+	static int GetCollisionShapeFlags(const ShapeObject &object);
 
 	void MakeTriangleMesh(const ShapeCreationInfo &info, ShapeObject &object);
 

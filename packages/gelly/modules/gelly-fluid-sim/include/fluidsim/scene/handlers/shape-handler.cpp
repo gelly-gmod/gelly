@@ -27,9 +27,8 @@ void ShapeHandler::CreateFleXBuffers() {
 		ctx.lib, MAX_SHAPES, sizeof(NvFlexCollisionGeometry), eNvFlexBufferHost
 	);
 
-	flexBuffers.flags = NvFlexAllocBuffer(
-		ctx.lib, MAX_SHAPES, sizeof(uint32_t), eNvFlexBufferHost
-	);
+	flexBuffers.flags =
+		NvFlexAllocBuffer(ctx.lib, MAX_SHAPES, sizeof(int), eNvFlexBufferHost);
 }
 
 void ShapeHandler::DestroyFleXBuffers() {
@@ -81,8 +80,7 @@ ShapeHandler::MappedBuffers ShapeHandler::MapFleXBuffers() const {
 			NvFlexMap(flexBuffers.info, eNvFlexMapWait)
 		),
 		.flags =
-			static_cast<uint32_t *>(NvFlexMap(flexBuffers.flags, eNvFlexMapWait)
-			)
+			static_cast<int *>(NvFlexMap(flexBuffers.flags, eNvFlexMapWait))
 	};
 }
 
@@ -120,7 +118,7 @@ NvFlexCollisionGeometry ShapeHandler::GetCollisionGeometryInfo(
 	return info;
 }
 
-uint32_t ShapeHandler::GetCollisionShapeFlags(const ShapeObject &object) {
+int ShapeHandler::GetCollisionShapeFlags(const ShapeObject &object) {
 	NvFlexCollisionShapeType shapeType = eNvFlexShapeBox;
 
 	switch (object.type) {
@@ -140,20 +138,31 @@ uint32_t ShapeHandler::GetCollisionShapeFlags(const ShapeObject &object) {
 void ShapeHandler::Update() {
 	if (isUpdateRequired) {
 		auto buffers = MapFleXBuffers();
+		int index = 0;
 
-		for (const auto &entry : objects) {
-			const auto &object = entry.second;
+		for (auto &entry : objects) {
+			auto &object = entry.second;
 
 			const auto &position = object.transform.position;
 			const auto &rotation = object.transform.rotation;
 
-			const auto index = entry.first;
-
-			buffers.prevPositions[index] = buffers.positions[index];
-			buffers.prevRotations[index] = buffers.rotations[index];
+			// There's absolutely no way of knowing what the first mapping is
+			// going to contain, so we have to initialize it explicitly
+			if (!object.initialized) {
+				object.initialized = true;
+				buffers.prevPositions[index] = {
+					position[0], position[1], position[2], 1.0f
+				};
+				buffers.prevRotations[index] = {
+					rotation[0], rotation[1], rotation[2], rotation[3]
+				};
+			} else {
+				buffers.prevPositions[index] = buffers.positions[index];
+				buffers.prevRotations[index] = buffers.rotations[index];
+			}
 
 			buffers.positions[index] = {
-				position[0], position[1], position[2], 0.0f
+				position[0], position[1], position[2], 1.0f
 			};
 			buffers.rotations[index] = {
 				rotation[0], rotation[1], rotation[2], rotation[3]
@@ -161,9 +170,12 @@ void ShapeHandler::Update() {
 
 			buffers.info[index] = GetCollisionGeometryInfo(object);
 			buffers.flags[index] = GetCollisionShapeFlags(object);
+
+			index++;
 		}
 
 		UnmapFleXBuffers(buffers);
+		isUpdateRequired = false;
 	}
 
 	NvFlexSetShapes(
@@ -272,6 +284,10 @@ ObjectID ShapeHandler::MakeShape(const ShapeCreationInfo &info) {
 			MakeCapsule(info, object);
 			break;
 	}
+
+	// ensure we have a clean transform
+	object.SetTransformPosition(0.0f, 0.0f, 0.0f);
+	object.SetTransformRotation(0.0f, 0.0f, 0.0f, 1.0f);
 
 	const auto id = counter->Increment();
 	objects[id] = object;
