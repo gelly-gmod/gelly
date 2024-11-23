@@ -7,6 +7,8 @@
 #include <GellyFluidSim.h>
 #include <fluidsim/IFluidSimulation.h>
 
+#include <optional>
+
 #include "Config.h"
 #include "EntIndex.h"
 #include "EntityManager.h"
@@ -25,7 +27,7 @@ private:
 		absorptionModifier;
 
 	std::optional<EntityManager> ents;
-	std::optional<Map> map;
+	std::optional<gelly::gmod::Map> map;
 	ParticleManager particles;
 	Config config;
 

@@ -1,5 +1,5 @@
-#ifndef MAP_H
-#define MAP_H
+#ifndef GELLY_GMOD_MAP_H
+#define GELLY_GMOD_MAP_H
 // clang-format off
 #include "BSPParser.h"
 // clang-format on
@@ -10,8 +10,10 @@
 #include "BSP.h"
 #include "PHY.h"
 #include "asset-cache.h"
-#include "fluidsim/ISimScene.h"
+#include "fluidsim/scene/handlers/shape-handler.h"
+#include "fluidsim/scene/scene.h"
 
+namespace gelly::gmod {
 /**
  * Instantiates a map object in the simulation's scene.
  * \note Maps are not entities. They don't have a position or rotation,
@@ -28,19 +30,18 @@
  */
 class Map {
 private:
-	ISimScene *simScene = nullptr;
-	ObjectHandle mapObject;
+	gelly::simulation::Scene *simScene = nullptr;
+	ObjectID mapObject;
 
 	static void CheckMapPath(const std::string &mapPath);
 	[[nodiscard]] static BSPMap LoadBSPMap(const std::string &mapPath);
 	[[nodiscard]] static PHYParser::BSP::BSP LoadPHYMap(
 		const std::string &mapPath
 	);
-	[[nodiscard]] static ObjectCreationParams CreateMapParams(
+	[[nodiscard]] static ShapeCreationInfo CreateMapParams(
 		const float *vertices, size_t vertexCount, bool flip = false
 	);
-	[[nodiscard]] ObjectHandle CreateMapObject(
-		const ObjectCreationParams &params
+	[[nodiscard]] ObjectID CreateMapObject(const ShapeCreationInfo &params
 	) const;
 	[[nodiscard]] std::vector<float> ConvertBrushModelToVertices(
 		const PHYParser::BSP::BSP::Model &model
@@ -52,11 +53,14 @@ public:
 	 * brushmodels to the asset cache.
 	 */
 	Map(const std::shared_ptr<AssetCache> &assetCache,
-		ISimScene *scene,
+		gelly::simulation::Scene *scene,
 		const std::string &mapPath);
 	Map(Map &&other) = delete;
 
-	~Map();
+	// Objects are always managed by their respective handlers, so we can safely
+	// discard the map object.
+	~Map() = default;
 };
+}  // namespace gelly::gmod
 
-#endif	// MAP_H
+#endif	// GELLY_GMOD_MAP_H

@@ -24,7 +24,7 @@ private:
 
 	std::vector<CSimpleSimCommandList *> commandLists;
 	CFlexSimScene *scene;
-	gelly::simulation::Scene newScene;
+	std::shared_ptr<gelly::simulation::Scene> newScene;
 
 	NvFlexParams solverParams{};
 

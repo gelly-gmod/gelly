@@ -61,6 +61,9 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 		NvFlexFreeBuffer(buffers.contactVelocities);
 	}
 
+	newScene.reset();  // unfortunately, we need to explicitly reset this before
+					   // the solver is destroyed
+
 	NvFlexDestroySolver(solver);
 	NvFlexShutdown(library);
 }
@@ -225,15 +228,13 @@ void CD3D11FlexFluidSimulation::Initialize() {
 	delete scene;
 	scene = new CFlexSimScene(library, solver);
 
-	newScene = Scene({
-		.lib = library,
-		.solver = solver,
-	});
+	auto context = ObjectHandlerContext{.lib = library, .solver = solver};
+	newScene = std::make_shared<Scene>(context);
 }
 
 ISimData *CD3D11FlexFluidSimulation::GetSimulationData() { return simData; }
 ISimScene *CD3D11FlexFluidSimulation::GetScene() { return scene; }
-Scene *CD3D11FlexFluidSimulation::GetNewScene() { return &newScene; }
+Scene *CD3D11FlexFluidSimulation::GetNewScene() { return newScene.get(); }
 
 SimContextAPI CD3D11FlexFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;
@@ -410,7 +411,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 
 	NvFlexSetParams(solver, &solverParams);
 	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
-	newScene.Update();
+	newScene->Update();
 
 	NvFlexUpdateSolver(solver, deltaTime * timeStepMultiplier, substeps, false);
 	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, &copyDesc);

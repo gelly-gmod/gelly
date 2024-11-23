@@ -3,6 +3,7 @@
 using namespace gelly::simulation;
 
 Scene::Scene(ObjectHandlerContext ctx) : ctx(ctx) {
+	sharedCounter = std::make_shared<MonotonicCounter>();
 	shapeHandler = std::make_shared<ShapeHandler>(ctx, sharedCounter);
 	handlers.push_back(shapeHandler);
 }

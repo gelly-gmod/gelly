@@ -8,7 +8,7 @@ using namespace Gelly;
 
 void ShapeHandler::CreateFleXBuffers() {
 	flexBuffers.positions = NvFlexAllocBuffer(
-		ctx.lib, MAX_SHAPES, sizeof(FleX::Float3), eNvFlexBufferHost
+		ctx.lib, MAX_SHAPES, sizeof(FleX::Float4), eNvFlexBufferHost
 	);
 
 	flexBuffers.rotations = NvFlexAllocBuffer(
@@ -16,7 +16,7 @@ void ShapeHandler::CreateFleXBuffers() {
 	);
 
 	flexBuffers.prevPositions = NvFlexAllocBuffer(
-		ctx.lib, MAX_SHAPES, sizeof(FleX::Float3), eNvFlexBufferHost
+		ctx.lib, MAX_SHAPES, sizeof(FleX::Float4), eNvFlexBufferHost
 	);
 
 	flexBuffers.prevRotations = NvFlexAllocBuffer(
@@ -138,31 +138,33 @@ uint32_t ShapeHandler::GetCollisionShapeFlags(const ShapeObject &object) {
 }
 
 void ShapeHandler::Update() {
-	auto buffers = MapFleXBuffers();
+	if (isUpdateRequired) {
+		auto buffers = MapFleXBuffers();
 
-	for (const auto &entry : objects) {
-		const auto &object = entry.second;
+		for (const auto &entry : objects) {
+			const auto &object = entry.second;
 
-		const auto &position = object.transform.position;
-		const auto &rotation = object.transform.rotation;
+			const auto &position = object.transform.position;
+			const auto &rotation = object.transform.rotation;
 
-		const auto index = entry.first;
+			const auto index = entry.first;
 
-		buffers.prevPositions[index] = buffers.positions[index];
-		buffers.prevRotations[index] = buffers.rotations[index];
+			buffers.prevPositions[index] = buffers.positions[index];
+			buffers.prevRotations[index] = buffers.rotations[index];
 
-		buffers.positions[index] = {
-			position[0], position[1], position[2], 0.0f
-		};
-		buffers.rotations[index] = {
-			rotation[0], rotation[1], rotation[2], rotation[3]
-		};
+			buffers.positions[index] = {
+				position[0], position[1], position[2], 0.0f
+			};
+			buffers.rotations[index] = {
+				rotation[0], rotation[1], rotation[2], rotation[3]
+			};
 
-		buffers.info[index] = GetCollisionGeometryInfo(object);
-		buffers.flags[index] = GetCollisionShapeFlags(object);
+			buffers.info[index] = GetCollisionGeometryInfo(object);
+			buffers.flags[index] = GetCollisionShapeFlags(object);
+		}
+
+		UnmapFleXBuffers(buffers);
 	}
-
-	UnmapFleXBuffers(buffers);
 
 	NvFlexSetShapes(
 		ctx.solver,
@@ -273,6 +275,7 @@ ObjectID ShapeHandler::MakeShape(const ShapeCreationInfo &info) {
 
 	const auto id = counter->Increment();
 	objects[id] = object;
+	isUpdateRequired = true;
 
 	return id;
 }
@@ -288,6 +291,7 @@ void ShapeHandler::RemoveShape(ObjectID id) {
 	}
 
 	objects.erase(it);
+	isUpdateRequired = true;
 }
 
 void ShapeHandler::UpdateShape(
@@ -300,4 +304,5 @@ void ShapeHandler::UpdateShape(
 
 	auto &object = it->second;
 	callback(object);
+	isUpdateRequired = true;
 }

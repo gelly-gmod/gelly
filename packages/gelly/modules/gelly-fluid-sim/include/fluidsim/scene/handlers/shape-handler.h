@@ -110,6 +110,7 @@ private:
 	ObjectHandlerContext ctx;
 	std::shared_ptr<MonotonicCounter> counter;
 	std::unordered_map<ObjectID, ShapeObject> objects;
+	bool isUpdateRequired = false;
 
 	struct {
 		NvFlexBuffer *positions;

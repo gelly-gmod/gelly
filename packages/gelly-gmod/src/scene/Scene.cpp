@@ -34,7 +34,7 @@ void Scene::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 void Scene::LoadMap(
 	const std::shared_ptr<AssetCache> &assetCache, const std::string &mapPath
 ) {
-	map.emplace(assetCache, sim->GetScene(), mapPath);
+	map.emplace(assetCache, sim->GetNewScene(), mapPath);
 }
 
 void Scene::AddParticles(const ParticleListBuilder &builder) const {
