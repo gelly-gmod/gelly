@@ -12,15 +12,15 @@
 
 class EntityManager {
 private:
-	std::unordered_map<EntIndex, ObjectHandle> entities;
+	std::unordered_map<EntIndex, ObjectID> entities;
 	// Gelly's interface uses raw pointers
-	ISimScene *simScene;
+	gelly::simulation::Scene *simScene;
 
 	[[nodiscard]] std::pair<std::vector<Vector>, std::vector<uint32_t>>
 	ProcessGModMesh(std::vector<Vector> vertices) const;
 
 public:
-	explicit EntityManager(ISimScene *scene);
+	explicit EntityManager(gelly::simulation::Scene *scene);
 	~EntityManager();
 
 	void AddEntity(

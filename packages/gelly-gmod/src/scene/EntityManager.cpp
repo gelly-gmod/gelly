@@ -1,10 +1,11 @@
 #include "EntityManager.h"
 
-EntityManager::EntityManager(ISimScene *scene) : simScene(scene) {}
+EntityManager::EntityManager(gelly::simulation::Scene *scene) :
+	simScene(scene) {}
 
 EntityManager::~EntityManager() {
 	for (auto &ent : entities) {
-		simScene->RemoveObject(ent.second);
+		simScene->GetShapeHandler()->RemoveShape(ent.second);
 	}
 }
 
@@ -28,11 +29,10 @@ void EntityManager::AddEntity(
 	const std::shared_ptr<AssetCache> &cache,
 	const char *assetName
 ) {
-	ObjectCreationParams params = {};
-	params.shape = ObjectShape::TRIANGLE_MESH;
+	ShapeCreationInfo params = {};
+	params.type = ShapeType::TRIANGLE_MESH;
 
-	ObjectCreationParams::TriangleMesh mesh = {};
-	mesh.indexType = ObjectCreationParams::TriangleMesh::IndexType::UINT32;
+	params.triMesh.indexType = IndexType::UINT32;
 
 	const auto asset = cache->FetchAsset(assetName);
 	std::vector<uint32_t> indices;
@@ -43,49 +43,51 @@ void EntityManager::AddEntity(
 		indices.push_back(i + 2);
 	}
 
-	mesh.vertices = asset->rawVertices.data();
-	mesh.vertexCount = asset->rawVertices.size() / 3;
-	mesh.indices32 = indices.data();
-	mesh.indexCount = indices.size();
-	mesh.scale[0] = 1.f;
-	mesh.scale[1] = 1.f;
-	mesh.scale[2] = 1.f;
+	params.triMesh.vertices = asset->rawVertices.data();
+	params.triMesh.vertexCount = asset->rawVertices.size() / 3;
+	params.triMesh.indices32 = indices.data();
+	params.triMesh.indexCount = indices.size();
+	params.triMesh.scale[0] = 1.f;
+	params.triMesh.scale[1] = 1.f;
+	params.triMesh.scale[2] = 1.f;
 
-	params.shapeData = mesh;
-
-	entities[entIndex] = simScene->CreateObject(params);
+	entities[entIndex] = simScene->GetShapeHandler()->MakeShape(params);
 }
 
 void EntityManager::AddPlayerObject(
 	EntIndex entIndex, float radius, float halfHeight
 ) {
-	ObjectCreationParams params = {};
-	params.shape = ObjectShape::CAPSULE;
+	ShapeCreationInfo params = {};
+	params.type = ShapeType::CAPSULE;
+	params.capsule.radius = radius;
+	params.capsule.halfHeight = halfHeight;
 
-	ObjectCreationParams::Capsule capsule = {};
-	capsule.radius = radius;
-	capsule.halfHeight = halfHeight;
-
-	params.shapeData = capsule;
-
-	entities[entIndex] = simScene->CreateObject(params);
+	entities[entIndex] = simScene->GetShapeHandler()->MakeShape(params);
 }
 
 void EntityManager::RemoveEntity(EntIndex entIndex) {
 	if (auto it = entities.find(entIndex); it != entities.end()) {
-		simScene->RemoveObject(it->second);
+		simScene->GetShapeHandler()->RemoveShape(it->second);
 		entities.erase(it);
 	}
 }
 
 void EntityManager::UpdateEntityPosition(EntIndex entIndex, Vector position) {
-	simScene->SetObjectPosition(
-		entities[entIndex], position.x, position.y, position.z
+	simScene->GetShapeHandler()->UpdateShape(
+		entities[entIndex],
+		[&](ShapeObject &object) {
+			object.SetTransformPosition(position.x, position.y, position.z);
+		}
 	);
 }
 
 void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
-	simScene->SetObjectQuaternion(
-		entities[entIndex], rotation.y, rotation.z, rotation.w, rotation.x
+	simScene->GetShapeHandler()->UpdateShape(
+		entities[entIndex],
+		[&](ShapeObject &object) {
+			object.SetTransformRotation(
+				rotation.x, rotation.y, rotation.z, rotation.w
+			);
+		}
 	);
 }

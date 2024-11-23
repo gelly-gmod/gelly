@@ -51,7 +51,7 @@ void Scene::ChangeRadius(float radius) const { config.ChangeRadius(radius); }
 
 void Scene::Initialize() {
 	sim->Initialize();
-	ents.emplace(sim->GetScene());
+	ents.emplace(sim->GetNewScene());
 
 	SetTimeStepMultiplier(DEFAULT_TIMESTEP_MULTIPLIER);
 }
