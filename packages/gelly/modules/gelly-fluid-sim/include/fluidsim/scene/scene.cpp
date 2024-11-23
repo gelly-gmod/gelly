@@ -5,7 +5,10 @@ using namespace gelly::simulation;
 Scene::Scene(ObjectHandlerContext ctx) : ctx(ctx) {
 	sharedCounter = std::make_shared<MonotonicCounter>();
 	shapeHandler = std::make_shared<ShapeHandler>(ctx, sharedCounter);
+	forcefieldHandler = std::make_shared<ForcefieldHandler>(ctx, sharedCounter);
+
 	handlers.push_back(shapeHandler);
+	handlers.push_back(forcefieldHandler);
 }
 
 Scene::Scene() : ctx({}) {}
