@@ -17,6 +17,8 @@ include("emitters/sphere-emitter.lua")
 include("mods/enums.lua")
 include("mods/manager.lua")
 
+include("gelly/util/prop-resizer.lua")
+
 gellyx.mods.initialize()
 gellyx.mods.runMods()
 gellyx.settings.updateBinaryModuleSettings()
