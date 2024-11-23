@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <string>
 
+using namespace gelly::simulation;
+
 // TODO: deduplicate this
 struct FlexFloat4 {
 	float x, y, z, w;
@@ -28,11 +30,10 @@ CD3D11FlexFluidSimulation::CD3D11FlexFluidSimulation() :
 	simData(new CD3D11CPUSimData()),
 	maxParticles(0),
 	commandLists({}),
-	scene(nullptr) {}
+	newScene() {}
 
 CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 	delete simData;
-	delete scene;
 
 	if (buffers.positions != nullptr) {
 		NvFlexFreeBuffer(buffers.positions);
@@ -57,6 +58,9 @@ CD3D11FlexFluidSimulation::~CD3D11FlexFluidSimulation() {
 	if (buffers.contactVelocities != nullptr) {
 		NvFlexFreeBuffer(buffers.contactVelocities);
 	}
+
+	newScene.reset();  // unfortunately, we need to explicitly reset this before
+					   // the solver is destroyed
 
 	NvFlexDestroySolver(solver);
 	NvFlexShutdown(library);
@@ -219,12 +223,13 @@ void CD3D11FlexFluidSimulation::Initialize() {
 		sizeof(FlexFloat4)
 	);
 
-	delete scene;
-	scene = new CFlexSimScene(library, solver);
+	auto context = ObjectHandlerContext{.lib = library, .solver = solver};
+	newScene = std::make_shared<Scene>(context);
 }
 
 ISimData *CD3D11FlexFluidSimulation::GetSimulationData() { return simData; }
-ISimScene *CD3D11FlexFluidSimulation::GetScene() { return scene; }
+Scene *CD3D11FlexFluidSimulation::GetScene() { return newScene.get(); }
+
 SimContextAPI CD3D11FlexFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;
 }
@@ -400,7 +405,7 @@ void CD3D11FlexFluidSimulation::Update(float deltaTime) {
 
 	NvFlexSetParams(solver, &solverParams);
 	NvFlexSetActiveCount(solver, simData->GetActiveParticles());
-	scene->Update();
+	newScene->Update();
 
 	NvFlexUpdateSolver(solver, deltaTime * timeStepMultiplier, substeps, false);
 	NvFlexGetSmoothParticles(solver, sharedBuffers.positions, &copyDesc);
@@ -570,47 +575,4 @@ unsigned int CD3D11FlexFluidSimulation::GetRealActiveParticleCount() {
 
 void CD3D11FlexFluidSimulation::VisitLatestContactPlanes(
 	ContactPlaneVisitor visitor
-) {
-	NvFlexGetContacts(
-		solver,
-		nullptr,
-		buffers.contactVelocities,
-		nullptr,
-		buffers.contactCounts
-	);
-	NvFlexGetParticles(solver, buffers.positions, nullptr);
-
-	const auto *velocities = static_cast<FlexFloat4 *>(
-		NvFlexMap(buffers.contactVelocities, eNvFlexMapWait)
-	);
-
-	const auto *counts =
-		static_cast<int *>(NvFlexMap(buffers.contactCounts, eNvFlexMapWait));
-
-	for (uint i = 0; i < simData->GetActiveParticles(); i++) {
-		const int contactCount = counts[i];
-
-		for (int contactIndex = 0; contactIndex < contactCount;
-			 contactIndex++) {
-			const FlexFloat4 velocity =
-				velocities[i * maxContactsPerParticle + contactIndex];
-			uint shapeIndex = static_cast<uint>(velocity.w);
-
-			ObjectHandle handle = scene->GetHandleFromShapeIndex(shapeIndex);
-			XMFLOAT3 velocityVector =
-				XMFLOAT3(velocity.x, velocity.y, velocity.z);
-
-			XMStoreFloat3(
-				&velocityVector,
-				XMVectorScale(XMLoadFloat3(&velocityVector), 25.f)
-			);
-
-			if (visitor(velocityVector, handle)) {
-				break;
-			}
-		}
-	}
-
-	NvFlexUnmap(buffers.contactVelocities);
-	NvFlexUnmap(buffers.contactCounts);
-}
+) {}
