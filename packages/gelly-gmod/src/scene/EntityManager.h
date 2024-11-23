@@ -8,7 +8,6 @@
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "asset-cache.h"
 #include "fluidsim/IFluidSimulation.h"
-#include "fluidsim/ISimScene.h"
 
 class EntityManager {
 private:

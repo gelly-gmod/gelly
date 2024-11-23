@@ -1,13 +1,16 @@
 #ifndef CD3D11FLEXFLUIDSIMULATION_H
 #define CD3D11FLEXFLUIDSIMULATION_H
 
+#include <GellyDataTypes.h>
+
 #include <functional>
 
 #include "CD3D11CPUSimData.h"
-#include "CFlexSimScene.h"
 #include "CSimpleSimCommandList.h"
 #include "IFluidSimulation.h"
 #include "scene/scene.h"
+
+using namespace Gelly::DataTypes;
 
 #define GUARDED_BUFFER_REMOVE(buffer) \
 	if (buffer) {                     \
@@ -29,7 +32,6 @@ private:
 	int maxParticles;
 
 	std::vector<CSimpleSimCommandList *> commandLists;
-	CFlexSimScene *scene;
 	std::shared_ptr<gelly::simulation::Scene> newScene;
 
 	NvFlexParams solverParams{};
@@ -99,7 +101,6 @@ public:
 	void Initialize() override;
 
 	ISimData *GetSimulationData() override;
-	ISimScene *GetScene() override;
 	gelly::simulation::Scene *GetNewScene() override;
 
 	SimContextAPI GetComputeAPI() override;

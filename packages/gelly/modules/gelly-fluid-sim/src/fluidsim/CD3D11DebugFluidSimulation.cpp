@@ -2,10 +2,8 @@
 
 #include <stdexcept>
 
-CD3D11DebugFluidSimulation::CD3D11DebugFluidSimulation()
-	: simData(new CD3D11CPUSimData()),
-	  positionBuffer(nullptr),
-	  maxParticles(0) {}
+CD3D11DebugFluidSimulation::CD3D11DebugFluidSimulation() :
+	simData(new CD3D11CPUSimData()), positionBuffer(nullptr), maxParticles(0) {}
 
 CD3D11DebugFluidSimulation::~CD3D11DebugFluidSimulation() {
 	delete simData;
@@ -124,7 +122,6 @@ void CD3D11DebugFluidSimulation::Initialize() {
 }
 
 ISimData *CD3D11DebugFluidSimulation::GetSimulationData() { return simData; }
-ISimScene *CD3D11DebugFluidSimulation::GetScene() { return nullptr; }
 
 SimContextAPI CD3D11DebugFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;

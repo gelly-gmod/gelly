@@ -36,7 +36,6 @@ public:
 	void LoadDatasetFromFolder(const std::filesystem::path &folderPath);
 
 	ISimData *GetSimulationData() override;
-	ISimScene *GetScene() override;
 	gelly::simulation::Scene *GetNewScene() override { return nullptr; }
 	SimContextAPI GetComputeAPI() override;
 
