@@ -433,6 +433,18 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 	return 0;
 }
 
+LUA_FUNCTION(gelly_SetObjectScale) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
+	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);  // Scale
+
+	const auto scale = LUA->GetVector(2);
+	scene->UpdateEntityScale(static_cast<EntIndex>(LUA->GetNumber(1)), scale);
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 LUA_FUNCTION(gelly_AddParticles) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Table);	  // Particles
@@ -1035,6 +1047,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, RemoveForcefieldObject);
 	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
+	DEFINE_LUA_FUNC(gelly, SetObjectScale);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	DEFINE_LUA_FUNC(gelly, SetFluidMaterial);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);

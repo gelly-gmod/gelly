@@ -96,3 +96,18 @@ void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 		}
 	);
 }
+
+void EntityManager::UpdateEntityScale(EntIndex entIndex, Vector scale) {
+	simScene->GetShapeHandler()->UpdateShape(
+		entities[entIndex],
+		[&](ShapeObject &object) {
+			if (object.type != ShapeType::TRIANGLE_MESH) {
+				return;
+			}
+
+			object.triangleMesh.scale[0] = scale.x;
+			object.triangleMesh.scale[1] = scale.y;
+			object.triangleMesh.scale[2] = scale.z;
+		}
+	);
+}

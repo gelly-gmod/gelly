@@ -54,6 +54,7 @@ public:
 	void RemoveEntity(EntIndex entIndex);
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);
 	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
+	void UpdateEntityScale(EntIndex entIndex, Vector scale);
 
 	void LoadMap(
 		const std::shared_ptr<AssetCache> &assetCache,
