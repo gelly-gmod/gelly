@@ -33,6 +33,8 @@ add_library(
         include/fluidsim/scene/helpers/monotonic-counter.h
         include/fluidsim/scene/handlers/shape-handler.cpp
         include/fluidsim/scene/helpers/flex-types.h
+        include/fluidsim/scene/handlers/forcefield-handler.cpp
+        include/fluidsim/scene/handlers/forcefield-handler.h
 )
 
 GetFleXArchitecture()
