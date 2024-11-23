@@ -228,7 +228,7 @@ void CD3D11FlexFluidSimulation::Initialize() {
 }
 
 ISimData *CD3D11FlexFluidSimulation::GetSimulationData() { return simData; }
-Scene *CD3D11FlexFluidSimulation::GetNewScene() { return newScene.get(); }
+Scene *CD3D11FlexFluidSimulation::GetScene() { return newScene.get(); }
 
 SimContextAPI CD3D11FlexFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;

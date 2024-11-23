@@ -38,7 +38,7 @@ void Scene::UpdateEntityScale(EntIndex entIndex, Vector scale) {
 void Scene::LoadMap(
 	const std::shared_ptr<AssetCache> &assetCache, const std::string &mapPath
 ) {
-	map.emplace(assetCache, sim->GetNewScene(), mapPath);
+	map.emplace(assetCache, sim->GetScene(), mapPath);
 }
 
 void Scene::AddParticles(const ParticleListBuilder &builder) const {
@@ -55,7 +55,7 @@ void Scene::ChangeRadius(float radius) const { config.ChangeRadius(radius); }
 
 void Scene::Initialize() {
 	sim->Initialize();
-	ents.emplace(sim->GetNewScene());
+	ents.emplace(sim->GetScene());
 
 	SetTimeStepMultiplier(DEFAULT_TIMESTEP_MULTIPLIER);
 }

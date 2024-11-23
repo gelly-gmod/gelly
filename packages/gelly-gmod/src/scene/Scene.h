@@ -70,13 +70,13 @@ public:
 	[[nodiscard]] ObjectID AddForcefield(
 		const ForcefieldCreationInfo &forcefield
 	) {
-		return sim->GetNewScene()->GetForcefieldHandler()->MakeForcefield(
+		return sim->GetScene()->GetForcefieldHandler()->MakeForcefield(
 			forcefield
 		);
 	}
 
 	void UpdateForcefieldPosition(ObjectID handle, const Vector &position) {
-		sim->GetNewScene()->GetForcefieldHandler()->UpdateForcefield(
+		sim->GetScene()->GetForcefieldHandler()->UpdateForcefield(
 			handle,
 			[&](ForcefieldObject &object) {
 				object.SetPosition(position.x, position.y, position.z);
@@ -85,7 +85,7 @@ public:
 	}
 
 	void RemoveForcefield(ObjectID handle) {
-		sim->GetNewScene()->GetForcefieldHandler()->RemoveForcefield(handle);
+		sim->GetScene()->GetForcefieldHandler()->RemoveForcefield(handle);
 	}
 
 	[[nodiscard]] int GetActiveParticles() const {

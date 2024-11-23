@@ -101,7 +101,7 @@ public:
 	void Initialize() override;
 
 	ISimData *GetSimulationData() override;
-	gelly::simulation::Scene *GetNewScene() override;
+	gelly::simulation::Scene *GetScene() override;
 
 	SimContextAPI GetComputeAPI() override;
 
