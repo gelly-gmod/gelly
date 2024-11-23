@@ -73,6 +73,11 @@ void EntityManager::RemoveEntity(EntIndex entIndex) {
 }
 
 void EntityManager::UpdateEntityPosition(EntIndex entIndex, Vector position) {
+	// Filter out some known-bad data
+	if (position.x == 0.f && position.y == 0.f && position.z == 0.f) {
+		return;
+	}
+
 	simScene->GetShapeHandler()->UpdateShape(
 		entities[entIndex],
 		[&](ShapeObject &object) {

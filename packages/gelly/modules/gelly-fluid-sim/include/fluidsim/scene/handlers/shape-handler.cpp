@@ -146,26 +146,25 @@ void ShapeHandler::Update() {
 			const auto &position = object.transform.position;
 			const auto &rotation = object.transform.rotation;
 
-			// There's absolutely no way of knowing what the first mapping is
-			// going to contain, so we have to initialize it explicitly
-			if (!object.initialized) {
-				object.initialized = true;
-				buffers.prevPositions[index] = {
-					position[0], position[1], position[2], 1.0f
-				};
-				buffers.prevRotations[index] = {
-					rotation[0], rotation[1], rotation[2], rotation[3]
-				};
-			} else {
-				buffers.prevPositions[index] = buffers.positions[index];
-				buffers.prevRotations[index] = buffers.rotations[index];
-			}
-
 			buffers.positions[index] = {
 				position[0], position[1], position[2], 1.0f
 			};
 			buffers.rotations[index] = {
 				rotation[0], rotation[1], rotation[2], rotation[3]
+			};
+
+			buffers.prevPositions[index] = {
+				object.transform.prevPosition[0],
+				object.transform.prevPosition[1],
+				object.transform.prevPosition[2],
+				1.0f
+			};
+
+			buffers.prevRotations[index] = {
+				object.transform.prevRotation[0],
+				object.transform.prevRotation[1],
+				object.transform.prevRotation[2],
+				object.transform.prevRotation[3]
 			};
 
 			buffers.info[index] = GetCollisionGeometryInfo(object);
