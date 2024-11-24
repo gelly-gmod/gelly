@@ -7,6 +7,8 @@
 #include <GellyFluidSim.h>
 #include <fluidsim/IFluidSimulation.h>
 
+#include <optional>
+
 #include "Config.h"
 #include "EntIndex.h"
 #include "EntityManager.h"
@@ -25,7 +27,7 @@ private:
 		absorptionModifier;
 
 	std::optional<EntityManager> ents;
-	std::optional<Map> map;
+	std::optional<gelly::gmod::Map> map;
 	ParticleManager particles;
 	Config config;
 
@@ -52,6 +54,7 @@ public:
 	void RemoveEntity(EntIndex entIndex);
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);
 	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
+	void UpdateEntityScale(EntIndex entIndex, Vector scale);
 
 	void LoadMap(
 		const std::shared_ptr<AssetCache> &assetCache,
@@ -64,20 +67,25 @@ public:
 	void SetFluidProperties(const SetFluidProperties &props) const;
 	void ChangeRadius(float radius) const;
 
-	[[nodiscard]] ObjectHandle AddForcefield(
-		const ObjectCreationParams &forcefield
+	[[nodiscard]] ObjectID AddForcefield(
+		const ForcefieldCreationInfo &forcefield
 	) {
-		return sim->GetScene()->CreateObject(forcefield);
-	}
-
-	void UpdateForcefieldPosition(ObjectHandle handle, const Vector &position) {
-		sim->GetScene()->SetObjectPosition(
-			handle, position.x, position.y, position.z
+		return sim->GetScene()->GetForcefieldHandler()->MakeForcefield(
+			forcefield
 		);
 	}
 
-	void RemoveForcefield(ObjectHandle handle) {
-		sim->GetScene()->RemoveObject(handle);
+	void UpdateForcefieldPosition(ObjectID handle, const Vector &position) {
+		sim->GetScene()->GetForcefieldHandler()->UpdateForcefield(
+			handle,
+			[&](ForcefieldObject &object) {
+				object.SetPosition(position.x, position.y, position.z);
+			}
+		);
+	}
+
+	void RemoveForcefield(ObjectID handle) {
+		sim->GetScene()->GetForcefieldHandler()->RemoveForcefield(handle);
 	}
 
 	[[nodiscard]] int GetActiveParticles() const {

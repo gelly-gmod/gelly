@@ -14,17 +14,24 @@ add_library(
         src/fluidsim/rtfr/Dataset.h
         src/fluidsim/CD3D11RTFRFluidSimulation.cpp
         include/fluidsim/CD3D11RTFRFluidSimulation.h
-        include/fluidsim/ISimScene.h
         include/fluidsim/ISimCommandList.h
         src/fluidsim/CSimpleSimCommandList.cpp
         include/fluidsim/CSimpleSimCommandList.h
         include/fluidsim/CD3D11FlexFluidSImulation.h
-        include/fluidsim/CFlexSimScene.h
-        src/fluidsim/CFlexSImScene.cpp
         src/fluidsim/CD3D11FlexFluidSimulation.cpp
         include/fluidsim/ISimRigids.h
         include/fluidsim/CFlexSimRigids.h
         src/fluidsim/CFlexSimRigids.cpp
+        include/fluidsim/scene/scene.cpp
+        include/fluidsim/scene/scene.h
+        include/fluidsim/scene/object.h
+        include/fluidsim/scene/object-handler.h
+        include/fluidsim/scene/handlers/shape-handler.h
+        include/fluidsim/scene/helpers/monotonic-counter.h
+        include/fluidsim/scene/handlers/shape-handler.cpp
+        include/fluidsim/scene/helpers/flex-types.h
+        include/fluidsim/scene/handlers/forcefield-handler.cpp
+        include/fluidsim/scene/handlers/forcefield-handler.h
 )
 
 GetFleXArchitecture()

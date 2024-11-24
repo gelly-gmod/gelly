@@ -31,6 +31,10 @@ void Scene::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 	ents->UpdateEntityRotation(entIndex, rotation);
 }
 
+void Scene::UpdateEntityScale(EntIndex entIndex, Vector scale) {
+	ents->UpdateEntityScale(entIndex, scale);
+}
+
 void Scene::LoadMap(
 	const std::shared_ptr<AssetCache> &assetCache, const std::string &mapPath
 ) {

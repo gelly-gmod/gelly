@@ -11,7 +11,7 @@
 #include "ISimCommandList.h"
 #include "ISimContext.h"
 #include "ISimData.h"
-#include "ISimScene.h"
+#include "scene/scene.h"
 
 using namespace DirectX;
 
@@ -47,7 +47,8 @@ public:
 	 * any scene and thus does not support collision.
 	 * \return Pointer to the scene object.
 	 */
-	virtual ISimScene *GetScene() = 0;
+	virtual gelly::simulation::Scene *GetScene() = 0;
+
 	virtual SimContextAPI GetComputeAPI() = 0;
 	virtual void AttachToContext(GellyObserverPtr<ISimContext> context) = 0;
 

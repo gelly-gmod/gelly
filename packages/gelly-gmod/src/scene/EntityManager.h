@@ -8,19 +8,18 @@
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "asset-cache.h"
 #include "fluidsim/IFluidSimulation.h"
-#include "fluidsim/ISimScene.h"
 
 class EntityManager {
 private:
-	std::unordered_map<EntIndex, ObjectHandle> entities;
+	std::unordered_map<EntIndex, ObjectID> entities;
 	// Gelly's interface uses raw pointers
-	ISimScene *simScene;
+	gelly::simulation::Scene *simScene;
 
 	[[nodiscard]] std::pair<std::vector<Vector>, std::vector<uint32_t>>
 	ProcessGModMesh(std::vector<Vector> vertices) const;
 
 public:
-	explicit EntityManager(ISimScene *scene);
+	explicit EntityManager(gelly::simulation::Scene *scene);
 	~EntityManager();
 
 	void AddEntity(
@@ -32,6 +31,7 @@ public:
 	void RemoveEntity(EntIndex entIndex);
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);
 	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
+	void UpdateEntityScale(EntIndex entIndex, Vector scale);
 };
 
 #endif	// ENTITIES_H

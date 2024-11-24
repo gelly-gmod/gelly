@@ -5,11 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.28.1] - 2024-10-27
+## [1.28.3] - 2024-11-23
+
+### Added
+
+- Added a new scene system, there may be a slight performance increase with this change.
+- Added prop resizer support
 
 ### Fixed
 
-- The position model used to properly resolve the cubemaps appearing when using the camera tool
+- Fixed the iconic teleportation bug (for sure this time) that caused the fluid to teleport randomly when props were
+  spawned.
+
+## [1.28.2] - 2024-11-16
+
+### Fixed
+
+- Fixed whitewater suddenly activating once the resolution scale was changed.
+
+## [1.28.1] - 2024-10-29
+
+### Changed
+
+- Disc emitters now toggle their emission when used (when you press E and look at one)
 
 ## [1.28.0] - 2024-10-26
 
