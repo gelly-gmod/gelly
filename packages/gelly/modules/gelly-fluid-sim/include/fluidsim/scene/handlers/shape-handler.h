@@ -63,6 +63,17 @@ struct ShapeObject {
 		transform.prevRotation[2] = transform.rotation[2];
 		transform.prevRotation[3] = transform.rotation[3];
 	}
+
+	bool IsAtOrigin() {
+		return transform.position[0] == 0.0f && transform.position[1] == 0.0f &&
+			   transform.position[2] == 0.0f;
+	}
+
+	bool WasAtOrigin() {
+		return transform.prevPosition[0] == 0.0f &&
+			   transform.prevPosition[1] == 0.0f &&
+			   transform.prevPosition[2] == 0.0f;
+	}
 };
 
 enum class IndexType {
