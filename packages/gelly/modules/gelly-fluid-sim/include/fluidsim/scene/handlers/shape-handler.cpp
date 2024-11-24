@@ -143,6 +143,19 @@ void ShapeHandler::Update() {
 		for (auto &entry : objects) {
 			auto &object = entry.second;
 
+			if ((object.IsAtOrigin() || object.WasAtOrigin()) &&
+				entry.first != WORLD_ID) {
+				// Defer the addition of the object to the next frame when they
+				// have an actual position
+
+				// We do want to update their last position to the current one
+				// so that we can use it for collision response
+
+				object.SetPreviousPositionToCurrent();
+				object.SetPreviousRotationToCurrent();
+				continue;
+			}
+
 			const auto &position = object.transform.position;
 			const auto &rotation = object.transform.rotation;
 
