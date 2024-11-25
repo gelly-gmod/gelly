@@ -61,8 +61,8 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 
 		render.Model({
 			model = ENVBALLS_MODEL_PATH,
-			pos = LocalPlayer():EyePos() - LocalPlayer():GetAimVector() * 40,
-			angle = LocalPlayer():EyeAngles(),
+			pos = EyePos() - EyeAngles():Forward() * 40,
+			angle = EyeAngles(),
 		}, envballsModel)
 		envballsModel:SetNoDraw(true)
 
