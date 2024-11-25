@@ -59,14 +59,10 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function()
 		if not isGellyActive() then return end
 
-		local viewent = LocalPlayer():GetViewEntity()
-		local viewpos = (viewent:IsPlayer() and LocalPlayer():EyePos()) or viewent:GetPos()
-		local viewangle = (viewent:IsPlayer() and LocalPlayer():EyeAngles()) or viewent:GetAngles()
-
 		render.Model({
 			model = ENVBALLS_MODEL_PATH,
-			pos = viewpos - viewangle:Forward() * 40,
-			angle = viewangle,
+			pos = EyePos() - EyeAngles():Forward() * 40,
+			angle = EyeAngles(),
 		}, envballsModel)
 		envballsModel:SetNoDraw(true)
 
