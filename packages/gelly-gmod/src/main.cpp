@@ -341,9 +341,7 @@ LUA_FUNCTION(gelly_AddForcefieldObject) {
 		"Mode", static_cast<int>(NvFlexExtForceMode::eNvFlexExtModeForce)
 	);
 
-	ObjectCreationParams forcefield = {};
-	forcefield.shape = ObjectShape::FORCEFIELD;
-	forcefield.shapeData = ObjectCreationParams::Forcefield{
+	ForcefieldCreationInfo info = {
 		.position = {position.x, position.y, position.z},
 		.radius = radius,
 		.strength = strength,
@@ -351,7 +349,7 @@ LUA_FUNCTION(gelly_AddForcefieldObject) {
 		.linearFalloff = linearFalloff
 	};
 
-	const auto forcefieldHandle = scene->AddForcefield(forcefield);
+	const auto forcefieldHandle = scene->AddForcefield(info);
 	LUA->PushNumber(forcefieldHandle);
 	CATCH_GELLY_EXCEPTIONS();
 
@@ -364,7 +362,7 @@ LUA_FUNCTION(gelly_UpdateForcefieldPosition) {
 	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);  // Position
 
 	scene->UpdateForcefieldPosition(
-		static_cast<ObjectHandle>(LUA->GetNumber(1)), LUA->GetVector(2)
+		static_cast<ObjectID>(LUA->GetNumber(1)), LUA->GetVector(2)
 	);
 
 	CATCH_GELLY_EXCEPTIONS();
@@ -374,7 +372,7 @@ LUA_FUNCTION(gelly_UpdateForcefieldPosition) {
 LUA_FUNCTION(gelly_RemoveForcefieldObject) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
-	scene->RemoveForcefield(static_cast<ObjectHandle>(LUA->GetNumber(1)));
+	scene->RemoveForcefield(static_cast<ObjectID>(LUA->GetNumber(1)));
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -429,6 +427,18 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 	};
 
 	scene->UpdateEntityRotation(static_cast<EntIndex>(LUA->GetNumber(1)), quat);
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
+LUA_FUNCTION(gelly_SetObjectScale) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
+	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);  // Scale
+
+	const auto scale = LUA->GetVector(2);
+	scene->UpdateEntityScale(static_cast<EntIndex>(LUA->GetNumber(1)), scale);
+
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -1035,6 +1045,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, RemoveForcefieldObject);
 	DEFINE_LUA_FUNC(gelly, SetObjectPosition);
 	DEFINE_LUA_FUNC(gelly, SetObjectRotation);
+	DEFINE_LUA_FUNC(gelly, SetObjectScale);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	DEFINE_LUA_FUNC(gelly, SetFluidMaterial);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);

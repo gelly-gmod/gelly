@@ -5,14 +5,14 @@
 
 #include <stdexcept>
 
-CD3D11RTFRFluidSimulation::CD3D11RTFRFluidSimulation()
-	: simData(new CD3D11CPUSimData()),
-	  positionBuffer(nullptr),
-	  maxParticles(0),
-	  activeParticles(0),
-	  datasetInfo({}),
-	  dataset(),
-	  currentFrameIndex(0) {}
+CD3D11RTFRFluidSimulation::CD3D11RTFRFluidSimulation() :
+	simData(new CD3D11CPUSimData()),
+	positionBuffer(nullptr),
+	maxParticles(0),
+	activeParticles(0),
+	datasetInfo({}),
+	dataset(),
+	currentFrameIndex(0) {}
 
 CD3D11RTFRFluidSimulation::~CD3D11RTFRFluidSimulation() {
 	delete simData;
@@ -146,7 +146,6 @@ void CD3D11RTFRFluidSimulation::LoadDatasetFromFolder(
 }
 
 ISimData *CD3D11RTFRFluidSimulation::GetSimulationData() { return simData; }
-ISimScene *CD3D11RTFRFluidSimulation::GetScene() { return nullptr; }
 
 SimContextAPI CD3D11RTFRFluidSimulation::GetComputeAPI() {
 	return SimContextAPI::D3D11;

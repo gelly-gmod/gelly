@@ -92,6 +92,17 @@ local function updateObject(entity)
 	end
 end
 
+local function onPropResized(entity, newScale)
+	local objectHandles = objects[entity]
+	if not objectHandles then
+		return
+	end
+
+	for _, objectHandle in ipairs(objectHandles) do
+		gelly.SetObjectScale(objectHandle, newScale)
+	end
+end
+
 local PLAYER_RADIUS = 15
 local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
@@ -124,6 +135,8 @@ hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 			updateObject(entity)
 		end
 	end)
+
+	hook.Add("GellyXPropResized", "gelly.object-resize", onPropResized)
 end)
 
 hook.Add("GellyRestarted", "gelly.object-management-recreate-entities", function()

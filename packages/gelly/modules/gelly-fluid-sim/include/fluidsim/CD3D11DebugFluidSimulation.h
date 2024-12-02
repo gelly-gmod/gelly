@@ -31,7 +31,8 @@ public:
 	void SetMaxParticles(int maxParticles) override;
 	void Initialize() override;
 	ISimData *GetSimulationData() override;
-	ISimScene *GetScene() override;
+	gelly::simulation::Scene *GetScene() override { return nullptr; }
+
 	SimContextAPI GetComputeAPI() override;
 
 	ISimCommandList *CreateCommandList() override;
