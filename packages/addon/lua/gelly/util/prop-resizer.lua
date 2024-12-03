@@ -1,12 +1,12 @@
-local array = include("gelly/util/functional-arrays.lua")
 local logging = include("gelly/logging.lua")
 
-local function isPropResizerInstalled()
-	return scripted_ents.Get("sizehandler") ~= nil
+local function isPropResizerUninstalled()
+	return scripted_ents.Get("sizehandler") == nil
 end
 
-if not isPropResizerInstalled() then
+if isPropResizerUninstalled() then
 	logging.warn("Prop Resizer was not detected. Not loading prop resizer utilities.")
+	return
 else
 	logging.info("Prop Resizer detected. Loading prop resizer utilities.")
 end
