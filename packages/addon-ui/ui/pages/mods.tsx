@@ -38,9 +38,7 @@ export default function Mods() {
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
-				<SliderSectionHeader onResetRequested={() => 0}>
-					Gelly Gun Settings
-				</SliderSectionHeader>
+				<SliderSectionHeader>Gelly Gun Settings</SliderSectionHeader>
 				<HorizontalSeparator />
 				<Slider
 					min={-100}

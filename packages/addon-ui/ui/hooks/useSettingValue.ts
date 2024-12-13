@@ -28,7 +28,12 @@ export default function useSettingValue(key: string) {
 		return () => gellySync.removeListener(updateSettingValueWithNewValue);
 	}, []);
 
-	return [settingValue, setSettingValue] as const;
+	const resetSettingValue = () => {
+		gelly.resetSetting(key);
+		updateSettingValueWithNewValue();
+	};
+
+	return [settingValue, setSettingValue, resetSettingValue] as const;
 }
 
 export function useSettingValueString(key: string) {
@@ -58,5 +63,10 @@ export function useSettingValueString(key: string) {
 		return () => gellySync.removeListener(updateSettingValueWithNewValue);
 	}, []);
 
-	return [settingValue, setSettingValue] as const;
+	const resetSettingValue = () => {
+		gelly.resetSetting(key);
+		updateSettingValueWithNewValue();
+	};
+
+	return [settingValue, setSettingValue, resetSettingValue] as const;
 }

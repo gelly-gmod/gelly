@@ -41,9 +41,7 @@ export default function Presets() {
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
-				<SliderSectionHeader onResetRequested={() => 0}>
-					Fluid Settings
-				</SliderSectionHeader>
+				<SliderSectionHeader>Fluid Settings</SliderSectionHeader>
 				<HorizontalSeparator />
 				<Slider
 					min={1}
@@ -111,9 +109,7 @@ export default function Presets() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 				/>
-				<SliderSectionHeader onResetRequested={() => 0}>
-					Fluid Material
-				</SliderSectionHeader>
+				<SliderSectionHeader>Fluid Material</SliderSectionHeader>
 				<HorizontalSeparator />
 				<ColorPicker
 					color={colorHexCode}
