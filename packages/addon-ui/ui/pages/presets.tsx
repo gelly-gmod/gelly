@@ -21,22 +21,27 @@ import CheckBox from "../components/CheckBox.tsx";
 import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
 
 export default function Presets() {
-	const [fluidRadius, setFluidRadius] = useSettingValue("fluid_radius");
-	const [viscosity, setViscosity] = useSettingValue("fluid_viscosity");
-	const [cohesion, setCohesion] = useSettingValue("fluid_cohesion");
-	const [adhesion, setAdhesion] = useSettingValue("fluid_adhesion");
-	const [friction, setFriction] = useSettingValue("fluid_friction");
-	const [restDistanceRatio, setRestDistanceRatio] = useSettingValue(
-		"fluid_rest_distance_ratio",
-	);
-	const [colorHexCode, setColorHexCode] =
+	const [fluidRadius, setFluidRadius, resetFluidRadius] =
+		useSettingValue("fluid_radius");
+	const [viscosity, setViscosity, resetViscosity] =
+		useSettingValue("fluid_viscosity");
+	const [cohesion, setCohesion, resetCohesion] =
+		useSettingValue("fluid_cohesion");
+	const [adhesion, setAdhesion, resetAdhesion] =
+		useSettingValue("fluid_adhesion");
+	const [friction, setFriction, resetFriction] =
+		useSettingValue("fluid_friction");
+	const [restDistanceRatio, setRestDistanceRatio, resetRestDistanceRatio] =
+		useSettingValue("fluid_rest_distance_ratio");
+	const [colorHexCode, setColorHexCode, resetColorHexCode] =
 		useSettingValueString("fluid_color_hex");
-	const [colorScale, setColorScale] = useSettingValue("fluid_color_scale");
-	const [roughness, setRoughness] = useSettingValue("fluid_roughness");
-	const [opaque, setOpaque] = useSettingValue("fluid_opaque");
-	const [useWhitewater, setUseWhitewater] = useSettingValue(
-		"fluid_use_whitewater",
-	);
+	const [colorScale, setColorScale, resetColorScale] =
+		useSettingValue("fluid_color_scale");
+	const [roughness, setRoughness, resetRoughness] =
+		useSettingValue("fluid_roughness");
+	const [opaque, setOpaque, resetOpaque] = useSettingValue("fluid_opaque");
+	const [useWhitewater, setUseWhitewater, resetUseWhitewater] =
+		useSettingValue("fluid_use_whitewater");
 
 	return (
 		<SlidersExplanationLayout>
@@ -53,6 +58,7 @@ export default function Presets() {
 					setValue={setFluidRadius}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetFluidRadius}
 				/>
 				<Slider
 					min={0}
@@ -64,6 +70,7 @@ export default function Presets() {
 					setValue={setViscosity}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetViscosity}
 				/>
 				<Slider
 					min={0}
@@ -75,6 +82,7 @@ export default function Presets() {
 					setValue={setCohesion}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetCohesion}
 				/>
 				<Slider
 					min={0}
@@ -86,6 +94,7 @@ export default function Presets() {
 					setValue={setAdhesion}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetAdhesion}
 				/>
 				<Slider
 					min={0}
@@ -97,6 +106,7 @@ export default function Presets() {
 					setValue={setFriction}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetFriction}
 				/>
 				<Slider
 					min={0.5}
@@ -108,6 +118,7 @@ export default function Presets() {
 					setValue={setRestDistanceRatio}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetRestDistanceRatio}
 				/>
 				<SliderSectionHeader>Fluid Material</SliderSectionHeader>
 				<HorizontalSeparator />
@@ -117,6 +128,7 @@ export default function Presets() {
 					onChange={setColorHexCode}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetColorHexCode}
 				/>
 				<Slider
 					min={0.5}
@@ -128,6 +140,7 @@ export default function Presets() {
 					setValue={setColorScale}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetColorScale}
 				/>
 				<Slider
 					min={0}
@@ -139,18 +152,21 @@ export default function Presets() {
 					setValue={setRoughness}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetRoughness}
 				/>
 
 				<CheckBox
 					label="Opaque"
 					checked={opaque}
 					onChange={setOpaque}
+					onResetRequest={resetOpaque}
 				/>
 
 				<CheckBox
 					label="Use Whitewater"
 					checked={useWhitewater}
 					onChange={setUseWhitewater}
+					onResetRequest={resetUseWhitewater}
 				/>
 			</Sliders>
 			<Separator />

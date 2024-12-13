@@ -17,23 +17,21 @@ import {
 import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
 
 export default function Mods() {
-	const [forcefieldStrength, setForcefieldStrength] = useSettingValue(
-		"gelly_gun_forcefield_strength",
-	);
-	const [forcefieldRadius, setForcefieldRadius] = useSettingValue(
-		"gelly_gun_forcefield_radius",
-	);
-	const [distance, setDistance] = useSettingValue("gelly_gun_distance");
-	const [primarySize, setPrimarySize] = useSettingValue(
+	const [forcefieldStrength, setForcefieldStrength, resetForcefieldStrength] =
+		useSettingValue("gelly_gun_forcefield_strength");
+	const [forcefieldRadius, setForcefieldRadius, resetForcefieldRadius] =
+		useSettingValue("gelly_gun_forcefield_radius");
+	const [distance, setDistance, resetDistance] =
+		useSettingValue("gelly_gun_distance");
+	const [primarySize, setPrimarySize, resetPrimarySize] = useSettingValue(
 		"gelly_gun_primary_size",
 	);
-	const [secondaryVelocity, setSecondaryVelocity] = useSettingValue(
-		"gelly_gun_secondary_velocity",
-	);
-	const [secondarySize, setSecondarySize] = useSettingValue(
-		"gelly_gun_secondary_size",
-	);
-	const [density, setDensity] = useSettingValue("gelly_gun_density");
+	const [secondaryVelocity, setSecondaryVelocity, resetSecondaryVelocity] =
+		useSettingValue("gelly_gun_secondary_velocity");
+	const [secondarySize, setSecondarySize, resetSecondarySize] =
+		useSettingValue("gelly_gun_secondary_size");
+	const [density, setDensity, resetDensity] =
+		useSettingValue("gelly_gun_density");
 
 	return (
 		<SlidersExplanationLayout>
@@ -50,6 +48,7 @@ export default function Mods() {
 					setValue={setForcefieldStrength}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetForcefieldStrength}
 				/>
 				<Slider
 					min={1}
@@ -61,6 +60,7 @@ export default function Mods() {
 					setValue={setForcefieldRadius}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetForcefieldRadius}
 				/>
 
 				<Slider
@@ -73,6 +73,7 @@ export default function Mods() {
 					setValue={setDistance}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetDistance}
 				/>
 
 				<Slider
@@ -85,6 +86,7 @@ export default function Mods() {
 					setValue={setPrimarySize}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetPrimarySize}
 				/>
 
 				<Slider
@@ -97,6 +99,7 @@ export default function Mods() {
 					setValue={setSecondarySize}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSecondarySize}
 				/>
 
 				<Slider
@@ -109,6 +112,7 @@ export default function Mods() {
 					setValue={setSecondaryVelocity}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSecondaryVelocity}
 				/>
 
 				<Slider
@@ -121,6 +125,7 @@ export default function Mods() {
 					setValue={setDensity}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetDensity}
 				/>
 			</Sliders>
 			<Separator />
