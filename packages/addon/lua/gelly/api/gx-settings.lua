@@ -85,6 +85,11 @@ function gellyx.settings.get(name)
 	return gellyx.settings.convars[name]
 end
 
+function gellyx.settings.reset(name)
+	assert(gellyx.settings.convars[name], "Invalid setting name")
+	gellyx.settings.get(name):Revert()
+end
+
 function gellyx.settings.getFullName(name)
 	return gellyx.settings.key .. name
 end
