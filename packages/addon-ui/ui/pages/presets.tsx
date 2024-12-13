@@ -18,6 +18,7 @@ import {
 } from "../util/temporary-translucency.ts";
 import ColorPicker from "../components/ColorPicker.tsx";
 import CheckBox from "../components/CheckBox.tsx";
+import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
 
 export default function Presets() {
 	const [fluidRadius, setFluidRadius] = useSettingValue("fluid_radius");
@@ -40,7 +41,9 @@ export default function Presets() {
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
-				<ExplanationHeader>Fluid Settings</ExplanationHeader>
+				<SliderSectionHeader onResetRequested={() => 0}>
+					Fluid Settings
+				</SliderSectionHeader>
 				<HorizontalSeparator />
 				<Slider
 					min={1}
@@ -108,7 +111,9 @@ export default function Presets() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 				/>
-				<ExplanationHeader>Fluid Material</ExplanationHeader>
+				<SliderSectionHeader onResetRequested={() => 0}>
+					Fluid Material
+				</SliderSectionHeader>
 				<HorizontalSeparator />
 				<ColorPicker
 					color={colorHexCode}

@@ -15,6 +15,7 @@ import {
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
 import CheckBox from "../components/CheckBox.tsx";
+import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
 
 export default function Simulation() {
 	const [simRate, setSimRate] = useSettingValue("simulation_rate");
@@ -144,7 +145,9 @@ export default function Simulation() {
 					onInputEnd={disableTemporaryTranslucency}
 				/>
 
-				<ExplanationHeader>Whitewater Settings</ExplanationHeader>
+				<SliderSectionHeader onResetRequested={() => 0}>
+					Whitewater Settings
+				</SliderSectionHeader>
 				<HorizontalSeparator />
 
 				<CheckBox

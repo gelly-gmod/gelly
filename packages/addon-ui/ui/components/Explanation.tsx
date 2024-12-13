@@ -3,10 +3,14 @@ import "./Explanation.css";
 
 export function ExplanationHeader({
 	children,
+	className,
 }: {
 	children: ComponentChildren;
+	className?: string;
 }) {
-	return <span class="explanation-header">{children}</span>;
+	return (
+		<span class={"explanation-header " + className ?? ""}>{children}</span>
+	);
 }
 export function ExplanationText({
 	children,

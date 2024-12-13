@@ -14,6 +14,7 @@ import {
 	disableTemporaryTranslucency,
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
+import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
 
 export default function Mods() {
 	const [forcefieldStrength, setForcefieldStrength] = useSettingValue(
@@ -37,7 +38,9 @@ export default function Mods() {
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
-				<ExplanationHeader>Gelly Gun Settings</ExplanationHeader>
+				<SliderSectionHeader onResetRequested={() => 0}>
+					Gelly Gun Settings
+				</SliderSectionHeader>
 				<HorizontalSeparator />
 				<Slider
 					min={-100}
