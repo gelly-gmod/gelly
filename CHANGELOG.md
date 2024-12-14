@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.29.1] - 2024-12-14
+
+### Fixed
+
+- Fixed the random and odd particle clusters or spiky particles that would appear in the fluid. (caught by @meetric1)
+- Fluid should look much smoother now, particularly in turbulent areas.
+
 ## [1.29.0] - 2024-12-13
 
 ### Added
