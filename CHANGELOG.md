@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.29.1] - 2024-12-14
+
+### Fixed
+
+- Fixed the random and odd particle clusters or spiky particles that would appear in the fluid. (caught by @meetric1)
+- Fluid should look much smoother now, particularly in turbulent areas.
+
+## [1.29.0] - 2024-12-13
+
+### Added
+
+- Added the ability to reset every single setting in Gelly through the customization menu (hit M)
+
+### Fixed
+
+- Fixed a longstanding bug where an error would be thrown if the hex color was invalid
+
+## [1.28.6] - 2024-12-3
+
+### Fixed
+
+- Fixed an error being thrown when Prop Resizer isn't installed
+
 ## [1.28.5] - 2024-11-25
 
 ### Fixed

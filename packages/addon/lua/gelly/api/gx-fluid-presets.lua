@@ -155,6 +155,16 @@ gellyx.settings.registerMultipleOnChange(EPHEMERAL_FLUID_SETTING_NAMES, function
 	selectPreset(newPreset)
 end)
 
+local function getValidFluidColorHex()
+	local settingValue = gellyx.settings.get("fluid_color_hex"):GetString()
+
+	if #settingValue ~= 7 then
+		return "#000000"
+	end
+
+	return settingValue
+end
+
 gellyx.settings.registerMultipleOnChange(
 	{ "fluid_color_hex", "fluid_color_scale", "fluid_roughness", "fluid_opaque", "fluid_use_whitewater" },
 	function()
@@ -163,7 +173,7 @@ gellyx.settings.registerMultipleOnChange(
 		end
 
 		-- CSS-style: #rrggbb
-		local colorHex = gellyx.settings.get("fluid_color_hex"):GetString()
+		local colorHex = getValidFluidColorHex()
 		local colorScale = gellyx.settings.get("fluid_color_scale"):GetFloat()
 
 		local numericR = tonumber(colorHex:sub(2, 3), 16) / 255

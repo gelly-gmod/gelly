@@ -9,6 +9,10 @@
 	flex: 0.1 0 64px;
 }
 
+#spacer {
+	flex: 0.9 0 0;
+}
+
 #label {
 	color: white;
 	font-size: 1.3em;

@@ -16,11 +16,13 @@ import {
 import CheckBox from "../components/CheckBox.tsx";
 
 export default function Graphics() {
-	const [smoothness, setSmoothness] = useSettingValue("smoothness");
-	const [resolutionScale, setResolutionScale] =
+	const [smoothness, setSmoothness, resetSmoothness] =
+		useSettingValue("smoothness");
+	const [resolutionScale, setResolutionScale, resetResolutionScale] =
 		useSettingValue("resolution_scale");
-	const [sunVisible, setSunVisible] = useSettingValue("sun_visible");
-	const [glunkLightingFix, setGlunkLightingFix] =
+	const [sunVisible, setSunVisible, resetSunVisible] =
+		useSettingValue("sun_visible");
+	const [glunkLightingFix, setGlunkLightingFix, resetGlunkLightingFix] =
 		useSettingValue("glunk_lighting_fix");
 
 	return (
@@ -36,6 +38,7 @@ export default function Graphics() {
 					label="Smoothness"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSmoothness}
 				/>
 
 				<Slider
@@ -49,18 +52,21 @@ export default function Graphics() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 					onlySetValuesOnMouseUp
+					onResetRequest={resetResolutionScale}
 				/>
 
 				<CheckBox
 					label="Sun Enabled"
 					checked={sunVisible}
 					onChange={setSunVisible}
+					onResetRequest={resetSunVisible}
 				/>
 
 				<CheckBox
 					label="Glunk Lighting Fix"
 					checked={glunkLightingFix}
 					onChange={setGlunkLightingFix}
+					onResetRequest={resetGlunkLightingFix}
 				/>
 			</Sliders>
 			<Separator />

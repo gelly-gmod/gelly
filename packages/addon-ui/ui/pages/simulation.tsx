@@ -15,33 +15,41 @@ import {
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
 import CheckBox from "../components/CheckBox.tsx";
+import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
 
 export default function Simulation() {
-	const [simRate, setSimRate] = useSettingValue("simulation_rate");
-	const [iterations, setIterations] = useSettingValue(
+	const [simRate, setSimRate, resetSimRate] =
+		useSettingValue("simulation_rate");
+	const [iterations, setIterations, resetIterations] = useSettingValue(
 		"simulation_iterations",
 	);
-	const [substeps, setSubsteps] = useSettingValue("simulation_substeps");
-	const [presetRadiusScale, setPresetRadiusScale] = useSettingValue(
-		"preset_radius_scale",
+	const [substeps, setSubsteps, resetSubsteps] = useSettingValue(
+		"simulation_substeps",
 	);
-	const [relaxation, setRelaxation] = useSettingValue(
+	const [presetRadiusScale, setPresetRadiusScale, resetPresetRadiusScale] =
+		useSettingValue("preset_radius_scale");
+	const [relaxation, setRelaxation, resetRelaxation] = useSettingValue(
 		"simulation_relaxation",
 	);
-	const [collisionDistance, setCollisionDistance] = useSettingValue(
-		"simulation_collision_distance",
-	);
-	const [gravity, setGravity] = useSettingValue("simulation_gravity");
-	const [maxParticles, setMaxParticles] = useSettingValue("max_particles");
-	const [sprayThreshold, setSprayThreshold] =
+	const [collisionDistance, setCollisionDistance, resetCollisionDistance] =
+		useSettingValue("simulation_collision_distance");
+	const [gravity, setGravity, resetGravity] =
+		useSettingValue("simulation_gravity");
+	const [maxParticles, setMaxParticles, resetMaxParticles] =
+		useSettingValue("max_particles");
+	const [sprayThreshold, setSprayThreshold, resetSprayThreshold] =
 		useSettingValue("spray_threshold");
-	const [sprayDrag, setSprayDrag] = useSettingValue("spray_drag");
-	const [sprayBuoyancy, setSprayBuoyancy] = useSettingValue("spray_buoyancy");
-	const [sprayLifetime, setSprayLifetime] = useSettingValue("spray_lifetime");
-	const [sprayScale, setSprayScale] = useSettingValue("spray_scale");
-	const [sprayMotionBlur, setSprayMotionBlur] =
+	const [sprayDrag, setSprayDrag, resetSprayDrag] =
+		useSettingValue("spray_drag");
+	const [sprayBuoyancy, setSprayBuoyancy, resetSprayBuoyancy] =
+		useSettingValue("spray_buoyancy");
+	const [sprayLifetime, setSprayLifetime, resetSprayLifetime] =
+		useSettingValue("spray_lifetime");
+	const [sprayScale, setSprayScale, resetSprayScale] =
+		useSettingValue("spray_scale");
+	const [sprayMotionBlur, setSprayMotionBlur, resetSprayMotionBlur] =
 		useSettingValue("spray_motion_blur");
-	const [whitewaterEnabled, setWhitewaterEnabled] =
+	const [whitewaterEnabled, setWhitewaterEnabled, resetWhitewaterEnabled] =
 		useSettingValue("whitewater_enabled");
 
 	return (
@@ -57,6 +65,7 @@ export default function Simulation() {
 					label="Simulation Rate"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSimRate}
 				/>
 
 				<Slider
@@ -69,6 +78,7 @@ export default function Simulation() {
 					label="Iterations"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetIterations}
 				/>
 
 				<Slider
@@ -81,6 +91,7 @@ export default function Simulation() {
 					label="Substeps"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSubsteps}
 				/>
 
 				<Slider
@@ -93,6 +104,7 @@ export default function Simulation() {
 					label="Radius Scale"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetPresetRadiusScale}
 				/>
 
 				<Slider
@@ -106,6 +118,7 @@ export default function Simulation() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 					onlySetValuesOnMouseUp
+					onResetRequest={resetMaxParticles}
 				/>
 
 				<Slider
@@ -118,6 +131,7 @@ export default function Simulation() {
 					label="Relaxation Factor"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetRelaxation}
 				/>
 
 				<Slider
@@ -130,6 +144,7 @@ export default function Simulation() {
 					label="Collision Distance"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetCollisionDistance}
 				/>
 
 				<Slider
@@ -142,15 +157,17 @@ export default function Simulation() {
 					label="Gravity"
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetGravity}
 				/>
 
-				<ExplanationHeader>Whitewater Settings</ExplanationHeader>
+				<SliderSectionHeader>Whitewater Settings</SliderSectionHeader>
 				<HorizontalSeparator />
 
 				<CheckBox
 					label="Whitewater Enabled"
 					checked={whitewaterEnabled}
 					onChange={setWhitewaterEnabled}
+					onResetRequest={resetWhitewaterEnabled}
 				/>
 
 				<Slider
@@ -163,6 +180,7 @@ export default function Simulation() {
 					setValue={setSprayThreshold}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSprayThreshold}
 				/>
 
 				<Slider
@@ -175,6 +193,7 @@ export default function Simulation() {
 					setValue={setSprayDrag}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSprayDrag}
 				/>
 
 				<Slider
@@ -187,6 +206,7 @@ export default function Simulation() {
 					setValue={setSprayBuoyancy}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSprayBuoyancy}
 				/>
 
 				<Slider
@@ -199,6 +219,7 @@ export default function Simulation() {
 					setValue={setSprayLifetime}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSprayLifetime}
 				/>
 
 				<Slider
@@ -211,6 +232,7 @@ export default function Simulation() {
 					setValue={setSprayScale}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSprayScale}
 				/>
 
 				<Slider
@@ -223,6 +245,7 @@ export default function Simulation() {
 					setValue={setSprayMotionBlur}
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSprayMotionBlur}
 				/>
 			</Sliders>
 			<Separator />

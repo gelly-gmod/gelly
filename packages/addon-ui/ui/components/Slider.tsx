@@ -1,5 +1,6 @@
 import "./Slider.css";
 import { useState, useRef, useEffect } from "preact/hooks";
+import ResetButton from "./ResetButton.tsx";
 
 function trimFloat(float: number) {
 	// from: https://stackoverflow.com/a/11832950
@@ -59,6 +60,7 @@ export default function Slider({
 	setValue,
 	onInputStart,
 	onInputEnd,
+	onResetRequest,
 	onlySetValuesOnMouseUp,
 }: {
 	min: number;
@@ -70,6 +72,7 @@ export default function Slider({
 	setValue: (value: number) => void;
 	onInputStart?: () => void;
 	onInputEnd?: () => void;
+	onResetRequest?: () => void;
 	onlySetValuesOnMouseUp?: boolean;
 }) {
 	const [valueDropdownVisible, setValueDropdownVisible] = useState(false);
@@ -110,6 +113,7 @@ export default function Slider({
 					/>
 				)}
 			</section>
+			<ResetButton onResetRequest={onResetRequest} />
 		</div>
 	);
 }

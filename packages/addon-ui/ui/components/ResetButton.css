@@ -1,0 +1,22 @@
+.reset-button {
+	aspect-ratio: 1/1;
+	width: min-content;
+	height: min-content;
+
+	font-size: 2em;
+	color: gray;
+
+	cursor: pointer;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	transition:
+		transform 0.2s ease,
+		color 0.2ms;
+}
+
+.reset-button:active {
+	color: white;
+}
