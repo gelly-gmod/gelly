@@ -81,7 +81,7 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
 
 float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal, in float3 pos, in float3 eyeDir) {
 	float3 refractionDir = refract(eyeDir, normal, 1.f / material.r_st_ior.z);
-	float3 refractPos = pos + refractionDir * 8.f;
+	float3 refractPos = pos + refractionDir * 8.f * max((1.f / max(0.28f, thickness)), 1);
 	float4 refractPosClip = mul(viewProjMatrix, float4(refractPos, 1.f));
 	float2 refractUV = refractPosClip.xy / refractPosClip.w;
 	refractUV = 0.5f * refractUV + 0.5f;
