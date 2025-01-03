@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.29.2] - 2025-01-03
+
+### Added
+
+- Added new "Whitewater Strength" slider to control how much discoloration is applied to rapidly moving fluid.
+
+### Changed
+
+- Tweaked how refraction looks for smaller particles, it should look a bit more realistic now.
+- Adjusted the density of the liquifier to reduce stuttering and lag.
+
 ## [1.29.1] - 2024-12-14
 
 ### Fixed
