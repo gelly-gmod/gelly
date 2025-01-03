@@ -44,6 +44,8 @@ gellyx.settings.convars = {
 	spray_drag = settingConvar("spray_drag", 0.2, "Controls the drag of spray particles.", 0, 3),
 	whitewater_enabled = settingConvar("whitewater_enabled", 1, "Controls the visibility of whitewater (0 = off, 1 = on)",
 		0, 1),
+	whitewater_strength = settingConvar("whitewater_strength", 1,
+		"Controls the strength of whitewater (0 = invisible, 1 = visible).", 0, 1),
 
 	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
 		1500000),

@@ -39,8 +39,10 @@ float4x4 viewProjMatrix : register(c17);
 float4 sunDir : register(c21);
 float4 lightScaling : register(c22);
 float4x4 invViewProjMatrix : register(c23);
-float enableWhitewater : register(c27);
+float2 whitewaterSettings : register(c27);
 
+#define enableWhitewater whitewaterSettings.x
+#define whitewaterStrength whitewaterSettings.y
 #define CUBEMAP_SCALE lightScaling.z
 
 struct PS_OUTPUT {
@@ -81,7 +83,7 @@ float3 ComputeSpecularRadianceFromLights(float3 position, float3 normal, float3 
 
 float2 ApplyRefractionToUV(in float2 tex, in float thickness, in float3 normal, in float3 pos, in float3 eyeDir) {
 	float3 refractionDir = refract(eyeDir, normal, 1.f / material.r_st_ior.z);
-	float3 refractPos = pos + refractionDir * 8.f * max((1.f / max(0.28f, thickness)), 1);
+	float3 refractPos = pos + refractionDir * 8.f * max((1.f / max(0.8f, thickness)), 1);
 	float4 refractPosClip = mul(viewProjMatrix, float4(refractPos, 1.f));
 	float2 refractUV = refractPosClip.xy / refractPosClip.w;
 	refractUV = 0.5f * refractUV + 0.5f;
@@ -110,6 +112,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     float2 thicknessAndVelocity = tex2D(thicknessTex, input.Tex).xw;
     float thickness = thicknessAndVelocity.x;
     float velocity = min(thicknessAndVelocity.y * 0.001f, 1.f) * enableWhitewater;
+    velocity *= whitewaterStrength;
 
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
     float3 position = WorldPosFromDepth(input.Tex, projectedDepth);

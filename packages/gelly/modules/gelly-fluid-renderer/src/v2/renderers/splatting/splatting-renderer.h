@@ -80,6 +80,7 @@ public:
 		 * which may be disabled for performance reasons.
 		 */
 		bool enableWhitewater = true;
+		float whitewaterStrength = 1.f;
 	};
 
 	struct SplattingRendererCreateInfo {
