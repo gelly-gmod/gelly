@@ -68,7 +68,8 @@ LONG WINAPI SaveLogInEmergency(LPEXCEPTION_POINTERS exceptionInfo) {
 	// We want to log the exception code
 	switch (exceptionInfo->ExceptionRecord->ExceptionCode) {
 		case EXCEPTION_ACCESS_VIOLATION:
-			LOG_ERROR("EMERGENCY EXCEPTION HANDLER: Access violation detected!"
+			LOG_ERROR(
+				"EMERGENCY EXCEPTION HANDLER: Access violation detected!"
 			);
 			break;
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
@@ -754,6 +755,7 @@ LUA_FUNCTION(gelly_SetGellySettings) {
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUSynchronization);
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUTiming);
 	GET_LUA_TABLE_MEMBER(bool, EnableWhitewater);
+	GET_LUA_TABLE_MEMBER(float, WhitewaterStrength);
 
 	int filterIterations = static_cast<int>(FilterIterations);
 	auto currentSettings = compositor->GetGellySettings();
@@ -761,6 +763,7 @@ LUA_FUNCTION(gelly_SetGellySettings) {
 	currentSettings.enableGPUSynchronization = EnableGPUSynchronization_b;
 	currentSettings.enableGPUTiming = EnableGPUTiming_b;
 	currentSettings.enableWhitewater = EnableWhitewater_b;
+	currentSettings.whitewaterStrength = WhitewaterStrength;
 
 	compositor->UpdateGellySettings(currentSettings);
 	CATCH_GELLY_EXCEPTIONS();

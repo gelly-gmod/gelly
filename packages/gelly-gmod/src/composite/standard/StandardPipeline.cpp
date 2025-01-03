@@ -162,6 +162,7 @@ void StandardPipeline::SetCompositeShaderConstants() const {
 
 void StandardPipeline::UpdateGellyRenderParams() {
 	auto renderer = gellyResources.splattingRenderer;
+	config.whitewaterStrength = renderer->GetSettings().whitewaterStrength;
 
 	CViewSetup viewSetup;
 	GetClientViewSetup(viewSetup);
@@ -267,6 +268,7 @@ void StandardPipeline::UpdateGellyRenderParams() {
 
 	compositeConstants.invViewProj = invViewProj;
 	compositeConstants.enableWhitewater = IsWhitewaterEnabled();
+	compositeConstants.whitewaterStrength = config.whitewaterStrength;
 
 	for (int index = 1; index < 3; index++) {
 		auto light = GetLightDesc(index);
@@ -374,7 +376,8 @@ StandardPipeline::CreatePipelineLocalResources(
 	return textures->GetSharedHandles();
 }
 
-void StandardPipeline::UpdateGellyResources(const GellyResources &newResources
+void StandardPipeline::UpdateGellyResources(
+	const GellyResources &newResources
 ) {
 	gellyResources = newResources;
 }

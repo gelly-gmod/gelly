@@ -51,6 +51,8 @@ export default function Simulation() {
 		useSettingValue("spray_motion_blur");
 	const [whitewaterEnabled, setWhitewaterEnabled, resetWhitewaterEnabled] =
 		useSettingValue("whitewater_enabled");
+	const [whitewaterStrength, setWhitewaterStrength, resetWhitewaterStrength] =
+		useSettingValue("whitewater_strength");
 
 	return (
 		<SlidersExplanationLayout>
@@ -168,6 +170,19 @@ export default function Simulation() {
 					checked={whitewaterEnabled}
 					onChange={setWhitewaterEnabled}
 					onResetRequest={resetWhitewaterEnabled}
+				/>
+
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit=""
+					label="Whitewater Strength"
+					value={whitewaterStrength}
+					setValue={setWhitewaterStrength}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetWhitewaterStrength}
 				/>
 
 				<Slider

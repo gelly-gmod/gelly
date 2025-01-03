@@ -48,7 +48,8 @@ struct CompositeConstants {
 	XMFLOAT4X4 invViewProj;
 
 	float enableWhitewater = 1.f;
-	float pad3[3];
+	float whitewaterStrength = 1.f;
+	float pad3[2];
 };
 
 static_assert(sizeof(CompositeConstants) % 16 == 0);
