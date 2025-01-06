@@ -295,6 +295,14 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(
 					solverParams.dynamicFriction = arg.dynamicFriction;
 					solverParams.fluidRestDistance =
 						solverParams.radius * arg.restDistanceRatio;
+					// Surface tension is really, really messy in FleX. We
+					// basically parameterize it by radius and make it tiny.
+					if (arg.surfaceTension > 0.f) {
+						solverParams.surfaceTension =
+							arg.surfaceTension / powf(solverParams.radius, 5.f);
+					} else {
+						solverParams.surfaceTension = 0.f;
+					}
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
 					SetupParams();
@@ -479,6 +487,11 @@ void CD3D11FlexFluidSimulation::SetupParams() {
 	// 2:1
 	solverParams.fluidRestDistance = solverParams.radius * 0.73f;
 	solverParams.solidRestDistance = solverParams.radius * 2.13f;
+
+	if (solverParams.surfaceTension > 0.f) {
+		solverParams.surfaceTension =
+			solverParams.surfaceTension / powf(solverParams.radius, 5.f);
+	}
 
 	solverParams.anisotropyScale = 1.0f;
 	solverParams.anisotropyMin = 0.1f;

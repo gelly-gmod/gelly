@@ -3,7 +3,7 @@ return {
 	Radius = 3,
 	SolverParams = {
 		Viscosity = 20,
-		SurfaceTension = 0.0,
+		SurfaceTension = 0.25,
 		Adhesion = 0.2,
 		Cohesion = 0.2,
 		VorticityConfinement = 0,
