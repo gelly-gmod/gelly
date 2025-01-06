@@ -300,6 +300,8 @@ void CD3D11FlexFluidSimulation::ExecuteCommandList(
 					if (arg.surfaceTension > 0.f) {
 						solverParams.surfaceTension =
 							arg.surfaceTension / powf(solverParams.radius, 5.f);
+					} else {
+						solverParams.surfaceTension = 0.f;
 					}
 				} else if constexpr (std::is_same_v<T, ChangeRadius>) {
 					particleRadius = arg.radius;
