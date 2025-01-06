@@ -33,6 +33,8 @@ export default function Presets() {
 		useSettingValue("fluid_friction");
 	const [restDistanceRatio, setRestDistanceRatio, resetRestDistanceRatio] =
 		useSettingValue("fluid_rest_distance_ratio");
+	const [surfaceTension, setSurfaceTension, resetSurfaceTension] =
+		useSettingValue("fluid_surface_tension");
 	const [colorHexCode, setColorHexCode, resetColorHexCode] =
 		useSettingValueString("fluid_color_hex");
 	const [colorScale, setColorScale, resetColorScale] =
@@ -119,6 +121,18 @@ export default function Presets() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 					onResetRequest={resetRestDistanceRatio}
+				/>
+				<Slider
+					min={0}
+					max={1}
+					step={0.01}
+					unit="x"
+					label="Surface Tension"
+					value={surfaceTension}
+					setValue={setSurfaceTension}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetSurfaceTension}
 				/>
 				<SliderSectionHeader>Fluid Material</SliderSectionHeader>
 				<HorizontalSeparator />

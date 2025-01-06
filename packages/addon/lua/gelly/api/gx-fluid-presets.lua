@@ -70,6 +70,7 @@ function gellyx.presets.select(name)
 	gellyx.settings.get("fluid_adhesion"):SetFloat(preset.SolverParams.Adhesion)
 	gellyx.settings.get("fluid_friction"):SetFloat(preset.SolverParams.DynamicFriction)
 	gellyx.settings.get("fluid_rest_distance_ratio"):SetFloat(preset.SolverParams.RestDistanceRatio)
+	gellyx.settings.get("fluid_surface_tension"):SetFloat(preset.SolverParams.SurfaceTension or 0)
 
 	if GELLY_CUSTOMIZATION then
 		-- tell the UI that we have new settings
@@ -137,6 +138,7 @@ local EPHEMERAL_FLUID_SETTING_NAMES = {
 	"fluid_adhesion",
 	"fluid_friction",
 	"fluid_rest_distance_ratio",
+	"fluid_surface_tension"
 }
 
 gellyx.settings.registerMultipleOnChange(EPHEMERAL_FLUID_SETTING_NAMES, function()
@@ -151,6 +153,7 @@ gellyx.settings.registerMultipleOnChange(EPHEMERAL_FLUID_SETTING_NAMES, function
 	newPreset.SolverParams.Adhesion = gellyx.settings.get("fluid_adhesion"):GetFloat()
 	newPreset.SolverParams.DynamicFriction = gellyx.settings.get("fluid_friction"):GetFloat()
 	newPreset.SolverParams.RestDistanceRatio = gellyx.settings.get("fluid_rest_distance_ratio"):GetFloat()
+	newPreset.SolverParams.SurfaceTension = gellyx.settings.get("fluid_surface_tension"):GetFloat()
 
 	selectPreset(newPreset)
 end)
