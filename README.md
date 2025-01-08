@@ -1,5 +1,5 @@
 <p align="center">
-   <img src="branding/gellylogo.png" border="20" />
+   <img src="branding/Gelly_Logo_WideRender_2000x1000_Transparent.png" border="20" />
    <br/>
    <a href="https://github.com/yogwoggf/gelly/releases">Grab the GMod addon</a>
 </p>
@@ -30,35 +30,35 @@ A few of the notable features of Gelly include:
 
 - Fluid simulation
 - Realistic fluid rendering
-    - As much as Garry's Mod allows, that is
+	- As much as Garry's Mod allows, that is
 - Customizable fluid properties
-    - Viscosity, surface tension, etc.
-    - Fluid absorption (yes, **absorption**, not color)
-        - All fluids are described by their absorption coefficients for red, green, and blue light,
-        - See [this page](https://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law) for more information
-        - In other words, fluid color is obtained by describing how much light is absorbed by the fluid, for each color
-          channel (red, green, blue)
-    - Presets
-        - Water, piss, blood, Gell-O and glunk.
-            - Gell-O is a gelatinous fluid. There is no intention for a coincidential name with a popular American brand
-              of gelatin desserts.
-            - Glunk is an odd, diffuse fluid which acts like a mix of concrete and water, you can't see through it, but
-              it
-              acts very fluidly.
-    - Physically inspired material rendering system
-        - Roughness, specular transmission and absorption
-    - Fluids can be mixed (**but not materials**)
-        - This means that a red fluid and a blue fluid will mix to form a dark purple fluid,
-        - but a red fluid and a blue opaque material will not mix, they will just overlap.
+	- Viscosity, surface tension, etc.
+	- Fluid absorption (yes, **absorption**, not color)
+		- All fluids are described by their absorption coefficients for red, green, and blue light,
+		- See [this page](https://en.wikipedia.org/wiki/Beer%E2%80%93Lambert_law) for more information
+		- In other words, fluid color is obtained by describing how much light is absorbed by the fluid, for each color
+		  channel (red, green, blue)
+	- Presets
+		- Water, piss, blood, Gell-O and glunk.
+			- Gell-O is a gelatinous fluid. There is no intention for a coincidential name with a popular American brand
+			  of gelatin desserts.
+			- Glunk is an odd, diffuse fluid which acts like a mix of concrete and water, you can't see through it, but
+			  it
+			  acts very fluidly.
+	- Physically inspired material rendering system
+		- Roughness, specular transmission and absorption
+	- Fluids can be mixed (**but not materials**)
+		- This means that a red fluid and a blue fluid will mix to form a dark purple fluid,
+		- but a red fluid and a blue opaque material will not mix, they will just overlap.
 - Fluid interaction with the environment
-    - Currently ragdolls aren't supported
-    - Two-way interaction is not supported
-        - More research has to be done and this is likely going to not be implemented due to the general incompatability
-          between orthodox physics engines and FleX's particle-based system
+	- Currently ragdolls aren't supported
+	- Two-way interaction is not supported
+		- More research has to be done and this is likely going to not be implemented due to the general incompatability
+		  between orthodox physics engines and FleX's particle-based system
 - Time control
-    - You can pause, slow down, or speed up the simulation
+	- You can pause, slow down, or speed up the simulation
 - The Gelly Gun
-    - A tool that allows you to spawn fluids, the main entry point for spawning fluids
+	- A tool that allows you to spawn fluids, the main entry point for spawning fluids
 
 > [!NOTE]
 > Time control is not perfect, and it is not guaranteed to work as expected. It *can* change the results of the
@@ -131,17 +131,17 @@ Gelly would not be possible without the following projects and people:
 - [Garry's Mod](https://store.steampowered.com/app/4000/Garrys_Mod/)
 - [FleX](https://developer.nvidia.com/flex)
 - The *amazing* GMod libraries provided by [Derpius](https://github.com/Derpius)
-    - [GMFS](https://github.com/Derpius/GMFS)
-    - [BSPParser](https://github.com/Derpius/BSPParser)
+	- [GMFS](https://github.com/Derpius/GMFS)
+	- [BSPParser](https://github.com/Derpius/BSPParser)
 - Plenty of ghostwriting from [Derpius](https://github.com/Derpius)
 - Architectural, product and design advice from [Derpius](https://github.com/Derpius)
-    - Plenty of advice on how to structure the project and do product planning, including some hands-on help
-      at [Total Anarchy Servers](https://github.com/TAServers)
-        - Great GMod servers
+	- Plenty of advice on how to structure the project and do product planning, including some hands-on help
+	  at [Total Anarchy Servers](https://github.com/TAServers)
+		- Great GMod servers
 - Notable criticisms and suggestions for the fluid rendering system from [Derpius](https://github.com/Derpius)
 - Well-needed call-outs for performance regressions from [Derpius](https://github.com/Derpius)
 - Support from [Meetric](https://github.com/meetric1) on our commonly shared issues facing FleX and GMod
 - Meetric's original GWater addon, which inspired Gelly and eventually turned it into a highly educational project
-    - Consider donating for his new GWater2 addon: [Meetric's Patreon](https://www.patreon.com/meetric)
+	- Consider donating for his new GWater2 addon: [Meetric's Patreon](https://www.patreon.com/meetric)
 - The patience of the [Graphics Programming Discord](https://discord.com/invite/Eb7P3wH) members
 - [RenderDoc](https://renderdoc.org/)
