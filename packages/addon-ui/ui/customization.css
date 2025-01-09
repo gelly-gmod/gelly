@@ -46,7 +46,7 @@ main {
 
 	background:
 		linear-gradient(90deg, rgb(19, 14, 14), rgba(0, 0, 0, 0.03)),
-		url("https://github.com/gelly-gmod/gelly/blob/184-add-new-logo/branding/Gelly_Logo_WideRender_2000x1000_Transparent.png?raw=true")
+		url("https://github.com/gelly-gmod/gelly/blob/master/branding/Gelly_Logo_WideRender_2000x1000_Transparent.png?raw=true")
 			no-repeat 20% 70% / 70%;
 	background-origin: content-box;
 }
