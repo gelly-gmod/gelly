@@ -45,9 +45,10 @@ main {
 	align-content: center;
 
 	background:
-		linear-gradient(90deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.03)),
-		url("https://github.com/gelly-gmod/gelly/blob/master/branding/gellylogo.png?raw=true")
-			no-repeat;
+		linear-gradient(90deg, rgb(19, 14, 14), rgba(0, 0, 0, 0.03)),
+		url("https://github.com/gelly-gmod/gelly/blob/184-add-new-logo/branding/Gelly_Logo_WideRender_2000x1000_Transparent.png?raw=true")
+			no-repeat 20% 70% / 70%;
+	background-origin: content-box;
 }
 
 section {
@@ -61,7 +62,7 @@ header {
 	align-items: center;
 
 	gap: 10px;
-	background-color: rgba(60, 4, 4, 0.62);
+	background-color: rgba(108, 20, 20, 0.62);
 
 	flex: 0.1 0 40px;
 }
@@ -70,7 +71,7 @@ header {
 	color: gray;
 	font-size: 1em;
 	font-weight: normal;
-	font-family: "Rubik", sans-serif;
+	font-family: "Poppins", sans-serif;
 
 	padding: 4px;
 }
@@ -99,14 +100,14 @@ header {
 	border-bottom: 1px solid transparent;
 
 	cursor: pointer;
-	color: #888;
+	color: #bb3a3a;
 
 	transition: all 0.3s ease;
 	will-change: transform;
 
 	font-size: 1.3em;
 	font-weight: bold;
-	font-family: "Rubik", sans-serif;
+	font-family: "Poppins", sans-serif;
 	/* remove default outline */
 	outline: none;
 }
@@ -140,6 +141,8 @@ header {
 }
 
 *::-webkit-scrollbar-thumb {
-	background: #333;
+	background: #775353;
+
+	border: 1px solid #693c3c;
 	border-radius: 6px;
 }
