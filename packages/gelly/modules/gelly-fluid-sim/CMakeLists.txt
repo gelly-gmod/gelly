@@ -32,6 +32,12 @@ add_library(
         include/fluidsim/scene/helpers/flex-types.h
         include/fluidsim/scene/handlers/forcefield-handler.cpp
         include/fluidsim/scene/handlers/forcefield-handler.h
+        src/v2/simulation.cpp
+        src/v2/simulation.h
+        src/v2/solver.cpp
+        src/v2/solver.h
+        src/v2/helpers/flex-buffer.h
+        src/v2/helpers/flex-gpu-buffer.h
 )
 
 GetFleXArchitecture()
