@@ -1,13 +1,7 @@
 #include "Scene.h"
 
-Scene::Scene(
-	const std::shared_ptr<ISimContext> &simContext,
-	const std::shared_ptr<IFluidSimulation> &sim,
-	int maxParticles
-) :
-	simContext(simContext), sim(sim), ents(), particles(sim), config(sim) {
-	sim->SetMaxParticles(maxParticles);
-}
+Scene::Scene(const std::shared_ptr<gelly::simulation::Simulation> &sim) :
+	sim(sim), ents(), particles(sim) {}
 
 void Scene::AddEntity(
 	EntIndex entIndex,
@@ -38,7 +32,7 @@ void Scene::UpdateEntityScale(EntIndex entIndex, Vector scale) {
 void Scene::LoadMap(
 	const std::shared_ptr<AssetCache> &assetCache, const std::string &mapPath
 ) {
-	map.emplace(assetCache, sim->GetScene(), mapPath);
+	map.emplace(assetCache, sim->GetSolver().GetUnownedScene(), mapPath);
 }
 
 void Scene::AddParticles(const ParticleListBuilder &builder) const {
@@ -47,15 +41,7 @@ void Scene::AddParticles(const ParticleListBuilder &builder) const {
 
 void Scene::ClearParticles() const { particles.ClearParticles(); }
 
-void Scene::SetFluidProperties(const ::SetFluidProperties &props) const {
-	config.SetFluidProperties(props);
-}
-
-void Scene::ChangeRadius(float radius) const { config.ChangeRadius(radius); }
-
 void Scene::Initialize() {
-	sim->Initialize();
-	ents.emplace(sim->GetScene());
-
+	ents.emplace(sim->GetSolver().GetUnownedScene());
 	SetTimeStepMultiplier(DEFAULT_TIMESTEP_MULTIPLIER);
 }

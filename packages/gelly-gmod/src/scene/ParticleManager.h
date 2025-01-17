@@ -7,12 +7,13 @@
 #include "fluidsim/IFluidSimulation.h"
 #include "fluidsim/ISimCommandList.h"
 #include "renderers/splatting/splatting-renderer.h"
+#include "v2/simulation.h"
 
 class ParticleListBuilder {
 	friend class ParticleManager;
 
 protected:
-	std::vector<AddParticle> particles;
+	gelly::simulation::ParticleBatch particles;
 	float absorption[3];
 	bool absorptionSet = false;
 
@@ -29,14 +30,12 @@ public:
 
 class ParticleManager {
 private:
-	std::shared_ptr<IFluidSimulation> sim;
-
-	[[nodiscard]] ISimCommandList *CreateCommandListFromBuilder(
-		const ParticleListBuilder &builder
-	) const;
+	std::shared_ptr<gelly::simulation::Simulation> sim;
 
 public:
-	explicit ParticleManager(const std::shared_ptr<IFluidSimulation> &sim);
+	explicit ParticleManager(
+		const std::shared_ptr<gelly::simulation::Simulation> &sim
+	);
 	~ParticleManager() = default;
 
 	static ParticleListBuilder CreateParticleList();

@@ -98,6 +98,16 @@ struct OutputBuffers {
 			.buffer = info.rendererBuffers.foamVelocities,
 			.maxElements = info.maxDiffuseParticles,
 		}) {}
+
+	OutputBuffers() :
+		smoothedPositions(),
+		velocitiesPrevFrame(),
+		velocities(),
+		anisotropyQ1(),
+		anisotropyQ2(),
+		anisotropyQ3(),
+		foamPositions(),
+		foamVelocities() {}
 };
 
 struct ParticleUploadInfo {
@@ -114,8 +124,6 @@ public:
 
 		int maxParticles;
 		int maxDiffuseParticles;
-
-		OutputD3DBuffers rendererBuffers;
 	};
 
 	struct UpdateSolverInfo {
@@ -149,7 +157,17 @@ public:
 	void Reset();
 
 	int GetActiveParticleCount() const;
+	int GetCurrentActiveParticleCount() const;
+	int GetMaxParticles() const;
+	int GetMaxDiffuseParticles() const;
 	Scene &GetScene() { return scene; }
+	Scene *GetUnownedScene() { return &scene; }
+
+	void AttachOutputBuffers(const OutputD3DBuffers &buffers);
+	void SetTimeStepMultiplier(float multiplier) {
+		timeStepMultiplier = multiplier;
+		params.diffuseLifetime = params.diffuseLifetime * timeStepMultiplier;
+	}
 
 private:
 	CreateInfo info;

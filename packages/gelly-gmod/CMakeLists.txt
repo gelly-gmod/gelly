@@ -70,8 +70,6 @@ add_library(
         src/scene/Map.h
         src/scene/ParticleManager.cpp
         src/scene/ParticleManager.h
-        src/scene/Config.cpp
-        src/scene/Config.h
         src/composite/GModCompositor.cpp
         src/composite/GModCompositor.h
         src/composite/Pipeline.h

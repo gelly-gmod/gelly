@@ -52,7 +52,6 @@ SplattingRenderer::SplattingRenderer(
 		 .rawNormalEstimation = createInfo.device}
 	) {
 	CreatePipelines();
-	LinkBuffersToSimData();
 	absorptionModifier = CreateAbsorptionModifier(
 		pipelineInfo.internalBuffers->particleAbsorptions
 	);
@@ -78,7 +77,7 @@ auto SplattingRenderer::Render() -> void {
 	RunPipeline(
 		ellipsoidSplatting,
 		durations.ellipsoidSplatting,
-		createInfo.simData->GetActiveParticles()
+		createInfo.solver->GetActiveParticleCount()
 	);
 
 	if (settings.enableWhitewater) {
@@ -86,7 +85,8 @@ auto SplattingRenderer::Render() -> void {
 			durations.computeAcceleration.Start();
 		}
 		computeAcceleration->Dispatch(
-			{static_cast<unsigned int>(createInfo.simData->GetActiveParticles()
+			{static_cast<unsigned int>(
+				 createInfo.solver->GetActiveParticleCount()
 			 ),
 			 1,
 			 1}
@@ -99,20 +99,20 @@ auto SplattingRenderer::Render() -> void {
 		RunPipeline(
 			spraySplattingDepth,
 			durations.sprayDepthSplatting,
-			createInfo.simData->GetActiveFoamParticles()
+			0  // TODO: Reimplement foam
 		);
 
 		RunPipeline(
 			spraySplatting,
 			durations.spraySplatting,
-			createInfo.simData->GetActiveFoamParticles()
+			0  // TODO: Reimplement foam
 		);
 	}
 
 	RunPipeline(
 		thicknessSplatting,
 		durations.thicknessSplatting,
-		createInfo.simData->GetActiveParticles()
+		createInfo.solver->GetActiveParticleCount()
 	);
 
 	RunPipeline(albedoDownsampling, durations.albedoDownsampling);
@@ -199,7 +199,8 @@ auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 	frameParamCopy.g_InvViewport.x = 1.f / width;
 	frameParamCopy.g_InvViewport.y = 1.f / height;
 
-	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(frameParamCopy
+	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
+		frameParamCopy
 	);
 }
 
@@ -288,48 +289,29 @@ auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {
 	};
 }
 
-auto SplattingRenderer::LinkBuffersToSimData() const -> void {
-	const auto simData = createInfo.simData;
-
-	simData->LinkBuffer(
-		SimBufferType::POSITION,
-		pipelineInfo.internalBuffers->particlePositions->GetRawBuffer().Get()
-	);
-
-	simData->LinkBuffer(
-		SimBufferType::VELOCITY0,
-		pipelineInfo.internalBuffers->particleVelocities0->GetRawBuffer().Get()
-	);
-
-	simData->LinkBuffer(
-		SimBufferType::VELOCITY1,
-		pipelineInfo.internalBuffers->particleVelocities1->GetRawBuffer().Get()
-	);
-
-	simData->LinkBuffer(
-		SimBufferType::ANISOTROPY_Q1,
-		pipelineInfo.internalBuffers->anisotropyQ1->GetRawBuffer().Get()
-	);
-
-	simData->LinkBuffer(
-		SimBufferType::ANISOTROPY_Q2,
-		pipelineInfo.internalBuffers->anisotropyQ2->GetRawBuffer().Get()
-	);
-
-	simData->LinkBuffer(
-		SimBufferType::ANISOTROPY_Q3,
-		pipelineInfo.internalBuffers->anisotropyQ3->GetRawBuffer().Get()
-	);
-
-	simData->LinkBuffer(
-		SimBufferType::FOAM_POSITION,
-		pipelineInfo.internalBuffers->foamPositions->GetRawBuffer().Get()
-	);
-
-	simData->LinkBuffer(
-		SimBufferType::FOAM_VELOCITY,
-		pipelineInfo.internalBuffers->foamVelocities->GetRawBuffer().Get()
-	);
+auto SplattingRenderer::GetOutputD3DBuffers() const
+	-> simulation::OutputD3DBuffers {
+	return {
+		.smoothedPositions =
+			pipelineInfo.internalBuffers->particlePositions->GetRawBuffer().Get(
+			),
+		.velocitiesPrevFrame =
+			pipelineInfo.internalBuffers->particleVelocities0->GetRawBuffer()
+				.Get(),
+		.velocities =
+			pipelineInfo.internalBuffers->particleVelocities1->GetRawBuffer()
+				.Get(),
+		.anisotropyQ1 =
+			pipelineInfo.internalBuffers->anisotropyQ1->GetRawBuffer().Get(),
+		.anisotropyQ2 =
+			pipelineInfo.internalBuffers->anisotropyQ2->GetRawBuffer().Get(),
+		.anisotropyQ3 =
+			pipelineInfo.internalBuffers->anisotropyQ3->GetRawBuffer().Get(),
+		.foamPositions =
+			pipelineInfo.internalBuffers->foamPositions->GetRawBuffer().Get(),
+		.foamVelocities =
+			pipelineInfo.internalBuffers->foamVelocities->GetRawBuffer().Get(),
+	};
 }
 
 auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations)

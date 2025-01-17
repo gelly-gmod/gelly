@@ -6,9 +6,10 @@ ParticleListBuilder::ParticleListBuilder() :
 ParticleListBuilder ParticleListBuilder::AddParticle(
 	const Vector &position, const Vector &velocity
 ) {
-	particles.push_back(::AddParticle{
-		position.x, position.y, position.z, velocity.x, velocity.y, velocity.z
-	});
+	particles.push_back(
+		{.position = XMFLOAT3(position.x, position.y, position.z),
+		 .velocity = XMFLOAT3(velocity.x, velocity.y, velocity.z)}
+	);
 
 	return *this;
 }
@@ -24,19 +25,10 @@ ParticleListBuilder ParticleListBuilder::SetAbsorption(
 	return *this;
 }
 
-ParticleManager::ParticleManager(const std::shared_ptr<IFluidSimulation> &sim) :
+ParticleManager::ParticleManager(
+	const std::shared_ptr<gelly::simulation::Simulation> &sim
+) :
 	sim(sim) {}
-
-ISimCommandList *ParticleManager::CreateCommandListFromBuilder(
-	const ParticleListBuilder &builder
-) const {
-	auto *cmdList = sim->CreateCommandList();
-	for (const auto &particle : builder.particles) {
-		cmdList->AddCommand(SimCommand{ADD_PARTICLE, particle});
-	}
-
-	return cmdList;
-}
 
 ParticleListBuilder ParticleManager::CreateParticleList() { return {}; }
 
@@ -45,31 +37,23 @@ void ParticleManager::AddParticles(
 	const std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
 		&absorptionModifier
 ) const {
-	auto *cmdList = CreateCommandListFromBuilder(builder);
-
 	absorptionModifier->StartModifying();
 	for (int i = 0; i < builder.particles.size(); ++i) {
-		if (sim->GetRealActiveParticleCount() + i >=
-			sim->GetSimulationData()->GetMaxParticles()) {
+		if (sim->GetSolver().GetCurrentActiveParticleCount() + i >=
+			sim->GetSolver().GetMaxParticles()) {
 			break;
 		}
 
 		absorptionModifier->ModifyAbsorption(
-			sim->GetRealActiveParticleCount() + i,
+			sim->GetSolver().GetCurrentActiveParticleCount() + i,
 			reinterpret_cast<const gelly::renderer::splatting::float3 &>(
 				builder.absorption
 			)
 		);
 	}
+
 	absorptionModifier->EndModifying();
-
-	sim->ExecuteCommandList(cmdList);
-	sim->DestroyCommandList(cmdList);
+	sim->GetSolver().AddParticles(builder.particles);
 }
 
-void ParticleManager::ClearParticles() const {
-	auto *cmdList = sim->CreateCommandList();
-	cmdList->AddCommand(SimCommand{RESET, Reset{}});
-	sim->ExecuteCommandList(cmdList);
-	sim->DestroyCommandList(cmdList);
-}
+void ParticleManager::ClearParticles() const { sim->GetSolver().Reset(); }

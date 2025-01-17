@@ -11,6 +11,7 @@
 #include "pipelines/pipeline-info.h"
 #include "renderdoc_app.h"
 #include "resources/buffer-view.h"
+#include "v2/solver.h"
 
 namespace gelly {
 namespace renderer {
@@ -85,7 +86,7 @@ public:
 
 	struct SplattingRendererCreateInfo {
 		std::shared_ptr<Device> device;
-		GellyInterfaceVal<ISimData> simData;
+		simulation::Solver *solver;
 		InputSharedHandles inputSharedHandles;
 
 		unsigned int width;
@@ -106,6 +107,7 @@ public:
 	auto GetSettings() const -> Settings;
 	auto UpdateSettings(const Settings &settings) -> void;
 	auto FetchTimings() -> Timings;
+	auto GetOutputD3DBuffers() const -> simulation::OutputD3DBuffers;
 
 	[[nodiscard]] auto GetAbsorptionModifier() const
 		-> std::shared_ptr<AbsorptionModifier>;
@@ -161,7 +163,6 @@ private:
 
 	auto CreatePipelines() -> void;
 	auto CreatePipelineInfo() const -> PipelineInfo;
-	auto LinkBuffersToSimData() const -> void;
 
 	auto RunSurfaceFilteringPipeline(unsigned int iterations) -> void;
 

@@ -33,6 +33,7 @@
 #include "util/GellySharedPtrs.h"
 #include "util/lua-table.h"
 #include "util/parse-asset-from-filesystem.h"
+#include "v2/simulation.h"
 #include "version.h"
 
 #define DEFINE_LUA_FUNC(namespace, name)    \
@@ -54,13 +55,14 @@
 static std::shared_ptr<gelly::renderer::Device> rendererDevice = nullptr;
 static std::shared_ptr<GModCompositor> compositor = nullptr;
 static std::shared_ptr<Scene> scene = nullptr;
-static std::shared_ptr<ISimContext> simContext = nullptr;
-static std::shared_ptr<IFluidSimulation> sim = nullptr;
+static std::shared_ptr<gelly::simulation::Simulation> sim = nullptr;
 static std::shared_ptr<luajit::LuaShared> luaShared = nullptr;
 static std::shared_ptr<AssetCache> assetCache = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
+constexpr int DEFAULT_MAX_DIFFUSE_PARTICLES = DEFAULT_MAX_PARTICLES * 2;
 constexpr int MAXIMUM_PARTICLES = 10000000;
+constexpr int MAXIMUM_DIFFUSE_PARTICLES = 10000000;
 constexpr DWORD LUAJIT_UNHANDLED_PCALL = 0xE24C4A02;
 
 static PVOID emergencyHandler = nullptr;
@@ -533,16 +535,16 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	GET_LUA_TABLE_MEMBER(float, DynamicFriction);
 	GET_LUA_TABLE_MEMBER(float, RestDistanceRatio);
 
-	SetFluidProperties props = {};
-	props.viscosity = Viscosity;
-	props.cohesion = Cohesion;
-	props.surfaceTension = SurfaceTension;
-	props.vorticityConfinement = VorticityConfinement;
-	props.adhesion = Adhesion;
-	props.dynamicFriction = DynamicFriction;
-	props.restDistanceRatio = RestDistanceRatio;
+	sim->GetSolver().Update({
+		.viscosity = Viscosity,
+		.cohesion = Cohesion,
+		.surfaceTension = SurfaceTension,
+		.vorticityConfinement = VorticityConfinement,
+		.adhesion = Adhesion,
+		.dynamicFriction = DynamicFriction,
+		.restDistanceRatio = RestDistanceRatio,
+	});
 
-	scene->SetFluidProperties(props);
 	CATCH_GELLY_EXCEPTIONS();
 
 	return 0;
@@ -584,7 +586,7 @@ LUA_FUNCTION(gelly_ChangeParticleRadius) {
 	config.particleRadius = newRadius;
 	compositor->SetConfig(config);
 
-	scene->ChangeRadius(newRadius);
+	sim->GetSolver().Update({.radius = newRadius});
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -634,19 +636,14 @@ LUA_FUNCTION(gelly_SetDiffuseProperties) {
 	const auto drag = diffuseTable.Get("Drag", 0.f);
 	const auto lifetime = diffuseTable.Get("Lifetime", 0.f);
 
-	SetDiffuseProperties command = {
-		.ballisticCount = ballisticCount,
-		.kineticThreshold = kineticThreshold,
-		.buoyancy = buoyancy,
-		.drag = drag,
-		.lifetime = lifetime
-	};
+	sim->GetSolver().Update({
+		.diffuseBallisticCount = ballisticCount,
+		.diffuseKineticThreshold = kineticThreshold,
+		.diffuseBuoyancy = buoyancy,
+		.diffuseDrag = drag,
+		.diffuseLifetime = lifetime,
+	});
 
-	const auto commandList = sim->CreateCommandList();
-	commandList->AddCommand(
-		SimCommand{SET_DIFFUSE_PROPERTIES, SetDiffuseProperties{command}}
-	);
-	sim->ExecuteCommandList(commandList);
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -693,8 +690,13 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
 
 	const auto newMax = static_cast<int>(LUA->GetNumber(1));
+	const auto newDiffuseMax = static_cast<int>(LUA->GetNumber(2));
 	if (newMax > MAXIMUM_PARTICLES) {
-		LUA->ThrowError("Cannot set max particles above 1,000,000!");
+		LUA->ThrowError("Cannot set max particles above 10,000,000!");
+	}
+
+	if (newDiffuseMax > MAXIMUM_DIFFUSE_PARTICLES) {
+		LUA->ThrowError("Cannot set max diffuse particles above 10,000,000!");
 	}
 
 	// For safe measure we'll honestly just need to remove the sim and scene,
@@ -704,19 +706,29 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	float originalScale = compositor->GetScale();
 
 	sim.reset();
-	sim = MakeFluidSimulation(simContext.get());
 	scene.reset();
 	compositor.reset();
-	scene = std::make_shared<Scene>(simContext, sim, newMax);
+	sim = std::make_shared<gelly::simulation::Simulation>(
+		gelly::simulation::Simulation::CreateInfo{
+			.device = rendererDevice->GetRawDevice().Get(),
+			.context = rendererDevice->GetRawDeviceContext().Get(),
+			.maxParticles = newMax,
+			.maxDiffuseParticles = newDiffuseMax,
+		}
+	);
+
+	scene = std::make_shared<Scene>(sim);
 	compositor = std::make_shared<GModCompositor>(
 		PipelineType::STANDARD,
-		scene->GetSimData(),
+		sim->GetUnownedSolver(),
 		rendererDevice,
 		originalWidth,
 		originalHeight,
 		newMax,
 		originalScale
 	);
+
+	sim->AttachOutputBuffers(compositor->GetOutputD3DBuffers());
 
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
 	scene->Initialize();
@@ -828,7 +840,7 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 	int substeps = static_cast<int>(Substeps);
 	int iterations = static_cast<int>(Iterations);
 
-	scene->Configure(
+	sim->GetSolver().Update(
 		{.substeps = substeps,
 		 .iterations = iterations,
 		 .relaxationFactor = RelaxationFactor,
@@ -991,18 +1003,20 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	assetCache = std::make_shared<AssetCache>();
 	rendererDevice = std::make_shared<gelly::renderer::Device>();
 
-	simContext = MakeSimContext(
-		rendererDevice->GetRawDevice().Get(),
-		rendererDevice->GetRawDeviceContext().Get()
+	sim = std::make_shared<gelly::simulation::Simulation>(
+		gelly::simulation::Simulation::CreateInfo{
+			.device = rendererDevice->GetRawDevice().Get(),
+			.context = rendererDevice->GetRawDeviceContext().Get(),
+			.maxParticles = DEFAULT_MAX_PARTICLES,
+			.maxDiffuseParticles = DEFAULT_MAX_PARTICLES,
+		}
 	);
 
-	sim = MakeFluidSimulation(simContext.get());
-
-	scene = std::make_shared<Scene>(simContext, sim, DEFAULT_MAX_PARTICLES);
+	scene = std::make_shared<Scene>(sim);
 
 	compositor = std::make_shared<GModCompositor>(
 		PipelineType::STANDARD,
-		scene->GetSimData(),
+		sim->GetUnownedSolver(),
 		rendererDevice,
 		currentView.width,
 		currentView.height,
@@ -1010,6 +1024,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		1.f
 	);
 
+	sim->AttachOutputBuffers(compositor->GetOutputD3DBuffers());
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
 	scene->Initialize();
 
@@ -1097,7 +1112,6 @@ GMOD_MODULE_CLOSE() {
 	scene.reset();
 	sim.reset();
 	rendererDevice.reset();
-	simContext.reset();
 
 	LOG_SAVE_TO_FILE();
 #ifndef PRODUCTION_BUILD

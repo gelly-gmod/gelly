@@ -7,12 +7,7 @@ Solver::Solver(const CreateInfo &createInfo) :
 	params(CreateDefaultParams()),
 	scene(CreateScene()),
 	buffers(createInfo.library, createInfo.maxParticles),
-	outputBuffers(
-		{.library = createInfo.library,
-		 .maxParticles = createInfo.maxParticles,
-		 .maxDiffuseParticles = createInfo.maxDiffuseParticles,
-		 .rendererBuffers = createInfo.rendererBuffers}
-	) {}
+	outputBuffers() {}
 
 Solver::~Solver() { NvFlexDestroySolver(solver); }
 
@@ -127,6 +122,21 @@ void Solver::Update(const UpdateSolverInfo &info) {
 }
 
 int Solver::GetActiveParticleCount() const { return activeParticleCount; }
+int Solver::GetCurrentActiveParticleCount() const {
+	return newActiveParticleCount;
+}
+
+int Solver::GetMaxParticles() const { return info.maxParticles; }
+int Solver::GetMaxDiffuseParticles() const { return info.maxDiffuseParticles; }
+
+void Solver::AttachOutputBuffers(const OutputD3DBuffers &buffers) {
+	outputBuffers = OutputBuffers(
+		{.library = info.library,
+		 .maxParticles = info.maxParticles,
+		 .maxDiffuseParticles = info.maxDiffuseParticles,
+		 .rendererBuffers = buffers}
+	);
+}
 
 NvFlexSolver *Solver::CreateSolver() const {
 	NvFlexSolverDesc desc = {};

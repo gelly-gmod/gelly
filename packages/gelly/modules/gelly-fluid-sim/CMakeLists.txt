@@ -73,6 +73,7 @@ target_include_directories(
         gelly_fluid_sim
         PUBLIC
         src/fluidsim
+        src
         include
         ../gelly-interfaces/include
         ${FLEX_PATH}/include

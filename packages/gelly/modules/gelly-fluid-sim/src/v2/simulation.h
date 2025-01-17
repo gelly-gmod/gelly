@@ -14,14 +14,18 @@ public:
 
 		int maxParticles;
 		int maxDiffuseParticles;
-
-		OutputD3DBuffers rendererBuffers;
 	};
 
 	Simulation(const CreateInfo &createInfo);
 	~Simulation();
 
 	Solver &GetSolver() { return solver; }
+	Solver *GetUnownedSolver() { return &solver; }
+
+	void AttachOutputBuffers(const OutputD3DBuffers &buffers);
+	const char *GetComputeDeviceName() const {
+		return NvFlexGetDeviceName(library);
+	}
 
 private:
 	CreateInfo info;

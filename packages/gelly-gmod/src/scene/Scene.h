@@ -16,34 +16,29 @@
 #include "ParticleManager.h"
 #include "logging/global-macros.h"
 #include "renderers/splatting/splatting-renderer.h"
+#include "v2/simulation.h"
 
 class Scene {
 	const float DEFAULT_TIMESTEP_MULTIPLIER = 10.0f;
 
 private:
-	std::shared_ptr<ISimContext> simContext;
-	std::shared_ptr<IFluidSimulation> sim;
+	std::shared_ptr<gelly::simulation::Simulation> sim;
 	std::shared_ptr<gelly::renderer::splatting::AbsorptionModifier>
 		absorptionModifier;
 
 	std::optional<EntityManager> ents;
 	std::optional<gelly::gmod::Map> map;
 	ParticleManager particles;
-	Config config;
 
 public:
-	Scene(
-		const std::shared_ptr<ISimContext> &simContext,
-		const std::shared_ptr<IFluidSimulation> &sim,
-		int maxParticles
-	);
+	Scene(const std::shared_ptr<gelly::simulation::Simulation> &sim);
 
 	Scene(const Scene &) = delete;
 	Scene &operator=(const Scene &) = delete;
 	Scene(Scene &&) = delete;
 	Scene &operator=(Scene &&) = delete;
 
-	~Scene(){LOG_INFO("Scene destructor called")};
+	~Scene() { LOG_INFO("Scene destructor called") };
 
 	void AddEntity(
 		EntIndex entIndex,
@@ -64,19 +59,17 @@ public:
 	void AddParticles(const ParticleListBuilder &builder) const;
 	void ClearParticles() const;
 
-	void SetFluidProperties(const SetFluidProperties &props) const;
-	void ChangeRadius(float radius) const;
-
 	[[nodiscard]] ObjectID AddForcefield(
 		const ForcefieldCreationInfo &forcefield
 	) {
-		return sim->GetScene()->GetForcefieldHandler()->MakeForcefield(
-			forcefield
-		);
+		return sim->GetSolver()
+			.GetScene()
+			.GetForcefieldHandler()
+			->MakeForcefield(forcefield);
 	}
 
 	void UpdateForcefieldPosition(ObjectID handle, const Vector &position) {
-		sim->GetScene()->GetForcefieldHandler()->UpdateForcefield(
+		sim->GetSolver().GetScene().GetForcefieldHandler()->UpdateForcefield(
 			handle,
 			[&](ForcefieldObject &object) {
 				object.SetPosition(position.x, position.y, position.z);
@@ -85,36 +78,33 @@ public:
 	}
 
 	void RemoveForcefield(ObjectID handle) {
-		sim->GetScene()->GetForcefieldHandler()->RemoveForcefield(handle);
+		sim->GetSolver().GetScene().GetForcefieldHandler()->RemoveForcefield(
+			handle
+		);
 	}
 
 	[[nodiscard]] int GetActiveParticles() const {
-		return sim->GetSimulationData()->GetActiveParticles();
+		return sim->GetSolver().GetActiveParticleCount();
 	}
 
 	[[nodiscard]] int GetMaxParticles() const {
-		return sim->GetSimulationData()->GetMaxParticles();
+		return sim->GetSolver().GetMaxParticles();
 	}
 
 	[[nodiscard]] const char *GetComputeDevice() const {
 		return sim->GetComputeDeviceName();
 	}
 
-	void Simulate(float dt) { sim->Update(dt); }
+	void Simulate(float dt) { sim->GetSolver().Tick(dt); }
 
 	void SetTimeStepMultiplier(float timeStepMultiplier) {
-		sim->SetTimeStepMultiplier(fmaxf(timeStepMultiplier, 0.0001f));
+		sim->GetSolver().SetTimeStepMultiplier(
+			fmaxf(timeStepMultiplier, 0.0001f)
+		);
 	}
 
-	[[nodiscard]] GellyInterfaceVal<ISimData> GetSimData() const {
-		return sim->GetSimulationData();
-	}
-
-	void Configure(::Configure &&config) {
-		const auto commandList = sim->CreateCommandList();
-		commandList->AddCommand({CONFIGURE, config});
-		sim->ExecuteCommandList(commandList);
-		sim->DestroyCommandList(commandList);
+	void UpdateSolver(gelly::simulation::Solver::UpdateSolverInfo &&info) {
+		sim->GetSolver().Update(info);
 	}
 
 	void SetAbsorptionModifier(
