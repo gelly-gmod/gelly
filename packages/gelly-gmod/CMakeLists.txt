@@ -83,7 +83,6 @@ add_library(
         src/composite/Resources.cpp
         src/composite/Resources.h
         src/composite/PipelineType.h
-        src/util/GellySharedPtrs.h
         src/logging/format-log-entry.h
         src/logging/log-entry.h
         src/logging/severity-strings.h

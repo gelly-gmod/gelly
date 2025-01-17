@@ -4,12 +4,8 @@
 #include "Map.h"
 // clang-format on
 
-#include <GellyFluidSim.h>
-#include <fluidsim/IFluidSimulation.h>
-
 #include <optional>
 
-#include "Config.h"
 #include "EntIndex.h"
 #include "EntityManager.h"
 #include "GarrysMod/Lua/SourceCompat.h"
@@ -48,7 +44,7 @@ public:
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);
 	void RemoveEntity(EntIndex entIndex);
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);
-	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
+	void UpdateEntityRotation(EntIndex entIndex, DirectX::XMFLOAT4 rotation);
 	void UpdateEntityScale(EntIndex entIndex, Vector scale);
 
 	void LoadMap(

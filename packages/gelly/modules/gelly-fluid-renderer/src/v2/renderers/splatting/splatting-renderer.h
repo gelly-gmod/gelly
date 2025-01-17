@@ -4,7 +4,6 @@
 
 #include "GellyInterfaceRef.h"
 #include "device.h"
-#include "fluidsim/ISimData.h"
 #include "helpers/rendering/gpu-duration.h"
 #include "pipeline/compute-pipeline.h"
 #include "pipeline/pipeline.h"

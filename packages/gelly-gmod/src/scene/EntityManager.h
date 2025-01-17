@@ -7,7 +7,7 @@
 #include "EntIndex.h"
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "asset-cache.h"
-#include "fluidsim/IFluidSimulation.h"
+#include "v2/simulation.h"
 
 class EntityManager {
 private:
@@ -30,7 +30,7 @@ public:
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);
 	void RemoveEntity(EntIndex entIndex);
 	void UpdateEntityPosition(EntIndex entIndex, Vector position);
-	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
+	void UpdateEntityRotation(EntIndex entIndex, DirectX::XMFLOAT4 rotation);
 	void UpdateEntityScale(EntIndex entIndex, Vector scale);
 };
 

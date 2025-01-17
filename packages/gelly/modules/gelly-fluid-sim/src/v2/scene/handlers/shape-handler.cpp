@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include "fluidsim/scene/helpers/flex-types.h"
+#include "v2/scene/helpers/flex-types.h"
 
 using namespace Gelly;
 

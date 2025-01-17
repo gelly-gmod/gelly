@@ -15,22 +15,20 @@
 #include <MinHook.h>
 #include <Windows.h>
 
+#include <filesystem>
 #include <fstream>
 
 #include "binaries/gbp.h"
 #include "composite/GModCompositor.h"
 #include "exceptions/generate-stack-trace.h"
-#include "exceptions/get-stack-size.h"
 #include "logging/helpers/dev-console-logging.h"
 #include "luajit/raw-lua-access.h"
-#include "luajit/setup-atpanic-handler.h"
 #include "scene/asset-cache.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
 #include "source/IVRenderView.h"
 #include "tracy/Tracy.hpp"
-#include "util/GellySharedPtrs.h"
 #include "util/lua-table.h"
 #include "util/parse-asset-from-filesystem.h"
 #include "v2/simulation.h"
@@ -402,7 +400,7 @@ LUA_FUNCTION(gelly_SetObjectPosition) {
 	return 0;
 }
 
-inline float rad(float deg) { return deg * (XM_PI / 180.0); }
+inline float rad(float deg) { return deg * (DirectX::XM_PI / 180.0); }
 
 LUA_FUNCTION(gelly_SetObjectRotation) {
 	START_GELLY_EXCEPTIONS();
@@ -422,7 +420,7 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 	float cy = cos(y);
 	float sy = sin(y);
 
-	XMFLOAT4 quat = {
+	DirectX::XMFLOAT4 quat = {
 		cr * cp * cy + sr * sp * sy,
 		sr * cp * cy - cr * sp * sy,
 		cr * sp * cy + sr * cp * sy,

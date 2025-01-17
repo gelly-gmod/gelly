@@ -21,7 +21,9 @@ void Scene::UpdateEntityPosition(EntIndex entIndex, Vector position) {
 	ents->UpdateEntityPosition(entIndex, position);
 }
 
-void Scene::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
+void Scene::UpdateEntityRotation(
+	EntIndex entIndex, DirectX::XMFLOAT4 rotation
+) {
 	ents->UpdateEntityRotation(entIndex, rotation);
 }
 

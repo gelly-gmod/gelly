@@ -1,5 +1,7 @@
 #include "ParticleManager.h"
 
+using namespace DirectX;
+
 ParticleListBuilder::ParticleListBuilder() :
 	particles(), absorption{0.f, 0.f, 0.f}, absorptionSet(false) {}
 

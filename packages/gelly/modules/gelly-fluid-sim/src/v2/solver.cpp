@@ -4,12 +4,17 @@ namespace gelly::simulation {
 Solver::Solver(const CreateInfo &createInfo) :
 	info(createInfo),
 	solver(CreateSolver()),
-	params(CreateDefaultParams()),
+	params({}),
 	scene(CreateScene()),
 	buffers(createInfo.library, createInfo.maxParticles),
-	outputBuffers() {}
+	outputBuffers() {
+	SetupDefaultParams();
+}
 
-Solver::~Solver() { NvFlexDestroySolver(solver); }
+Solver::~Solver() {
+	if (solver) {
+	}
+}
 
 void Solver::Tick(float dt) {
 	if (newActiveParticleCount != activeParticleCount) {
@@ -21,7 +26,7 @@ void Solver::Tick(float dt) {
 	NvFlexCopyDesc copyDesc = {};
 	copyDesc.srcOffset = 0;
 	copyDesc.dstOffset = 0;
-	copyDesc.elementCount = info.maxParticles;
+	copyDesc.elementCount = activeParticleCount;
 
 	NvFlexSetParams(solver, &params);
 	NvFlexSetActiveCount(solver, activeParticleCount);
@@ -49,6 +54,15 @@ void Solver::AddParticles(const ParticleBatch &particles) {
 		return;	 // Drop particles
 	}
 
+	// We want to pull down the new positions/velocities to avoid overwriting
+	NvFlexCopyDesc pullDesc = {};
+	pullDesc.srcOffset = 0;
+	pullDesc.dstOffset = 0;
+	pullDesc.elementCount = startCount;
+
+	NvFlexGetParticles(solver, *buffers.positions, &pullDesc);
+	NvFlexGetVelocities(solver, *buffers.velocities, &pullDesc);
+
 	auto positions = buffers.positions.Map();
 	auto velocities = buffers.velocities.Map();
 	auto phases = buffers.phases.Map();
@@ -56,16 +70,16 @@ void Solver::AddParticles(const ParticleBatch &particles) {
 
 	for (int index = 0; index < particles.size(); index++) {
 		const auto &particle = particles[index];
-		positions[index] = {
+		positions[index + startCount] = {
 			particle.position.x, particle.position.y, particle.position.z, 1.0f
 		};
 
-		velocities[index] = particle.velocity;
+		velocities[index + startCount] = particle.velocity;
 
-		phases[index] =
+		phases[index + startCount] =
 			NvFlexMakePhase(0, eNvFlexPhaseSelfCollide | eNvFlexPhaseFluid);
 
-		actives[index] = index;
+		actives[index + startCount] = index + startCount;
 	}
 
 	newActiveParticleCount = endCount;
@@ -130,12 +144,12 @@ int Solver::GetMaxParticles() const { return info.maxParticles; }
 int Solver::GetMaxDiffuseParticles() const { return info.maxDiffuseParticles; }
 
 void Solver::AttachOutputBuffers(const OutputD3DBuffers &buffers) {
-	outputBuffers = OutputBuffers(
-		{.library = info.library,
-		 .maxParticles = info.maxParticles,
-		 .maxDiffuseParticles = info.maxDiffuseParticles,
-		 .rendererBuffers = buffers}
-	);
+	outputBuffers = OutputBuffers({
+		.rendererBuffers = buffers,
+		.library = info.library,
+		.maxParticles = info.maxParticles,
+		.maxDiffuseParticles = info.maxDiffuseParticles,
+	});
 }
 
 NvFlexSolver *Solver::CreateSolver() const {
@@ -148,11 +162,53 @@ NvFlexSolver *Solver::CreateSolver() const {
 	return NvFlexCreateSolver(info.library, &desc);
 }
 
-NvFlexParams Solver::CreateDefaultParams() {
-	NvFlexParams params = {};
-	// TODO: Add default params
+void Solver::SetupDefaultParams() {
+	params.gravity[0] = 0.f;
+	params.gravity[1] = 0.f;
+	// Z component is configured by the user
 
-	return params;
+	params.viscosity = 0.0f;
+	params.dynamicFriction = 0.1f;
+	params.staticFriction = 1.f;
+	params.particleFriction = 0.1f;
+	params.freeSurfaceDrag = 0.0f;
+	params.drag = 0.0f;
+	params.lift = 0.0f;
+	params.numIterations = 3;
+
+	params.fluidRestDistance = params.radius * 0.73f;
+	params.solidRestDistance = params.radius * 2.13f;
+
+	if (params.surfaceTension > 0.f) {
+		params.surfaceTension =
+			params.surfaceTension / powf(params.radius, 5.f);
+	}
+
+	params.anisotropyScale = 1.0f;
+	params.anisotropyMin = 0.1f;
+	params.anisotropyMax = 2.0f;
+	params.smoothing = 1.f;
+
+	params.dissipation = 0.0f;
+	params.damping = 0.0f;
+	params.particleCollisionMargin = 0.f;
+	params.shapeCollisionMargin = 0.4f;
+	params.sleepThreshold = 0.1f;
+	params.shockPropagation = 0.0f;
+	params.restitution = 1.0f;
+
+	params.maxSpeed = FLT_MAX;
+	params.maxAcceleration = 100.0f;  // approximately 10x gravity
+
+	params.relaxationMode = eNvFlexRelaxationLocal;
+	params.solidPressure = 0.5f;
+	params.adhesion = 0.0f;
+	params.cohesion = 0.02f;
+	params.surfaceTension = 1.0f;
+	params.vorticityConfinement = 1.0f;
+	params.buoyancy = 1.0f;
+
+	params.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
 }
 
 Scene Solver::CreateScene() const {

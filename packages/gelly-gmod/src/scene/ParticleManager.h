@@ -4,8 +4,6 @@
 #include <vector>
 
 #include "GarrysMod/Lua/SourceCompat.h"
-#include "fluidsim/IFluidSimulation.h"
-#include "fluidsim/ISimCommandList.h"
 #include "renderers/splatting/splatting-renderer.h"
 #include "v2/simulation.h"
 

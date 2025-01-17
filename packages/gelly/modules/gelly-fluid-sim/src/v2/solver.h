@@ -180,6 +180,8 @@ private:
 	int newActiveParticleCount = 0;
 
 	int substeps = 3;
+	// Tracked because it must scale with the time step multiplier
+	float diffuseLifetime = 0.f;
 
 	SolverBufferSet buffers;
 	OutputBuffers outputBuffers;
@@ -187,6 +189,7 @@ private:
 	NvFlexParams CreateDefaultParams();
 	NvFlexSolver *CreateSolver() const;
 	Scene CreateScene() const;
+	void SetupDefaultParams();
 };
 
 }  // namespace gelly::simulation

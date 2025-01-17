@@ -12,7 +12,6 @@ Simulation::Simulation(const CreateInfo &createInfo) :
 
 Simulation::~Simulation() {
 	if (library) {
-		NvFlexShutdown(library);
 	}
 }
 
@@ -23,10 +22,29 @@ void Simulation::AttachOutputBuffers(const OutputD3DBuffers &buffers) {
 NvFlexLibrary *Simulation::CreateLibrary() const {
 	NvFlexInitDesc desc = {};
 	desc.renderDevice = info.device;
-	desc.renderContext = info.context;
 	desc.enableExtensions = false;
 	desc.runOnRenderContext = true;
+	desc.computeType = eNvFlexD3D11;
 
 	return NvFlexInit(NV_FLEX_VERSION, ErrorHandler, &desc);
 }
+
+void Simulation::ErrorHandler(
+	NvFlexErrorSeverity severity, const char *msg, const char *file, int line
+) {
+	switch (severity) {
+		case eNvFlexLogError:
+			printf("Simulation::ErrorHandler: %s (%s:%d)\n", msg, file, line);
+			exit(1);
+			break;
+		default:
+			printf(
+				"Simulation::ErrorHandler (non-fatal): %s (%s:%d)\n",
+				msg,
+				file,
+				line
+			);
+	}
+}
+
 }  // namespace gelly::simulation

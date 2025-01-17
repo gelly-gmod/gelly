@@ -10,8 +10,8 @@
 #include "BSP.h"
 #include "PHY.h"
 #include "asset-cache.h"
-#include "fluidsim/scene/handlers/shape-handler.h"
-#include "fluidsim/scene/scene.h"
+#include "v2/scene/handlers/shape-handler.h"
+#include "v2/scene/scene.h"
 
 namespace gelly::gmod {
 /**
@@ -41,7 +41,8 @@ private:
 	[[nodiscard]] static ShapeCreationInfo CreateMapParams(
 		const float *vertices, size_t vertexCount, bool flip = false
 	);
-	[[nodiscard]] ObjectID CreateMapObject(const ShapeCreationInfo &params
+	[[nodiscard]] ObjectID CreateMapObject(
+		const ShapeCreationInfo &params
 	) const;
 	[[nodiscard]] std::vector<float> ConvertBrushModelToVertices(
 		const PHYParser::BSP::BSP::Model &model

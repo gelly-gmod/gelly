@@ -6,8 +6,8 @@
 
 #include "../object-handler.h"
 #include "../object.h"
-#include "fluidsim/scene/helpers/flex-types.h"
-#include "fluidsim/scene/helpers/monotonic-counter.h"
+#include "v2/scene/helpers/flex-types.h"
+#include "v2/scene/helpers/monotonic-counter.h"
 
 namespace Gelly {
 enum class ShapeType : uint8_t {

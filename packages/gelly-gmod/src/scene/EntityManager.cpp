@@ -86,7 +86,9 @@ void EntityManager::UpdateEntityPosition(EntIndex entIndex, Vector position) {
 	);
 }
 
-void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
+void EntityManager::UpdateEntityRotation(
+	EntIndex entIndex, DirectX::XMFLOAT4 rotation
+) {
 	simScene->GetShapeHandler()->UpdateShape(
 		entities[entIndex],
 		[&](ShapeObject &object) {

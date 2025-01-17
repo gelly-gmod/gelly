@@ -6,6 +6,7 @@
 namespace gelly::simulation::helpers {
 template <typename T>
 class FlexGpuBuffer {
+public:
 	struct CreateInfo {
 		NvFlexLibrary *library;
 		ID3D11Buffer *buffer;

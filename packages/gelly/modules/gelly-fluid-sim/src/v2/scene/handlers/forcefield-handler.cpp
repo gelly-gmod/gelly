@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include <utility>
 
+#include "v2/scene/helpers/monotonic-counter.h"
+#include "v2/scene/object.h"
+
 using namespace Gelly;
 
 ForcefieldHandler::ForcefieldHandler(
