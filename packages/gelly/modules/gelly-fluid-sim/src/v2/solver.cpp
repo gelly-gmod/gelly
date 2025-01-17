@@ -30,6 +30,7 @@ void Solver::Tick(float dt) {
 
 	NvFlexSetParams(solver, &params);
 	NvFlexSetActiveCount(solver, activeParticleCount);
+	scene.Update();
 	NvFlexUpdateSolver(solver, dt, substeps, false);
 
 	NvFlexGetSmoothParticles(
