@@ -7,6 +7,7 @@
 #include "NvFlex.h"
 #include "helpers/flex-buffer.h"
 #include "helpers/flex-gpu-buffer.h"
+#include "scene/scene.h"
 
 #define OPTIONAL_PARAM(name, type) std::optional<type> name = std::nullopt;
 
@@ -148,11 +149,14 @@ public:
 	void Reset();
 
 	int GetActiveParticleCount() const;
+	Scene &GetScene() { return scene; }
 
 private:
 	CreateInfo info;
 	NvFlexSolver *solver;
 	NvFlexParams params;
+	Scene scene;
+
 	float timeStepMultiplier = 1.f;
 	int activeParticleCount = 0;
 	int newActiveParticleCount = 0;
@@ -164,6 +168,7 @@ private:
 
 	NvFlexParams CreateDefaultParams();
 	NvFlexSolver *CreateSolver() const;
+	Scene CreateScene() const;
 };
 
 }  // namespace gelly::simulation

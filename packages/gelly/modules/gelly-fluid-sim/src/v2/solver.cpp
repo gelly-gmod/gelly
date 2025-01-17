@@ -5,6 +5,7 @@ Solver::Solver(const CreateInfo &createInfo) :
 	info(createInfo),
 	solver(CreateSolver()),
 	params(CreateDefaultParams()),
+	scene(CreateScene()),
 	buffers(createInfo.library, createInfo.maxParticles),
 	outputBuffers(
 		{.library = createInfo.library,
@@ -141,6 +142,10 @@ NvFlexParams Solver::CreateDefaultParams() {
 	// TODO: Add default params
 
 	return params;
+}
+
+Scene Solver::CreateScene() const {
+	return Scene(ObjectHandlerContext{.lib = info.library, .solver = solver});
 }
 
 }  // namespace gelly::simulation
