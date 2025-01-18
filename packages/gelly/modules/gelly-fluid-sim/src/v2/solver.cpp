@@ -124,7 +124,11 @@ void Solver::Update(const UpdateSolverInfo &info) {
 	UPDATE_FLEX_PARAM(diffuseThreshold, diffuseKineticThreshold);
 	UPDATE_FLEX_PARAM(diffuseBuoyancy, diffuseBuoyancy);
 	UPDATE_FLEX_PARAM(diffuseDrag, diffuseDrag);
-	UPDATE_FLEX_PARAM(diffuseLifetime, diffuseLifetime);
+	if (info.diffuseLifetime.has_value()) {
+		diffuseLifetime = *info.diffuseLifetime;
+		params.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
+	}
+
 	UPDATE_FLEX_PARAM(numIterations, iterations);
 	UPDATE_FLEX_PARAM(relaxationFactor, relaxationFactor);
 	UPDATE_FLEX_PARAM(collisionDistance, collisionDistance);

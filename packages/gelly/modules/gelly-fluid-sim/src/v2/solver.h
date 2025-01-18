@@ -166,7 +166,7 @@ public:
 	void AttachOutputBuffers(const OutputD3DBuffers &buffers);
 	void SetTimeStepMultiplier(float multiplier) {
 		timeStepMultiplier = multiplier;
-		params.diffuseLifetime = params.diffuseLifetime * timeStepMultiplier;
+		params.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
 	}
 
 private:
@@ -186,7 +186,6 @@ private:
 	SolverBufferSet buffers;
 	OutputBuffers outputBuffers;
 
-	NvFlexParams CreateDefaultParams();
 	NvFlexSolver *CreateSolver() const;
 	Scene CreateScene() const;
 	void SetupDefaultParams();
