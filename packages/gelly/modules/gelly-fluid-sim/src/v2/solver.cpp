@@ -54,15 +54,6 @@ void Solver::AddParticles(const ParticleBatch &particles) {
 		return;	 // Drop particles
 	}
 
-	// We want to pull down the new positions/velocities to avoid overwriting
-	NvFlexCopyDesc pullDesc = {};
-	pullDesc.srcOffset = 0;
-	pullDesc.dstOffset = 0;
-	pullDesc.elementCount = startCount;
-
-	NvFlexGetParticles(solver, *buffers.positions, &pullDesc);
-	NvFlexGetVelocities(solver, *buffers.velocities, &pullDesc);
-
 	auto positions = buffers.positions.Map();
 	auto velocities = buffers.velocities.Map();
 	auto phases = buffers.phases.Map();
@@ -90,9 +81,9 @@ void Solver::AddParticles(const ParticleBatch &particles) {
 	buffers.actives.Unmap();
 
 	NvFlexCopyDesc copyDesc = {};
-	copyDesc.srcOffset = 0;
-	copyDesc.dstOffset = 0;
-	copyDesc.elementCount = newActiveParticleCount;
+	copyDesc.srcOffset = startCount;
+	copyDesc.dstOffset = startCount;
+	copyDesc.elementCount = particles.size();
 
 	NvFlexSetParticles(solver, *buffers.positions, &copyDesc);
 	NvFlexSetVelocities(solver, *buffers.velocities, &copyDesc);
