@@ -260,6 +260,9 @@ LUA_FUNCTION(gelly_Simulate) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Delta time
 	auto dt = static_cast<float>(LUA->GetNumber(1));
 
+	scene->SetFrameWriteIndex(
+		compositor->GetGellyResources().splattingRenderer->GetNextFrame()
+	);
 	scene->Simulate(dt);
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;

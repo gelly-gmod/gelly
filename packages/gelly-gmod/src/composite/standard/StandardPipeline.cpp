@@ -3,8 +3,10 @@
 #include <d3d9.h>
 
 #include <cstring>
+#include <stdexcept>
 
 #include "../../logging/global-macros.h"
+#include "renderers/splatting/texture-registry.h"
 #include "shaders/out/CompositeFoamPS.h"
 #include "shaders/out/CompositePS.h"
 #include "shaders/out/NDCQuadVS.h"
@@ -355,7 +357,9 @@ StandardPipeline::StandardPipeline(unsigned int width, unsigned height) :
 
 StandardPipeline::~StandardPipeline() { RemoveAmbientLightCubeHooks(); }
 
-std::array<InputSharedHandles, SplattingRenderer::MAX_FRAMES>
+std::array<
+	gelly::renderer::splatting::InputSharedHandles,
+	SplattingRenderer::MAX_FRAMES>
 StandardPipeline::CreatePipelineLocalResources(
 	const GellyResources &gelly,
 	const UnownedResources &gmod,

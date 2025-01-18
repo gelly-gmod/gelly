@@ -86,7 +86,9 @@ inline auto CreateThicknessSplattingPipeline(
 		 .inputLayout = inputLayout,
 		 .primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
 		 .inputs = {InputVertexBuffer{
-			 .vertexBuffer = info.internalBuffers->particlePositions, .slot = 0
+			 .vertexBuffer =
+				 info.internalBuffers[frameIndex]->particlePositions,
+			 .slot = 0
 		 }},
 		 .outputs = {OutputTexture{
 			 .texture = info.internalTextures[frameIndex]->unfilteredThickness,
@@ -99,8 +101,8 @@ inline auto CreateThicknessSplattingPipeline(
 			 {.pixelShader = PS_FROM_GSC(ThicknessPS, info.device),
 			  .vertexShader = vertexShader,
 			  .geometryShader = {GS_FROM_GSC(ThicknessGS, info.device)},
-			  .constantBuffers =
-				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
+			  .constantBuffers = {info.internalBuffers[frameIndex]
+									  ->fluidRenderCBuffer.GetBuffer()}},
 		 .depthBuffer = std::nullopt,
 		 .defaultVertexCount = 0}
 	);

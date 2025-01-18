@@ -56,6 +56,7 @@ target_include_directories(
         src
         include
         ../gelly-interfaces/include
+        ../gelly-fluid-renderer/src
         ${FLEX_PATH}/include
         vendor/DirectXMath/Inc
 )

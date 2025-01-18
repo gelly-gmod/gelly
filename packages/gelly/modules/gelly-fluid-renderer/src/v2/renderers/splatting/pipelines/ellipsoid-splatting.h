@@ -143,27 +143,35 @@ inline auto CreateEllipsoidSplattingPipeline(
 		 .primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
 		 .inputs =
 			 {InputBuffer{
-				  .buffer = info.internalBuffers->particleAbsorptions,
+				  .buffer = info.internalBuffers[0]->particleAbsorptions,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
 			  },
 			  InputBuffer{
-				  .buffer = info.internalBuffers->particleAccelerations,
+				  .buffer =
+					  info.internalBuffers[frameIndex]->particleAccelerations,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 1
 			  },
 			  InputVertexBuffer{
-				  .vertexBuffer = info.internalBuffers->particlePositions,
+				  .vertexBuffer =
+					  info.internalBuffers[frameIndex]->particlePositions,
 				  .slot = 0
 			  },
 			  InputVertexBuffer{
-				  .vertexBuffer = info.internalBuffers->anisotropyQ1, .slot = 1
+				  .vertexBuffer =
+					  info.internalBuffers[frameIndex]->anisotropyQ1,
+				  .slot = 1
 			  },
 			  InputVertexBuffer{
-				  .vertexBuffer = info.internalBuffers->anisotropyQ2, .slot = 2
+				  .vertexBuffer =
+					  info.internalBuffers[frameIndex]->anisotropyQ2,
+				  .slot = 2
 			  },
 			  InputVertexBuffer{
-				  .vertexBuffer = info.internalBuffers->anisotropyQ3, .slot = 3
+				  .vertexBuffer =
+					  info.internalBuffers[frameIndex]->anisotropyQ3,
+				  .slot = 3
 			  }},
 		 .outputs =
 			 {OutputTexture{
@@ -191,8 +199,8 @@ inline auto CreateEllipsoidSplattingPipeline(
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),
 			  .vertexShader = vertexShader,
 			  .geometryShader = {GS_FROM_GSC(SplattingGS, info.device)},
-			  .constantBuffers =
-				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
+			  .constantBuffers = {info.internalBuffers[frameIndex]
+									  ->fluidRenderCBuffer.GetBuffer()}},
 		 .depthBuffer = info.internalTextures[frameIndex]->ellipsoidDepthBuffer,
 		 .defaultVertexCount = 0}
 	);
