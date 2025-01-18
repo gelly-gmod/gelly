@@ -395,6 +395,8 @@ void StandardPipeline::SetFluidMaterial(const PipelineFluidMaterial &material) {
 void StandardPipeline::Composite() {
 	const auto frameIndex = gellyResources.splattingRenderer->GetNextFrame(
 	);	// we don't want to composite the current frame as its being rendered
+	// Ensure the render is actually done
+
 	auto &device = gmodResources.device;
 
 	if (IsWhitewaterEnabled()) {

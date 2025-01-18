@@ -22,7 +22,7 @@ class ConstantBuffer {
 
 public:
 	struct ConstantBufferCreateInfo {
-		const std::shared_ptr<Device> device;
+		std::shared_ptr<Device> device;
 	};
 
 	explicit ConstantBuffer(const ConstantBufferCreateInfo &createInfo) :
@@ -36,6 +36,15 @@ public:
 		);
 	}
 
+	ConstantBuffer() : createInfo({nullptr}), buffer(nullptr) {}
+
+	ConstantBuffer &operator=(ConstantBuffer &&other) {
+		buffer = std::move(other.buffer);
+		bufferResource = std::move(other.bufferResource);
+		createInfo = std::move(other.createInfo);
+
+		return *this;
+	}
 	~ConstantBuffer() = default;
 
 	auto GetBuffer() -> std::shared_ptr<Buffer> { return buffer; }

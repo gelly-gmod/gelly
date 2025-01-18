@@ -5,6 +5,7 @@
 
 #include "device.h"
 #include "renderers/splatting/buffers.h"
+#include "renderers/splatting/frames-in-flight.h"
 #include "renderers/splatting/texture-registry.h"
 
 namespace gelly {
@@ -12,7 +13,7 @@ namespace renderer {
 namespace splatting {
 struct PipelineInfo {
 	// basically double buffering
-	static constexpr auto MAX_FRAMES = 2;
+	static constexpr auto MAX_FRAMES = splatting::MAX_FRAMES;
 
 	const std::shared_ptr<Device> device;
 	std::array<std::shared_ptr<InternalTextures>, MAX_FRAMES> internalTextures;

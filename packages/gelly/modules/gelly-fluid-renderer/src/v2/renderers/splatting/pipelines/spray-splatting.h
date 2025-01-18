@@ -125,8 +125,9 @@ inline auto CreateSpraySplattingPipeline(
 			 {.pixelShader = pixelShader,
 			  .vertexShader = vertexShader,
 			  .geometryShader = {GS_FROM_GSC(FoamGS, info.device)},
-			  .constantBuffers =
-				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
+			  .constantBuffers = {info.internalBuffers
+									  ->fluidRenderCBuffer[frameIndex]
+									  .GetBuffer()}},
 		 .depthBuffer =
 			 depthOnly ? std::optional<std::shared_ptr<
 							 DepthBuffer>>{info.internalTextures[frameIndex]

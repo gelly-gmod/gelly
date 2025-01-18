@@ -99,8 +99,9 @@ inline auto CreateThicknessSplattingPipeline(
 			 {.pixelShader = PS_FROM_GSC(ThicknessPS, info.device),
 			  .vertexShader = vertexShader,
 			  .geometryShader = {GS_FROM_GSC(ThicknessGS, info.device)},
-			  .constantBuffers =
-				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
+			  .constantBuffers = {info.internalBuffers
+									  ->fluidRenderCBuffer[frameIndex]
+									  .GetBuffer()}},
 		 .depthBuffer = std::nullopt,
 		 .defaultVertexCount = 0}
 	);
