@@ -1,9 +1,10 @@
 <p align="center">
    <img src="branding/Gelly_Logo_WideRender_2000x1000_Transparent.png" border="20" />
-   <br/>
+   <br />
    <a href="https://github.com/yogwoggf/gelly/releases">Grab the GMod addon</a>
-</p>
-
+   <br />
+   <br />
+   <img alt="Discord" src="https://img.shields.io/discord/1246273296811425793?style=plastic">
 <br/>
 
 > [!IMPORTANT]
