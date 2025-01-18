@@ -1,5 +1,7 @@
 #ifndef SPLATTING_RENDERER_H
 #define SPLATTING_RENDERER_H
+#include <d3d11_4.h>
+
 #include <memory>
 
 #include "GellyInterfaceRef.h"
@@ -146,6 +148,10 @@ private:
 	std::array<PipelinePtr, MAX_FRAMES> surfaceFilteringB;
 	std::array<PipelinePtr, MAX_FRAMES> rawNormalEstimation;
 
+	ComPtr<ID3D11Fence> frameFence[MAX_FRAMES] = {};
+	ComPtr<ID3D11DeviceContext4> context4;
+
+	size_t fenceValues[MAX_FRAMES] = {};
 	size_t currentFrame = 0;
 
 	cbuffer::FluidRenderCBufferData frameParamCopy = {};

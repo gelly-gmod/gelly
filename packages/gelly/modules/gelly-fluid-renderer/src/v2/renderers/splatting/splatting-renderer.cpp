@@ -51,6 +51,34 @@ SplattingRenderer::SplattingRenderer(
 		 .surfaceFiltering = createInfo.device,
 		 .rawNormalEstimation = createInfo.device}
 	) {
+	ComPtr<ID3D11Device5> device5;
+	const auto castResult = createInfo.device->GetRawDevice().As(&device5);
+	if (FAILED(castResult)) {
+		throw std::runtime_error("Failed to cast device to ID3D11Device5");
+	}
+
+	for (int i = 0; i < MAX_FRAMES; i++) {
+		const auto fenceCreationResult = device5->CreateFence(
+			0xFFFFFFFFFFF,
+			D3D11_FENCE_FLAG_NONE,
+			__uuidof(ID3D11Fence),
+			&frameFence[i]
+		);
+
+		if (FAILED(fenceCreationResult)) {
+			throw std::runtime_error("Failed to create fence");
+		}
+	}
+
+	const auto dcCastResult =
+		createInfo.device->GetRawDeviceContext().As(&context4);
+
+	if (FAILED(dcCastResult)) {
+		throw std::runtime_error(
+			"Failed to cast device context to ID3D11DeviceContext4"
+		);
+	}
+
 	CreatePipelines();
 	absorptionModifier = CreateAbsorptionModifier(
 		pipelineInfo.internalBuffers->particleAbsorptions
@@ -67,6 +95,12 @@ auto SplattingRenderer::Create(const SplattingRendererCreateInfo &&createInfo)
 }
 
 auto SplattingRenderer::Render() -> void {
+	if (settings.enableGPUSynchronization) {
+		context4->Wait(
+			frameFence[GetCurrentFrame()].Get(), fenceValues[GetCurrentFrame()]
+		);
+	}
+
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->StartFrameCapture(
@@ -141,8 +175,10 @@ auto SplattingRenderer::Render() -> void {
 #endif
 
 	if (settings.enableGPUSynchronization) {
-		// TODO: Add fence synchronization, so that we don't wait on the GPU for
-		// the current frame but on the previous one
+		context4->Signal(
+			frameFence[GetCurrentFrame()].Get(),
+			++fenceValues[GetCurrentFrame()]
+		);
 	}
 
 	if (settings.enableGPUTiming) {
