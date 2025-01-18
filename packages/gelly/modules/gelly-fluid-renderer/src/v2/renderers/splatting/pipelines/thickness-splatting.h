@@ -24,7 +24,7 @@ namespace renderer {
 namespace splatting {
 
 inline auto CreateThicknessSplattingPipeline(
-	const PipelineInfo &info, float outputScale = 1.f
+	const PipelineInfo &info, const size_t frameIndex, float outputScale = 1.f
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -89,7 +89,7 @@ inline auto CreateThicknessSplattingPipeline(
 			 .vertexBuffer = info.internalBuffers->particlePositions, .slot = 0
 		 }},
 		 .outputs = {OutputTexture{
-			 .texture = info.internalTextures->unfilteredThickness,
+			 .texture = info.internalTextures[frameIndex]->unfilteredThickness,
 			 .bindFlag = D3D11_BIND_RENDER_TARGET,
 			 .slot = 0,
 			 .clearColor = {0.f, 0.f, 0.f, 0.f},

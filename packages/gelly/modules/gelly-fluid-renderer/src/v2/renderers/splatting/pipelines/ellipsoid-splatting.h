@@ -21,7 +21,7 @@ namespace renderer {
 namespace splatting {
 
 inline auto CreateEllipsoidSplattingPipeline(
-	const PipelineInfo &info, float outputScale = 1.f
+	const PipelineInfo &info, const size_t frameIndex, float outputScale = 1.f
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -167,19 +167,21 @@ inline auto CreateEllipsoidSplattingPipeline(
 			  }},
 		 .outputs =
 			 {OutputTexture{
-				  .texture = info.internalTextures->unfilteredAlbedo,
+				  .texture =
+					  info.internalTextures[frameIndex]->unfilteredAlbedo,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 0,
 				  .clearColor = {0.f, 0.f, 0.f, 0.f},
 			  },
 			  OutputTexture{
-				  .texture = info.outputTextures->ellipsoidDepth,
+				  .texture = info.outputTextures[frameIndex]->ellipsoidDepth,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 1,
 				  .clearColor = {1.f, D3D11_FLOAT32_MAX, 1.f, 1.f}
 			  },
 			  OutputTexture{
-				  .texture = info.internalTextures->unfilteredThickness,
+				  .texture =
+					  info.internalTextures[frameIndex]->unfilteredThickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 2,
 				  .clearColor = {0.f, 0.f, 0.f, 0.f},
@@ -191,7 +193,7 @@ inline auto CreateEllipsoidSplattingPipeline(
 			  .geometryShader = {GS_FROM_GSC(SplattingGS, info.device)},
 			  .constantBuffers =
 				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
-		 .depthBuffer = info.internalTextures->ellipsoidDepthBuffer,
+		 .depthBuffer = info.internalTextures[frameIndex]->ellipsoidDepthBuffer,
 		 .defaultVertexCount = 0}
 	);
 }

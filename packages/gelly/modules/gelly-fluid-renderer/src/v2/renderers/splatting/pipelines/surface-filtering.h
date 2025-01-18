@@ -19,6 +19,7 @@ namespace splatting {
 // to create ping pong pipelines for filter iterations
 inline auto CreateSurfaceFilteringPipeline(
 	const PipelineInfo &info,
+	const size_t frameIndex,
 	const std::shared_ptr<Texture> &inputNormal,
 	const std::shared_ptr<Texture> &outputNormal,
 	float scale = 0.75f
@@ -53,7 +54,7 @@ inline auto CreateSurfaceFilteringPipeline(
 		.inputs =
 			{screenQuad.GetVertexBuffer(),
 			 InputTexture{
-				 .texture = info.outputTextures->ellipsoidDepth,
+				 .texture = info.outputTextures[frameIndex]->ellipsoidDepth,
 				 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				 .slot = 0
 			 },

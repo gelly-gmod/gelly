@@ -27,34 +27,46 @@ struct OutputTextures {
 	OutputTextures(
 		const std::shared_ptr<Device> &device, const InputSharedHandles &handles
 	) :
-		ellipsoidDepth(Texture::CreateTexture(
-			{.device = device,
-			 .image = SharedImage::CreateSharedImage(
-				 {.device = device, .sharedHandle = handles.ellipsoidDepth}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		thickness(Texture::CreateTexture(
-			{.device = device,
-			 .image = SharedImage::CreateSharedImage(
-				 {.device = device, .sharedHandle = handles.thickness}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		albedo(Texture::CreateTexture(
-			{.device = device,
-			 .image = SharedImage::CreateSharedImage(
-				 {.device = device, .sharedHandle = handles.albedo}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		normals(Texture::CreateTexture(
-			{.device = device,
-			 .image = SharedImage::CreateSharedImage(
-				 {.device = device, .sharedHandle = handles.normals}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)) {}
+		ellipsoidDepth(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = SharedImage::CreateSharedImage(
+					 {.device = device, .sharedHandle = handles.ellipsoidDepth}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		),
+		thickness(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = SharedImage::CreateSharedImage(
+					 {.device = device, .sharedHandle = handles.thickness}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		),
+		albedo(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = SharedImage::CreateSharedImage(
+					 {.device = device, .sharedHandle = handles.albedo}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		),
+		normals(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = SharedImage::CreateSharedImage(
+					 {.device = device, .sharedHandle = handles.normals}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		) {}
 };
 
 struct InternalTextures {
@@ -68,122 +80,136 @@ struct InternalTextures {
 		const std::shared_ptr<Device> &device,
 		unsigned int width,
 		unsigned int height,
-		float scale,
-		float auxillaryScale
+		float scale
 	) :
-		unfilteredEllipsoidDepth(Texture::CreateTexture(
-			{.device = device,
-			 .image = NativeImage::CreateNativeImage(
-				 {.device = device,
-				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * scale
-				  ),
-				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * scale
-				  ),
-				  .format = DXGI_FORMAT_R32G32_FLOAT,
-				  .usage = D3D11_USAGE_DEFAULT,
-				  .bindFlags =
-					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
-				  .cpuAccessFlags = 0,
-				  .miscFlags = 0,
-				  .arraySize = 1,
-				  .mipLevels = 1,
-				  .name = "Unfiltered Ellipsoid Depth"}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		unfilteredThickness(Texture::CreateTexture(
-			{.device = device,
-			 .image = NativeImage::CreateNativeImage(
-				 {.device = device,
-				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * scale
-				  ),
-				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * scale
-				  ),
-				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
-				  .usage = D3D11_USAGE_DEFAULT,
-				  .bindFlags =
-					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
-				  .cpuAccessFlags = 0,
-				  .miscFlags = 0,
-				  .arraySize = 1,
-				  .mipLevels = 1,
-				  .name = "Unfiltered Thickness"}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		unfilteredAlbedo(Texture::CreateTexture(
-			{.device = device,
-			 .image = NativeImage::CreateNativeImage(
-				 {.device = device,
-				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * scale
-				  ),
-				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * scale
-				  ),
-				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
-				  .usage = D3D11_USAGE_DEFAULT,
-				  .bindFlags =
-					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
-				  .cpuAccessFlags = 0,
-				  .miscFlags = 0,
-				  .arraySize = 1,
-				  .mipLevels = 1,
-				  .name = "Unfiltered Albedo"}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		unfilteredNormals(Texture::CreateTexture(
-			{.device = device,
-			 .image = NativeImage::CreateNativeImage(
-				 {.device = device,
-				  .width = static_cast<unsigned int>(
-					  static_cast<float>(width) * scale
-				  ),
-				  .height = static_cast<unsigned int>(
-					  static_cast<float>(height) * scale
-				  ),
-				  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
-				  .usage = D3D11_USAGE_DEFAULT,
-				  .bindFlags =
-					  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
-				  .cpuAccessFlags = 0,
-				  .miscFlags = 0,
-				  .arraySize = 1,
-				  .mipLevels = 8,  // we want to have mips so that in some
-								   // cases, we can increase a kernel footprint
-								   // without having to use more iterations
-				  .name = "Unfiltered Normals"}
-			 ),
-			 .bindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
-		)),
-		ellipsoidDepthBuffer(DepthBuffer::CreateDepthBuffer(
-			{.device = device,
-			 .depthTexture = Texture::CreateTexture(
-				 {.device = device,
-				  .image = NativeImage::CreateNativeImage(
-					  {.device = device,
-					   .width = static_cast<unsigned int>(
-						   static_cast<float>(width) * scale
-					   ),
-					   .height = static_cast<unsigned int>(
-						   static_cast<float>(height) * scale
-					   ),
-					   .format = DXGI_FORMAT_D24_UNORM_S8_UINT,
-					   .usage = D3D11_USAGE_DEFAULT,
-					   .bindFlags = D3D11_BIND_DEPTH_STENCIL,
-					   .cpuAccessFlags = 0,
-					   .miscFlags = 0,
-					   .arraySize = 1,
-					   .mipLevels = 1,
-					   .name = "Ellipsoid depth buffer"}
-				  )}
-			 )}
-		)){};
+		unfilteredEllipsoidDepth(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = NativeImage::CreateNativeImage(
+					 {.device = device,
+					  .width = static_cast<unsigned int>(
+						  static_cast<float>(width) * scale
+					  ),
+					  .height = static_cast<unsigned int>(
+						  static_cast<float>(height) * scale
+					  ),
+					  .format = DXGI_FORMAT_R32G32_FLOAT,
+					  .usage = D3D11_USAGE_DEFAULT,
+					  .bindFlags =
+						  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+					  .cpuAccessFlags = 0,
+					  .miscFlags = 0,
+					  .arraySize = 1,
+					  .mipLevels = 1,
+					  .name = "Unfiltered Ellipsoid Depth"}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		),
+		unfilteredThickness(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = NativeImage::CreateNativeImage(
+					 {.device = device,
+					  .width = static_cast<unsigned int>(
+						  static_cast<float>(width) * scale
+					  ),
+					  .height = static_cast<unsigned int>(
+						  static_cast<float>(height) * scale
+					  ),
+					  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+					  .usage = D3D11_USAGE_DEFAULT,
+					  .bindFlags =
+						  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+					  .cpuAccessFlags = 0,
+					  .miscFlags = 0,
+					  .arraySize = 1,
+					  .mipLevels = 1,
+					  .name = "Unfiltered Thickness"}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		),
+		unfilteredAlbedo(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = NativeImage::CreateNativeImage(
+					 {.device = device,
+					  .width = static_cast<unsigned int>(
+						  static_cast<float>(width) * scale
+					  ),
+					  .height = static_cast<unsigned int>(
+						  static_cast<float>(height) * scale
+					  ),
+					  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+					  .usage = D3D11_USAGE_DEFAULT,
+					  .bindFlags =
+						  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+					  .cpuAccessFlags = 0,
+					  .miscFlags = 0,
+					  .arraySize = 1,
+					  .mipLevels = 1,
+					  .name = "Unfiltered Albedo"}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		),
+		unfilteredNormals(
+			Texture::CreateTexture(
+				{.device = device,
+				 .image = NativeImage::CreateNativeImage(
+					 {.device = device,
+					  .width = static_cast<unsigned int>(
+						  static_cast<float>(width) * scale
+					  ),
+					  .height = static_cast<unsigned int>(
+						  static_cast<float>(height) * scale
+					  ),
+					  .format = DXGI_FORMAT_R16G16B16A16_FLOAT,
+					  .usage = D3D11_USAGE_DEFAULT,
+					  .bindFlags =
+						  D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+					  .cpuAccessFlags = 0,
+					  .miscFlags = 0,
+					  .arraySize = 1,
+					  .mipLevels =
+						  8,  // we want to have mips so that in some
+							  // cases, we can increase a kernel footprint
+							  // without having to use more iterations
+					  .name = "Unfiltered Normals"}
+				 ),
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET}
+			)
+		),
+		ellipsoidDepthBuffer(
+			DepthBuffer::CreateDepthBuffer(
+				{.device = device,
+				 .depthTexture = Texture::CreateTexture(
+					 {.device = device,
+					  .image = NativeImage::CreateNativeImage(
+						  {.device = device,
+						   .width = static_cast<unsigned int>(
+							   static_cast<float>(width) * scale
+						   ),
+						   .height = static_cast<unsigned int>(
+							   static_cast<float>(height) * scale
+						   ),
+						   .format = DXGI_FORMAT_D24_UNORM_S8_UINT,
+						   .usage = D3D11_USAGE_DEFAULT,
+						   .bindFlags = D3D11_BIND_DEPTH_STENCIL,
+						   .cpuAccessFlags = 0,
+						   .miscFlags = 0,
+						   .arraySize = 1,
+						   .mipLevels = 1,
+						   .name = "Ellipsoid depth buffer"}
+					  )}
+				 )}
+			)
+		) {};
 };
 
 }  // namespace splatting

@@ -39,6 +39,8 @@ private:
 
 class SplattingRenderer {
 public:
+	static constexpr auto MAX_FRAMES = PipelineInfo::MAX_FRAMES;
+
 	float ALBEDO_OUTPUT_SCALE = 0.5f;
 
 	/**
@@ -86,7 +88,7 @@ public:
 	struct SplattingRendererCreateInfo {
 		std::shared_ptr<Device> device;
 		simulation::Solver *solver;
-		InputSharedHandles inputSharedHandles;
+		std::array<InputSharedHandles, MAX_FRAMES> inputSharedHandles;
 
 		unsigned int width;
 		unsigned int height;
@@ -107,6 +109,8 @@ public:
 	auto UpdateSettings(const Settings &settings) -> void;
 	auto FetchTimings() -> Timings;
 	auto GetOutputD3DBuffers() const -> simulation::OutputD3DBuffers;
+	auto GetCurrentFrame() const -> size_t { return currentFrame; }
+	auto GetNextFrame() -> size_t { return (currentFrame + 1) % MAX_FRAMES; }
 
 	[[nodiscard]] auto GetAbsorptionModifier() const
 		-> std::shared_ptr<AbsorptionModifier>;
@@ -116,7 +120,7 @@ public:
 	 * resolution + scale.
 	 */
 	auto UpdateTextureRegistry(
-		const InputSharedHandles &inputSharedHandles,
+		const std::array<InputSharedHandles, MAX_FRAMES> &inputSharedHandles,
 		float width,
 		float height,
 		float scale
@@ -133,14 +137,16 @@ private:
 
 	PipelineInfo pipelineInfo;
 	ComputePipelinePtr computeAcceleration;
-	PipelinePtr spraySplatting;
-	PipelinePtr spraySplattingDepth;
-	PipelinePtr ellipsoidSplatting;
-	PipelinePtr thicknessSplatting;
-	PipelinePtr albedoDownsampling;
-	PipelinePtr surfaceFilteringA;
-	PipelinePtr surfaceFilteringB;
-	PipelinePtr rawNormalEstimation;
+	std::array<PipelinePtr, MAX_FRAMES> spraySplatting;
+	std::array<PipelinePtr, MAX_FRAMES> spraySplattingDepth;
+	std::array<PipelinePtr, MAX_FRAMES> ellipsoidSplatting;
+	std::array<PipelinePtr, MAX_FRAMES> thicknessSplatting;
+	std::array<PipelinePtr, MAX_FRAMES> albedoDownsampling;
+	std::array<PipelinePtr, MAX_FRAMES> surfaceFilteringA;
+	std::array<PipelinePtr, MAX_FRAMES> surfaceFilteringB;
+	std::array<PipelinePtr, MAX_FRAMES> rawNormalEstimation;
+
+	size_t currentFrame = 0;
 
 	cbuffer::FluidRenderCBufferData frameParamCopy = {};
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
@@ -163,7 +169,8 @@ private:
 	auto CreatePipelines() -> void;
 	auto CreatePipelineInfo() const -> PipelineInfo;
 
-	auto RunSurfaceFilteringPipeline(unsigned int iterations) -> void;
+	auto RunSurfaceFilteringPipeline(unsigned int iterations, size_t frameIndex)
+		-> void;
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	auto InstantiateRenderDoc() -> RENDERDOC_API_1_1_2 *;

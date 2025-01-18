@@ -42,17 +42,21 @@ std::pair<ComPtr<IDirect3DTexture9>, HANDLE> StandardTextures::CreateTexture(
 
 void StandardTextures::CreateFeatureTextures(float scale) {
 	// albedo and thickness are always fixed at quarter resolution
-	std::tie(gmodTextures.albedo, sharedHandles.albedo) =
-		CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.5f);
+	for (size_t i = 0; i < SplattingRenderer::MAX_FRAMES; i++) {
+		std::tie(gmodTextures[i].albedo, sharedHandles[i].albedo) =
+			CreateTexture("gelly-gmod/albedo", D3DFMT_A16B16G16R16F, 1, 0.5f);
 
-	std::tie(gmodTextures.normal, sharedHandles.normals) =
-		CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F, 1, scale);
+		std::tie(gmodTextures[i].normal, sharedHandles[i].normals) =
+			CreateTexture("gelly-gmod/normal", D3DFMT_A16B16G16R16F, 1, scale);
 
-	std::tie(gmodTextures.depth, sharedHandles.ellipsoidDepth) =
-		CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F, 1, scale);
+		std::tie(gmodTextures[i].depth, sharedHandles[i].ellipsoidDepth) =
+			CreateTexture("gelly-gmod/depth", D3DFMT_A32B32G32R32F, 1, scale);
 
-	std::tie(gmodTextures.thickness, sharedHandles.thickness) =
-		CreateTexture("gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.5f);
+		std::tie(gmodTextures[i].thickness, sharedHandles[i].thickness) =
+			CreateTexture(
+				"gelly-gmod/thickness", D3DFMT_A16B16G16R16F, 1, 0.5f
+			);
+	}
 }
 
 StandardTextures::StandardTextures(
@@ -65,7 +69,7 @@ StandardTextures::StandardTextures(
 	CreateFeatureTextures(scale);
 }
 
-gelly::renderer::splatting::InputSharedHandles
+std::array<InputSharedHandles, SplattingRenderer::MAX_FRAMES>
 StandardTextures::GetSharedHandles() const {
 	return sharedHandles;
 }
