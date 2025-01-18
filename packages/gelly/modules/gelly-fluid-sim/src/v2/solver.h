@@ -1,7 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
 
-#include <array>
 #include <optional>
 #include <vector>
 
@@ -9,7 +8,6 @@
 #include "helpers/flex-buffer.h"
 #include "helpers/flex-gpu-buffer.h"
 #include "scene/scene.h"
-#include "v2/renderers/frames-in-flight.h"
 
 #define OPTIONAL_PARAM(name, type) std::optional<type> name = std::nullopt;
 
@@ -165,15 +163,7 @@ public:
 	Scene &GetScene() { return scene; }
 	Scene *GetUnownedScene() { return &scene; }
 
-	void AttachOutputBuffers(
-		const std::array<OutputD3DBuffers, renderer::splatting::MAX_FRAMES>
-			&buffers
-	);
-
-	void SetFrameWriteIndex(size_t frameIndex) {
-		currentFrameIndex = frameIndex;
-	}
-
+	void AttachOutputBuffers(const OutputD3DBuffers &buffers);
 	void SetTimeStepMultiplier(float multiplier) {
 		timeStepMultiplier = multiplier;
 		params.diffuseLifetime = diffuseLifetime * timeStepMultiplier;
@@ -193,11 +183,8 @@ private:
 	// Tracked because it must scale with the time step multiplier
 	float diffuseLifetime = 0.f;
 
-	/* Dictates which set of resources to copy the simulation data to */
-	size_t currentFrameIndex = 0;
-
 	SolverBufferSet buffers;
-	std::array<OutputBuffers, renderer::splatting::MAX_FRAMES> outputBuffers;
+	OutputBuffers outputBuffers;
 
 	NvFlexSolver *CreateSolver() const;
 	Scene CreateScene() const;

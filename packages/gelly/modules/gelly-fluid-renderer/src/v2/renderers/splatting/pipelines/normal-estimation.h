@@ -17,7 +17,6 @@ namespace renderer {
 namespace splatting {
 inline auto CreateNormalEstimationPipeline(
 	const PipelineInfo &info,
-	const size_t frameIndex,
 	const std::shared_ptr<Texture> &inputDepth,
 	const std::shared_ptr<Texture> &outputNormal,
 	float scale = 0.75f
@@ -64,8 +63,8 @@ inline auto CreateNormalEstimationPipeline(
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(EstimateNormalPS, info.device),
 			  .vertexShader = screenQuad.GetVertexShader(),
-			  .constantBuffers = {info.internalBuffers[frameIndex]
-									  ->fluidRenderCBuffer.GetBuffer()}},
+			  .constantBuffers =
+				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
 		 .depthBuffer = std::nullopt,
 		 .defaultVertexCount = 4}
 	);

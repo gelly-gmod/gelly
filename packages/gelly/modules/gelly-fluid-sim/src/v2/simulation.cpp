@@ -15,9 +15,7 @@ Simulation::~Simulation() {
 	}
 }
 
-void Simulation::AttachOutputBuffers(
-	const std::array<OutputD3DBuffers, renderer::splatting::MAX_FRAMES> &buffers
-) {
+void Simulation::AttachOutputBuffers(const OutputD3DBuffers &buffers) {
 	solver.AttachOutputBuffers(buffers);
 }
 

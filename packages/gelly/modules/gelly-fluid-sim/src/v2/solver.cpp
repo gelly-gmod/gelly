@@ -34,14 +34,14 @@ void Solver::Tick(float dt) {
 	NvFlexUpdateSolver(solver, dt, substeps, false);
 
 	NvFlexGetSmoothParticles(
-		solver, *outputBuffers[currentFrameIndex].smoothedPositions, &copyDesc
+		solver, *outputBuffers.smoothedPositions, &copyDesc
 	);
 
 	NvFlexGetAnisotropy(
 		solver,
-		*outputBuffers[currentFrameIndex].anisotropyQ1,
-		*outputBuffers[currentFrameIndex].anisotropyQ2,
-		*outputBuffers[currentFrameIndex].anisotropyQ3,
+		*outputBuffers.anisotropyQ1,
+		*outputBuffers.anisotropyQ2,
+		*outputBuffers.anisotropyQ3,
 		&copyDesc
 	);
 }
@@ -138,17 +138,13 @@ int Solver::GetCurrentActiveParticleCount() const {
 int Solver::GetMaxParticles() const { return info.maxParticles; }
 int Solver::GetMaxDiffuseParticles() const { return info.maxDiffuseParticles; }
 
-void Solver::AttachOutputBuffers(
-	const std::array<OutputD3DBuffers, renderer::splatting::MAX_FRAMES> &buffers
-) {
-	for (size_t i = 0; i < buffers.size(); i++) {
-		outputBuffers[i] = OutputBuffers::CreateInfo{
-			.rendererBuffers = buffers[i],
-			.library = info.library,
-			.maxParticles = info.maxParticles,
-			.maxDiffuseParticles = info.maxDiffuseParticles,
-		};
-	}
+void Solver::AttachOutputBuffers(const OutputD3DBuffers &buffers) {
+	outputBuffers = OutputBuffers({
+		.rendererBuffers = buffers,
+		.library = info.library,
+		.maxParticles = info.maxParticles,
+		.maxDiffuseParticles = info.maxDiffuseParticles,
+	});
 }
 
 NvFlexSolver *Solver::CreateSolver() const {
