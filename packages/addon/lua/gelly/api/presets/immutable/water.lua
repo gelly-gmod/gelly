@@ -4,7 +4,7 @@ return {
 	UseWhitewater = true,
 	SolverParams = {
 		Viscosity = 0,
-		SurfaceTension = 0.0,
+		SurfaceTension = 0.04,
 		Adhesion = 0,
 		Cohesion = 0.05,
 		VorticityConfinement = 15,

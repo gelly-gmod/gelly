@@ -25,6 +25,8 @@ gellyx.settings.convars = {
 	fluid_friction = settingConvar("fluid_friction", 1, "Controls the friction of the fluid", 0, 10),
 	fluid_rest_distance_ratio = settingConvar("fluid_rest_distance_ratio", 0.65,
 		"Controls the rest distance ratio of the fluid", 0.5, 0.7),
+	fluid_surface_tension = settingConvar("fluid_surface_tension", 0.0,
+		"Controls the surface tension of the fluid (0 being no tension, 1 being mild tension)", 0, 1),
 	fluid_color_hex = settingConvar("fluid_color_hex", "", "Controls the color of the fluid"),
 	fluid_color_scale = settingConvar("fluid_color_scale", 1, "Controls the color scale of the fluid", 0, 10),
 	fluid_roughness = settingConvar("fluid_roughness", 1, "Controls the roughness of the fluid", 0, 1),
@@ -44,6 +46,8 @@ gellyx.settings.convars = {
 	spray_drag = settingConvar("spray_drag", 0.2, "Controls the drag of spray particles.", 0, 3),
 	whitewater_enabled = settingConvar("whitewater_enabled", 1, "Controls the visibility of whitewater (0 = off, 1 = on)",
 		0, 1),
+	whitewater_strength = settingConvar("whitewater_strength", 1,
+		"Controls the strength of whitewater (0 = invisible, 1 = visible).", 0, 1),
 
 	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
 		1500000),

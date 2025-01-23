@@ -19,6 +19,7 @@ local BINARY_MODULE_RELATED_SETTINGS = {
 	"spray_ballistic",
 	"spray_drag",
 	"whitewater_enabled",
+	"whitewater_strength",
 	"resolution_scale",
 	"glunk_lighting_fix",
 	"max_particles"
@@ -53,7 +54,8 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		FilterIterations = gellyx.settings.get("smoothness"):GetInt(),
 		EnableGPUSynchronization = true,
 		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool() and
-			gellyx.presets.isPresetUsingWhitewater()
+			gellyx.presets.isPresetUsingWhitewater(),
+		WhitewaterStrength = gellyx.settings.get("whitewater_strength"):GetFloat(),
 	})
 
 	gelly.ConfigureSim({
