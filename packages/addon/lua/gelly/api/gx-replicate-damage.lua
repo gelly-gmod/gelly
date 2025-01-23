@@ -19,6 +19,7 @@ if SERVER then
 		net.WriteFloat(damage)
 		net.WriteUInt(type, 32)
 		net.Broadcast()
+		return damage
 	end
 end
 
