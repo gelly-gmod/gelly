@@ -46,7 +46,7 @@ local WEAPON_BLOOD_CONFIGS = {
 	m9k_dbarrel = {
 		MinDensity = 100,
 		MaxDensity = 200,
-		VelocityPower = -14, -- bullets usually are rotating so they can end up flinging blood 
+		VelocityPower = -14, -- bullets usually are rotating so they can end up flinging blood
 		Randomness = 0.9, -- spray in the direction of the normal
 		CubeSize = 52,
 		DamageMultiplier = 35, -- density is added by the damage * this
@@ -109,12 +109,12 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage,
 	local config = getConfig(attacker, damageType)
 	if not config then return end
 
-	local entpos = (victim:IsNPC() or victim:IsPlayer()) and
+	local entPos = (victim:IsNPC() or victim:IsPlayer()) and
 		victim:GetBonePosition(0) or
 		victim:GetPos()
 
 	local normal = config.FromEntity and
-		(entpos - position):GetNormalized() or
+		(entPos - position):GetNormalized() or
 		attacker == LocalPlayer() and
 		attacker:GetAimVector() or
 		force:GetNormalized()
@@ -127,7 +127,7 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage,
 
 	gellyx.emitters.Sphere({
 		center = config.FromEntity and
-			entpos or
+			entPos or
 			position,
 		velocity = velocity,
 		radius = config.CubeSize,
@@ -148,7 +148,7 @@ hook.Add(
 		if bloodColor < 1 then bloodColor = BLOOD_COLOR_RED end
 
 		sprayBlood(type, victim, attacker, position, force, damage, {
-			Roughness = 0, -- blood isn't rough at all
+			Roughness = 0,         -- blood isn't rough at all
 			IsSpecularTransmission = false, -- blood is translucent
 			RefractiveIndex = 1.373, -- blood has a slightly higher refractive index than water
 			Absorption = BLOOD_COLOR_ABSORPTION[bloodColor],
