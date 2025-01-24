@@ -145,7 +145,7 @@ target_include_directories(gelly-gmod
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/GMFS
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/BSPParser
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/tracy
-        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/PHYParser/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor/PHYParser
         ${CMAKE_CURRENT_SOURCE_DIR}/vendor/MemoryModule
         ${GELLY_INCLUDE_DIRS}
 )

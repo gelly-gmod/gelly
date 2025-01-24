@@ -8,7 +8,82 @@
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "util/PHYToGMod.h"
 
-using namespace gelly::gmod;
+namespace gelly::gmod {
+namespace {
+enum LumpType {
+	/**
+	 * Very important to note: up until 2009, all displacement physics data was
+	 * stored in LUMP_PHYSCOLLIDE. Why it was suddenly moved to its own lump in
+	 * 2009 is unknown. From an RE analysis, maps don't have any sort of
+	 * tell-tale sign other than that LUMP_2009_PHYSDISP's `filelen` is always 0
+	 * in pre-2009 maps.
+	 */
+	LUMP_2009_PHYSDISP = 28,
+	LUMP_PHYSCOLLIDE = 29,
+};
+
+struct lump_t {
+	int fileofs;
+	int filelen;
+	int version;
+	char fourCC[4];
+};
+
+struct dheader_t {
+	int ident;
+	int version;
+	lump_t lumps[64];
+	int mapRevision;
+};
+
+struct dphysmodel_t {
+	int modelIndex;
+	int dataSize;
+	int keyDataSize;
+	int solidCount;
+};
+
+constexpr auto BSP_HEADER = ('P' << 24) + ('S' << 16) + ('B' << 8) + 'V';
+
+}  // namespace
+
+PHYMap::PHYMap(std::unique_ptr<std::byte[]> mapData) :
+	models(), mapData(std::move(mapData)), errorReason(), valid(true) {
+	try {
+		const auto *header = View<dheader_t>(0);
+		if (header->ident != BSP_HEADER) {
+			throw std::runtime_error("Invalid BSP header.");
+		}
+
+		if (header->lumps[LUMP_2009_PHYSDISP].filelen > 0) {
+			throw std::runtime_error(
+				"Map uses PhysDisp data, which is unsupported."
+			);
+		}
+
+		if (header->lumps[LUMP_PHYSCOLLIDE].filelen <= 0) {
+			throw std::runtime_error("Map has no physics data.");
+		}
+
+		const auto physModelsOffset = header->lumps[LUMP_PHYSCOLLIDE].fileofs;
+		const auto *physModels = View<dphysmodel_t>(physModelsOffset);
+
+		// TODO: Finish once we can parse specific solids
+		valid = false;
+		errorReason = "Not implemented.";
+		return;
+	} catch (std::runtime_error &e) {
+		errorReason = e.what();
+		valid = false;
+		return;
+	}
+}
+
+bool PHYMap::IsValid() const { return valid; }
+
+std::string PHYMap::GetErrorReason() const { return errorReason; }
+
+const std::vector<PHYMap::Model> &PHYMap::GetModels() const { return models; }
 
 void Map::CheckMapPath(const std::string &mapPath) {
 	if (mapPath.empty()) {
@@ -36,17 +111,17 @@ BSPMap Map::LoadBSPMap(const std::string &mapPath) {
 	return map;
 }
 
-PHYParser::BSP::BSP Map::LoadPHYMap(const std::string &mapPath) {
+PHYMap Map::LoadPHYMap(const std::string &mapPath) {
 	CheckMapPath(mapPath);
 	const auto file = FileSystem::Open(mapPath.c_str(), "rb");
 	size_t fileSize = FileSystem::Size(file);
-	auto fileData = std::make_unique<char[]>(fileSize);
+	auto fileData = std::make_unique<std::byte[]>(fileSize);
 	FileSystem::Read(
 		reinterpret_cast<uint8_t *>(fileData.get()), fileSize, file
 	);
 	FileSystem::Close(file);
 
-	return {{std::move(fileData), fileSize}};
+	return PHYMap{std::move(fileData)};
 }
 
 ShapeCreationInfo Map::CreateMapParams(
@@ -89,22 +164,24 @@ ObjectID Map::CreateMapObject(const ShapeCreationInfo &params) const {
 }
 
 std::vector<float> Map::ConvertBrushModelToVertices(
-	const PHYParser::BSP::BSP::Model &model
+	const PHYMap::Model &model
 ) const {
 	auto vertices = std::vector<float>{};
 	for (const auto &solid : model.solids) {
-		for (const auto &triangle : solid.GetTriangles()) {
-			float v0x = triangle.vertices[0].x;
-			float v0y = triangle.vertices[0].y;
-			float v0z = triangle.vertices[0].z;
+		for (int i = 0; i < solid.indices.size(); i += 3) {
+			const auto index = solid.indices[i];
 
-			float v1x = triangle.vertices[1].x;
-			float v1y = triangle.vertices[1].y;
-			float v1z = triangle.vertices[1].z;
+			float v0x = solid.vertices[index].x;
+			float v0y = solid.vertices[index].y;
+			float v0z = solid.vertices[index].z;
 
-			float v2x = triangle.vertices[2].x;
-			float v2y = triangle.vertices[2].y;
-			float v2z = triangle.vertices[2].z;
+			float v1x = solid.vertices[solid.indices[i + 1]].x;
+			float v1y = solid.vertices[solid.indices[i + 1]].y;
+			float v1z = solid.vertices[solid.indices[i + 1]].z;
+
+			float v2x = solid.vertices[solid.indices[i + 2]].x;
+			float v2y = solid.vertices[solid.indices[i + 2]].y;
+			float v2z = solid.vertices[solid.indices[i + 2]].z;
 
 			gelly::gmod::helpers::ConvertPHYPositionToGMod(v0x, v0y, v0z);
 			gelly::gmod::helpers::ConvertPHYPositionToGMod(v1x, v1y, v1z);
@@ -137,24 +214,13 @@ Map::Map(
 
 	try {
 		const auto phyMap = LoadPHYMap(mapPath);
-		if (phyMap.GetModelCount() <= 0) {
-			// bail
-			throw std::runtime_error("Failed to load PHY map: " + mapPath);
-		}
-
-		if (!phyMap.IsDisplacementDataAvailable()) {
-			// well... for some maps this is ok, e.g. gm_bigcity_improved (the
-			// only displacements are insignificant little mounds of grass) but
-			// for other maps, say koth_harvest_final, the *entire* ground is
-			// made of displacements, so it becomes a problem
-
-			// for now we'll just bail
+		if (!phyMap.IsValid()) {
 			throw std::runtime_error(
-				"Physics displacement data is not available for map: " + mapPath
+				"Failed to load PHY map: " + phyMap.GetErrorReason()
 			);
 		}
 
-		const auto &worldspawn = phyMap.GetModel(0);
+		const auto &worldspawn = phyMap.GetModels()[0];
 		auto worldspawnVertices = ConvertBrushModelToVertices(worldspawn);
 
 		params = CreateMapParams(
@@ -163,8 +229,7 @@ Map::Map(
 
 		mapObject = CreateMapObject(params);
 
-		for (int i = 1; i < phyMap.GetModelCount(); i++) {
-			const auto &model = phyMap.GetModel(i);
+		for (const auto &model : phyMap.GetModels()) {
 			auto vertices = ConvertBrushModelToVertices(model);
 			assetCache->InsertAsset(
 				"*" + std::to_string(model.index),
@@ -204,3 +269,4 @@ Map::Map(
 
 	LOG_INFO("Map loaded: %s\nID: %u", mapPath.c_str(), mapObject);
 }
+}  // namespace gelly::gmod
