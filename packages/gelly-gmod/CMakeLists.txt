@@ -34,6 +34,12 @@ foreach (FLEX_DEP ${FLEX_LIBS})
     list(APPEND GBP_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/binaries/gbp/${FLEX_DEP_NAME}.h)
 endforeach ()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # force -O0
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Od")
+    message(WARNING "Debug build detected, forcing -O0")
+endif ()
+
 message(STATUS "GBP_SOURCE_FILES: ${GBP_SOURCE_FILES}")
 
 add_library(
