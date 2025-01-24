@@ -47,7 +47,7 @@ constexpr auto BSP_HEADER = ('P' << 24) + ('S' << 16) + ('B' << 8) + 'V';
 
 }  // namespace
 
-PHYMap::PHYMap(std::unique_ptr<std::byte[]> mapData) :
+PHYMap::PHYMap(std::unique_ptr<std::byte[]> mapData, size_t length) :
 	models(), mapData(std::move(mapData)), errorReason(), valid(true) {
 	try {
 		const auto *header = View<dheader_t>(0);
@@ -65,12 +65,37 @@ PHYMap::PHYMap(std::unique_ptr<std::byte[]> mapData) :
 			throw std::runtime_error("Map has no physics data.");
 		}
 
-		const auto physModelsOffset = header->lumps[LUMP_PHYSCOLLIDE].fileofs;
-		const auto *physModels = View<dphysmodel_t>(physModelsOffset);
+		if (true) {
+			valid = false;
+			errorReason = "Unimplemented";
+			return;
+		}
 
-		// TODO: Finish once we can parse specific solids
-		valid = false;
-		errorReason = "Not implemented.";
+		auto physModelsOffset = header->lumps[LUMP_PHYSCOLLIDE].fileofs;
+		const auto *physModel = View<dphysmodel_t>(physModelsOffset);
+		const auto mapDataSpan = std::span<std::byte>(mapData.get(), length);
+		const PhyParser::OffsetDataView dataView(mapDataSpan);
+
+		while (physModel->modelIndex != -1) {
+			Model model = {};
+			model.index = physModel->modelIndex;
+			model.solids.reserve(physModel->solidCount);
+
+			auto solidOffset = reinterpret_cast<size_t>(physModel + 1);
+			solidOffset -= reinterpret_cast<size_t>(mapData.get());
+
+			for (int i = 0; i < physModel->solidCount; i++) {
+				auto parsedSolids = PhyParser::Phy::parseCompactSurface(
+					dataView.withOffset(solidOffset)
+				);
+
+				model.solids.insert(
+					model.solids.end(),
+					std::make_move_iterator(parsedSolids.begin()),
+					std::make_move_iterator(parsedSolids.end())
+				);
+			}
+		}
 		return;
 	} catch (std::runtime_error &e) {
 		errorReason = e.what();
@@ -121,7 +146,7 @@ PHYMap Map::LoadPHYMap(const std::string &mapPath) {
 	);
 	FileSystem::Close(file);
 
-	return PHYMap{std::move(fileData)};
+	return PHYMap{std::move(fileData), fileSize};
 }
 
 ShapeCreationInfo Map::CreateMapParams(

@@ -22,7 +22,7 @@ public:
 		uint32_t index;
 	};
 
-	PHYMap(std::unique_ptr<std::byte[]> mapData);
+	PHYMap(std::unique_ptr<std::byte[]> mapData, size_t length);
 
 	bool IsValid() const;
 	std::string GetErrorReason() const;
