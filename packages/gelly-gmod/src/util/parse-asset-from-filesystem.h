@@ -29,22 +29,39 @@ inline auto ParseAssetFromFilesystem(const char *assetPath)
 	FileSystem::Close(file);
 
 	const auto phy = PhyParser::Phy{data};
-	// Bones and solids are a one-to-many relationship, and oddly enough
-	// the bone mapping data is fake and not used in the actual physics
-	// mesh. The true source for bone mapping is the solid's bone index.
-	// This is why we don't use the bone mapping data and instead meld together
-	// solids if they share the same bone index.
+	// So bone indices encoded in a solid aren't always... accurate?
+	// For ragdolls they tend to be something different than what we expect
+	// But for props they're accurate, so we explicitly check for that
+	// and match using metadata for ragdolls, while we match using the bone
+	// index for props
 
 	auto bones = std::vector<AssetCache::Bone>{};
 	bones.resize(phy.getTextSection().solids.size());
+
+	bool hasMultipleBones = phy.getTextSection().solids.size() > 1;
 
 	for (const auto &[index, boneMetadata] : phy.getTextSection().solids) {
 		bones[index].name = boneMetadata.name;
 		bones[index].vertices = {};
 	}
 
-	for (const auto &solid : phy.getSolids()) {
-		auto &bone = bones[solid.boneIndex];
+	for (int i = 0; i < phy.getSolids().size(); i++) {
+		const auto solid = phy.getSolids()[i];
+		std::optional<PhyParser::TextSection::Solid> metadata = std::nullopt;
+		if (hasMultipleBones) {
+			metadata = std::make_optional(phy.getTextSection().solids.at(i));
+		}
+
+		auto &bone = hasMultipleBones
+						 ? *std::find_if(
+							   bones.begin(),
+							   bones.end(),
+							   [&metadata](const auto &bone) {
+								   return bone.name == metadata->name;
+							   }
+						   )
+						 : bones[solid.boneIndex];
+
 		auto solidVertices = solid.vertices;
 
 		for (int i = 0; i < solid.indices.size(); i += 3) {

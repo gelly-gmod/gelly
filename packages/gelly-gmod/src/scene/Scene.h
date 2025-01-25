@@ -43,7 +43,7 @@ public:
 	Scene(Scene &&) = delete;
 	Scene &operator=(Scene &&) = delete;
 
-	~Scene(){LOG_INFO("Scene destructor called")};
+	~Scene() { LOG_INFO("Scene destructor called") };
 
 	void AddEntity(
 		EntIndex entIndex,
@@ -52,9 +52,15 @@ public:
 	);
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);
 	void RemoveEntity(EntIndex entIndex);
-	void UpdateEntityPosition(EntIndex entIndex, Vector position);
-	void UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation);
-	void UpdateEntityScale(EntIndex entIndex, Vector scale);
+	void UpdateEntityPosition(
+		EntIndex entIndex, Vector position, size_t boneIndex = 0
+	);
+	void UpdateEntityRotation(
+		EntIndex entIndex, XMFLOAT4 rotation, size_t boneIndex = 0
+	);
+	void UpdateEntityScale(
+		EntIndex entIndex, Vector scale, size_t boneIndex = 0
+	);
 
 	void LoadMap(
 		const std::shared_ptr<AssetCache> &assetCache,

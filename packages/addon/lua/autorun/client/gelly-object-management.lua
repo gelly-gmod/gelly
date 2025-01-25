@@ -5,6 +5,7 @@ local objects = {}
 
 local WHITELISTED_ENTITY_CLASSES = {
 	"prop_physics",
+	"prop_ragdoll",
 	"gmod_wheel",
 	"func_*",
 	"prop_door_rotating",
@@ -61,6 +62,27 @@ local function removeObject(entity)
 	objects[entity] = nil
 end
 
+local function updateObjectBones(entity)
+	local physicsBoneData = gelly.GetPhysicsBoneData(entity:GetModel())
+
+	for name, boneId in pairs(physicsBoneData) do
+		print(name, "|", boneId)
+		local gmodBone = entity:LookupBone(name)
+		if not gmodBone then
+			error("Failed to find bone " .. name .. " on entity " .. entity:EntIndex())
+		end
+
+		local matrix = entity:GetBoneMatrix(gmodBone)
+		print(gmodBone, "|", matrix)
+
+		local position = matrix:GetTranslation()
+		local angles = matrix:GetAngles()
+
+		gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
+		gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
+	end
+end
+
 local function updateObject(entity)
 	local objectHandles = objects[entity]
 	if not objectHandles then
@@ -77,6 +99,12 @@ local function updateObject(entity)
 		if entity == LocalPlayer() then
 			gelly.SetObjectPosition(objectHandle, entity:GetPos())
 			gelly.SetObjectRotation(objectHandle, Angle(90, 0, 0))
+			return
+		end
+
+		if entity:GetClass() == "prop_ragdoll" then
+			-- Soon we'll want to use bones for everything, but for now, we'll just use them for ragdolls
+			updateObjectBones(entity)
 			return
 		end
 

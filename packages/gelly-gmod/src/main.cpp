@@ -393,9 +393,14 @@ LUA_FUNCTION(gelly_SetObjectPosition) {
 
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
 	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);  // Position
+	size_t boneIndex = 0;
+
+	if (LUA->IsType(3, GarrysMod::Lua::Type::Number)) {
+		boneIndex = static_cast<size_t>(LUA->GetNumber(3));
+	}
 
 	scene->UpdateEntityPosition(
-		static_cast<EntIndex>(LUA->GetNumber(1)), LUA->GetVector(2)
+		static_cast<EntIndex>(LUA->GetNumber(1)), LUA->GetVector(2), boneIndex
 	);
 
 	CATCH_GELLY_EXCEPTIONS();
@@ -409,6 +414,11 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
 	LUA->CheckType(2, GarrysMod::Lua::Type::Angle);	  // Rotation
+	size_t boneIndex = 0;
+	if (LUA->IsType(3, GarrysMod::Lua::Type::Number)) {
+		boneIndex = static_cast<size_t>(LUA->GetNumber(3));
+	}
+
 	// we need to convert it from an ang to a quaternion
 	QAngle ang = LUA->GetAngle(2);
 
@@ -429,7 +439,9 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 		cr * cp * sy - sr * sp * cy
 	};
 
-	scene->UpdateEntityRotation(static_cast<EntIndex>(LUA->GetNumber(1)), quat);
+	scene->UpdateEntityRotation(
+		static_cast<EntIndex>(LUA->GetNumber(1)), quat, boneIndex
+	);
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -438,9 +450,15 @@ LUA_FUNCTION(gelly_SetObjectScale) {
 	START_GELLY_EXCEPTIONS();
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Handle
 	LUA->CheckType(2, GarrysMod::Lua::Type::Vector);  // Scale
+	size_t boneIndex = 0;
+	if (LUA->IsType(3, GarrysMod::Lua::Type::Number)) {
+		boneIndex = static_cast<size_t>(LUA->GetNumber(3));
+	}
 
 	const auto scale = LUA->GetVector(2);
-	scene->UpdateEntityScale(static_cast<EntIndex>(LUA->GetNumber(1)), scale);
+	scene->UpdateEntityScale(
+		static_cast<EntIndex>(LUA->GetNumber(1)), scale, boneIndex
+	);
 
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
@@ -476,6 +494,29 @@ LUA_FUNCTION(gelly_AddParticles) {
 	CATCH_GELLY_EXCEPTIONS();
 
 	return 0;
+}
+
+LUA_FUNCTION(gelly_GetPhysicsBoneData) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::String);  // Asset name
+
+	auto assetName = std::string(LUA->GetString(1));
+	assetName = assetName.substr(0, assetName.find_last_of('.'));
+
+	auto asset = assetCache->FetchAsset(assetName);
+	if (!asset.has_value()) {
+		throw std::runtime_error("Asset not found in cache!");
+	}
+
+	LUA->CreateTable();
+
+	for (size_t i = 0; i < asset->bones.size(); i++) {
+		LUA->PushNumber(static_cast<double>(i));
+		LUA->SetField(-2, asset->bones[i].name.c_str());
+	}
+
+	CATCH_GELLY_EXCEPTIONS();
+	return 1;
 }
 
 LUA_FUNCTION(gelly_GetStatus) {
@@ -562,10 +603,10 @@ LUA_FUNCTION(gelly_SetFluidMaterial) {
 	PipelineFluidMaterial material = {};
 	material.roughness = Roughness;
 	material.specularTransmission =
-		IsSpecularTransmission_b
-			? 1.f
-			: 0.f;	// generally easier on the GPU-side
-					// to use a float as a boolean (bool registers have issues)
+		IsSpecularTransmission_b ? 1.f
+								 : 0.f;	 // generally easier on the GPU-side
+										 // to use a float as a boolean
+										 // (bool registers have issues)
 	material.refractiveIndex = RefractiveIndex;
 
 	material.diffuseColor[0] = DiffuseColor_v.x;
@@ -699,8 +740,8 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 		LUA->ThrowError("Cannot set max particles above 1,000,000!");
 	}
 
-	// For safe measure we'll honestly just need to remove the sim and scene,
-	// although the sim context should be fine
+	// For safe measure we'll honestly just need to remove the sim and
+	// scene, although the sim context should be fine
 	unsigned int originalWidth = compositor->GetWidth();
 	unsigned int originalHeight = compositor->GetHeight();
 	float originalScale = compositor->GetScale();
@@ -951,7 +992,8 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 			if (!successfullyRemoved) {
 				LOG_WARNING(
 					"Could not remove binary '%s'. Typically, this happens "
-					"when Windoes does not want to let go of the DLL, implying "
+					"when Windoes does not want to let go of the DLL, "
+					"implying "
 					"usage (GWater2)",
 					binaryPath.string().c_str()
 				);
@@ -1040,6 +1082,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, Composite);
 	DEFINE_LUA_FUNC(gelly, Simulate);
 	DEFINE_LUA_FUNC(gelly, GetStatus);
+	DEFINE_LUA_FUNC(gelly, GetPhysicsBoneData);
 	DEFINE_LUA_FUNC(gelly, AddParticles);
 	DEFINE_LUA_FUNC(gelly, LoadMap);
 	DEFINE_LUA_FUNC(gelly, AddObject);
