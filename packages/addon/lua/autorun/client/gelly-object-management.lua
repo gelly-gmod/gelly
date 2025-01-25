@@ -6,6 +6,7 @@ local objects = {}
 local WHITELISTED_ENTITY_CLASSES = {
 	"prop_physics",
 	"prop_ragdoll",
+	"player",
 	"npc_*",
 	"gmod_wheel",
 	"func_*",
@@ -65,6 +66,7 @@ end
 
 local function updateObjectBones(entity)
 	local physicsBoneData = gelly.GetPhysicsBoneData(entity:GetModel())
+	entity:InvalidateBoneCache()
 
 	for name, boneId in pairs(physicsBoneData) do
 		local gmodBone = entity:LookupBone(name)
@@ -72,17 +74,31 @@ local function updateObjectBones(entity)
 			error("Failed to find bone " .. name .. " on entity " .. entity:EntIndex())
 		end
 
-		local matrix = entity:GetBoneMatrix(gmodBone)
-		if matrix then
-			local position = matrix:GetTranslation()
-			local angles = matrix:GetAngles()
+		local position
+		local angles
 
-			gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
-			gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
+		local testPosition = entity:GetBonePosition(gmodBone)
+		if testPosition == entity:GetPos() then
+			-- Try matrix
+			local matrix = entity:GetBoneMatrix(gmodBone)
+			if matrix then
+				position = matrix:GetTranslation()
+				angles = matrix:GetAngles()
+			end
+		else
+			local bonePos, boneAng = entity:GetBonePosition(gmodBone)
+			position = bonePos
+			angles = boneAng
 		end
 
 		-- If we don't have the matrix, then the game has stopped processing the entity
 		-- Usually happens once it goes out of view, so it's not an error
+		if not position then
+			return
+		end
+
+		gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
+		gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
 	end
 end
 
@@ -99,13 +115,7 @@ local function updateObject(entity)
 			return
 		end
 
-		if entity == LocalPlayer() then
-			gelly.SetObjectPosition(objectHandle, entity:GetPos())
-			gelly.SetObjectRotation(objectHandle, Angle(90, 0, 0))
-			return
-		end
-
-		if entity:GetClass() == "prop_ragdoll" or entity:GetClass():sub(1, 3) == "npc" then
+		if entity:GetClass() == "prop_ragdoll" or entity:GetClass():sub(1, 3) == "npc" or entity:GetClass() == "player" then
 			-- Soon we'll want to use bones for everything, but for now, we'll just use them for ragdolls
 			updateObjectBones(entity)
 			return
@@ -134,8 +144,6 @@ local function onPropResized(entity, newScale)
 	end
 end
 
-local PLAYER_RADIUS = 15
-local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 	-- fetch any entities that may've been created before the hook was added
 	timer.Simple(0.1,
