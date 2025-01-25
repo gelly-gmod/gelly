@@ -29,18 +29,23 @@ inline auto ParseAssetFromFilesystem(const char *assetPath)
 	FileSystem::Close(file);
 
 	const auto phy = PhyParser::Phy{data};
+	// Bones and solids are a one-to-many relationship, and oddly enough
+	// the bone mapping data is fake and not used in the actual physics
+	// mesh. The true source for bone mapping is the solid's bone index.
+	// This is why we don't use the bone mapping data and instead meld together
+	// solids if they share the same bone index.
+
 	auto bones = std::vector<AssetCache::Bone>{};
-	bones.reserve(phy.getTextSection().solids.size());
+	bones.resize(phy.getTextSection().solids.size());
 
-	for (const auto &[index, metadata] : phy.getTextSection().solids) {
-		auto bone = AssetCache::Bone{
-			.name = metadata.name,
-			.vertices = {},
-		};
+	for (const auto &[index, boneMetadata] : phy.getTextSection().solids) {
+		bones[index].name = boneMetadata.name;
+		bones[index].vertices = {};
+	}
 
-		const auto solid = phy.getSolids()[index];
-		const auto solidVertices = solid.vertices;
-		bone.vertices.reserve(solidVertices.size() * 3);
+	for (const auto &solid : phy.getSolids()) {
+		auto &bone = bones[solid.boneIndex];
+		auto solidVertices = solid.vertices;
 
 		for (int i = 0; i < solid.indices.size(); i += 3) {
 			Vector v0;
@@ -73,8 +78,6 @@ inline auto ParseAssetFromFilesystem(const char *assetPath)
 			bone.vertices.push_back(v2.y);
 			bone.vertices.push_back(v2.z);
 		}
-
-		bones.push_back(std::move(bone));
 	}
 
 	return std::move(bones);

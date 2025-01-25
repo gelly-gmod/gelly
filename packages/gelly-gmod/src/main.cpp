@@ -298,7 +298,7 @@ LUA_FUNCTION(gelly_AddObject) {
 			LOG_INFO(
 				"    Bone %s has %d vertices",
 				bone.name.c_str(),
-				bone.vertices.size()
+				bone.vertices.size() / 3
 			);
 		}
 	}
