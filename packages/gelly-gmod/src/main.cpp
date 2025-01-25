@@ -290,15 +290,17 @@ LUA_FUNCTION(gelly_AddObject) {
 		LOG_WARNING("Asset cache miss on asset %s", assetName);
 
 		// We'll just parse the asset here
-		auto vertices =
-			gelly::gmod::helpers::ParseAssetFromFilesystem(assetName);
+		auto bones = gelly::gmod::helpers::ParseAssetFromFilesystem(assetName);
 
-		assetCache->InsertAsset(assetName, vertices.data(), vertices.size());
-		LOG_WARNING(
-			"Asset %s inserted into cache with %d vertices",
-			assetName,
-			vertices.size()
-		);
+		assetCache->InsertAsset(assetName, bones);
+		LOG_INFO("Inserted asset %s into cache", assetName);
+		for (const auto &bone : bones) {
+			LOG_INFO(
+				"    Bone %s has %d vertices",
+				bone.name.c_str(),
+				bone.vertices.size()
+			);
+		}
 	}
 
 	scene->AddEntity(entIndex, assetCache, assetName);

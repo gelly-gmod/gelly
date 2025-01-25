@@ -7,10 +7,11 @@
 #include "GMFS.h"
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "PHYToGMod.h"
+#include "scene/asset-cache.h"
 
 namespace gelly::gmod::helpers {
 inline auto ParseAssetFromFilesystem(const char *assetPath)
-	-> std::vector<Vector> {
+	-> std::vector<AssetCache::Bone> {
 	std::string assetPathStr(assetPath);
 	assetPathStr += ".phy";
 
@@ -28,10 +29,19 @@ inline auto ParseAssetFromFilesystem(const char *assetPath)
 	FileSystem::Close(file);
 
 	const auto phy = PhyParser::Phy{data};
+	auto bones = std::vector<AssetCache::Bone>{};
+	bones.reserve(phy.getTextSection().solids.size());
 
-	std::vector<Vector> vertices;
-	for (const auto &solid : phy.getSolids()) {
+	for (const auto &[index, metadata] : phy.getTextSection().solids) {
+		auto bone = AssetCache::Bone{
+			.name = metadata.name,
+			.vertices = {},
+		};
+
+		const auto solid = phy.getSolids()[index];
 		const auto solidVertices = solid.vertices;
+		bone.vertices.reserve(solidVertices.size() * 3);
+
 		for (int i = 0; i < solid.indices.size(); i += 3) {
 			Vector v0;
 			v0.x = solidVertices[solid.indices[i]].x;
@@ -51,13 +61,23 @@ inline auto ParseAssetFromFilesystem(const char *assetPath)
 			ConvertPHYPositionToGMod(v1.x, v1.y, v1.z);
 			ConvertPHYPositionToGMod(v2.x, v2.y, v2.z);
 
-			vertices.push_back(v0);
-			vertices.push_back(v1);
-			vertices.push_back(v2);
+			bone.vertices.push_back(v0.x);
+			bone.vertices.push_back(v0.y);
+			bone.vertices.push_back(v0.z);
+
+			bone.vertices.push_back(v1.x);
+			bone.vertices.push_back(v1.y);
+			bone.vertices.push_back(v1.z);
+
+			bone.vertices.push_back(v2.x);
+			bone.vertices.push_back(v2.y);
+			bone.vertices.push_back(v2.z);
 		}
+
+		bones.push_back(std::move(bone));
 	}
 
-	return std::move(vertices);
+	return std::move(bones);
 }
 }  // namespace gelly::gmod::helpers
 

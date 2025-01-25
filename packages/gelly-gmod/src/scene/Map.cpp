@@ -256,10 +256,13 @@ Map::Map(
 
 		for (const auto &model : phyMap.GetModels()) {
 			auto vertices = ConvertBrushModelToVertices(model);
+			AssetCache::Bone rootBone = {
+				.name = "root",
+				.vertices = vertices,
+			};
+
 			assetCache->InsertAsset(
-				"*" + std::to_string(model.index),
-				reinterpret_cast<Vector *>(vertices.data()),
-				vertices.size() / 3
+				"*" + std::to_string(model.index), {rootBone}
 			);
 
 			LOG_INFO(

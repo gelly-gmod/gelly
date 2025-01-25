@@ -25,7 +25,8 @@ public:
 	void AddEntity(
 		EntIndex entIndex,
 		const std::shared_ptr<AssetCache> &cache,
-		const char *assetName
+		const char *assetName,
+		size_t boneIndex = 0
 	);
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);
 	void RemoveEntity(EntIndex entIndex);

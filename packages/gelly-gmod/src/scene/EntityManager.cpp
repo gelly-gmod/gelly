@@ -27,7 +27,8 @@ EntityManager::ProcessGModMesh(std::vector<Vector> vertices) const {
 void EntityManager::AddEntity(
 	EntIndex entIndex,
 	const std::shared_ptr<AssetCache> &cache,
-	const char *assetName
+	const char *assetName,
+	size_t boneIndex
 ) {
 	ShapeCreationInfo params = {};
 	params.type = ShapeType::TRIANGLE_MESH;
@@ -35,16 +36,18 @@ void EntityManager::AddEntity(
 	params.triMesh.indexType = IndexType::UINT32;
 
 	const auto asset = cache->FetchAsset(assetName);
+	const auto vertices = asset->bones[boneIndex].vertices;
+
 	std::vector<uint32_t> indices;
-	indices.reserve(asset->rawVertices.size() / 3);
-	for (size_t i = 0; i < asset->rawVertices.size() / 3; i += 3) {
+	indices.reserve(vertices.size() / 3);
+	for (size_t i = 0; i < vertices.size() / 3; i += 3) {
 		indices.push_back(i);
 		indices.push_back(i + 1);
 		indices.push_back(i + 2);
 	}
 
-	params.triMesh.vertices = asset->rawVertices.data();
-	params.triMesh.vertexCount = asset->rawVertices.size() / 3;
+	params.triMesh.vertices = vertices.data();
+	params.triMesh.vertexCount = vertices.size() / 3;
 	params.triMesh.indices32 = indices.data();
 	params.triMesh.indexCount = indices.size();
 	params.triMesh.scale[0] = 1.f;
