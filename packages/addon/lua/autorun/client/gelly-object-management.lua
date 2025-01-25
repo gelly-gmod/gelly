@@ -6,6 +6,7 @@ local objects = {}
 local WHITELISTED_ENTITY_CLASSES = {
 	"prop_physics",
 	"prop_ragdoll",
+	"npc_*",
 	"gmod_wheel",
 	"func_*",
 	"prop_door_rotating",
@@ -66,20 +67,22 @@ local function updateObjectBones(entity)
 	local physicsBoneData = gelly.GetPhysicsBoneData(entity:GetModel())
 
 	for name, boneId in pairs(physicsBoneData) do
-		print(name, "|", boneId)
 		local gmodBone = entity:LookupBone(name)
 		if not gmodBone then
 			error("Failed to find bone " .. name .. " on entity " .. entity:EntIndex())
 		end
 
 		local matrix = entity:GetBoneMatrix(gmodBone)
-		print(gmodBone, "|", matrix)
+		if matrix then
+			local position = matrix:GetTranslation()
+			local angles = matrix:GetAngles()
 
-		local position = matrix:GetTranslation()
-		local angles = matrix:GetAngles()
+			gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
+			gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
+		end
 
-		gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
-		gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
+		-- If we don't have the matrix, then the game has stopped processing the entity
+		-- Usually happens once it goes out of view, so it's not an error
 	end
 end
 
@@ -102,7 +105,7 @@ local function updateObject(entity)
 			return
 		end
 
-		if entity:GetClass() == "prop_ragdoll" then
+		if entity:GetClass() == "prop_ragdoll" or entity:GetClass():sub(1, 3) == "npc" then
 			-- Soon we'll want to use bones for everything, but for now, we'll just use them for ragdolls
 			updateObjectBones(entity)
 			return
