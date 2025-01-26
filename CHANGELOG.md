@@ -9,13 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added support for player, NPC and ragdoll collisions with the fluid. This can be customized in the customization menu
+- Added support for player collisions. This can be customized in the customization menu
   under Simulation.
+- Added support for NPC collisions.
+- Added support for ragdoll collisions.
 
 ### Changed
 
 - The prior method for collisions was removed and updated in this version, so hopefully you can expect more accurate and
   better compatibility with other models beyond the basic GMod props.
+- Tuned blood preset to be more globby, but not that globby.
 
 ## [1.29.5] - 2025-01-09
 
