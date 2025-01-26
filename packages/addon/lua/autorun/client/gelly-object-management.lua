@@ -69,27 +69,6 @@ local function removeObject(entity)
 	objects[entity] = nil
 end
 
-GELLY_BINDPOSE_CACHE = {}
-local function getRootBindPose(entity)
-	local model = entity:GetModel()
-	if not model then
-		return
-	end
-
-	if GELLY_BINDPOSE_CACHE[model] then
-		return GELLY_BINDPOSE_CACHE[model]
-	end
-
-	local _, bindPoses = util.GetModelMeshes(model)
-	if not bindPoses then
-		return
-	end
-
-	local rootBindPose = bindPoses[0].matrix
-	GELLY_BINDPOSE_CACHE[model] = rootBindPose
-	return rootBindPose
-end
-
 local function updateObjectBones(entity)
 	local physicsBoneData = gelly.GetPhysicsBoneData(entity:GetModel())
 	local isSingleCollider = table.Count(physicsBoneData) == 1
