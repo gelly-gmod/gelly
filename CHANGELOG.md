@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.0] - 2025-01-25
+
+### Added
+
+- Added support for player, NPC and ragdoll collisions with the fluid. This can be customized in the customization menu
+  under Simulation.
+
+### Changed
+
+- The prior method for collisions was removed and updated in this version, so hopefully you can expect more accurate and
+  better compatibility with other models beyond the basic GMod props.
+
 ## [1.29.5] - 2025-01-09
 
 ### Changed
