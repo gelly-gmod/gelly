@@ -138,7 +138,6 @@ local function updateObjectBones(entity)
 			angles = worldTransform:GetAngles()
 		end
 
-		debugoverlay.Axis(position, angles, 2, 0.08, true)
 		gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
 		gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
 	end
