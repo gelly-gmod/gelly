@@ -1,5 +1,6 @@
 #ifndef PARSE_ASSET_FROM_FILESYSTEM_H
 #define PARSE_ASSET_FROM_FILESYSTEM_H
+
 #include <PHYParser.hpp>
 #include <memory>
 #include <stdexcept>
@@ -8,6 +9,9 @@
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "PHYToGMod.h"
 #include "scene/asset-cache.h"
+
+#undef max
+#undef min
 
 namespace gelly::gmod::helpers {
 inline auto ParseAssetFromFilesystem(const char *assetPath)
@@ -29,16 +33,14 @@ inline auto ParseAssetFromFilesystem(const char *assetPath)
 	FileSystem::Close(file);
 
 	const auto phy = PhyParser::Phy{data};
-	// So bone indices encoded in a solid aren't always... accurate?
-	// For ragdolls they tend to be something different than what we expect
-	// But for props they're accurate, so we explicitly check for that
-	// and match using metadata for ragdolls, while we match using the bone
-	// index for props
+	// So bone indices in the ledge have proven to be unstable.
+	// Also, ledges don't entirely map to solids properly and cause name-based
+	// mapping to fail, so we represent solids as merged ledges and use their
+	// index to index into the text section to find the proper bone name to map
+	// to.
 
 	auto bones = std::vector<AssetCache::Bone>{};
 	bones.resize(phy.getTextSection().solids.size());
-
-	bool hasMultipleBones = phy.getTextSection().solids.size() > 1;
 
 	for (const auto &[index, boneMetadata] : phy.getTextSection().solids) {
 		bones[index].name = boneMetadata.name;
@@ -48,19 +50,21 @@ inline auto ParseAssetFromFilesystem(const char *assetPath)
 	for (int i = 0; i < phy.getSolids().size(); i++) {
 		const auto solid = phy.getSolids()[i];
 		std::optional<PhyParser::TextSection::Solid> metadata = std::nullopt;
-		if (hasMultipleBones) {
+		if (phy.getTextSection().solids.contains(i)) {
 			metadata = std::make_optional(phy.getTextSection().solids.at(i));
 		}
 
-		auto &bone = hasMultipleBones
-						 ? *std::find_if(
-							   bones.begin(),
-							   bones.end(),
-							   [&metadata](const auto &bone) {
-								   return bone.name == metadata->name;
-							   }
-						   )
-						 : bones[solid.boneIndex];
+		if (!metadata.has_value()) {
+			continue;
+		}
+
+		auto &bone = *std::find_if(
+			bones.begin(),
+			bones.end(),
+			[&metadata](const auto &bone) {
+				return bone.name == metadata->name;
+			}
+		);
 
 		auto solidVertices = solid.vertices;
 

@@ -28,6 +28,10 @@ local function isClassWhitelisted(entity)
 	end)
 end
 
+local function getNormalizedModelName(entity)
+	return entity:GetModel()[1] == "*" and entity:GetModel() or entity:GetModel():sub(1, -5)
+end
+
 local function addObject(entity)
 	if not IsValid(entity) or not isClassWhitelisted(entity) then
 		return
@@ -40,7 +44,7 @@ local function addObject(entity)
 	end
 
 	local objectHandles = {}
-	local normalizedModelName = entity:GetModel()[1] == "*" and entity:GetModel() or entity:GetModel():sub(1, -5)
+	local normalizedModelName = getNormalizedModelName(entity)
 
 	local success, msg = pcall(gelly.AddObject, normalizedModelName, entity:EntIndex())
 	if not success then
@@ -50,6 +54,7 @@ local function addObject(entity)
 	end
 
 	table.insert(objectHandles, entity:EntIndex())
+	entity.Gelly_ModelOnAdd = normalizedModelName
 	objects[entity] = objectHandles
 end
 
@@ -64,31 +69,60 @@ local function removeObject(entity)
 	objects[entity] = nil
 end
 
+GELLY_BINDPOSE_CACHE = {}
+local function getRootBindPose(entity)
+	local model = entity:GetModel()
+	if not model then
+		return
+	end
+
+	if GELLY_BINDPOSE_CACHE[model] then
+		return GELLY_BINDPOSE_CACHE[model]
+	end
+
+	local _, bindPoses = util.GetModelMeshes(model)
+	if not bindPoses then
+		return
+	end
+
+	local rootBindPose = bindPoses[0].matrix
+	GELLY_BINDPOSE_CACHE[model] = rootBindPose
+	return rootBindPose
+end
+
 local function updateObjectBones(entity)
 	local physicsBoneData = gelly.GetPhysicsBoneData(entity:GetModel())
+	local isSingleCollider = table.Count(physicsBoneData) == 1
 	entity:InvalidateBoneCache()
 
 	for name, boneId in pairs(physicsBoneData) do
 		local gmodBone = entity:LookupBone(name)
 		if not gmodBone then
-			error("Failed to find bone " .. name .. " on entity " .. entity:EntIndex())
+			gmodBone = boneId
 		end
 
 		local position
 		local angles
-
 		local testPosition = entity:GetBonePosition(gmodBone)
 		if testPosition == entity:GetPos() then
 			-- Try matrix
 			local matrix = entity:GetBoneMatrix(gmodBone)
+
 			if matrix then
 				position = matrix:GetTranslation()
 				angles = matrix:GetAngles()
+			else
+				position = entity:GetPos()
+				angles = entity:GetAngles()
 			end
 		else
 			local bonePos, boneAng = entity:GetBonePosition(gmodBone)
-			position = bonePos
-			angles = boneAng
+			local matrix = Matrix()
+			matrix:SetTranslation(bonePos)
+			matrix:SetAngles(boneAng)
+
+			position = matrix:GetTranslation()
+			angles = matrix:GetAngles()
 		end
 
 		-- If we don't have the matrix, then the game has stopped processing the entity
@@ -97,6 +131,14 @@ local function updateObjectBones(entity)
 			return
 		end
 
+		if isSingleCollider then
+			-- We need to apply the bind pose since ragdolls and the like already have their bones transformed
+			local worldTransform = entity:GetWorldTransformMatrix()
+			position = worldTransform:GetTranslation()
+			angles = worldTransform:GetAngles()
+		end
+
+		debugoverlay.Axis(position, angles, 2, 0.08, true)
 		gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
 		gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
 	end
@@ -108,6 +150,13 @@ local function updateObject(entity)
 		return
 	end
 
+	if getNormalizedModelName(entity) ~= entity.Gelly_ModelOnAdd then
+		removeObject(entity)
+		addObject(entity)
+		updateObject(entity)
+		return
+	end
+
 	for _, objectHandle in ipairs(objectHandles) do
 		if not IsValid(entity) then
 			-- Somehow, it got pass the entity removal check
@@ -115,7 +164,7 @@ local function updateObject(entity)
 			return
 		end
 
-		if entity:GetClass() == "prop_ragdoll" or entity:GetClass():sub(1, 3) == "npc" or entity:GetClass() == "player" then
+		if true == true then
 			-- Soon we'll want to use bones for everything, but for now, we'll just use them for ragdolls
 			updateObjectBones(entity)
 			return
