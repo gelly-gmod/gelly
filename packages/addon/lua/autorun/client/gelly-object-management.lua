@@ -128,6 +128,12 @@ local function updateObject(entity)
 		return
 	end
 
+	if not IsValid(entity) then
+		-- Somehow, it got pass the entity removal check
+		removeObject(entity)
+		return
+	end
+
 	if getNormalizedModelName(entity) ~= entity.Gelly_ModelOnAdd then
 		removeObject(entity)
 		addObject(entity)
@@ -135,9 +141,9 @@ local function updateObject(entity)
 		return
 	end
 
-	if not IsValid(entity) then
-		-- Somehow, it got pass the entity removal check
-		removeObject(entity)
+	local isEntitySolid = bit.band(entity:GetSolidFlags(), FSOLID_NOT_SOLID) == 0
+	if not isEntitySolid then
+		removeObject(entity) -- An entity can't get into this state naturally, so it's very likely to have been removed but not cleaned up
 		return
 	end
 
