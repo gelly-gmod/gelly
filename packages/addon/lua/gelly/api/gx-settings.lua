@@ -71,6 +71,7 @@ gellyx.settings.convars = {
 		"Controls the rendering scale of the fluid as a percentage of the current resolution.", 0.25, 1.25),
 	glunk_lighting_fix = settingConvar("glunk_lighting_fix", 1, "Controls the lighting fix for Glunk (0 = off, 1 = on)",
 		0, 1),
+	player_collision = settingConvar("player_collision", 1, "Controls the player collision (0 = off, 1 = on)", 0, 1),
 }
 
 function gellyx.settings.registerOnChange(name, callback)

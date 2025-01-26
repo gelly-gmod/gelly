@@ -31,6 +31,9 @@ export default function Simulation() {
 	const [relaxation, setRelaxation, resetRelaxation] = useSettingValue(
 		"simulation_relaxation",
 	);
+	const [playerCollision, setPlayerCollision, resetPlayerCollision] =
+		useSettingValue("player_collision");
+
 	const [collisionDistance, setCollisionDistance, resetCollisionDistance] =
 		useSettingValue("simulation_collision_distance");
 	const [gravity, setGravity, resetGravity] =
@@ -134,6 +137,13 @@ export default function Simulation() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 					onResetRequest={resetRelaxation}
+				/>
+
+				<CheckBox
+					label="Player Collision"
+					checked={playerCollision}
+					onChange={setPlayerCollision}
+					onResetRequest={resetPlayerCollision}
 				/>
 
 				<Slider

@@ -14,6 +14,10 @@ local WHITELISTED_ENTITY_CLASSES = {
 }
 
 local function isClassWhitelisted(entity)
+	if entity:GetClass() == "player" and gellyx.settings.get("player_collision"):GetInt() == 0 then
+		return false
+	end
+
 	return array(WHITELISTED_ENTITY_CLASSES):any(function(class)
 		local classSubstring = class
 		if classSubstring[#classSubstring] == "*" then
@@ -193,6 +197,18 @@ hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 	end)
 
 	hook.Add("GellyXPropResized", "gelly.object-resize", onPropResized)
+
+	gellyx.settings.registerOnChange("player_collision", function(_, _, new)
+		if new == "0" then
+			if objects[LocalPlayer()] then
+				removeObject(LocalPlayer())
+			end
+		else
+			if not objects[LocalPlayer()] then
+				addObject(LocalPlayer())
+			end
+		end
+	end)
 end)
 
 hook.Add("GellyRestarted", "gelly.object-management-recreate-entities", function()
