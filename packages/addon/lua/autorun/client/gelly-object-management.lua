@@ -135,29 +135,13 @@ local function updateObject(entity)
 		return
 	end
 
-	for _, objectHandle in ipairs(objectHandles) do
-		if not IsValid(entity) then
-			-- Somehow, it got pass the entity removal check
-			removeObject(entity)
-			return
-		end
-
-		if true == true then
-			-- Soon we'll want to use bones for everything, but for now, we'll just use them for ragdolls
-			updateObjectBones(entity)
-			return
-		end
-
-		local transform = entity:GetWorldTransformMatrix()
-		if not transform then
-			logging.warn("Transform bug for entity #%d", entity:EntIndex())
-			removeObject(entity)
-			return
-		end
-
-		gelly.SetObjectPosition(objectHandle, transform:GetTranslation())
-		gelly.SetObjectRotation(objectHandle, transform:GetAngles())
+	if not IsValid(entity) then
+		-- Somehow, it got pass the entity removal check
+		removeObject(entity)
+		return
 	end
+
+	updateObjectBones(entity)
 end
 
 local function onPropResized(entity, newScale)
