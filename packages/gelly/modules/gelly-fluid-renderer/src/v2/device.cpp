@@ -1,3 +1,4 @@
+
 #include "device.h"
 
 #include <helpers/throw-informative-exception.h>
@@ -40,9 +41,8 @@ auto Device::OutputAllDebugMessages() -> void {
 			static_cast<D3D11_MESSAGE *>(malloc(messageLength));
 
 		infoQueue->GetMessage(i, message, &messageLength);
-		OutputDebugStringA(
-			GELLY_FUNCTION_NAME ": Sending a D3D11 event on the next message!\n"
-		);
+		OutputDebugStringA(GELLY_FUNCTION_NAME
+						   ": Sending a D3D11 event on the next message!\n");
 		OutputDebugStringA(message->pDescription);
 	}
 }
