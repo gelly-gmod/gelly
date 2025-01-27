@@ -103,8 +103,7 @@ public:
 	StandardPipeline(unsigned int width, unsigned int height);
 	~StandardPipeline() override;
 
-	std::array<InputSharedHandles, SplattingRenderer::MAX_FRAMES>
-	CreatePipelineLocalResources(
+	gelly::renderer::splatting::InputSharedHandles CreatePipelineLocalResources(
 		const GellyResources &gelly,
 		const UnownedResources &gmod,
 		unsigned int width,

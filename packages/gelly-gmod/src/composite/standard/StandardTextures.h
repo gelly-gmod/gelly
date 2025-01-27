@@ -16,7 +16,7 @@ using gelly::renderer::splatting::InputSharedHandles;
 class StandardTextures {
 private:
 	UnownedResources gmodResources;
-	std::array<InputSharedHandles, SplattingRenderer::MAX_FRAMES> sharedHandles;
+	InputSharedHandles sharedHandles;
 	unsigned int width;
 	unsigned int height;
 
@@ -31,7 +31,7 @@ public:
 		ComPtr<IDirect3DTexture9> depth;
 		ComPtr<IDirect3DTexture9> thickness;
 		ComPtr<IDirect3DTexture9> foam;
-	} gmodTextures[SplattingRenderer::MAX_FRAMES];
+	} gmodTextures;
 
 	StandardTextures(
 		const UnownedResources &gmod,
@@ -41,8 +41,7 @@ public:
 	);
 	~StandardTextures() = default;
 
-	std::array<InputSharedHandles, SplattingRenderer::MAX_FRAMES>
-	GetSharedHandles() const;
+	InputSharedHandles GetSharedHandles() const;
 	/**
 	 * May be called whenever to readjust the scale of the textures. You must
 	 * alert the Gelly renderer to the new InputSharedHandles object to apply

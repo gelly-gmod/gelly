@@ -16,7 +16,7 @@ namespace gelly {
 namespace renderer {
 namespace splatting {
 inline auto CreateAlbedoDownsamplingPipeline(
-	const PipelineInfo &info, const size_t frameIndex, float outputScale
+	const PipelineInfo &info, float outputScale
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -47,26 +47,24 @@ inline auto CreateAlbedoDownsamplingPipeline(
 		 .inputs =
 			 {screenQuad.GetVertexBuffer(),
 			  InputTexture{
-				  .texture =
-					  info.internalTextures[frameIndex]->unfilteredAlbedo,
+				  .texture = info.internalTextures->unfilteredAlbedo,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 0
 			  },
 			  InputTexture{
-				  .texture =
-					  info.internalTextures[frameIndex]->unfilteredThickness,
+				  .texture = info.internalTextures->unfilteredThickness,
 				  .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 				  .slot = 1
 			  }},
 		 .outputs =
 			 {OutputTexture{
-				  .texture = info.outputTextures[frameIndex]->albedo,
+				  .texture = info.outputTextures->albedo,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 0,
 				  .clearColor = {0.f, 0.f, 0.f, 0.f}
 			  },
 			  OutputTexture{
-				  .texture = info.outputTextures[frameIndex]->thickness,
+				  .texture = info.outputTextures->thickness,
 				  .bindFlag = D3D11_BIND_RENDER_TARGET,
 				  .slot = 1,
 				  .clearColor = {0.f, 0.f, 0.f, 0.f}
