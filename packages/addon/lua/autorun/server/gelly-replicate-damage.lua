@@ -10,5 +10,12 @@ hook.Add("EntityTakeDamage", "gelly.damage-replication", function(target, dmgInf
 	local force = dmgInfo:GetDamageForce()
 	local type = dmgInfo:GetDamageType()
 
-	gellyx.replicateDamage(target, attacker, position, force, damage, type)
+	local damagescale = 0.5
+
+	if type == DMG_CRUSH or type == DMG_BLAST then damagescale = 0.02 end
+
+	if target:IsValid() and target.MaxBloodQuantity and target.BloodQuantity > 0 then
+		gellyx.replicateDamage(target, attacker, position, force, damage * math.max(0, target.BloodQuantity / target.MaxBloodQuantity), type) -- this makes the blood amout expelled lower with lowering the blood quantity
+		target.BloodQuantity = target.BloodQuantity - damage * damagescale -- scale damage to be more 🤌
+	end
 end)
