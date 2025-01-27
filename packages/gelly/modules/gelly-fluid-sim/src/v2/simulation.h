@@ -22,7 +22,10 @@ public:
 	Solver &GetSolver() { return solver; }
 	Solver *GetUnownedSolver() { return &solver; }
 
-	void AttachOutputBuffers(const OutputD3DBuffers &buffers);
+	void AttachOutputBuffers(
+		const std::array<OutputD3DBuffers, renderer::splatting::MAX_FRAMES>
+			&buffers
+	);
 	const char *GetComputeDeviceName() const {
 		return NvFlexGetDeviceName(library);
 	}

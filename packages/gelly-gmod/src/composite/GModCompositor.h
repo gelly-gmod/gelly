@@ -93,8 +93,10 @@ public:
 		return gellyResources.splattingRenderer->FetchTimings();
 	}
 
-	[[nodiscard]] gelly::simulation::OutputD3DBuffers GetOutputD3DBuffers(
-	) const {
+	[[nodiscard]] std::array<
+		gelly::simulation::OutputD3DBuffers,
+		SplattingRenderer::MAX_FRAMES>
+	GetOutputD3DBuffers() const {
 		return gellyResources.splattingRenderer->GetOutputD3DBuffers();
 	}
 };

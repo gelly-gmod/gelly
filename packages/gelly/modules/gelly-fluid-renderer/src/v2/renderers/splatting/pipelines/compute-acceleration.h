@@ -10,8 +10,9 @@
 namespace gelly {
 namespace renderer {
 namespace splatting {
-inline auto CreateComputeAccelerationPipeline(const PipelineInfo &pipelineInfo)
-	-> std::shared_ptr<ComputePipeline> {
+inline auto CreateComputeAccelerationPipeline(
+	const PipelineInfo &pipelineInfo, const size_t frameIndex
+) -> std::shared_ptr<ComputePipeline> {
 	return ComputePipeline::CreateComputePipeline(
 		ComputePipeline::ComputePipelineCreateInfo{
 			.name = "Compute acceleration",
@@ -20,20 +21,20 @@ inline auto CreateComputeAccelerationPipeline(const PipelineInfo &pipelineInfo)
 				CS_FROM_GSC(ComputeAccelerationCS, pipelineInfo.device),
 			.inputs =
 				{InputBuffer{
-					 .buffer =
-						 pipelineInfo.internalBuffers->particleVelocities0,
+					 .buffer = pipelineInfo.internalBuffers[frameIndex]
+								   ->particleVelocities0,
 					 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 					 .slot = 0
 				 },
 				 InputBuffer{
-					 .buffer =
-						 pipelineInfo.internalBuffers->particleVelocities1,
+					 .buffer = pipelineInfo.internalBuffers[frameIndex]
+								   ->particleVelocities1,
 					 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
 					 .slot = 1
 				 },
 				 InputBuffer{
-					 .buffer =
-						 pipelineInfo.internalBuffers->particleAccelerations,
+					 .buffer = pipelineInfo.internalBuffers[frameIndex]
+								   ->particleAccelerations,
 					 .bindFlag = D3D11_BIND_UNORDERED_ACCESS,
 					 .slot = 2
 				 }},

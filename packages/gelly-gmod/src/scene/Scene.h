@@ -110,6 +110,10 @@ public:
 		absorptionModifier = modifier;
 	}
 
+	void SetFrameWriteIndex(size_t frameIndex) {
+		sim->GetSolver().SetFrameWriteIndex(frameIndex);
+	}
+
 	void Initialize();
 };
 

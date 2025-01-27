@@ -59,10 +59,7 @@ SplattingRenderer::SplattingRenderer(
 
 	for (int i = 0; i < MAX_FRAMES; i++) {
 		const auto fenceCreationResult = device5->CreateFence(
-			0xFFFFFFFFFFF,
-			D3D11_FENCE_FLAG_NONE,
-			__uuidof(ID3D11Fence),
-			&frameFence[i]
+			0x0, D3D11_FENCE_FLAG_NONE, __uuidof(ID3D11Fence), &frameFence[i]
 		);
 
 		if (FAILED(fenceCreationResult)) {
@@ -81,7 +78,7 @@ SplattingRenderer::SplattingRenderer(
 
 	CreatePipelines();
 	absorptionModifier = CreateAbsorptionModifier(
-		pipelineInfo.internalBuffers->particleAbsorptions
+		pipelineInfo.internalBuffers[0]->particleAbsorptions
 	);
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
@@ -225,7 +222,8 @@ auto SplattingRenderer::FetchTimings() -> Timings { return latestTimings; }
 
 auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data)
 	-> void {
-	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(data);
+	pipelineInfo.internalBuffers[GetCurrentFrame()]
+		->fluidRenderCBuffer.UpdateBuffer(data);
 	std::memcpy(
 		&frameParamCopy, &data, sizeof(cbuffer::FluidRenderCBufferData)
 	);
@@ -237,13 +235,13 @@ auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 	frameParamCopy.g_InvViewport.x = 1.f / width;
 	frameParamCopy.g_InvViewport.y = 1.f / height;
 
-	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
-		frameParamCopy
-	);
+	pipelineInfo.internalBuffers[GetCurrentFrame()]
+		->fluidRenderCBuffer.UpdateBuffer(frameParamCopy);
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
-	computeAcceleration = CreateComputeAccelerationPipeline(pipelineInfo);
+	computeAcceleration =
+		CreateComputeAccelerationPipeline(pipelineInfo, 0); /* TODO: Fix this */
 
 	for (size_t i = 0; i < MAX_FRAMES; i++) {
 		spraySplatting[i] =
@@ -277,6 +275,7 @@ auto SplattingRenderer::CreatePipelines() -> void {
 
 		rawNormalEstimation[i] = CreateNormalEstimationPipeline(
 			pipelineInfo,
+			i,
 			pipelineInfo.outputTextures[i]->ellipsoidDepth,
 			pipelineInfo.internalTextures[i]->unfilteredNormals,
 			createInfo.scale
@@ -322,14 +321,16 @@ auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {
 		.device = createInfo.device,
 		.internalTextures = {},
 		.outputTextures = {},
-		.internalBuffers = std::make_shared<InternalBuffers>(
-			createInfo.device, createInfo.maxParticles
-		),
+		.internalBuffers = {},
 		.width = createInfo.width,
 		.height = createInfo.height
 	};
 
 	for (size_t i = 0; i < MAX_FRAMES; i++) {
+		info.internalBuffers[i] = std::make_shared<InternalBuffers>(
+			createInfo.device, createInfo.maxParticles
+		);
+
 		info.internalTextures[i] = std::make_shared<InternalTextures>(
 			createInfo.device, info.width, info.height, createInfo.scale
 		);
@@ -343,28 +344,38 @@ auto SplattingRenderer::CreatePipelineInfo() const -> PipelineInfo {
 }
 
 auto SplattingRenderer::GetOutputD3DBuffers() const
-	-> simulation::OutputD3DBuffers {
-	return {
-		.smoothedPositions =
-			pipelineInfo.internalBuffers->particlePositions->GetRawBuffer().Get(
-			),
-		.velocitiesPrevFrame =
-			pipelineInfo.internalBuffers->particleVelocities0->GetRawBuffer()
-				.Get(),
-		.velocities =
-			pipelineInfo.internalBuffers->particleVelocities1->GetRawBuffer()
-				.Get(),
-		.anisotropyQ1 =
-			pipelineInfo.internalBuffers->anisotropyQ1->GetRawBuffer().Get(),
-		.anisotropyQ2 =
-			pipelineInfo.internalBuffers->anisotropyQ2->GetRawBuffer().Get(),
-		.anisotropyQ3 =
-			pipelineInfo.internalBuffers->anisotropyQ3->GetRawBuffer().Get(),
-		.foamPositions =
-			pipelineInfo.internalBuffers->foamPositions->GetRawBuffer().Get(),
-		.foamVelocities =
-			pipelineInfo.internalBuffers->foamVelocities->GetRawBuffer().Get(),
-	};
+	-> std::array<simulation::OutputD3DBuffers, MAX_FRAMES> {
+	std::array<simulation::OutputD3DBuffers, MAX_FRAMES> buffers = {};
+	for (size_t i = 0; i < MAX_FRAMES; i++) {
+		buffers[i] = {
+			.smoothedPositions = pipelineInfo.internalBuffers[i]
+									 ->particlePositions->GetRawBuffer()
+									 .Get(),
+			.velocitiesPrevFrame = pipelineInfo.internalBuffers[i]
+									   ->particleVelocities0->GetRawBuffer()
+									   .Get(),
+			.velocities = pipelineInfo.internalBuffers[i]
+							  ->particleVelocities1->GetRawBuffer()
+							  .Get(),
+			.anisotropyQ1 = pipelineInfo.internalBuffers[i]
+								->anisotropyQ1->GetRawBuffer()
+								.Get(),
+			.anisotropyQ2 = pipelineInfo.internalBuffers[i]
+								->anisotropyQ2->GetRawBuffer()
+								.Get(),
+			.anisotropyQ3 = pipelineInfo.internalBuffers[i]
+								->anisotropyQ3->GetRawBuffer()
+								.Get(),
+			.foamPositions = pipelineInfo.internalBuffers[i]
+								 ->foamPositions->GetRawBuffer()
+								 .Get(),
+			.foamVelocities = pipelineInfo.internalBuffers[i]
+								  ->foamVelocities->GetRawBuffer()
+								  .Get(),
+		};
+	}
+
+	return buffers;
 }
 
 auto SplattingRenderer::RunSurfaceFilteringPipeline(
@@ -372,7 +383,8 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(
 ) -> void {
 	if (iterations == 0) {
 		const auto context = createInfo.device->GetRawDeviceContext();
-		// we'll just want to copy unfilted depth to the filtered depth output
+		// we'll just want to copy unfilted depth to the filtered depth
+		// output
 		context->CopyResource(
 			pipelineInfo.outputTextures[frameIndex]
 				->ellipsoidDepth->GetTexture2D()
@@ -406,15 +418,14 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(
 	for (int i = 0; i < iterations; i++) {
 		bool oddIteration = i % 2 != 0;
 		frameParamCopy.g_SmoothingPassIndex = i;
-		pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
-			frameParamCopy
-		);
+		pipelineInfo.internalBuffers[frameIndex]
+			->fluidRenderCBuffer.UpdateBuffer(frameParamCopy);
 
 		if (settings.enableSurfaceFiltering) {
-			// This helps control the propagation of the normals across the mip
-			// chain. If we allow the mip regeneration to happen for every
-			// iteration, the depth-based filter quickly becomes overwhelmed by
-			// the footprint of smaller mips.
+			// This helps control the propagation of the normals across the
+			// mip chain. If we allow the mip regeneration to happen for
+			// every iteration, the depth-based filter quickly becomes
+			// overwhelmed by the footprint of smaller mips.
 			surfaceFilteringA[frameIndex]
 				->GetRenderPass()
 				->SetMipRegenerationEnabled(oddIteration);

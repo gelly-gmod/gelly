@@ -105,10 +105,13 @@ inline auto CreateSpraySplattingPipeline(
 		 .primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
 		 .inputs =
 			 {InputVertexBuffer{
-				  .vertexBuffer = info.internalBuffers->foamPositions, .slot = 0
+				  .vertexBuffer =
+					  info.internalBuffers[frameIndex]->foamPositions,
+				  .slot = 0
 			  },
 			  InputVertexBuffer{
-				  .vertexBuffer = info.internalBuffers->foamVelocities,
+				  .vertexBuffer =
+					  info.internalBuffers[frameIndex]->foamVelocities,
 				  .slot = 1
 			  }},
 		 .outputs = {OutputTexture{
@@ -125,8 +128,8 @@ inline auto CreateSpraySplattingPipeline(
 			 {.pixelShader = pixelShader,
 			  .vertexShader = vertexShader,
 			  .geometryShader = {GS_FROM_GSC(FoamGS, info.device)},
-			  .constantBuffers =
-				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
+			  .constantBuffers = {info.internalBuffers[frameIndex]
+									  ->fluidRenderCBuffer.GetBuffer()}},
 		 .depthBuffer =
 			 depthOnly ? std::optional<std::shared_ptr<
 							 DepthBuffer>>{info.internalTextures[frameIndex]
