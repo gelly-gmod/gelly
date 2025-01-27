@@ -51,6 +51,9 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 			logging.warn("Rendering at %dx%d with a scale of %.2f! (detected resolution change)", ScrW(), ScrH(),
 				gellyx.settings.get("resolution_scale"):GetFloat())
 		end
+
+		if not isGellyActive() then return end
+		gelly.Render()
 	end)
 
 	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function()
@@ -63,7 +66,6 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 		}, envballsModel)
 		envballsModel:SetNoDraw(true)
 
-		gelly.Render()
 		gelly.Composite()
 	end)
 end)

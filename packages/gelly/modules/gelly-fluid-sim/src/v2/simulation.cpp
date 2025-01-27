@@ -22,7 +22,7 @@ void Simulation::AttachOutputBuffers(const OutputD3DBuffers &buffers) {
 NvFlexLibrary *Simulation::CreateLibrary() const {
 	NvFlexInitDesc desc = {};
 	desc.renderDevice = info.device;
-	desc.enableExtensions = true;
+	desc.enableExtensions = false;
 	desc.runOnRenderContext = true;
 	desc.computeType = eNvFlexD3D11;
 
