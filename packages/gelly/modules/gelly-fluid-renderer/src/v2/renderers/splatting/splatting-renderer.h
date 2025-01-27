@@ -110,8 +110,7 @@ public:
 	auto GetSettings() const -> Settings;
 	auto UpdateSettings(const Settings &settings) -> void;
 	auto FetchTimings() -> Timings;
-	auto GetOutputD3DBuffers() const
-		-> std::array<simulation::OutputD3DBuffers, MAX_FRAMES>;
+	auto GetOutputD3DBuffers() const -> simulation::OutputD3DBuffers;
 	auto GetCurrentFrame() const -> size_t { return currentFrame; }
 	auto GetNextFrame() -> size_t { return (currentFrame + 1) % MAX_FRAMES; }
 
