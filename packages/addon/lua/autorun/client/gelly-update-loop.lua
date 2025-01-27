@@ -41,7 +41,7 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 
 	local lastScrW = ScrW()
 	local lastScrH = ScrH()
-	hook.Add("RenderScene", "gelly.render", function(origin, angles)
+	hook.Add("RenderScene", "gelly.render", function()
 		if lastScrW ~= ScrW() or lastScrH ~= ScrH() then
 			lastScrW = ScrW()
 			lastScrH = ScrH()

@@ -187,10 +187,8 @@ struct InternalBuffers {
 		),
 
 		fluidRenderCBuffer() {
-		for (size_t i = 0; i < MAX_FRAMES; i++) {
-			fluidRenderCBuffer[i] =
-				cbuffer::FluidRenderCBuffer({.device = device});
-		}
+		fluidRenderCBuffer[0] = cbuffer::FluidRenderCBuffer({.device = device});
+		fluidRenderCBuffer[1] = cbuffer::FluidRenderCBuffer({.device = device});
 	};
 };
 
