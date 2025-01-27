@@ -72,9 +72,8 @@ inline auto CreateSurfaceFilteringPipeline(
 		.shaderGroup =
 			{.pixelShader = PS_FROM_GSC(FilterDepthPS, info.device),
 			 .vertexShader = screenQuad.GetVertexShader(),
-			 .constantBuffers = {info.internalBuffers
-									 ->fluidRenderCBuffer[frameIndex]
-									 .GetBuffer()}},
+			 .constantBuffers =
+				 {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
 		.depthBuffer = std::nullopt,
 		.defaultVertexCount = 4,
 	});

@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "cbuffers.h"
-#include "frames-in-flight.h"
 #include "resources/buffer.h"
 
 namespace gelly {
@@ -44,152 +43,128 @@ struct InternalBuffers {
 	 */
 	std::shared_ptr<Buffer> particleAccelerations = nullptr;
 
-	std::array<cbuffer::FluidRenderCBuffer, MAX_FRAMES> fluidRenderCBuffer = {};
+	cbuffer::FluidRenderCBuffer fluidRenderCBuffer;
 
 	InternalBuffers(
 		const std::shared_ptr<Device> &device, const unsigned int maxParticles
 	) :
 		particlePositions(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
 		),
 		particleVelocities0(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
+			))
 		),
 		particleVelocities1(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
+			))
 		),
 		particleAbsorptions(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float3>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32_FLOAT,
-					 .cpuAccessFlags = D3D11_CPU_ACCESS_WRITE,
-					 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float3>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32_FLOAT,
+				 .cpuAccessFlags = D3D11_CPU_ACCESS_WRITE,
+				 .bindFlags = D3D11_BIND_SHADER_RESOURCE}
+			))
 		),
 		particleAccelerations(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format =
-						 DXGI_FORMAT_R32_FLOAT,	 // We simply store the
-												 // magnitude, but also know
-												 // that anything else wont work
-												 // since its a typed UAV.
-					 .bindFlags = D3D11_BIND_SHADER_RESOURCE |
-								  D3D11_BIND_UNORDERED_ACCESS}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format =
+					 DXGI_FORMAT_R32_FLOAT,	 // We simply store the magnitude,
+											 // but also know that anything else
+											 // wont work since its a typed UAV.
+				 .bindFlags =
+					 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS}
+			))
 		),
 		anisotropyQ1(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
 		),
 		anisotropyQ2(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
 		),
 		anisotropyQ3(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount = maxParticles,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
 		),
 		foamPositions(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount =
-						 maxParticles *
-						 2,	 // TODO: Fix this and use simData->maxFoamParticles
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount =
+					 maxParticles *
+					 2,	 // TODO: Fix this and use simData->maxFoamParticles
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
 		),
 		foamVelocities(
-			Buffer::CreateBuffer(
-				BufferCreateInfo::WithAutomaticStride<float4>(
-					{.device = device,
-					 .maxElementCount = maxParticles * 2,
-					 .initialData = nullptr,
-					 .usage = D3D11_USAGE_DEFAULT,
-					 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
-					 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
-					 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
-				)
-			)
+			Buffer::CreateBuffer(BufferCreateInfo::WithAutomaticStride<float4>(
+				{.device = device,
+				 .maxElementCount = maxParticles * 2,
+				 .initialData = nullptr,
+				 .usage = D3D11_USAGE_DEFAULT,
+				 .format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+				 .miscFlags = D3D11_RESOURCE_MISC_SHARED,
+				 .bindFlags = D3D11_BIND_VERTEX_BUFFER}
+			))
 		),
 
-		fluidRenderCBuffer() {
-		fluidRenderCBuffer[0] = cbuffer::FluidRenderCBuffer({.device = device});
-		fluidRenderCBuffer[1] = cbuffer::FluidRenderCBuffer({.device = device});
-	};
+		fluidRenderCBuffer({.device = device}){};
 };
 
 }  // namespace splatting

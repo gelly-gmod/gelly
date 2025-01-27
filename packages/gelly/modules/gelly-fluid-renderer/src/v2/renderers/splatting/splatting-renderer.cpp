@@ -40,7 +40,7 @@ SplattingRenderer::SplattingRenderer(
 ) :
 	createInfo(createInfo),
 	pipelineInfo(CreatePipelineInfo()),
-	frameQueries({}),
+	query(CreateQuery()),
 	durations(
 		{.computeAcceleration = createInfo.device,
 		 .spraySplatting = createInfo.device,
@@ -51,10 +51,6 @@ SplattingRenderer::SplattingRenderer(
 		 .surfaceFiltering = createInfo.device,
 		 .rawNormalEstimation = createInfo.device}
 	) {
-	for (int i = 0; i < MAX_FRAMES; i++) {
-		frameQueries[i] = CreateQuery();
-	}
-
 	ComPtr<ID3D11Device5> device5;
 	const auto castResult = createInfo.device->GetRawDevice().As(&device5);
 	if (FAILED(castResult)) {
@@ -63,25 +59,15 @@ SplattingRenderer::SplattingRenderer(
 
 	for (int i = 0; i < MAX_FRAMES; i++) {
 		const auto fenceCreationResult = device5->CreateFence(
-			0x0, D3D11_FENCE_FLAG_NONE, __uuidof(ID3D11Fence), &frameFence[i]
+			0xFFFFFFFFFFF,
+			D3D11_FENCE_FLAG_NONE,
+			__uuidof(ID3D11Fence),
+			&frameFence[i]
 		);
 
 		if (FAILED(fenceCreationResult)) {
 			throw std::runtime_error("Failed to create fence");
 		}
-	}
-
-	const auto simFenceCreationResult = device5->CreateFence(
-		0xFFFFFFFFFFF,
-		D3D11_FENCE_FLAG_NONE,
-		__uuidof(ID3D11Fence),
-		&simulationResourceCopyFence
-	);
-
-	if (FAILED(simFenceCreationResult)) {
-		throw std::runtime_error(
-			"Failed to create simulation resource copy fence"
-		);
 	}
 
 	const auto dcCastResult =
@@ -110,9 +96,9 @@ auto SplattingRenderer::Create(const SplattingRendererCreateInfo &&createInfo)
 
 auto SplattingRenderer::Render() -> void {
 	if (settings.enableGPUSynchronization) {
-		WaitOnSimResources(
-		);	// ensures we don't render half-copied simulation data
-		ForceWaitForFrameRender(GetCurrentFrame());
+		context4->Wait(
+			frameFence[GetCurrentFrame()].Get(), fenceValues[GetCurrentFrame()]
+		);
 	}
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
@@ -189,8 +175,10 @@ auto SplattingRenderer::Render() -> void {
 #endif
 
 	if (settings.enableGPUSynchronization) {
-		context4->End(frameQueries[GetCurrentFrame()].Get());
-		frameQueriesActive[GetCurrentFrame()] = true;
+		context4->Signal(
+			frameFence[GetCurrentFrame()].Get(),
+			++fenceValues[GetCurrentFrame()]
+		);
 	}
 
 	if (settings.enableGPUTiming) {
@@ -237,8 +225,7 @@ auto SplattingRenderer::FetchTimings() -> Timings { return latestTimings; }
 
 auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data)
 	-> void {
-	pipelineInfo.internalBuffers->fluidRenderCBuffer[GetCurrentFrame()]
-		.UpdateBuffer(data);
+	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(data);
 	std::memcpy(
 		&frameParamCopy, &data, sizeof(cbuffer::FluidRenderCBufferData)
 	);
@@ -250,8 +237,9 @@ auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 	frameParamCopy.g_InvViewport.x = 1.f / width;
 	frameParamCopy.g_InvViewport.y = 1.f / height;
 
-	pipelineInfo.internalBuffers->fluidRenderCBuffer[GetCurrentFrame()]
-		.UpdateBuffer(frameParamCopy);
+	pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
+		frameParamCopy
+	);
 }
 
 auto SplattingRenderer::CreatePipelines() -> void {
@@ -289,7 +277,6 @@ auto SplattingRenderer::CreatePipelines() -> void {
 
 		rawNormalEstimation[i] = CreateNormalEstimationPipeline(
 			pipelineInfo,
-			i,
 			pipelineInfo.outputTextures[i]->ellipsoidDepth,
 			pipelineInfo.internalTextures[i]->unfilteredNormals,
 			createInfo.scale
@@ -419,8 +406,9 @@ auto SplattingRenderer::RunSurfaceFilteringPipeline(
 	for (int i = 0; i < iterations; i++) {
 		bool oddIteration = i % 2 != 0;
 		frameParamCopy.g_SmoothingPassIndex = i;
-		pipelineInfo.internalBuffers->fluidRenderCBuffer[GetCurrentFrame()]
-			.UpdateBuffer(frameParamCopy);
+		pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
+			frameParamCopy
+		);
 
 		if (settings.enableSurfaceFiltering) {
 			// This helps control the propagation of the normals across the mip

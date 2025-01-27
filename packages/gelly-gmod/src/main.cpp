@@ -259,10 +259,8 @@ LUA_FUNCTION(gelly_Simulate) {
 	START_GELLY_EXCEPTIONS()
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Delta time
 	auto dt = static_cast<float>(LUA->GetNumber(1));
-	scene->Simulate(dt);
-	// ensure we signal the work
-	compositor->GetGellyResources().splattingRenderer->SignalSimResources();
 
+	scene->Simulate(dt);
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }

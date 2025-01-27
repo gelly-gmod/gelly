@@ -113,29 +113,6 @@ public:
 	auto GetOutputD3DBuffers() const -> simulation::OutputD3DBuffers;
 	auto GetCurrentFrame() const -> size_t { return currentFrame; }
 	auto GetNextFrame() -> size_t { return (currentFrame + 1) % MAX_FRAMES; }
-	auto ForceWaitForFrameRender(size_t frameIndex) -> void {
-		while (context4->GetData(
-				   frameQueries[frameIndex].Get(), nullptr, 0, 0
-			   ) != S_OK &&
-			   frameQueriesActive[frameIndex]) {
-			Sleep(0);
-		}
-
-		frameQueriesActive[frameIndex] = false;
-	}
-
-	auto WaitOnSimResources() -> void {
-		context4->Wait(
-			simulationResourceCopyFence.Get(), simulationResourceCopyFenceValue
-		);
-	}
-
-	auto SignalSimResources() -> void {
-		context4->Signal(
-			simulationResourceCopyFence.Get(),
-			simulationResourceCopyFenceValue++
-		);
-	}
 
 	[[nodiscard]] auto GetAbsorptionModifier() const
 		-> std::shared_ptr<AbsorptionModifier>;
@@ -158,7 +135,7 @@ private:
 	SplattingRendererCreateInfo createInfo;
 	std::shared_ptr<AbsorptionModifier> absorptionModifier;
 	Settings settings;
-	std::array<ComPtr<ID3D11Query>, MAX_FRAMES> frameQueries;
+	ComPtr<ID3D11Query> query;
 
 	PipelineInfo pipelineInfo;
 	ComputePipelinePtr computeAcceleration;
@@ -172,12 +149,9 @@ private:
 	std::array<PipelinePtr, MAX_FRAMES> rawNormalEstimation;
 
 	ComPtr<ID3D11Fence> frameFence[MAX_FRAMES] = {};
-	ComPtr<ID3D11Fence> simulationResourceCopyFence = {};
 	ComPtr<ID3D11DeviceContext4> context4;
 
 	size_t fenceValues[MAX_FRAMES] = {};
-	bool frameQueriesActive[MAX_FRAMES] = {};
-	size_t simulationResourceCopyFenceValue = 0;
 	size_t currentFrame = 0;
 
 	cbuffer::FluidRenderCBufferData frameParamCopy = {};
