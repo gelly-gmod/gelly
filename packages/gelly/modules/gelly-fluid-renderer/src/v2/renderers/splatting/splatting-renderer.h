@@ -100,7 +100,8 @@ public:
 	static auto Create(const SplattingRendererCreateInfo &&createInfo)
 		-> std::shared_ptr<SplattingRenderer>;
 
-	auto Render() -> void;
+	auto StartRendering() -> void;
+	auto EndRendering() -> void;
 	auto UpdateFrameParams(cbuffer::FluidRenderCBufferData &data) -> void;
 	auto SetFrameResolution(float width, float height) -> void;
 	auto GetSettings() const -> Settings;

@@ -151,7 +151,8 @@ public:
 	Solver(const CreateInfo &createInfo);
 	~Solver();
 
-	void Tick(float dt);
+	void BeginTick(float dt);
+	void EndTick();
 	void AddParticles(const ParticleBatch &particles);
 	void Update(const UpdateSolverInfo &info);
 	void Reset();

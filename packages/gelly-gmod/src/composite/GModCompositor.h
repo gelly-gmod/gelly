@@ -37,7 +37,8 @@ public:
 	void SetFluidMaterial(const PipelineFluidMaterial &material);
 
 	void Composite();
-	void Render();
+	void StartRendering();
+	void EndRendering();
 
 	void ChangeResolution(
 		unsigned int newWidth, unsigned int newHeight, float scale

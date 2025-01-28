@@ -242,12 +242,20 @@ void DumpLuaStack(const std::string &caption, GarrysMod::Lua::ILuaBase *LUA) {
 	}
 }
 
-LUA_FUNCTION(gelly_Render) {
+LUA_FUNCTION(gelly_StartRendering) {
 	START_GELLY_EXCEPTIONS();
-	compositor->Render();
+	compositor->StartRendering();
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
+
+LUA_FUNCTION(gelly_EndRendering) {
+	START_GELLY_EXCEPTIONS();
+	compositor->EndRendering();
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 LUA_FUNCTION(gelly_Composite) {
 	START_GELLY_EXCEPTIONS()
 	compositor->Composite();
@@ -255,12 +263,19 @@ LUA_FUNCTION(gelly_Composite) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_Simulate) {
+LUA_FUNCTION(gelly_BeginTick) {
 	START_GELLY_EXCEPTIONS()
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Delta time
 	auto dt = static_cast<float>(LUA->GetNumber(1));
 
-	scene->Simulate(dt);
+	scene->BeginTick(dt);
+	CATCH_GELLY_EXCEPTIONS()
+	return 0;
+}
+
+LUA_FUNCTION(gelly_EndTick) {
+	START_GELLY_EXCEPTIONS()
+	scene->EndTick();
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }
@@ -1047,9 +1062,11 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DumpLuaStack("Preparing gelly table", LUA);
 	LUA->CreateTable();
 	DumpLuaStack("Creating gelly table", LUA);
-	DEFINE_LUA_FUNC(gelly, Render);
+	DEFINE_LUA_FUNC(gelly, StartRendering);
+	DEFINE_LUA_FUNC(gelly, EndRendering);
 	DEFINE_LUA_FUNC(gelly, Composite);
-	DEFINE_LUA_FUNC(gelly, Simulate);
+	DEFINE_LUA_FUNC(gelly, BeginTick);
+	DEFINE_LUA_FUNC(gelly, EndTick);
 	DEFINE_LUA_FUNC(gelly, GetStatus);
 	DEFINE_LUA_FUNC(gelly, AddParticles);
 	DEFINE_LUA_FUNC(gelly, LoadMap);

@@ -7,6 +7,7 @@ SIMULATE_GELLY = true
 
 local lastTimescale = GELLY_SIM_TIMESCALE
 local lastRate = GELLY_SIM_RATE_HZ
+local lastSimTime = SysTime()
 
 local function isGellyActive()
 	return gelly.GetStatus().ActiveParticles > 0
@@ -23,19 +24,23 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 
 	GELLY_SIM_RATE_HZ = gellyx.settings.get("simulation_rate"):GetInt()
 
-	timer.Create("gelly.flex-update-timer", 1 / GELLY_SIM_RATE_HZ, 0, function()
+	hook.Add("PreRender", "gelly.simulate", function()
 		if lastRate ~= GELLY_SIM_RATE_HZ then
 			lastRate = GELLY_SIM_RATE_HZ
-			timer.Adjust("gelly.flex-update-timer", 1 / GELLY_SIM_RATE_HZ, 0)
 		end
 
-		if SIMULATE_GELLY then -- we don't check if gelly is active because we do need to update deferred particles (to prevent flicker)
+		if SIMULATE_GELLY then
 			if lastTimescale ~= GELLY_SIM_TIMESCALE then
 				lastTimescale = GELLY_SIM_TIMESCALE
 				gelly.SetTimeStepMultiplier(GELLY_SIM_TIMESCALE)
 			end
 
-			gelly.Simulate(1 / 60) -- flex is programmed to assume a fixed timestep, normally 60hz
+			local now = SysTime()
+			local dt = now - lastSimTime
+
+			if dt >= 1 / GELLY_SIM_RATE_HZ then
+				gelly.EndTick()
+			end
 		end
 	end)
 
@@ -52,8 +57,19 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 				gellyx.settings.get("resolution_scale"):GetFloat())
 		end
 
-		if not isGellyActive() then return end
-		gelly.Render()
+		if isGellyActive() then
+			gelly.StartRendering()
+		end
+
+		if SIMULATE_GELLY then
+			local now = SysTime()
+			local dt = now - lastSimTime
+
+			if dt >= 1 / GELLY_SIM_RATE_HZ then
+				lastSimTime = now
+				gelly.BeginTick(1 / 60)
+			end
+		end
 	end)
 
 	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function()
@@ -66,6 +82,7 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 		}, envballsModel)
 		envballsModel:SetNoDraw(true)
 
+		gelly.EndRendering()
 		gelly.Composite()
 	end)
 end)

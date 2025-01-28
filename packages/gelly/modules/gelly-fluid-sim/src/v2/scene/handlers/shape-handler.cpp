@@ -320,7 +320,6 @@ void ShapeHandler::RemoveShape(ObjectID id) {
 	}
 
 	if (it->second.type == ShapeType::TRIANGLE_MESH) {
-		NvFlexDestroyTriangleMesh(ctx.lib, it->second.triangleMesh.meshId);
 	}
 
 	objects.erase(it);

@@ -66,7 +66,7 @@ auto SplattingRenderer::Create(const SplattingRendererCreateInfo &&createInfo)
 	return std::make_shared<SplattingRenderer>(createInfo);
 }
 
-auto SplattingRenderer::Render() -> void {
+auto SplattingRenderer::StartRendering() -> void {
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 	if (renderDoc) {
 		renderDoc->StartFrameCapture(
@@ -136,13 +136,6 @@ auto SplattingRenderer::Render() -> void {
 
 	if (settings.enableGPUSynchronization) {
 		createInfo.device->GetRawDeviceContext()->End(query.Get());
-
-		// busy wait until the query is done
-		while (createInfo.device->GetRawDeviceContext()->GetData(
-				   query.Get(), nullptr, 0, 0
-			   ) == S_FALSE) {
-			Sleep(0);
-		}
 	}
 
 	if (settings.enableGPUTiming) {
@@ -169,6 +162,15 @@ auto SplattingRenderer::Render() -> void {
 								   durations.albedoDownsampling.IsDisjoint() ||
 								   durations.surfaceFiltering.IsDisjoint() ||
 								   durations.rawNormalEstimation.IsDisjoint();
+	}
+}
+
+auto SplattingRenderer::EndRendering() -> void {
+	if (settings.enableGPUSynchronization) {
+		while (createInfo.device->GetRawDeviceContext()->GetData(
+				   query.Get(), nullptr, 0, 0
+			   ) == S_FALSE) {
+		}
 	}
 }
 

@@ -91,7 +91,8 @@ public:
 		return sim->GetComputeDeviceName();
 	}
 
-	void Simulate(float dt) { sim->GetSolver().Tick(dt); }
+	void BeginTick(float dt) { sim->GetSolver().BeginTick(dt); }
+	void EndTick() { sim->GetSolver().EndTick(); }
 
 	void SetTimeStepMultiplier(float timeStepMultiplier) {
 		sim->GetSolver().SetTimeStepMultiplier(

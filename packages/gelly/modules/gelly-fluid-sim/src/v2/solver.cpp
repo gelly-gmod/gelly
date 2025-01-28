@@ -16,22 +16,26 @@ Solver::~Solver() {
 	}
 }
 
-void Solver::Tick(float dt) {
+void Solver::BeginTick(float dt) {
+	NvFlexComputeWaitForGraphics(info.library);
 	if (newActiveParticleCount != activeParticleCount) {
 		activeParticleCount = newActiveParticleCount;
 	}
 
 	dt *= timeStepMultiplier;
 
-	NvFlexCopyDesc copyDesc = {};
-	copyDesc.srcOffset = 0;
-	copyDesc.dstOffset = 0;
-	copyDesc.elementCount = activeParticleCount;
-
 	NvFlexSetParams(solver, &params);
 	NvFlexSetActiveCount(solver, activeParticleCount);
 	scene.Update();
 	NvFlexUpdateSolver(solver, dt, substeps, false);
+}
+
+void Solver::EndTick() {
+	NvFlexComputeWaitForGraphics(info.library);
+	NvFlexCopyDesc copyDesc = {};
+	copyDesc.srcOffset = 0;
+	copyDesc.dstOffset = 0;
+	copyDesc.elementCount = activeParticleCount;
 
 	NvFlexGetSmoothParticles(
 		solver, *outputBuffers.smoothedPositions, &copyDesc
@@ -44,6 +48,8 @@ void Solver::Tick(float dt) {
 		*outputBuffers.anisotropyQ3,
 		&copyDesc
 	);
+
+	NvFlexFlush(info.library);
 }
 
 void Solver::AddParticles(const ParticleBatch &particles) {

@@ -59,7 +59,10 @@ void GModCompositor::SetFluidMaterial(const PipelineFluidMaterial &material) {
 
 void GModCompositor::Composite() { pipeline->Composite(); }
 
-void GModCompositor::Render() { pipeline->Render(); }
+void GModCompositor::StartRendering() { pipeline->Render(); }
+void GModCompositor::EndRendering() {
+	gellyResources.splattingRenderer->EndRendering();
+}
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 void GModCompositor::ReloadAllShaders() {
