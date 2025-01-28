@@ -179,6 +179,7 @@ private:
 	float timeStepMultiplier = 1.f;
 	int activeParticleCount = 0;
 	int newActiveParticleCount = 0;
+	int particleCountAtBeginTick = 0;
 
 	int substeps = 3;
 	// Tracked because it must scale with the time step multiplier

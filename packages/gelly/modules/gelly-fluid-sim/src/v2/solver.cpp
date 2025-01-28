@@ -17,25 +17,20 @@ Solver::~Solver() {
 }
 
 void Solver::BeginTick(float dt) {
-	NvFlexComputeWaitForGraphics(info.library);
-	if (newActiveParticleCount != activeParticleCount) {
-		activeParticleCount = newActiveParticleCount;
-	}
-
+	particleCountAtBeginTick = newActiveParticleCount;
 	dt *= timeStepMultiplier;
 
 	NvFlexSetParams(solver, &params);
-	NvFlexSetActiveCount(solver, activeParticleCount);
+	NvFlexSetActiveCount(solver, newActiveParticleCount);
 	scene.Update();
 	NvFlexUpdateSolver(solver, dt, substeps, false);
 }
 
 void Solver::EndTick() {
-	NvFlexComputeWaitForGraphics(info.library);
 	NvFlexCopyDesc copyDesc = {};
 	copyDesc.srcOffset = 0;
 	copyDesc.dstOffset = 0;
-	copyDesc.elementCount = activeParticleCount;
+	copyDesc.elementCount = newActiveParticleCount;
 
 	NvFlexGetSmoothParticles(
 		solver, *outputBuffers.smoothedPositions, &copyDesc
@@ -49,7 +44,7 @@ void Solver::EndTick() {
 		&copyDesc
 	);
 
-	NvFlexFlush(info.library);
+	activeParticleCount = particleCountAtBeginTick;
 }
 
 void Solver::AddParticles(const ParticleBatch &particles) {
