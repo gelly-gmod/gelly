@@ -18,6 +18,8 @@ struct PipelineConfig {
 	float diffuseColor[3] = {0.8f, 0.8f, 0.8f};
 	float sunDirection[3] = {0.5f, 0.5f, 0.5f};
 	float sunEnabled = 0.f;
+
+	bool isMetal = false;
 };
 
 #endif	// PIPELINECONFIG_H
