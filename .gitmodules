@@ -99,7 +99,8 @@
 	url = https://github.com/microsoft/DirectXMath.git
 [submodule "packages/gelly-gmod/vendor/PHYParser"]
 	path = packages/gelly-gmod/vendor/PHYParser
-	url = https://github.com/TAServers/PHYParser.git
+	url = https://github.com/gelly-gmod/TAS-PHYParser.git
+	branch = NONE-allow-solid-parsing
 [submodule "packages/gelly-gmod/vendor/VDFParser"]
 	path = packages/gelly-gmod/vendor/VDFParser
 	url = https://github.com/TAServers/VDFParser.git
