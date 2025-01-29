@@ -556,7 +556,8 @@ LUA_FUNCTION(gelly_SetFluidMaterial) {
 	GET_LUA_TABLE_MEMBER(bool, IsSpecularTransmission);
 	GET_LUA_TABLE_MEMBER(float, RefractiveIndex);
 	GET_LUA_TABLE_MEMBER(Vector, DiffuseColor);
-
+	GET_LUA_TABLE_MEMBER(bool, IsMetal);
+	GET_LUA_TABLE_MEMBER(bool, IsScatter);
 	PipelineFluidMaterial material = {};
 	material.roughness = Roughness;
 	material.specularTransmission =
@@ -569,6 +570,9 @@ LUA_FUNCTION(gelly_SetFluidMaterial) {
 	material.diffuseColor[0] = DiffuseColor_v.x;
 	material.diffuseColor[1] = DiffuseColor_v.y;
 	material.diffuseColor[2] = DiffuseColor_v.z;
+
+	material.isMetal = IsMetal_b ? 1.f : 0.f;
+	material.isScatter = IsScatter_b ? 1.f : 0.f;
 
 	compositor->SetFluidMaterial(material);
 	CATCH_GELLY_EXCEPTIONS();
