@@ -1,7 +1,7 @@
-const float DISTORTION = 0.2f;
-const float SCALE = 5.f;
-const float POWER = 17.f;
-const float AMBIENT = 0.0f;
+static const float DISTORTION = 0.f;
+static const float SCALE = 0.3f;
+static const float POWER = 0.2f;
+static const float AMBIENT = 0.0f;
 
 float3 ComputeScatteringRadiance(
 	float3 light,

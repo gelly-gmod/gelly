@@ -153,9 +153,9 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
 		material.diffuseAlbedo.rgb,
 		diffuseIrradiance
 	) + SampleTransmissionNoAbsorption(input.Tex, thickness, position, eyeDir, normal);
+	
 	scatteringLobe = (1.f - fresnel) * scatteringLobe + fresnel * specular;
 	scatteringLobe *= material.r_st_ior.a;
-
     float3 specularTransmissionLobe = (1.f - fresnel) * transmission + fresnel * specular;
 
     // inverse fresnel is already applied to the diffuse lobe
