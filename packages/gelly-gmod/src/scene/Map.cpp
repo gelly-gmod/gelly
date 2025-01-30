@@ -56,9 +56,10 @@ PHYMap::PHYMap(std::unique_ptr<std::byte[]> mapData, size_t length) :
 		}
 
 		if (header->lumps[LUMP_2009_PHYSDISP].filelen > 0) {
-			throw std::runtime_error(
-				"Map uses PhysDisp data, which is unsupported."
-			);
+			LOG_WARNING(
+				"Map is using PhysDisp encoding. It is not supported and the "
+				"map may have holes or missing collision."
+			)
 		}
 
 		if (header->lumps[LUMP_PHYSCOLLIDE].filelen <= 0) {
