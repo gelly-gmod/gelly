@@ -5,7 +5,9 @@ EntityManager::EntityManager(gelly::simulation::Scene *scene) :
 
 EntityManager::~EntityManager() {
 	for (auto &ent : entities) {
-		simScene->GetShapeHandler()->RemoveShape(ent.second);
+		for (const auto &id : ent.second) {
+			simScene->GetShapeHandler()->RemoveShape(id);
+		}
 	}
 }
 
@@ -35,23 +37,38 @@ void EntityManager::AddEntity(
 	params.triMesh.indexType = IndexType::UINT32;
 
 	const auto asset = cache->FetchAsset(assetName);
-	std::vector<uint32_t> indices;
-	indices.reserve(asset->rawVertices.size() / 3);
-	for (size_t i = 0; i < asset->rawVertices.size() / 3; i += 3) {
-		indices.push_back(i);
-		indices.push_back(i + 1);
-		indices.push_back(i + 2);
+
+	std::vector<ObjectID> boneIds;
+	boneIds.reserve(asset->bones.size());
+
+	for (const auto &bone : asset->bones) {
+		if (bone.vertices.empty()) {
+			boneIds.push_back(INVALID_ID);
+			continue;
+		}
+
+		const auto vertices = bone.vertices;
+
+		std::vector<uint32_t> indices;
+		indices.reserve(vertices.size() / 3);
+		for (size_t i = 0; i < vertices.size() / 3; i += 3) {
+			indices.push_back(i);
+			indices.push_back(i + 1);
+			indices.push_back(i + 2);
+		}
+
+		params.triMesh.vertices = vertices.data();
+		params.triMesh.vertexCount = vertices.size() / 3;
+		params.triMesh.indices32 = indices.data();
+		params.triMesh.indexCount = indices.size();
+		params.triMesh.scale[0] = 1.f;
+		params.triMesh.scale[1] = 1.f;
+		params.triMesh.scale[2] = 1.f;
+
+		boneIds.push_back(simScene->GetShapeHandler()->MakeShape(params));
 	}
 
-	params.triMesh.vertices = asset->rawVertices.data();
-	params.triMesh.vertexCount = asset->rawVertices.size() / 3;
-	params.triMesh.indices32 = indices.data();
-	params.triMesh.indexCount = indices.size();
-	params.triMesh.scale[0] = 1.f;
-	params.triMesh.scale[1] = 1.f;
-	params.triMesh.scale[2] = 1.f;
-
-	entities[entIndex] = simScene->GetShapeHandler()->MakeShape(params);
+	entities[entIndex] = std::move(boneIds);
 }
 
 void EntityManager::AddPlayerObject(
@@ -62,33 +79,40 @@ void EntityManager::AddPlayerObject(
 	params.capsule.radius = radius;
 	params.capsule.halfHeight = halfHeight;
 
-	entities[entIndex] = simScene->GetShapeHandler()->MakeShape(params);
+	entities[entIndex] = {simScene->GetShapeHandler()->MakeShape(params)};
 }
 
 void EntityManager::RemoveEntity(EntIndex entIndex) {
 	if (auto it = entities.find(entIndex); it != entities.end()) {
-		simScene->GetShapeHandler()->RemoveShape(it->second);
+		for (const auto &id : it->second) {
+			simScene->GetShapeHandler()->RemoveShape(id);
+		}
+
 		entities.erase(it);
 	}
 }
 
-void EntityManager::UpdateEntityPosition(EntIndex entIndex, Vector position) {
+void EntityManager::UpdateEntityPosition(
+	EntIndex entIndex, Vector position, size_t boneIndex
+) {
 	// Filter out some known-bad data
 	if (position.x == 0.f && position.y == 0.f && position.z == 0.f) {
 		return;
 	}
 
 	simScene->GetShapeHandler()->UpdateShape(
-		entities[entIndex],
+		entities[entIndex][boneIndex],
 		[&](ShapeObject &object) {
 			object.SetTransformPosition(position.x, position.y, position.z);
 		}
 	);
 }
 
-void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
+void EntityManager::UpdateEntityRotation(
+	EntIndex entIndex, XMFLOAT4 rotation, size_t boneIndex
+) {
 	simScene->GetShapeHandler()->UpdateShape(
-		entities[entIndex],
+		entities[entIndex][boneIndex],
 		[&](ShapeObject &object) {
 			object.SetTransformRotation(
 				rotation.y, rotation.z, rotation.w, rotation.x
@@ -97,9 +121,11 @@ void EntityManager::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
 	);
 }
 
-void EntityManager::UpdateEntityScale(EntIndex entIndex, Vector scale) {
+void EntityManager::UpdateEntityScale(
+	EntIndex entIndex, Vector scale, size_t boneIndex
+) {
 	simScene->GetShapeHandler()->UpdateShape(
-		entities[entIndex],
+		entities[entIndex][boneIndex],
 		[&](ShapeObject &object) {
 			if (object.type != ShapeType::TRIANGLE_MESH) {
 				return;

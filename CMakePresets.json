@@ -1,218 +1,218 @@
 {
-  "version": 6,
-  "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 23,
-    "patch": 0
-  },
-  "configurePresets": [
-    {
-      "name": "base",
-      "displayName": "Base",
-      "description": "Base configuration, should not be used directly",
-      "hidden": true,
-      "generator": "Ninja"
-    },
-    {
-      "name": "testbed-debug",
-      "displayName": "Testbed",
-      "description": "Debug Testbed configuration, also should not be used directly",
-      "environment": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      },
-      "binaryDir": "${sourceDir}/bin/testbed-debug",
-      "inherits": [
-        "base"
-      ],
-      "hidden": false,
-      "cacheVariables": {
-        "GELLY_BUILD_TESTBED": "ON"
-      }
-    },
-    {
-      "name": "testbed-relwithdebinfo",
-      "displayName": "Testbed",
-      "description": "RelWithDebInfo Testbed configuration, also should not be used directly",
-      "environment": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      },
-      "binaryDir": "${sourceDir}/bin/testbed-relwithdebinfo",
-      "inherits": [
-        "base"
-      ],
-      "hidden": false,
-      "cacheVariables": {
-        "GELLY_BUILD_TESTBED": "ON"
-      }
-    },
-    {
-      "name": "gelly-gmod-debug",
-      "displayName": "Gelly GMod",
-      "description": "Debug Gelly GMod configuration, also should not be used directly",
-      "environment": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      },
-      "cacheVariables": {
-        "GELLY_BUILD_GMOD": "ON",
-        "GELLY_BUILD_TESTBED": "OFF"
-      },
-      "binaryDir": "${sourceDir}/bin/gelly-gmod-debug",
-      "inherits": [
-        "base"
-      ],
-      "hidden": false
-    },
-    {
-      "name": "gelly-gmod-relwithdebinfo",
-      "displayName": "Gelly GMod",
-      "description": "RelWithDebInfo Gelly GMod configuration, also should not be used directly",
-      "environment": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      },
-      "cacheVariables": {
-        "GELLY_BUILD_GMOD": "ON",
-        "GELLY_BUILD_TESTBED": "OFF",
-        "GELLY_PRODUCTION_BUILD": "ON"
-      },
-      "binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo",
-      "inherits": [
-        "base"
-      ],
-      "hidden": false
-    },
-    {
-      "name": "gelly-gmod-relwithdebinfo+renderdoc",
-      "displayName": "Gelly GMod + RenderDoc",
-      "description": "Same as the other Gelly GMod config except with RenderDoc enabled",
-      "cacheVariables": {
-        "GELLY_ENABLE_RENDERDOC_CAPTURES": "ON",
-        "GELLY_PRODUCTION_BUILD": "OFF",
-        "GELLY_USE_DEBUG_LAYER": "ON"
-      },
-      "binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo-renderdoc",
-      "inherits": [
-        "gelly-gmod-relwithdebinfo"
-      ]
-    },
-    {
-      "name": "gelly-gmod-release",
-      "displayName": "Gelly GMod",
-      "description": "Release Gelly GMod configuration, also should not be used directly",
-      "environment": {
-        "CMAKE_BUILD_TYPE": "Release"
-      },
-      "cacheVariables": {
-        "GELLY_BUILD_GMOD": "ON",
-        "GELLY_BUILD_TESTBED": "OFF",
-        "GELLY_PRODUCTION_BUILD": "ON",
-        "GELLY_ENABLE_RENDERDOC_CAPTURES": "OFF",
-        "GELLY_USE_DEBUG_LAYER": "OFF"
-      },
-      "binaryDir": "${sourceDir}/bin/gelly-gmod-release",
-      "inherits": [
-        "base"
-      ],
-      "hidden": false
-    },
-    {
-      "name": "gelly-cpu-ref-debug",
-      "displayName": "Gelly CPU Ref",
-      "description": "Debug Gelly CPU Ref configuration, also should not be used directly",
-      "environment": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      },
-      "cacheVariables": {
-        "GELLY_BUILD_CPUVISUALIZER": "ON",
-        "GELLY_BUILD_TESTBED": "OFF"
-      },
-      "binaryDir": "${sourceDir}/bin/gelly-cpu-ref-debug",
-      "inherits": [
-        "base"
-      ],
-      "hidden": false
-    },
-    {
-      "name": "gelly-cpu-ref-relwithdebinfo",
-      "displayName": "Gelly CPU Ref",
-      "description": "RelWithDebInfo Gelly CPU Ref configuration, also should not be used directly",
-      "environment": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
-      },
-      "cacheVariables": {
-        "GELLY_BUILD_CPUVISUALIZER": "ON",
-        "GELLY_BUILD_TESTBED": "OFF"
-      },
-      "binaryDir": "${sourceDir}/bin/gelly-cpu-ref-relwithdebinfo",
-      "inherits": [
-        "base"
-      ],
-      "hidden": false
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "Testbed-Debug",
-      "jobs": 8,
-      "configurePreset": "testbed-debug",
-      "targets": [
-        "testbed"
-      ]
-    },
-    {
-      "name": "Testbed-RelWithDebInfo",
-      "jobs": 8,
-      "configurePreset": "testbed-relwithdebinfo",
-      "targets": [
-        "testbed"
-      ]
-    },
-    {
-      "name": "Gelly-GMod-Debug",
-      "jobs": 8,
-      "configurePreset": "gelly-gmod-debug",
-      "targets": [
-        "gelly-gmod"
-      ]
-    },
-    {
-      "name": "Gelly-GMod-RelWithDebInfo",
-      "jobs": 8,
-      "configurePreset": "gelly-gmod-relwithdebinfo",
-      "targets": [
-        "gelly-gmod"
-      ]
-    },
-    {
-      "name": "Gelly-GMod-RWDI+RenderDoc",
-      "jobs": 8,
-      "configurePreset": "gelly-gmod-relwithdebinfo+renderdoc",
-      "targets": [
-        "gelly-gmod"
-      ]
-    },
-    {
-      "name": "Gelly-GMod-Release",
-      "jobs": 8,
-      "configurePreset": "gelly-gmod-release",
-      "targets": [
-        "gelly-gmod"
-      ]
-    },
-    {
-      "name": "Gelly-CPU-Ref-Debug",
-      "jobs": 8,
-      "configurePreset": "gelly-cpu-ref-debug",
-      "targets": [
-        "gelly_cpu_visualizer"
-      ]
-    },
-    {
-      "name": "Gelly-CPU-Ref-RelWithDebInfo",
-      "jobs": 8,
-      "configurePreset": "gelly-cpu-ref-relwithdebinfo",
-      "targets": [
-        "gelly_cpu_visualizer"
-      ]
-    }
-  ]
+	"version": 6,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 23,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "base",
+			"displayName": "Base",
+			"description": "Base configuration, should not be used directly",
+			"hidden": true,
+			"generator": "Ninja"
+		},
+		{
+			"name": "testbed-debug",
+			"displayName": "Testbed",
+			"description": "Debug Testbed configuration, also should not be used directly",
+			"environment": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			},
+			"binaryDir": "${sourceDir}/bin/testbed-debug",
+			"inherits": [
+				"base"
+			],
+			"hidden": false,
+			"cacheVariables": {
+				"GELLY_BUILD_TESTBED": "ON"
+			}
+		},
+		{
+			"name": "testbed-relwithdebinfo",
+			"displayName": "Testbed",
+			"description": "RelWithDebInfo Testbed configuration, also should not be used directly",
+			"environment": {
+				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
+			},
+			"binaryDir": "${sourceDir}/bin/testbed-relwithdebinfo",
+			"inherits": [
+				"base"
+			],
+			"hidden": false,
+			"cacheVariables": {
+				"GELLY_BUILD_TESTBED": "ON"
+			}
+		},
+		{
+			"name": "gelly-gmod-debug",
+			"displayName": "Gelly GMod",
+			"description": "Debug Gelly GMod configuration, also should not be used directly",
+			"environment": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			},
+			"cacheVariables": {
+				"GELLY_BUILD_GMOD": "ON",
+				"GELLY_BUILD_TESTBED": "OFF"
+			},
+			"binaryDir": "${sourceDir}/bin/gelly-gmod-debug",
+			"inherits": [
+				"base"
+			],
+			"hidden": false
+		},
+		{
+			"name": "gelly-gmod-relwithdebinfo",
+			"displayName": "Gelly GMod",
+			"description": "RelWithDebInfo Gelly GMod configuration, also should not be used directly",
+			"environment": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			},
+			"cacheVariables": {
+				"GELLY_BUILD_GMOD": "ON",
+				"GELLY_BUILD_TESTBED": "OFF",
+				"GELLY_PRODUCTION_BUILD": "ON"
+			},
+			"binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo",
+			"inherits": [
+				"base"
+			],
+			"hidden": false
+		},
+		{
+			"name": "gelly-gmod-relwithdebinfo+renderdoc",
+			"displayName": "Gelly GMod + RenderDoc",
+			"description": "Same as the other Gelly GMod config except with RenderDoc enabled",
+			"cacheVariables": {
+				"GELLY_ENABLE_RENDERDOC_CAPTURES": "ON",
+				"GELLY_PRODUCTION_BUILD": "OFF",
+				"GELLY_USE_DEBUG_LAYER": "ON"
+			},
+			"binaryDir": "${sourceDir}/bin/gelly-gmod-relwithdebinfo-renderdoc",
+			"inherits": [
+				"gelly-gmod-relwithdebinfo"
+			]
+		},
+		{
+			"name": "gelly-gmod-release",
+			"displayName": "Gelly GMod",
+			"description": "Release Gelly GMod configuration, also should not be used directly",
+			"environment": {
+				"CMAKE_BUILD_TYPE": "Release"
+			},
+			"cacheVariables": {
+				"GELLY_BUILD_GMOD": "ON",
+				"GELLY_BUILD_TESTBED": "OFF",
+				"GELLY_PRODUCTION_BUILD": "ON",
+				"GELLY_ENABLE_RENDERDOC_CAPTURES": "OFF",
+				"GELLY_USE_DEBUG_LAYER": "OFF"
+			},
+			"binaryDir": "${sourceDir}/bin/gelly-gmod-release",
+			"inherits": [
+				"base"
+			],
+			"hidden": false
+		},
+		{
+			"name": "gelly-cpu-ref-debug",
+			"displayName": "Gelly CPU Ref",
+			"description": "Debug Gelly CPU Ref configuration, also should not be used directly",
+			"environment": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			},
+			"cacheVariables": {
+				"GELLY_BUILD_CPUVISUALIZER": "ON",
+				"GELLY_BUILD_TESTBED": "OFF"
+			},
+			"binaryDir": "${sourceDir}/bin/gelly-cpu-ref-debug",
+			"inherits": [
+				"base"
+			],
+			"hidden": false
+		},
+		{
+			"name": "gelly-cpu-ref-relwithdebinfo",
+			"displayName": "Gelly CPU Ref",
+			"description": "RelWithDebInfo Gelly CPU Ref configuration, also should not be used directly",
+			"environment": {
+				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
+			},
+			"cacheVariables": {
+				"GELLY_BUILD_CPUVISUALIZER": "ON",
+				"GELLY_BUILD_TESTBED": "OFF"
+			},
+			"binaryDir": "${sourceDir}/bin/gelly-cpu-ref-relwithdebinfo",
+			"inherits": [
+				"base"
+			],
+			"hidden": false
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "Testbed-Debug",
+			"jobs": 8,
+			"configurePreset": "testbed-debug",
+			"targets": [
+				"testbed"
+			]
+		},
+		{
+			"name": "Testbed-RelWithDebInfo",
+			"jobs": 8,
+			"configurePreset": "testbed-relwithdebinfo",
+			"targets": [
+				"testbed"
+			]
+		},
+		{
+			"name": "Gelly-GMod-Debug",
+			"jobs": 8,
+			"configurePreset": "gelly-gmod-debug",
+			"targets": [
+				"gelly-gmod"
+			]
+		},
+		{
+			"name": "Gelly-GMod-RelWithDebInfo",
+			"jobs": 8,
+			"configurePreset": "gelly-gmod-relwithdebinfo",
+			"targets": [
+				"gelly-gmod"
+			]
+		},
+		{
+			"name": "Gelly-GMod-RWDI+RenderDoc",
+			"jobs": 8,
+			"configurePreset": "gelly-gmod-relwithdebinfo+renderdoc",
+			"targets": [
+				"gelly-gmod"
+			]
+		},
+		{
+			"name": "Gelly-GMod-Release",
+			"jobs": 8,
+			"configurePreset": "gelly-gmod-release",
+			"targets": [
+				"gelly-gmod"
+			]
+		},
+		{
+			"name": "Gelly-CPU-Ref-Debug",
+			"jobs": 8,
+			"configurePreset": "gelly-cpu-ref-debug",
+			"targets": [
+				"gelly_cpu_visualizer"
+			]
+		},
+		{
+			"name": "Gelly-CPU-Ref-RelWithDebInfo",
+			"jobs": 8,
+			"configurePreset": "gelly-cpu-ref-relwithdebinfo",
+			"targets": [
+				"gelly_cpu_visualizer"
+			]
+		}
+	]
 }

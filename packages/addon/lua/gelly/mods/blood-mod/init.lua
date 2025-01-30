@@ -131,7 +131,18 @@ local function sprayBlood(damageType, victim, attacker, position, force, damage,
 			position,
 		velocity = velocity,
 		radius = config.CubeSize,
-		density = density,
+		density = density / 2,
+		randomness = config.Randomness,
+		material = material,
+	})
+
+	gellyx.emitters.Sphere({
+		center = config.FromEntity and
+			entPos or
+			position,
+		velocity = -velocity,
+		radius = config.CubeSize,
+		density = density / 2,
 		randomness = config.Randomness,
 		material = material,
 	})

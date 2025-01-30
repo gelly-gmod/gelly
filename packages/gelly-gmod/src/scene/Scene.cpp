@@ -23,16 +23,22 @@ void Scene::AddPlayerObject(EntIndex entIndex, float radius, float halfHeight) {
 
 void Scene::RemoveEntity(EntIndex entIndex) { ents->RemoveEntity(entIndex); }
 
-void Scene::UpdateEntityPosition(EntIndex entIndex, Vector position) {
-	ents->UpdateEntityPosition(entIndex, position);
+void Scene::UpdateEntityPosition(
+	EntIndex entIndex, Vector position, size_t boneIndex
+) {
+	ents->UpdateEntityPosition(entIndex, position, boneIndex);
 }
 
-void Scene::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
-	ents->UpdateEntityRotation(entIndex, rotation);
+void Scene::UpdateEntityRotation(
+	EntIndex entIndex, XMFLOAT4 rotation, size_t boneIndex
+) {
+	ents->UpdateEntityRotation(entIndex, rotation, boneIndex);
 }
 
-void Scene::UpdateEntityScale(EntIndex entIndex, Vector scale) {
-	ents->UpdateEntityScale(entIndex, scale);
+void Scene::UpdateEntityScale(
+	EntIndex entIndex, Vector scale, size_t boneIndex
+) {
+	ents->UpdateEntityScale(entIndex, scale, boneIndex);
 }
 
 void Scene::LoadMap(
