@@ -87,7 +87,12 @@ local function updateObjectBones(entity)
 		local position
 		local angles
 		local testPosition = entity:GetBonePosition(gmodBone)
-		if testPosition == entity:GetPos() then
+		if isSingleCollider then
+			-- We need to apply the bind pose since ragdolls and the like already have their bones transformed
+			local worldTransform = entity:GetWorldTransformMatrix()
+			position = worldTransform:GetTranslation()
+			angles = worldTransform:GetAngles()
+		elseif testPosition == entity:GetPos() then
 			-- Try matrix
 			local matrix = entity:GetBoneMatrix(gmodBone)
 
@@ -112,13 +117,6 @@ local function updateObjectBones(entity)
 		-- Usually happens once it goes out of view, so it's not an error
 		if not position then
 			return
-		end
-
-		if isSingleCollider then
-			-- We need to apply the bind pose since ragdolls and the like already have their bones transformed
-			local worldTransform = entity:GetWorldTransformMatrix()
-			position = worldTransform:GetTranslation()
-			angles = worldTransform:GetAngles()
 		end
 
 		gelly.SetObjectPosition(entity:EntIndex(), position, boneId)

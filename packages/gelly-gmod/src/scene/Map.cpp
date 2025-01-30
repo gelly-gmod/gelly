@@ -65,15 +65,11 @@ PHYMap::PHYMap(std::unique_ptr<std::byte[]> mapData, size_t length) :
 			throw std::runtime_error("Map has no physics data.");
 		}
 
-		if (true) {
-			valid = false;
-			errorReason = "Unimplemented";
-			return;
-		}
-
-		auto physModelsOffset = header->lumps[LUMP_PHYSCOLLIDE].fileofs;
+		auto physModelsOffset =
+			static_cast<size_t>(header->lumps[LUMP_PHYSCOLLIDE].fileofs);
 		const auto *physModel = View<dphysmodel_t>(physModelsOffset);
-		const auto mapDataSpan = std::span<std::byte>(mapData.get(), length);
+		const auto mapDataSpan =
+			std::span<std::byte>(this->mapData.get(), length);
 		const PhyParser::OffsetDataView dataView(mapDataSpan);
 
 		while (physModel->modelIndex != -1) {
@@ -81,21 +77,38 @@ PHYMap::PHYMap(std::unique_ptr<std::byte[]> mapData, size_t length) :
 			model.index = physModel->modelIndex;
 			model.solids.reserve(physModel->solidCount);
 
-			auto solidOffset = reinterpret_cast<size_t>(physModel + 1);
-			solidOffset -= reinterpret_cast<size_t>(mapData.get());
+			auto solidOffset =
+				physModelsOffset +
+				sizeof(dphysmodel_t
+				);	// solid data is laid out contigously after the model header
 
 			for (int i = 0; i < physModel->solidCount; i++) {
-				auto parsedSolids = PhyParser::Phy::parseCompactSurface(
-					dataView.withOffset(solidOffset)
-				);
+				const auto surfaceHeader =
+					View<PhyParser::Structs::SurfaceHeader>(solidOffset);
+
+				auto parsedSolids =
+					PhyParser::Phy::parseCompactSurface(dataView.withOffset(
+						solidOffset + sizeof(PhyParser::Structs::SurfaceHeader)
+					));
 
 				model.solids.insert(
 					model.solids.end(),
 					std::make_move_iterator(parsedSolids.begin()),
 					std::make_move_iterator(parsedSolids.end())
 				);
+
+				solidOffset += surfaceHeader->size + sizeof(int);
 			}
+
+			models.push_back(model);
+			const auto nextModelOffset = physModel->dataSize +
+										 physModel->keyDataSize +
+										 sizeof(dphysmodel_t);
+			physModelsOffset += nextModelOffset;
+
+			physModel = View<dphysmodel_t>(physModelsOffset);
 		}
+
 		return;
 	} catch (std::runtime_error &e) {
 		errorReason = e.what();
@@ -255,6 +268,11 @@ Map::Map(
 		mapObject = CreateMapObject(params);
 
 		for (const auto &model : phyMap.GetModels()) {
+			if (model.index == 0) {
+				// no other entity uses the worldspawn model
+				continue;
+			}
+
 			auto vertices = ConvertBrushModelToVertices(model);
 			AssetCache::Bone rootBone = {
 				.name = "root",
@@ -267,9 +285,10 @@ Map::Map(
 
 			LOG_INFO(
 				"Map is contributing brush model, '*%d', to the asset cache! "
-				"(%d vertices)",
+				"(%d vertices, %d triangles)",
 				model.index,
-				vertices.size() / 3
+				vertices.size() / 3,
+				vertices.size() / 3 / 3
 			);
 		}
 	} catch (const std::exception &e) {
