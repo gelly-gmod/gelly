@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   better compatibility with other models beyond the basic GMod props.
 - Tuned blood preset to be more globby, but not that globby.
 - Blood now squirts from both sides of a gunshot wound in the blood mod.
+- Optimized map loading, so phys-heavy maps such as gm_gwater_remastered should load faster.
 
 ## [1.30.0] - 2025-01-29
 
