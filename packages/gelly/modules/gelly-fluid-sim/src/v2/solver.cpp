@@ -44,6 +44,28 @@ void Solver::EndTick() {
 		&copyDesc
 	);
 
+	if (IsWhitewaterEnabled()) {
+		NvFlexGetDiffuseParticles(
+			solver,
+			*outputBuffers.foamPositions,
+			*outputBuffers.foamVelocities,
+			*buffers.diffuseParticleCount
+		);
+
+		NvFlexGetVelocities(
+			solver,
+			swapVelocities ? *outputBuffers.velocitiesPrevFrame
+						   : *outputBuffers.velocities,
+			&copyDesc
+		);
+
+		swapVelocities = !swapVelocities;
+
+		const auto *count = buffers.diffuseParticleCount.Map();
+		activeDiffuseParticleCount = *count;
+		buffers.diffuseParticleCount.Unmap();
+	}
+
 	activeParticleCount = particleCountAtBeginTick;
 }
 
@@ -132,6 +154,9 @@ void Solver::Update(const UpdateSolverInfo &info) {
 }
 
 int Solver::GetActiveParticleCount() const { return activeParticleCount; }
+int Solver::GetActiveDiffuseParticleCount() const {
+	return activeDiffuseParticleCount;
+}
 int Solver::GetCurrentActiveParticleCount() const {
 	return newActiveParticleCount;
 }

@@ -19,12 +19,14 @@ struct SolverBufferSet {
 	FlexBuffer<DirectX::XMFLOAT3> velocities;
 	FlexBuffer<int> phases;
 	FlexBuffer<int> actives;
+	FlexBuffer<int> diffuseParticleCount;
 
 	SolverBufferSet(NvFlexLibrary *library, int maxParticles) :
 		positions({.library = library, .maxElements = maxParticles}),
 		velocities({.library = library, .maxElements = maxParticles}),
 		phases({.library = library, .maxElements = maxParticles}),
-		actives({.library = library, .maxElements = maxParticles}) {}
+		actives({.library = library, .maxElements = maxParticles}),
+		diffuseParticleCount({.library = library, .maxElements = 1}) {}
 
 	SolverBufferSet() = default;
 };
@@ -159,8 +161,12 @@ public:
 
 	int GetActiveParticleCount() const;
 	int GetCurrentActiveParticleCount() const;
+	int GetActiveDiffuseParticleCount() const;
 	int GetMaxParticles() const;
 	int GetMaxDiffuseParticles() const;
+
+	bool IsWhitewaterEnabled() const { return info.maxDiffuseParticles > 0; }
+
 	Scene &GetScene() { return scene; }
 	Scene *GetUnownedScene() { return &scene; }
 
@@ -178,8 +184,10 @@ private:
 
 	float timeStepMultiplier = 1.f;
 	int activeParticleCount = 0;
+	int activeDiffuseParticleCount = 0;
 	int newActiveParticleCount = 0;
 	int particleCountAtBeginTick = 0;
+	bool swapVelocities = false;
 
 	int substeps = 3;
 	// Tracked because it must scale with the time step multiplier
