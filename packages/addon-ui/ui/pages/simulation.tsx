@@ -60,7 +60,7 @@ export default function Simulation() {
 			<Sliders>
 				<Slider
 					min={20}
-					max={60}
+					max={144}
 					step={1}
 					unit="Hz"
 					value={simRate}
@@ -268,8 +268,10 @@ export default function Simulation() {
 						the cost of reduced simulation quality.
 					</ExplanationText>
 					<ExplanationText>
-						Simulation rate, in particular, may cause visual lag, so
-						it is not recommended to lower it below 60Hz.
+						Simulation rate should be set to your average frame
+						rate, which for most people is 60Hz. But, if you want
+						smoother simulation, you can set it to 144Hz albeit
+						incurring a performance cost.
 					</ExplanationText>
 					<ExplanationText warning>
 						Max particles is a hard limit on the number of particles

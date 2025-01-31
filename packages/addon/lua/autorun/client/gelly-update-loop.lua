@@ -24,6 +24,8 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 
 	GELLY_SIM_RATE_HZ = gellyx.settings.get("simulation_rate"):GetInt()
 
+	local simulationStarted = false
+
 	hook.Add("PreRender", "gelly.simulate", function()
 		if lastRate ~= GELLY_SIM_RATE_HZ then
 			lastRate = GELLY_SIM_RATE_HZ
@@ -38,8 +40,9 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 			local now = SysTime()
 			local dt = now - lastSimTime
 
-			if dt >= 1 / GELLY_SIM_RATE_HZ then
+			if dt >= 1 / GELLY_SIM_RATE_HZ and simulationStarted then
 				gelly.EndTick()
+				simulationStarted = false
 			end
 		end
 	end)
@@ -67,7 +70,8 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 
 			if dt >= 1 / GELLY_SIM_RATE_HZ then
 				lastSimTime = now
-				gelly.BeginTick(1 / 60)
+				simulationStarted = true
+				gelly.BeginTick(dt)
 			end
 		end
 	end)
