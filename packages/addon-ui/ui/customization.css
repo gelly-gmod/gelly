@@ -64,7 +64,7 @@ header {
 	gap: 10px;
 	background-color: rgba(108, 20, 20, 0.62);
 
-	flex: 0.1 0 40px;
+	flex: 0.03 0 40px;
 }
 
 #version {

@@ -3,6 +3,7 @@ local gelly_ui_point_to_localhost = CreateClientConVar("gelly_ui_point_to_localh
 	"Point the Gelly UI to localhost for development purposes.")
 
 local PANEL = {}
+local TOGGLE_DELAY = 0.05
 
 function PANEL:Init()
 	local localhostUI = gelly_ui_point_to_localhost:GetBool()
@@ -20,7 +21,7 @@ function PANEL:Init()
 end
 
 function PANEL:AdjustSize()
-	self:SetSize(ScrW() * 0.8, ScrH() * 0.6)
+	self:SetSize(ScrW() * 0.8, ScrH() * 0.9)
 	self:Center()
 end
 
@@ -43,12 +44,19 @@ function PANEL:Show()
 	self:ForceRemoveTranslucency()
 end
 
+local lastToggleTime = SysTime()
 function PANEL:ToggleVisibility()
+	if SysTime() - lastToggleTime < TOGGLE_DELAY then
+		return
+	end
+
 	if self:IsVisible() then
 		self:Hide()
 	else
 		self:Show()
 	end
+
+	lastToggleTime = SysTime()
 end
 
 function PANEL:Think()
@@ -100,11 +108,15 @@ function PANEL:SetupJSEnvironment()
 	end)
 
 	self.HTML:AddFunction("gelly", "hide", function()
-		self:Hide()
+		self:ToggleVisibility()
 	end)
 
 	self.HTML:AddFunction("gelly", "getVersion", function()
 		return gelly.GetVersion() .. (gelly.IsRWDIBuild() and "+RWDI" or "")
+	end)
+
+	self.HTML:AddFunction("gelly", "getMenuBindKey", function()
+		return input.LookupBinding("gelly_toggle_customization") or "m"
 	end)
 end
 

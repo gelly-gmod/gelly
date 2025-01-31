@@ -6,13 +6,15 @@
 	justify-content: space-between;
 	align-items: center;
 
+	padding: 0 !important;
+	margin: 0 !important;
 	flex: 0.1 0 64px;
 }
 
 #label {
 	color: white;
-	font-size: 1.3em;
-	font-weight: normal;
+	font-size: 1.2em !important;
+	font-weight: normal !important;
 	font-family: "Poppins", sans-serif;
 
 	text-align: right;
