@@ -855,6 +855,8 @@ LUA_FUNCTION(gelly_GetGellySettings) {
 	LUA->SetField(-2, "EnableGPUTiming");
 	LUA->PushBool(currentSettings.enableWhitewater);
 	LUA->SetField(-2, "EnableWhitewater");
+	LUA->PushNumber(currentSettings.whitewaterStrength);
+	LUA->SetField(-2, "WhitewaterStrength");
 
 	CATCH_GELLY_EXCEPTIONS();
 	return 1;
