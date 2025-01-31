@@ -57,7 +57,10 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 	end)
 
 	hook.Add("PostDrawOpaqueRenderables", "gelly.composite", function()
-		if not isGellyActive() then return end
+		if not isGellyActive() then
+			envballsModel:SetPos(Vector(0, 0, -1e5))
+			return
+		end
 
 		render.Model({
 			model = ENVBALLS_MODEL_PATH,
