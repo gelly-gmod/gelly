@@ -92,8 +92,57 @@ function gellyx.settings.get(name)
 	return gellyx.settings.convars[name]
 end
 
+local PRESET_RESET_OVERRIDE_MAP = {
+	fluid_radius = function(var, originalPreset)
+		var:SetFloat(originalPreset.Radius)
+	end,
+	fluid_viscosity = function(var, originalPreset)
+		var:SetFloat(originalPreset.SolverParams.Viscosity)
+	end,
+	fluid_cohesion = function(var, originalPreset)
+		var:SetFloat(originalPreset.SolverParams.Cohesion)
+	end,
+	fluid_adhesion = function(var, originalPreset)
+		var:SetFloat(originalPreset.SolverParams.Adhesion)
+	end,
+	fluid_friction = function(var, originalPreset)
+		var:SetFloat(originalPreset.SolverParams.DynamicFriction)
+	end,
+	fluid_rest_distance_ratio = function(var, originalPreset)
+		var:SetFloat(originalPreset.SolverParams.RestDistanceRatio or 0.73)
+	end,
+	fluid_surface_tension = function(var, originalPreset)
+		var:SetFloat(originalPreset.SolverParams.SurfaceTension or 0)
+	end,
+	fluid_roughness = function(var, originalPreset)
+		var:SetFloat(originalPreset.Material.Roughness or 0)
+	end,
+
+	fluid_use_whitewater = function(var, originalPreset)
+		var:SetBool(originalPreset.UseWhitewater or false)
+	end,
+
+	fluid_metal = function(var, originalPreset)
+		var:SetBool(originalPreset.Material.IsMetal or false)
+	end,
+
+	fluid_opaque = function(var, originalPreset)
+		var:SetBool(not originalPreset.Material.IsSpecularTransmission)
+	end,
+
+	fluid_scatter = function(var, originalPreset)
+		var:SetBool(originalPreset.Material.IsScatter or false)
+	end,
+}
+
 function gellyx.settings.reset(name)
 	assert(gellyx.settings.convars[name], "Invalid setting name")
+	if GELLY_ACTIVE_PRESET and PRESET_RESET_OVERRIDE_MAP[name] then
+		PRESET_RESET_OVERRIDE_MAP[name](gellyx.settings.get(name),
+			gellyx.presets.copyPreset(GELLY_ACTIVE_PRESET.Name))
+		return
+	end
+
 	gellyx.settings.get(name):Revert()
 end
 

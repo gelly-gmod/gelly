@@ -117,6 +117,19 @@ function gellyx.presets.copyPresetMaterial(name)
 	return material
 end
 
+--- Copies a preset.
+---@param name string The name of the preset to copy.
+---@return table The copied preset, this is an actual copy and not a reference.
+function gellyx.presets.copyPreset(name)
+	local preset = GELLY_PRESETS[name]
+	if not preset then
+		logging.error("Preset %s does not exist", name)
+	end
+
+	local copiedPreset = table.Copy(preset)
+	return copiedPreset
+end
+
 function gellyx.presets.isPresetUsingWhitewater()
 	return GELLY_ACTIVE_PRESET and GELLY_ACTIVE_PRESET.UseWhitewater
 end
