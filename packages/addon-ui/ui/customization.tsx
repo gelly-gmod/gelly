@@ -63,6 +63,9 @@ function App() {
 				</section>
 
 				<span id="version">{version}</span>
+				<button id="close-menu-button" onClick={() => gelly.hide()}>
+					✕
+				</button>
 			</header>
 
 			{tab === CustomizationTab.Presets ? <Presets /> : null}
@@ -78,3 +81,11 @@ const root = document.getElementById("root");
 if (root) {
 	render(<App />, root);
 }
+
+document.addEventListener("keypress", (ev) => {
+	gelly.getMenuBindKey((key) => {
+		if (ev.key === key) {
+			gelly.hide(); // hack: ensures that we actually close since the toggle triggers twice because as soon as we leave, gmod receives the key press as well.
+		}
+	});
+});

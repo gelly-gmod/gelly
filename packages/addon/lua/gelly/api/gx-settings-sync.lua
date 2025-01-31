@@ -83,8 +83,7 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		Lifetime = gellyx.settings.get("spray_lifetime"):GetFloat(),
 	})
 
-	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat() *
-		gellyx.settings.get("preset_radius_scale"):GetFloat())
+	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat())
 	gelly.SetDiffuseMotionBlur(gellyx.settings.get("spray_motion_blur"):GetFloat())
 end
 

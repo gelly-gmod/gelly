@@ -38,9 +38,8 @@ local function selectPreset(preset)
 	preset.Material.IsMetal = preset.Material.IsMetal or false
 	preset.Material.IsScatter = preset.Material.IsScatter or false
 
-	gelly.ChangeParticleRadius(preset.Radius * gellyx.settings.get("preset_radius_scale"):GetFloat())
-	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat() *
-		gellyx.settings.get("preset_radius_scale"):GetFloat())
+	gelly.ChangeParticleRadius(preset.Radius)
+	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat())
 	gelly.SetFluidProperties(preset.SolverParams)
 	gelly.SetFluidMaterial(preset.Material)
 
@@ -102,11 +101,7 @@ function gellyx.presets.getCustomPresets()
 end
 
 function gellyx.presets.getEffectiveRadius()
-	return GELLY_ACTIVE_PRESET.Radius * gellyx.settings.get("preset_radius_scale"):GetFloat()
-end
-
-function gellyx.presets.getRadiusScale()
-	return gellyx.settings.get("preset_radius_scale"):GetFloat()
+	return GELLY_ACTIVE_PRESET.Radius
 end
 
 --- Copies a preset's material.
@@ -122,17 +117,22 @@ function gellyx.presets.copyPresetMaterial(name)
 	return material
 end
 
+--- Copies a preset.
+---@param name string The name of the preset to copy.
+---@return table The copied preset, this is an actual copy and not a reference.
+function gellyx.presets.copyPreset(name)
+	local preset = GELLY_PRESETS[name]
+	if not preset then
+		logging.error("Preset %s does not exist", name)
+	end
+
+	local copiedPreset = table.Copy(preset)
+	return copiedPreset
+end
+
 function gellyx.presets.isPresetUsingWhitewater()
 	return GELLY_ACTIVE_PRESET and GELLY_ACTIVE_PRESET.UseWhitewater
 end
-
-gellyx.settings.registerOnChange("preset_radius_scale", function()
-	if not GELLY_ACTIVE_PRESET then
-		return
-	end
-
-	selectPreset(GELLY_ACTIVE_PRESET)
-end)
 
 local EPHEMERAL_FLUID_SETTING_NAMES = {
 	"fluid_radius",
