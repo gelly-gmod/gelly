@@ -316,7 +316,7 @@ ObjectID ShapeHandler::MakeShape(const ShapeCreationInfo &info) {
 void ShapeHandler::RemoveShape(ObjectID id) {
 	const auto it = objects.find(id);
 	if (it == objects.end()) {
-		throw std::runtime_error("Shape object not found");
+		return;
 	}
 
 	if (it->second.type == ShapeType::TRIANGLE_MESH) {
@@ -331,7 +331,7 @@ void ShapeHandler::UpdateShape(
 ) {
 	const auto it = objects.find(id);
 	if (it == objects.end()) {
-		throw std::runtime_error("Shape object not found");
+		return;
 	}
 
 	auto &object = it->second;

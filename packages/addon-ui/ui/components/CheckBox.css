@@ -40,14 +40,11 @@ input[type="checkbox"] {
 	border: 2px solid #888888;
 	border-radius: 3px;
 
-	appearance: none;
 	cursor: pointer;
+	appearance: initial;
+	accent-color: #e89b9b;
 
-	-webkit-appearance: none;
-
-	transition:
-		border 0.2s,
-		transform 0.2s ease;
+	background: none;
 }
 
 input[type="checkbox"]:hover {
@@ -64,5 +61,13 @@ input[type="checkbox"]::-webkit-color-swatch {
 }
 
 input[type="checkbox"]:checked {
-	background-color: #ffffff;
+	background: #ffffff;
+}
+
+input[type="checkbox"]:checked::after {
+	content: "✔";
+	display: block;
+	text-align: center;
+	font-size: 20px;
+	color: #000000;
 }

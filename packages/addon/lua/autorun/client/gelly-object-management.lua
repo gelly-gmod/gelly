@@ -5,12 +5,19 @@ local objects = {}
 
 local WHITELISTED_ENTITY_CLASSES = {
 	"prop_physics",
+	"prop_ragdoll",
+	"player",
+	"npc_*",
 	"gmod_wheel",
 	"func_*",
 	"prop_door_rotating",
 }
 
 local function isClassWhitelisted(entity)
+	if entity:GetClass() == "player" and gellyx.settings.get("player_collision"):GetInt() == 0 then
+		return false
+	end
+
 	return array(WHITELISTED_ENTITY_CLASSES):any(function(class)
 		local classSubstring = class
 		if classSubstring[#classSubstring] == "*" then
@@ -25,6 +32,10 @@ local function isClassWhitelisted(entity)
 	end)
 end
 
+local function getNormalizedModelName(entity)
+	return entity:GetModel()[1] == "*" and entity:GetModel() or entity:GetModel():sub(1, -5)
+end
+
 local function addObject(entity)
 	if not IsValid(entity) or not isClassWhitelisted(entity) then
 		return
@@ -37,7 +48,7 @@ local function addObject(entity)
 	end
 
 	local objectHandles = {}
-	local normalizedModelName = entity:GetModel()[1] == "*" and entity:GetModel() or entity:GetModel():sub(1, -5)
+	local normalizedModelName = getNormalizedModelName(entity)
 
 	local success, msg = pcall(gelly.AddObject, normalizedModelName, entity:EntIndex())
 	if not success then
@@ -47,6 +58,7 @@ local function addObject(entity)
 	end
 
 	table.insert(objectHandles, entity:EntIndex())
+	entity.Gelly_ModelOnAdd = normalizedModelName
 	objects[entity] = objectHandles
 end
 
@@ -61,35 +73,83 @@ local function removeObject(entity)
 	objects[entity] = nil
 end
 
+local function updateObjectBones(entity)
+	local physicsBoneData = gelly.GetPhysicsBoneData(entity:GetModel())
+	local isSingleCollider = table.Count(physicsBoneData) == 1
+	entity:InvalidateBoneCache()
+
+	for name, boneId in pairs(physicsBoneData) do
+		local gmodBone = entity:LookupBone(name)
+		if not gmodBone then
+			gmodBone = boneId
+		end
+
+		local position
+		local angles
+		local testPosition = entity:GetBonePosition(gmodBone)
+		if isSingleCollider then
+			-- We need to apply the bind pose since ragdolls and the like already have their bones transformed
+			local worldTransform = entity:GetWorldTransformMatrix()
+			position = worldTransform:GetTranslation()
+			angles = worldTransform:GetAngles()
+		elseif testPosition == entity:GetPos() then
+			-- Try matrix
+			local matrix = entity:GetBoneMatrix(gmodBone)
+
+			if matrix then
+				position = matrix:GetTranslation()
+				angles = matrix:GetAngles()
+			else
+				position = entity:GetPos()
+				angles = entity:GetAngles()
+			end
+		else
+			local bonePos, boneAng = entity:GetBonePosition(gmodBone)
+			local matrix = Matrix()
+			matrix:SetTranslation(bonePos)
+			matrix:SetAngles(boneAng)
+
+			position = matrix:GetTranslation()
+			angles = matrix:GetAngles()
+		end
+
+		-- If we don't have the matrix, then the game has stopped processing the entity
+		-- Usually happens once it goes out of view, so it's not an error
+		if not position then
+			return
+		end
+
+		gelly.SetObjectPosition(entity:EntIndex(), position, boneId)
+		gelly.SetObjectRotation(entity:EntIndex(), angles, boneId)
+	end
+end
+
 local function updateObject(entity)
 	local objectHandles = objects[entity]
 	if not objectHandles then
 		return
 	end
 
-	for _, objectHandle in ipairs(objectHandles) do
-		if not IsValid(entity) then
-			-- Somehow, it got pass the entity removal check
-			removeObject(entity)
-			return
-		end
-
-		if entity == LocalPlayer() then
-			gelly.SetObjectPosition(objectHandle, entity:GetPos())
-			gelly.SetObjectRotation(objectHandle, Angle(90, 0, 0))
-			return
-		end
-
-		local transform = entity:GetWorldTransformMatrix()
-		if not transform then
-			logging.warn("Transform bug for entity #%d", entity:EntIndex())
-			removeObject(entity)
-			return
-		end
-
-		gelly.SetObjectPosition(objectHandle, transform:GetTranslation())
-		gelly.SetObjectRotation(objectHandle, transform:GetAngles())
+	if not IsValid(entity) then
+		-- Somehow, it got pass the entity removal check
+		removeObject(entity)
+		return
 	end
+
+	if getNormalizedModelName(entity) ~= entity.Gelly_ModelOnAdd then
+		removeObject(entity)
+		addObject(entity)
+		updateObject(entity)
+		return
+	end
+
+	local isEntitySolid = bit.band(entity:GetSolidFlags(), FSOLID_NOT_SOLID) == 0
+	if not isEntitySolid then
+		removeObject(entity) -- An entity can't get into this state naturally, so it's very likely to have been removed but not cleaned up
+		return
+	end
+
+	updateObjectBones(entity)
 end
 
 local function onPropResized(entity, newScale)
@@ -103,8 +163,6 @@ local function onPropResized(entity, newScale)
 	end
 end
 
-local PLAYER_RADIUS = 15
-local PLAYER_HALFHEIGHT = 16
 hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 	-- fetch any entities that may've been created before the hook was added
 	timer.Simple(0.1,
@@ -137,6 +195,18 @@ hook.Add("GellyLoaded", "gelly.object-management-initialize", function()
 	end)
 
 	hook.Add("GellyXPropResized", "gelly.object-resize", onPropResized)
+
+	gellyx.settings.registerOnChange("player_collision", function(_, _, new)
+		if new == "0" then
+			if objects[LocalPlayer()] then
+				removeObject(LocalPlayer())
+			end
+		else
+			if not objects[LocalPlayer()] then
+				addObject(LocalPlayer())
+			end
+		end
+	end)
 end)
 
 hook.Add("GellyRestarted", "gelly.object-management-recreate-entities", function()

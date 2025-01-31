@@ -26,11 +26,12 @@ export default function Simulation() {
 	const [substeps, setSubsteps, resetSubsteps] = useSettingValue(
 		"simulation_substeps",
 	);
-	const [presetRadiusScale, setPresetRadiusScale, resetPresetRadiusScale] =
-		useSettingValue("preset_radius_scale");
 	const [relaxation, setRelaxation, resetRelaxation] = useSettingValue(
 		"simulation_relaxation",
 	);
+	const [playerCollision, setPlayerCollision, resetPlayerCollision] =
+		useSettingValue("player_collision");
+
 	const [collisionDistance, setCollisionDistance, resetCollisionDistance] =
 		useSettingValue("simulation_collision_distance");
 	const [gravity, setGravity, resetGravity] =
@@ -97,19 +98,6 @@ export default function Simulation() {
 				/>
 
 				<Slider
-					min={1}
-					max={5}
-					step={0.1}
-					unit="x"
-					value={presetRadiusScale}
-					setValue={setPresetRadiusScale}
-					label="Radius Scale"
-					onInputStart={enableTemporaryTranslucency}
-					onInputEnd={disableTemporaryTranslucency}
-					onResetRequest={resetPresetRadiusScale}
-				/>
-
-				<Slider
 					min={10000}
 					max={1500000}
 					step={10000}
@@ -136,9 +124,16 @@ export default function Simulation() {
 					onResetRequest={resetRelaxation}
 				/>
 
+				<CheckBox
+					label="Player Collision"
+					checked={playerCollision}
+					onChange={setPlayerCollision}
+					onResetRequest={resetPlayerCollision}
+				/>
+
 				<Slider
-					min={0}
-					max={5}
+					min={0.01}
+					max={7.5}
 					step={0.25}
 					unit="hu"
 					value={collisionDistance}

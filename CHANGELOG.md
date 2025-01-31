@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.31.0] - 2025-01-29
+
+### Added
+
+- Added support for player collisions. This can be customized in the customization menu
+  under Simulation.
+- Added support for NPC collisions.
+- Added support for ragdoll collisions.
+
+### Changed
+
+- The prior method for collisions was removed and updated in this version, so hopefully you can expect more accurate and
+  better compatibility with other models beyond the basic GMod props.
+- Tuned blood preset to be more globby, but not that globby.
+- Blood now squirts from both sides of a gunshot wound in the blood mod.
+- Optimized map loading, so phys-heavy maps such as gm_gwater_remastered should load faster.
+
+## [1.30.0] - 2025-01-29
+
+### Added
+
+- Added scattering! You can now select "Scatter" in the Presets tab to have the fluid scatter light, which gives a more
+  soft and jelly-like appearance.
+- Added metals! You can now select "Metal" in the Presets tab to have the fluid reflect light like a metal.
+
+## [1.29.6] - 2025-01-29
+
+### Fixed
+
+- Fixed Gelly not loading on the Jan 29th update of GMod.
+
 ## [1.29.5] - 2025-01-09
 
 ### Changed

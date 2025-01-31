@@ -42,6 +42,10 @@ export default function Presets() {
 	const [roughness, setRoughness, resetRoughness] =
 		useSettingValue("fluid_roughness");
 	const [opaque, setOpaque, resetOpaque] = useSettingValue("fluid_opaque");
+	const [metal, setMetal, resetMetal] = useSettingValue("fluid_metal");
+	const [scatter, setScatter, resetScatter] =
+		useSettingValue("fluid_scatter");
+
 	const [useWhitewater, setUseWhitewater, resetUseWhitewater] =
 		useSettingValue("fluid_use_whitewater");
 
@@ -52,7 +56,7 @@ export default function Presets() {
 				<HorizontalSeparator />
 				<Slider
 					min={1}
-					max={10}
+					max={50}
 					step={0.1}
 					unit="hu"
 					label="Radius"
@@ -167,6 +171,20 @@ export default function Presets() {
 					onInputStart={enableTemporaryTranslucency}
 					onInputEnd={disableTemporaryTranslucency}
 					onResetRequest={resetRoughness}
+				/>
+
+				<CheckBox
+					label="Metal"
+					checked={metal}
+					onChange={setMetal}
+					onResetRequest={resetMetal}
+				/>
+
+				<CheckBox
+					label="Scatter"
+					checked={scatter}
+					onChange={setScatter}
+					onResetRequest={resetScatter}
 				/>
 
 				<CheckBox

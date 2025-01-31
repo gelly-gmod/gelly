@@ -15,7 +15,7 @@
 	justify-content: normal;
 	align-items: flex-start;
 
-	gap: 10px;
+	gap: 0;
 	overflow-y: visible;
 	overflow-x: hidden;
 	flex: 2 0 100px;

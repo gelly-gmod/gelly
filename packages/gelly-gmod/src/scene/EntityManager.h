@@ -9,9 +9,11 @@
 #include "asset-cache.h"
 #include "v2/simulation.h"
 
+using namespace DirectX;
+
 class EntityManager {
 private:
-	std::unordered_map<EntIndex, ObjectID> entities;
+	std::unordered_map<EntIndex, std::vector<ObjectID>> entities;
 	// Gelly's interface uses raw pointers
 	gelly::simulation::Scene *simScene;
 
@@ -29,9 +31,15 @@ public:
 	);
 	void AddPlayerObject(EntIndex entIndex, float radius, float halfHeight);
 	void RemoveEntity(EntIndex entIndex);
-	void UpdateEntityPosition(EntIndex entIndex, Vector position);
-	void UpdateEntityRotation(EntIndex entIndex, DirectX::XMFLOAT4 rotation);
-	void UpdateEntityScale(EntIndex entIndex, Vector scale);
+	void UpdateEntityPosition(
+		EntIndex entIndex, Vector position, size_t boneIndex = 0
+	);
+	void UpdateEntityRotation(
+		EntIndex entIndex, XMFLOAT4 rotation, size_t boneIndex = 0
+	);
+	void UpdateEntityScale(
+		EntIndex entIndex, Vector scale, size_t boneIndex = 0
+	);
 };
 
 #endif	// ENTITIES_H

@@ -4,16 +4,42 @@
 #include "BSPParser.h"
 // clang-format on
 
+#include <PHYParser.hpp>
 #include <stdexcept>
 #include <string>
 
-#include "BSP.h"
-#include "PHY.h"
 #include "asset-cache.h"
 #include "v2/scene/handlers/shape-handler.h"
 #include "v2/scene/scene.h"
 
 namespace gelly::gmod {
+// Basic wrapper over BSP lumps for easy access to the solid data of a brush
+// model
+class PHYMap {
+public:
+	struct Model {
+		std::vector<PhyParser::Phy::Solid> solids;
+		uint32_t index;
+	};
+
+	PHYMap(std::unique_ptr<std::byte[]> mapData, size_t length);
+
+	bool IsValid() const;
+	std::string GetErrorReason() const;
+	const std::vector<Model> &GetModels() const;
+
+private:
+	std::vector<Model> models;
+	std::unique_ptr<std::byte[]> mapData;
+	std::string errorReason;
+	bool valid;
+
+	template <typename T>
+	[[nodiscard]] const T *View(size_t offset) const {
+		return reinterpret_cast<const T *>(mapData.get() + offset);
+	}
+};
+
 /**
  * Instantiates a map object in the simulation's scene.
  * \note Maps are not entities. They don't have a position or rotation,
@@ -30,14 +56,12 @@ namespace gelly::gmod {
  */
 class Map {
 private:
-	gelly::simulation::Scene *simScene = nullptr;
+	simulation::Scene *simScene = nullptr;
 	ObjectID mapObject;
 
 	static void CheckMapPath(const std::string &mapPath);
 	[[nodiscard]] static BSPMap LoadBSPMap(const std::string &mapPath);
-	[[nodiscard]] static PHYParser::BSP::BSP LoadPHYMap(
-		const std::string &mapPath
-	);
+	[[nodiscard]] static PHYMap LoadPHYMap(const std::string &mapPath);
 	[[nodiscard]] static ShapeCreationInfo CreateMapParams(
 		const float *vertices, size_t vertexCount, bool flip = false
 	);
@@ -45,7 +69,7 @@ private:
 		const ShapeCreationInfo &params
 	) const;
 	[[nodiscard]] std::vector<float> ConvertBrushModelToVertices(
-		const PHYParser::BSP::BSP::Model &model
+		const PHYMap::Model &model
 	) const;
 
 public:
