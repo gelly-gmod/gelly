@@ -131,6 +131,31 @@ header {
 	transform: none;
 }
 
+#close-menu-button {
+	/* removes all of the nasty default styles */
+	appearance: none;
+	border: none;
+	background: transparent;
+	outline: none;
+
+	color: #e89b9b;
+	height: 100%;
+	width: min-content;
+	aspect-ratio: 1 / 1;
+	margin: 0 10px 0 10px;
+
+	font-size: 2em;
+}
+
+#close-menu-button:hover {
+	color: #ea8686;
+	cursor: pointer;
+}
+
+#close-menu-button:active {
+	color: #e89b9b;
+}
+
 * {
 	scrollbar-width: thin;
 }

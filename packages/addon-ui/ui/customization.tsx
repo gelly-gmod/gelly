@@ -63,6 +63,9 @@ function App() {
 				</section>
 
 				<span id="version">{version}</span>
+				<button id="close-menu-button" onClick={() => gelly.hide()}>
+					✕
+				</button>
 			</header>
 
 			{tab === CustomizationTab.Presets ? <Presets /> : null}
