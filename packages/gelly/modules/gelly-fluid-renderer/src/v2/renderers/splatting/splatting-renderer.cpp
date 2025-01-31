@@ -99,13 +99,13 @@ auto SplattingRenderer::StartRendering() -> void {
 		RunPipeline(
 			spraySplattingDepth,
 			durations.sprayDepthSplatting,
-			0  // TODO: Reimplement foam
+			createInfo.solver->GetActiveDiffuseParticleCount()
 		);
 
 		RunPipeline(
 			spraySplatting,
 			durations.spraySplatting,
-			0  // TODO: Reimplement foam
+			createInfo.solver->GetActiveDiffuseParticleCount()
 		);
 	}
 

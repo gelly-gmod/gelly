@@ -53,6 +53,8 @@ gellyx.settings.convars = {
 
 	max_particles = settingConvar("max_particles", 100000, "Controls the maximum number of particles (expensive!)", 10000,
 		1500000),
+	max_diffuse_particles = settingConvar("max_diffuse_particles", 100000,
+		"Controls the maximum number of diffuse particles (expensive!)", 10000, 1500000),
 	sun_visible = settingConvar("sun_visible", 1, "Controls the visibility of the sun (0 = no sun, 1 = sun)", 0, 1),
 
 	gelly_gun_forcefield_strength = settingConvar("gelly_gun_forcefield_strength", -100,

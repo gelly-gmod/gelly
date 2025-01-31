@@ -38,6 +38,11 @@ export default function Simulation() {
 		useSettingValue("simulation_gravity");
 	const [maxParticles, setMaxParticles, resetMaxParticles] =
 		useSettingValue("max_particles");
+	const [
+		maxDiffuseParticles,
+		setMaxDiffuseParticles,
+		resetMaxDiffuseParticles,
+	] = useSettingValue("max_diffuse_particles");
 	const [sprayThreshold, setSprayThreshold, resetSprayThreshold] =
 		useSettingValue("spray_threshold");
 	const [sprayDrag, setSprayDrag, resetSprayDrag] =
@@ -159,6 +164,20 @@ export default function Simulation() {
 
 				<SliderSectionHeader>Whitewater Settings</SliderSectionHeader>
 				<HorizontalSeparator />
+
+				<Slider
+					min={10000}
+					max={1500000}
+					step={10000}
+					unit=""
+					label="Max Diffuse Particles"
+					value={maxDiffuseParticles}
+					setValue={setMaxDiffuseParticles}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onlySetValuesOnMouseUp
+					onResetRequest={resetMaxDiffuseParticles}
+				/>
 
 				<CheckBox
 					label="Whitewater Enabled"
