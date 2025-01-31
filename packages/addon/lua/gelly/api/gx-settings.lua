@@ -8,19 +8,18 @@ end
 
 gellyx.settings.convars = {
 	smoothness = settingConvar("smoothness", 5, "Controls the smoothness of the fluid", 1, 20),
-	preset_radius_scale = settingConvar("preset_radius_scale", 1, "Controls the radius scale of the fluid", 1, 5),
 	simulation_rate = settingConvar("simulation_rate", 60, "Controls the simulation rate of the fluid", 20, 144),
 	simulation_substeps = settingConvar("simulation_substeps", 3, "Controls the substeps of the fluid", 1, 100),
 	simulation_iterations = settingConvar("simulation_iterations", 3, "Controls the iterations of the fluid", 1, 100),
 	simulation_relaxation = settingConvar("simulation_relaxation", 1, "Controls the relaxation factor of the solver", 0,
 		1),
 	simulation_collision_distance = settingConvar("simulation_collision_distance", 0.6,
-		"Controls the collision distance of the fluid", 0.01, 1),
+		"Controls the collision distance of the fluid", 0.01, 7.5),
 	simulation_gravity = settingConvar("simulation_gravity", -4, "Controls the gravity of the fluid", -100, 100),
 
-	fluid_radius = settingConvar("fluid_radius", 1, "Controls the radius of the fluid", 1, 5),
+	fluid_radius = settingConvar("fluid_radius", 1, "Controls the radius of the fluid", 1, 50),
 	fluid_viscosity = settingConvar("fluid_viscosity", 1, "Controls the viscosity of the fluid", 0, 100),
-	fluid_cohesion = settingConvar("fluid_cohesion", 1, "Controls the cohesion of the fluid", 0, 1),
+	fluid_cohesion = settingConvar("fluid_cohesion", 1, "7Controls the cohesion of the fluid", 0, 1),
 	fluid_adhesion = settingConvar("fluid_adhesion", 1, "Controls the adhesion of the fluid", 0, 1),
 	fluid_friction = settingConvar("fluid_friction", 1, "Controls the friction of the fluid", 0, 10),
 	fluid_rest_distance_ratio = settingConvar("fluid_rest_distance_ratio", 0.65,

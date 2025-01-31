@@ -56,7 +56,7 @@ export default function Presets() {
 				<HorizontalSeparator />
 				<Slider
 					min={1}
-					max={10}
+					max={50}
 					step={0.1}
 					unit="hu"
 					label="Radius"
