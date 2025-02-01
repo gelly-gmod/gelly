@@ -141,6 +141,8 @@ Gelly would not be possible without the following projects and people:
 		- Great GMod servers
 - Notable criticisms and suggestions for the fluid rendering system from [Derpius](https://github.com/Derpius)
 - Well-needed call-outs for performance regressions from [Derpius](https://github.com/Derpius)
+- New simulation and rendering architecture from [Derpius](https://github.com/Derpius)
+- A new foam rendering idea from [Derpius](https://github.com/Derpius)
 - Support from [Meetric](https://github.com/meetric1) on our commonly shared issues facing FleX and GMod
 - Meetric's original GWater addon, which inspired Gelly and eventually turned it into a highly educational project
 	- Consider donating for his new GWater2 addon: [Meetric's Patreon](https://www.patreon.com/meetric)
