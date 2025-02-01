@@ -71,7 +71,8 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 			if dt >= 1 / GELLY_SIM_RATE_HZ then
 				lastSimTime = now
 				simulationStarted = true
-				gelly.BeginTick(dt)
+				local maxCompensation = (1 / GELLY_SIM_RATE_HZ) * 1.15 -- maximum overstep allowed
+				gelly.BeginTick(math.min(dt, maxCompensation))
 			end
 		end
 	end)
