@@ -10,7 +10,7 @@ RWBuffer<float> acceleration : register(u0);
 
 static const float MAGNITUDE_CUTOFF = 3.f;
 static const float ACCEL_MULTIPLIER = 0.004f;
-static const float FOAM_DECAY_RATE = 3.f;
+static const float FOAM_DECAY_RATE = 8.f;
 
 [numthreads(64, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID) {
@@ -30,7 +30,7 @@ void main(uint3 DTid : SV_DispatchThreadID) {
 	float accelMagnitude = avgDv / g_DeltaTime * ACCEL_MULTIPLIER;
 
 	float foaminess = acceleration[index];
-	foaminess += accelMagnitude;
+	foaminess += accelMagnitude * 0.5f;
 	foaminess -= g_DeltaTime / FOAM_DECAY_RATE;
 	foaminess = saturate(foaminess);
 	acceleration[index] = foaminess;
