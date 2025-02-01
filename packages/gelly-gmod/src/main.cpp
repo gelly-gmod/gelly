@@ -15,24 +15,23 @@
 #include <MinHook.h>
 #include <Windows.h>
 
+#include <filesystem>
 #include <fstream>
 
 #include "binaries/gbp.h"
 #include "composite/GModCompositor.h"
 #include "exceptions/generate-stack-trace.h"
-#include "exceptions/get-stack-size.h"
 #include "logging/helpers/dev-console-logging.h"
 #include "luajit/raw-lua-access.h"
-#include "luajit/setup-atpanic-handler.h"
 #include "scene/asset-cache.h"
 #include "source/D3DDeviceWrapper.h"
 #include "source/GetCubemap.h"
 #include "source/IBaseClientDLL.h"
 #include "source/IVRenderView.h"
 #include "tracy/Tracy.hpp"
-#include "util/GellySharedPtrs.h"
 #include "util/lua-table.h"
 #include "util/parse-asset-from-filesystem.h"
+#include "v2/simulation.h"
 #include "version.h"
 
 #define DEFINE_LUA_FUNC(namespace, name)    \
@@ -54,13 +53,14 @@
 static std::shared_ptr<gelly::renderer::Device> rendererDevice = nullptr;
 static std::shared_ptr<GModCompositor> compositor = nullptr;
 static std::shared_ptr<Scene> scene = nullptr;
-static std::shared_ptr<ISimContext> simContext = nullptr;
-static std::shared_ptr<IFluidSimulation> sim = nullptr;
+static std::shared_ptr<gelly::simulation::Simulation> sim = nullptr;
 static std::shared_ptr<luajit::LuaShared> luaShared = nullptr;
 static std::shared_ptr<AssetCache> assetCache = nullptr;
 
 constexpr int DEFAULT_MAX_PARTICLES = 100000;
+constexpr int DEFAULT_MAX_DIFFUSE_PARTICLES = DEFAULT_MAX_PARTICLES * 2;
 constexpr int MAXIMUM_PARTICLES = 10000000;
+constexpr int MAXIMUM_DIFFUSE_PARTICLES = 10000000;
 constexpr DWORD LUAJIT_UNHANDLED_PCALL = 0xE24C4A02;
 
 static PVOID emergencyHandler = nullptr;
@@ -242,12 +242,20 @@ void DumpLuaStack(const std::string &caption, GarrysMod::Lua::ILuaBase *LUA) {
 	}
 }
 
-LUA_FUNCTION(gelly_Render) {
+LUA_FUNCTION(gelly_StartRendering) {
 	START_GELLY_EXCEPTIONS();
-	compositor->Render();
+	compositor->StartRendering();
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
+
+LUA_FUNCTION(gelly_EndRendering) {
+	START_GELLY_EXCEPTIONS();
+	compositor->EndRendering();
+	CATCH_GELLY_EXCEPTIONS();
+	return 0;
+}
+
 LUA_FUNCTION(gelly_Composite) {
 	START_GELLY_EXCEPTIONS()
 	compositor->Composite();
@@ -255,12 +263,19 @@ LUA_FUNCTION(gelly_Composite) {
 	return 0;
 }
 
-LUA_FUNCTION(gelly_Simulate) {
+LUA_FUNCTION(gelly_BeginTick) {
 	START_GELLY_EXCEPTIONS()
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);  // Delta time
 	auto dt = static_cast<float>(LUA->GetNumber(1));
 
-	scene->Simulate(dt);
+	scene->BeginTick(dt);
+	CATCH_GELLY_EXCEPTIONS()
+	return 0;
+}
+
+LUA_FUNCTION(gelly_EndTick) {
+	START_GELLY_EXCEPTIONS()
+	scene->EndTick();
 	CATCH_GELLY_EXCEPTIONS()
 	return 0;
 }
@@ -407,7 +422,7 @@ LUA_FUNCTION(gelly_SetObjectPosition) {
 	return 0;
 }
 
-inline float rad(float deg) { return deg * (XM_PI / 180.0); }
+inline float rad(float deg) { return deg * (DirectX::XM_PI / 180.0); }
 
 LUA_FUNCTION(gelly_SetObjectRotation) {
 	START_GELLY_EXCEPTIONS();
@@ -432,7 +447,7 @@ LUA_FUNCTION(gelly_SetObjectRotation) {
 	float cy = cos(y);
 	float sy = sin(y);
 
-	XMFLOAT4 quat = {
+	DirectX::XMFLOAT4 quat = {
 		cr * cp * cy + sr * sp * sy,
 		sr * cp * cy - cr * sp * sy,
 		cr * sp * cy + sr * cp * sy,
@@ -576,16 +591,16 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 	GET_LUA_TABLE_MEMBER(float, DynamicFriction);
 	GET_LUA_TABLE_MEMBER(float, RestDistanceRatio);
 
-	SetFluidProperties props = {};
-	props.viscosity = Viscosity;
-	props.cohesion = Cohesion;
-	props.surfaceTension = SurfaceTension;
-	props.vorticityConfinement = VorticityConfinement;
-	props.adhesion = Adhesion;
-	props.dynamicFriction = DynamicFriction;
-	props.restDistanceRatio = RestDistanceRatio;
+	sim->GetSolver().Update({
+		.viscosity = Viscosity,
+		.cohesion = Cohesion,
+		.surfaceTension = SurfaceTension,
+		.vorticityConfinement = VorticityConfinement,
+		.adhesion = Adhesion,
+		.dynamicFriction = DynamicFriction,
+		.restDistanceRatio = RestDistanceRatio,
+	});
 
-	scene->SetFluidProperties(props);
 	CATCH_GELLY_EXCEPTIONS();
 
 	return 0;
@@ -631,7 +646,7 @@ LUA_FUNCTION(gelly_ChangeParticleRadius) {
 	config.particleRadius = newRadius;
 	compositor->SetConfig(config);
 
-	scene->ChangeRadius(newRadius);
+	sim->GetSolver().Update({.radius = newRadius});
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -681,19 +696,14 @@ LUA_FUNCTION(gelly_SetDiffuseProperties) {
 	const auto drag = diffuseTable.Get("Drag", 0.f);
 	const auto lifetime = diffuseTable.Get("Lifetime", 0.f);
 
-	SetDiffuseProperties command = {
-		.ballisticCount = ballisticCount,
-		.kineticThreshold = kineticThreshold,
-		.buoyancy = buoyancy,
-		.drag = drag,
-		.lifetime = lifetime
-	};
+	sim->GetSolver().Update({
+		.diffuseBallisticCount = ballisticCount,
+		.diffuseKineticThreshold = kineticThreshold,
+		.diffuseBuoyancy = buoyancy,
+		.diffuseDrag = drag,
+		.diffuseLifetime = lifetime,
+	});
 
-	const auto commandList = sim->CreateCommandList();
-	commandList->AddCommand(
-		SimCommand{SET_DIFFUSE_PROPERTIES, SetDiffuseProperties{command}}
-	);
-	sim->ExecuteCommandList(commandList);
 	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
@@ -740,8 +750,13 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	LUA->CheckType(1, GarrysMod::Lua::Type::Number);
 
 	const auto newMax = static_cast<int>(LUA->GetNumber(1));
+	const auto newDiffuseMax = static_cast<int>(LUA->GetNumber(2));
 	if (newMax > MAXIMUM_PARTICLES) {
-		LUA->ThrowError("Cannot set max particles above 1,000,000!");
+		LUA->ThrowError("Cannot set max particles above 10,000,000!");
+	}
+
+	if (newDiffuseMax > MAXIMUM_DIFFUSE_PARTICLES) {
+		LUA->ThrowError("Cannot set max diffuse particles above 10,000,000!");
 	}
 
 	// For safe measure we'll honestly just need to remove the sim and
@@ -751,19 +766,29 @@ LUA_FUNCTION(gelly_ChangeMaxParticles) {
 	float originalScale = compositor->GetScale();
 
 	sim.reset();
-	sim = MakeFluidSimulation(simContext.get());
 	scene.reset();
 	compositor.reset();
-	scene = std::make_shared<Scene>(simContext, sim, newMax);
+	sim = std::make_shared<gelly::simulation::Simulation>(
+		gelly::simulation::Simulation::CreateInfo{
+			.device = rendererDevice->GetRawDevice().Get(),
+			.context = rendererDevice->GetRawDeviceContext().Get(),
+			.maxParticles = newMax,
+			.maxDiffuseParticles = newDiffuseMax,
+		}
+	);
+
+	scene = std::make_shared<Scene>(sim);
 	compositor = std::make_shared<GModCompositor>(
 		PipelineType::STANDARD,
-		scene->GetSimData(),
+		sim->GetUnownedSolver(),
 		rendererDevice,
 		originalWidth,
 		originalHeight,
 		newMax,
 		originalScale
 	);
+
+	sim->AttachOutputBuffers(compositor->GetOutputD3DBuffers());
 
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
 	scene->Initialize();
@@ -830,6 +855,8 @@ LUA_FUNCTION(gelly_GetGellySettings) {
 	LUA->SetField(-2, "EnableGPUTiming");
 	LUA->PushBool(currentSettings.enableWhitewater);
 	LUA->SetField(-2, "EnableWhitewater");
+	LUA->PushNumber(currentSettings.whitewaterStrength);
+	LUA->SetField(-2, "WhitewaterStrength");
 
 	CATCH_GELLY_EXCEPTIONS();
 	return 1;
@@ -875,7 +902,7 @@ LUA_FUNCTION(gelly_ConfigureSim) {
 	int substeps = static_cast<int>(Substeps);
 	int iterations = static_cast<int>(Iterations);
 
-	scene->Configure(
+	sim->GetSolver().Update(
 		{.substeps = substeps,
 		 .iterations = iterations,
 		 .relaxationFactor = RelaxationFactor,
@@ -1039,18 +1066,20 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	assetCache = std::make_shared<AssetCache>();
 	rendererDevice = std::make_shared<gelly::renderer::Device>();
 
-	simContext = MakeSimContext(
-		rendererDevice->GetRawDevice().Get(),
-		rendererDevice->GetRawDeviceContext().Get()
+	sim = std::make_shared<gelly::simulation::Simulation>(
+		gelly::simulation::Simulation::CreateInfo{
+			.device = rendererDevice->GetRawDevice().Get(),
+			.context = rendererDevice->GetRawDeviceContext().Get(),
+			.maxParticles = DEFAULT_MAX_PARTICLES,
+			.maxDiffuseParticles = DEFAULT_MAX_PARTICLES,
+		}
 	);
 
-	sim = MakeFluidSimulation(simContext.get());
-
-	scene = std::make_shared<Scene>(simContext, sim, DEFAULT_MAX_PARTICLES);
+	scene = std::make_shared<Scene>(sim);
 
 	compositor = std::make_shared<GModCompositor>(
 		PipelineType::STANDARD,
-		scene->GetSimData(),
+		sim->GetUnownedSolver(),
 		rendererDevice,
 		currentView.width,
 		currentView.height,
@@ -1058,6 +1087,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 		1.f
 	);
 
+	sim->AttachOutputBuffers(compositor->GetOutputD3DBuffers());
 	scene->SetAbsorptionModifier(compositor->GetAbsorptionModifier());
 	scene->Initialize();
 
@@ -1082,9 +1112,11 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DumpLuaStack("Preparing gelly table", LUA);
 	LUA->CreateTable();
 	DumpLuaStack("Creating gelly table", LUA);
-	DEFINE_LUA_FUNC(gelly, Render);
+	DEFINE_LUA_FUNC(gelly, StartRendering);
+	DEFINE_LUA_FUNC(gelly, EndRendering);
 	DEFINE_LUA_FUNC(gelly, Composite);
-	DEFINE_LUA_FUNC(gelly, Simulate);
+	DEFINE_LUA_FUNC(gelly, BeginTick);
+	DEFINE_LUA_FUNC(gelly, EndTick);
 	DEFINE_LUA_FUNC(gelly, GetStatus);
 	DEFINE_LUA_FUNC(gelly, GetPhysicsBoneData);
 	DEFINE_LUA_FUNC(gelly, AddParticles);
@@ -1146,7 +1178,6 @@ GMOD_MODULE_CLOSE() {
 	scene.reset();
 	sim.reset();
 	rendererDevice.reset();
-	simContext.reset();
 
 	LOG_SAVE_TO_FILE();
 #ifndef PRODUCTION_BUILD

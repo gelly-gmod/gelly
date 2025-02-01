@@ -266,6 +266,12 @@ Map::Map(
 			worldspawnVertices.data(), worldspawnVertices.size() / 3
 		);
 
+		LOG_INFO(
+			"Map is %d vertices and %d triangles",
+			worldspawnVertices.size() / 3,
+			worldspawnVertices.size() / 3 / 3
+		);
+
 		mapObject = CreateMapObject(params);
 
 		for (const auto &model : phyMap.GetModels()) {

@@ -17,7 +17,7 @@ private:
 public:
 	GModCompositor(
 		PipelineType type,
-		GellyInterfaceVal<ISimData> simData,
+		gelly::simulation::Solver *solver,
 		const std::shared_ptr<gelly::renderer::Device> &device,
 		unsigned int width,
 		unsigned int height,
@@ -37,7 +37,8 @@ public:
 	void SetFluidMaterial(const PipelineFluidMaterial &material);
 
 	void Composite();
-	void Render();
+	void StartRendering();
+	void EndRendering();
 
 	void ChangeResolution(
 		unsigned int newWidth, unsigned int newHeight, float scale
@@ -83,13 +84,19 @@ public:
 		return gellyResources.splattingRenderer->GetSettings();
 	}
 
-	void UpdateGellySettings(const SplattingRenderer::Settings &settings
+	void UpdateGellySettings(
+		const SplattingRenderer::Settings &settings
 	) const {
 		gellyResources.splattingRenderer->UpdateSettings(settings);
 	}
 
 	[[nodiscard]] SplattingRenderer::Timings FetchGellyTimings() const {
 		return gellyResources.splattingRenderer->FetchTimings();
+	}
+
+	[[nodiscard]] gelly::simulation::OutputD3DBuffers GetOutputD3DBuffers(
+	) const {
+		return gellyResources.splattingRenderer->GetOutputD3DBuffers();
 	}
 };
 

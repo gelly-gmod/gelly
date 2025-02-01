@@ -76,8 +76,6 @@ add_library(
         src/scene/Map.h
         src/scene/ParticleManager.cpp
         src/scene/ParticleManager.h
-        src/scene/Config.cpp
-        src/scene/Config.h
         src/composite/GModCompositor.cpp
         src/composite/GModCompositor.h
         src/composite/Pipeline.h
@@ -91,7 +89,6 @@ add_library(
         src/composite/Resources.cpp
         src/composite/Resources.h
         src/composite/PipelineType.h
-        src/util/GellySharedPtrs.h
         src/logging/format-log-entry.h
         src/logging/log-entry.h
         src/logging/severity-strings.h

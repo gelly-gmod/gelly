@@ -9,7 +9,7 @@
 
 GModCompositor::GModCompositor(
 	PipelineType type,
-	GellyInterfaceVal<ISimData> simData,
+	gelly::simulation::Solver *solver,
 	const std::shared_ptr<gelly::renderer::Device> &device,
 	unsigned int width,
 	unsigned int height,
@@ -33,7 +33,7 @@ GModCompositor::GModCompositor(
 
 		gellyResources.splattingRenderer = SplattingRenderer::Create(
 			{.device = gellyResources.device,
-			 .simData = simData,
+			 .solver = solver,
 			 .inputSharedHandles = sharedHandles,
 			 .width = width,
 			 .height = height,
@@ -59,7 +59,10 @@ void GModCompositor::SetFluidMaterial(const PipelineFluidMaterial &material) {
 
 void GModCompositor::Composite() { pipeline->Composite(); }
 
-void GModCompositor::Render() { pipeline->Render(); }
+void GModCompositor::StartRendering() { pipeline->Render(); }
+void GModCompositor::EndRendering() {
+	gellyResources.splattingRenderer->EndRendering();
+}
 
 #ifdef GELLY_ENABLE_RENDERDOC_CAPTURES
 void GModCompositor::ReloadAllShaders() {

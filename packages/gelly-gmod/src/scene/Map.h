@@ -9,8 +9,8 @@
 #include <string>
 
 #include "asset-cache.h"
-#include "fluidsim/scene/handlers/shape-handler.h"
-#include "fluidsim/scene/scene.h"
+#include "v2/scene/handlers/shape-handler.h"
+#include "v2/scene/scene.h"
 
 namespace gelly::gmod {
 // Basic wrapper over BSP lumps for easy access to the solid data of a brush

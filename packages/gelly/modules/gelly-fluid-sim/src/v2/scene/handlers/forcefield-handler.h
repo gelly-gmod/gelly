@@ -7,8 +7,8 @@
 #include <memory>
 
 #include "../object-handler.h"
-#include "fluidsim/scene/helpers/monotonic-counter.h"
-#include "fluidsim/scene/object.h"
+#include "v2/scene/helpers/monotonic-counter.h"
+#include "v2/scene/object.h"
 
 namespace Gelly {
 struct ForcefieldObject {

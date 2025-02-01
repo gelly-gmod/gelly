@@ -7,7 +7,9 @@
 #include "EntIndex.h"
 #include "GarrysMod/Lua/SourceCompat.h"
 #include "asset-cache.h"
-#include "fluidsim/IFluidSimulation.h"
+#include "v2/simulation.h"
+
+using namespace DirectX;
 
 class EntityManager {
 private:

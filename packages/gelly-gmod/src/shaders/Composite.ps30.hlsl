@@ -117,7 +117,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
 
     float2 thicknessAndVelocity = tex2D(thicknessTex, input.Tex).xw;
     float thickness = thicknessAndVelocity.x;
-    float velocity = min(thicknessAndVelocity.y * 0.001f, 1.f) * enableWhitewater;
+    float velocity = min(thicknessAndVelocity.y, 1.f) * enableWhitewater;
     velocity *= whitewaterStrength;
 
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);

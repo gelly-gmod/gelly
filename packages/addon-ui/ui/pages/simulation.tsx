@@ -38,6 +38,11 @@ export default function Simulation() {
 		useSettingValue("simulation_gravity");
 	const [maxParticles, setMaxParticles, resetMaxParticles] =
 		useSettingValue("max_particles");
+	const [
+		maxDiffuseParticles,
+		setMaxDiffuseParticles,
+		resetMaxDiffuseParticles,
+	] = useSettingValue("max_diffuse_particles");
 	const [sprayThreshold, setSprayThreshold, resetSprayThreshold] =
 		useSettingValue("spray_threshold");
 	const [sprayDrag, setSprayDrag, resetSprayDrag] =
@@ -60,7 +65,7 @@ export default function Simulation() {
 			<Sliders>
 				<Slider
 					min={20}
-					max={60}
+					max={144}
 					step={1}
 					unit="Hz"
 					value={simRate}
@@ -159,6 +164,20 @@ export default function Simulation() {
 
 				<SliderSectionHeader>Whitewater Settings</SliderSectionHeader>
 				<HorizontalSeparator />
+
+				<Slider
+					min={10000}
+					max={1500000}
+					step={10000}
+					unit=""
+					label="Max Diffuse Particles"
+					value={maxDiffuseParticles}
+					setValue={setMaxDiffuseParticles}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onlySetValuesOnMouseUp
+					onResetRequest={resetMaxDiffuseParticles}
+				/>
 
 				<CheckBox
 					label="Whitewater Enabled"
@@ -268,8 +287,10 @@ export default function Simulation() {
 						the cost of reduced simulation quality.
 					</ExplanationText>
 					<ExplanationText>
-						Simulation rate, in particular, may cause visual lag, so
-						it is not recommended to lower it below 60Hz.
+						Simulation rate should be set to your average frame
+						rate, which for most people is 60Hz. But, if you want
+						smoother simulation, you can set it to 144Hz albeit
+						incurring a performance cost.
 					</ExplanationText>
 					<ExplanationText warning>
 						Max particles is a hard limit on the number of particles
