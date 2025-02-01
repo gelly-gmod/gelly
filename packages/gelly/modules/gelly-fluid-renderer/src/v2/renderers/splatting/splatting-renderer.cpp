@@ -74,13 +74,6 @@ auto SplattingRenderer::StartRendering() -> void {
 		);
 	}
 #endif
-
-	auto computeAccelCBuffer = cbuffer::ComputeAccelerationCBufferData{
-		.g_DeltaTime = createInfo.solver->GetLastDeltaTime()
-	};
-
-	UpdateAccelFrameParams(computeAccelCBuffer);
-
 	RunPipeline(
 		ellipsoidSplatting,
 		durations.ellipsoidSplatting,
@@ -91,6 +84,12 @@ auto SplattingRenderer::StartRendering() -> void {
 		if (settings.enableGPUTiming) {
 			durations.computeAcceleration.Start();
 		}
+
+		auto computeAccelCBuffer = cbuffer::ComputeAccelerationCBufferData{
+			.g_DeltaTime = createInfo.solver->GetLastDeltaTime()
+		};
+
+		UpdateAccelFrameParams(computeAccelCBuffer);
 		computeAcceleration->Dispatch(
 			{static_cast<unsigned int>(
 				 createInfo.solver->GetActiveParticleCount()
