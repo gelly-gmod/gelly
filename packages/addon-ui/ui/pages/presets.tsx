@@ -19,6 +19,9 @@ import {
 import ColorPicker from "../components/ColorPicker.tsx";
 import CheckBox from "../components/CheckBox.tsx";
 import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
+import { PresetMenu } from "../components/PresetMenu.tsx";
+import { gellySync, Preset } from "../gelly-sync.ts";
+import { useEffect, useState } from "preact/hooks";
 
 export default function Presets() {
 	const [fluidRadius, setFluidRadius, resetFluidRadius] =
@@ -48,6 +51,18 @@ export default function Presets() {
 
 	const [useWhitewater, setUseWhitewater, resetUseWhitewater] =
 		useSettingValue("fluid_use_whitewater");
+
+	const [presets, setPresets] = useState<Preset[]>(gellySync.presets ?? []);
+
+	useEffect(() => {
+		const listener = () => {
+			setPresets([...gellySync.presets]);
+		};
+
+		gellySync.addPresetListener(listener);
+
+		return () => gellySync.removePresetListener(listener);
+	}, []);
 
 	return (
 		<SlidersExplanationLayout>
@@ -199,6 +214,15 @@ export default function Presets() {
 					checked={useWhitewater}
 					onChange={setUseWhitewater}
 					onResetRequest={resetUseWhitewater}
+				/>
+
+				<ExplanationHeader>Presets</ExplanationHeader>
+				<HorizontalSeparator />
+				<PresetMenu
+					presets={presets}
+					onPresetSelected={(preset) =>
+						gelly.selectPreset(preset.name)
+					}
 				/>
 			</Sliders>
 			<Separator />

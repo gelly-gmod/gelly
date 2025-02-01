@@ -1,5 +1,6 @@
 return {
 	Name = "Piss",
+	Color = Color(255, 255, 80, 255),
 	Radius = 3.5,
 	UseWhitewater = true,
 	SolverParams = {

@@ -43,4 +43,5 @@ declare namespace gelly {
 	function getVersion(callback: (version: string) => void): void;
 	function hide(): void;
 	function getMenuBindKey(callback: (key: string) => void): void;
+	function selectPreset(preset: string): void;
 }

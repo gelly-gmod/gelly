@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.33.0] - 2025-02-01
+
+### Added
+
+- Added a new preset menu, found in the same customization menu (open with M, by default). This menu allows you to
+  quickly switch between presets without needing to use the Gelly Gun.
+- Added a new preset, Gelq, a viscous but slippery purple-pink plastic fluid.
+- Added a new preset, Gallium, a fully metallic fluid that reflects light like a metal.
+- Added a new preset, Milk. which acts like Gell-O but is more opaque and white. :)
+
 ## [1.32.0] - 2025-01-31
 
 ### Added

@@ -1,6 +1,5 @@
 local showPopup = include("gelly/ui/show-popup.lua")
 include("gelly/ui/welcome-screen.lua")
-include("gelly/ui/customization.lua")
 
 local GELLY_MISSING_TITLE = "Gelly Missing"
 local GELLY_MISSING_CONTENT =
@@ -39,9 +38,6 @@ hook.Add("PostRender", "gelly.load-gelly", function()
 		vgui.Create("GellyWelcomeScreen")
 		removeFirstLaunchCookie()
 	end
-
-	GELLY_CUSTOMIZATION = vgui.Create("GellyCustomizationMenu")
-	GELLY_CUSTOMIZATION:Hide()
 
 	local isGellyLoaded, errorMessage = pcall(require, "gelly-gmod")
 
