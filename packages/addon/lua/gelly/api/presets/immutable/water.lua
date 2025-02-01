@@ -1,5 +1,6 @@
 return {
 	Name = "Water",
+	Color = Color(150, 150, 255, 255),
 	Radius = 3.5,
 	UseWhitewater = true,
 	SolverParams = {

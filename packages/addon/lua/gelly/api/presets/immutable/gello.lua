@@ -1,5 +1,6 @@
 return {
 	Name = "Gell-O",
+	Color = Color(255, 60, 60, 255),
 	Radius = 3,
 	SolverParams = {
 		Viscosity = 20,

@@ -22,3 +22,7 @@ include("gelly/util/prop-resizer.lua")
 gellyx.mods.initialize()
 gellyx.mods.runMods()
 gellyx.settings.updateBinaryModuleSettings()
+
+include("gelly/ui/customization.lua")
+GELLY_CUSTOMIZATION = vgui.Create("GellyCustomizationMenu")
+GELLY_CUSTOMIZATION:Hide()

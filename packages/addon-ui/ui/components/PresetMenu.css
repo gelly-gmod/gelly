@@ -1,0 +1,46 @@
+#preset-menu {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 10px;
+	margin-top: 10px;
+	padding: 8px;
+	box-sizing: border-box;
+
+	border: 1px solid #403c3c;
+	border-radius: 4px;
+
+	width: 100%;
+	max-height: 300px;
+}
+
+.preset-button {
+	display: inline-block;
+	padding: 8px 8px;
+	width: 80px;
+	height: 80px;
+	aspect-ratio: 1 / 1;
+	border: none;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.1);
+	font-size: 1.3em;
+	font-weight: normal;
+	font-family: "Roboto", sans-serif;
+	cursor: pointer;
+
+	/* remove default button styles */
+	appearance: none;
+	outline: none;
+
+	transition: background 0.1s ease;
+}
+
+.preset-button:hover {
+	background: #333;
+}
+
+.preset-button:active {
+	background: #444;
+}

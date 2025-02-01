@@ -1,5 +1,6 @@
 return {
 	Name = "Blood",
+	Color = Color(255, 100, 100, 255),
 	Radius = 3.50,
 	SolverParams = {
 		Viscosity = 0,
