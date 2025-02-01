@@ -1,5 +1,6 @@
 local logging = include("gelly/logging.lua")
 local ENVBALLS_MODEL_PATH = "models/shadertest/envballs.mdl"
+local MAX_OVERSTEP_PERCENT = 15
 
 GELLY_SIM_TIMESCALE = 10
 GELLY_SIM_RATE_HZ = 60
@@ -71,7 +72,7 @@ hook.Add("GellyLoaded", "gelly.update-loop", function()
 			if dt >= 1 / GELLY_SIM_RATE_HZ then
 				lastSimTime = now
 				simulationStarted = true
-				local maxCompensation = (1 / GELLY_SIM_RATE_HZ) * 1.15 -- maximum overstep allowed
+				local maxCompensation = (1 / GELLY_SIM_RATE_HZ) * (1 + MAX_OVERSTEP_PERCENT / 100)
 				gelly.BeginTick(math.min(dt, maxCompensation))
 			end
 		end

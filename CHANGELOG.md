@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.32.0] - 2025-01-31
 
+### Added
+
+- Added an entirely new foam system, which should look significantly better than the old one. It has less flickering and
+  smoother transitions.
+
 ### Changed
 
 - Rewrote the entire simulation codebase. What that means is you can expect generally faster load times and performance
@@ -14,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized the update loop. This should result in a consistent 60 FPS simulation, which means while it could look
   choppy, your FPS should be higher and performance should be better.
 - Added a slider in Simulation named Max Diffuse Particles, which controls how many foam particles can spawn.
+
+### Fixed
+
+- Fixed fluid exploding when alt-tabbed or when the game is minimized.
 
 ## [1.31.0] - 2025-01-29
 
