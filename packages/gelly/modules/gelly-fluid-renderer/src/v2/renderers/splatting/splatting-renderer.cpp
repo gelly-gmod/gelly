@@ -74,6 +74,13 @@ auto SplattingRenderer::StartRendering() -> void {
 		);
 	}
 #endif
+
+	auto computeAccelCBuffer = cbuffer::ComputeAccelerationCBufferData{
+		.g_DeltaTime = createInfo.solver->GetLastDeltaTime()
+	};
+
+	UpdateAccelFrameParams(computeAccelCBuffer);
+
 	RunPipeline(
 		ellipsoidSplatting,
 		durations.ellipsoidSplatting,
@@ -195,6 +202,12 @@ auto SplattingRenderer::UpdateFrameParams(cbuffer::FluidRenderCBufferData &data)
 	);
 }
 
+auto SplattingRenderer::UpdateAccelFrameParams(
+	cbuffer::ComputeAccelerationCBufferData &data
+) -> void {
+	pipelineInfo.internalBuffers->computeAccelerationCBuffer.UpdateBuffer(data);
+}
+
 auto SplattingRenderer::SetFrameResolution(float width, float height) -> void {
 	frameParamCopy.g_ViewportWidth = width;
 	frameParamCopy.g_ViewportHeight = height;
@@ -297,12 +310,24 @@ auto SplattingRenderer::GetOutputD3DBuffers() const
 		.smoothedPositions =
 			pipelineInfo.internalBuffers->particlePositions->GetRawBuffer().Get(
 			),
-		.velocitiesPrevFrame =
-			pipelineInfo.internalBuffers->particleVelocities0->GetRawBuffer()
-				.Get(),
 		.velocities =
-			pipelineInfo.internalBuffers->particleVelocities1->GetRawBuffer()
-				.Get(),
+			{
+				pipelineInfo.internalBuffers->particleVelocities0
+					->GetRawBuffer()
+					.Get(),
+				pipelineInfo.internalBuffers->particleVelocities1
+					->GetRawBuffer()
+					.Get(),
+				pipelineInfo.internalBuffers->particleVelocities2
+					->GetRawBuffer()
+					.Get(),
+				pipelineInfo.internalBuffers->particleVelocities3
+					->GetRawBuffer()
+					.Get(),
+				pipelineInfo.internalBuffers->particleVelocities4
+					->GetRawBuffer()
+					.Get(),
+			},
 		.anisotropyQ1 =
 			pipelineInfo.internalBuffers->anisotropyQ1->GetRawBuffer().Get(),
 		.anisotropyQ2 =

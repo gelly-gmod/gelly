@@ -33,12 +33,31 @@ inline auto CreateComputeAccelerationPipeline(const PipelineInfo &pipelineInfo)
 				 },
 				 InputBuffer{
 					 .buffer =
+						 pipelineInfo.internalBuffers->particleVelocities2,
+					 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+					 .slot = 2
+				 },
+				 InputBuffer{
+					 .buffer =
+						 pipelineInfo.internalBuffers->particleVelocities3,
+					 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+					 .slot = 3
+				 },
+				 InputBuffer{
+					 .buffer =
+						 pipelineInfo.internalBuffers->particleVelocities4,
+					 .bindFlag = D3D11_BIND_SHADER_RESOURCE,
+					 .slot = 4
+				 },
+				 InputBuffer{
+					 .buffer =
 						 pipelineInfo.internalBuffers->particleAccelerations,
 					 .bindFlag = D3D11_BIND_UNORDERED_ACCESS,
 					 .slot = 2
 				 }},
 			.outputs = {},
-			.constantBuffers = {},
+			.constantBuffers = {pipelineInfo.internalBuffers
+									->computeAccelerationCBuffer.GetBuffer()},
 			.threadGroupSize = {64, 1, 1},
 			.repeatCount = 1,
 		}

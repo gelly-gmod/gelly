@@ -103,6 +103,8 @@ public:
 	auto StartRendering() -> void;
 	auto EndRendering() -> void;
 	auto UpdateFrameParams(cbuffer::FluidRenderCBufferData &data) -> void;
+	auto UpdateAccelFrameParams(cbuffer::ComputeAccelerationCBufferData &data)
+		-> void;
 	auto SetFrameResolution(float width, float height) -> void;
 	auto GetSettings() const -> Settings;
 	auto UpdateSettings(const Settings &settings) -> void;

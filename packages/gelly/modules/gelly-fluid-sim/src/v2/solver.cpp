@@ -19,6 +19,7 @@ Solver::~Solver() {
 void Solver::BeginTick(float dt) {
 	particleCountAtBeginTick = newActiveParticleCount;
 	dt *= timeStepMultiplier;
+	lastDeltaTime = dt;
 
 	NvFlexSetParams(solver, &params);
 	NvFlexSetActiveCount(solver, newActiveParticleCount);
@@ -53,13 +54,10 @@ void Solver::EndTick() {
 		);
 
 		NvFlexGetVelocities(
-			solver,
-			swapVelocities ? *outputBuffers.velocitiesPrevFrame
-						   : *outputBuffers.velocities,
-			&copyDesc
+			solver, *outputBuffers.velocities[velocityFrameIndex], &copyDesc
 		);
 
-		swapVelocities = !swapVelocities;
+		velocityFrameIndex = (velocityFrameIndex + 1) % VELOCITY_FRAMES;
 
 		const auto *count = buffers.diffuseParticleCount.Map();
 		activeDiffuseParticleCount = *count;

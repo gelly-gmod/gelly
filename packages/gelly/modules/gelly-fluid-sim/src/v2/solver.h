@@ -13,6 +13,7 @@
 
 namespace gelly::simulation {
 using namespace helpers;
+constexpr auto VELOCITY_FRAMES = 5;
 
 struct SolverBufferSet {
 	FlexBuffer<DirectX::XMFLOAT4> positions;
@@ -33,8 +34,7 @@ struct SolverBufferSet {
 
 struct OutputD3DBuffers {
 	ID3D11Buffer *smoothedPositions;
-	ID3D11Buffer *velocitiesPrevFrame;
-	ID3D11Buffer *velocities;
+	ID3D11Buffer *velocities[VELOCITY_FRAMES];
 	ID3D11Buffer *anisotropyQ1;
 	ID3D11Buffer *anisotropyQ2;
 	ID3D11Buffer *anisotropyQ3;
@@ -44,8 +44,7 @@ struct OutputD3DBuffers {
 
 struct OutputBuffers {
 	FlexGpuBuffer<DirectX::XMFLOAT4> smoothedPositions;
-	FlexGpuBuffer<DirectX::XMFLOAT3> velocitiesPrevFrame;
-	FlexGpuBuffer<DirectX::XMFLOAT3> velocities;
+	FlexGpuBuffer<DirectX::XMFLOAT3> velocities[VELOCITY_FRAMES];
 	FlexGpuBuffer<DirectX::XMFLOAT4> anisotropyQ1;
 	FlexGpuBuffer<DirectX::XMFLOAT4> anisotropyQ2;
 	FlexGpuBuffer<DirectX::XMFLOAT4> anisotropyQ3;
@@ -65,16 +64,7 @@ struct OutputBuffers {
 			.buffer = info.rendererBuffers.smoothedPositions,
 			.maxElements = info.maxParticles,
 		}),
-		velocitiesPrevFrame({
-			.library = info.library,
-			.buffer = info.rendererBuffers.velocitiesPrevFrame,
-			.maxElements = info.maxParticles,
-		}),
-		velocities({
-			.library = info.library,
-			.buffer = info.rendererBuffers.velocities,
-			.maxElements = info.maxParticles,
-		}),
+		velocities({}),
 		anisotropyQ1({
 			.library = info.library,
 			.buffer = info.rendererBuffers.anisotropyQ1,
@@ -99,11 +89,18 @@ struct OutputBuffers {
 			.library = info.library,
 			.buffer = info.rendererBuffers.foamVelocities,
 			.maxElements = info.maxDiffuseParticles,
-		}) {}
+		}) {
+		for (int i = 0; i < VELOCITY_FRAMES; ++i) {
+			velocities[i] = FlexGpuBuffer<DirectX::XMFLOAT3>({
+				.library = info.library,
+				.buffer = info.rendererBuffers.velocities[i],
+				.maxElements = info.maxParticles,
+			});
+		}
+	}
 
 	OutputBuffers() :
 		smoothedPositions(),
-		velocitiesPrevFrame(),
 		velocities(),
 		anisotropyQ1(),
 		anisotropyQ2(),
@@ -165,6 +162,8 @@ public:
 	int GetMaxParticles() const;
 	int GetMaxDiffuseParticles() const;
 
+	float GetLastDeltaTime() const { return lastDeltaTime; }
+
 	bool IsWhitewaterEnabled() const { return info.maxDiffuseParticles > 0; }
 
 	Scene &GetScene() { return scene; }
@@ -187,11 +186,12 @@ private:
 	int activeDiffuseParticleCount = 0;
 	int newActiveParticleCount = 0;
 	int particleCountAtBeginTick = 0;
-	bool swapVelocities = false;
+	int velocityFrameIndex = 0;
 
 	int substeps = 3;
 	// Tracked because it must scale with the time step multiplier
 	float diffuseLifetime = 0.f;
+	float lastDeltaTime = 0.f;
 
 	SolverBufferSet buffers;
 	OutputBuffers outputBuffers;
