@@ -139,6 +139,7 @@ function PANEL:SetupJSEnvironment()
 
 	self.HTML:AddFunction("gelly", "selectPreset", function(presetName)
 		gellyx.presets.select(presetName)
+		gelly.Reset()
 	end)
 
 	local panel = self
