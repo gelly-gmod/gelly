@@ -6,6 +6,7 @@
 #include "source-engine/AmbientCube.hlsli"
 #include "material/Diffuse.hlsli"
 #include "util/CMRMap.hlsli"
+#include "material/Scattering.hlsli"
 
 // arbitrary constant for controlling the light spread for the sun, higher = less spread (concentrated)
 #define SUN_SPREAD_CONSTRAIN 256.f
@@ -99,6 +100,11 @@ float3 SampleTransmission(in float2 tex, in float thickness, in float3 pos, in f
     return transmission;
 }
 
+float3 SampleTransmissionNoAbsorption(in float2 tex, in float thickness, in float3 pos, in float3 eyeDir, in float3 normal) {
+	float2 uv = ApplyRefractionToUV(tex, thickness, normal, pos, eyeDir);
+	return tex2D(backbufferTex, uv).xyz;
+}
+
 #define UNDERWATER_DEPTH_MINIMUM 0.7f
 float4 Shade(VS_INPUT input, float projectedDepth) {
     if (projectedDepth <= UNDERWATER_DEPTH_MINIMUM) {
@@ -111,7 +117,7 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
 
     float2 thicknessAndVelocity = tex2D(thicknessTex, input.Tex).xw;
     float thickness = thicknessAndVelocity.x;
-    float velocity = min(thicknessAndVelocity.y * 0.001f, 1.f) * enableWhitewater;
+    float velocity = min(thicknessAndVelocity.y, 1.f) * enableWhitewater;
     velocity *= whitewaterStrength;
 
     float3 absorption = ComputeAbsorption(NormalizeAbsorption(tex2D(absorptionTex, input.Tex).xyz, thickness), thickness);
@@ -133,16 +139,29 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
         GetNdotL(normal, normal), // ambient light is coming from everywhere
         GetLdotH(normal, GetHalfwayDir(eyeDir, normal)),
         material.r_st_ior.x * material.r_st_ior.x
-    ) * diffuseIrradiance * material.diffuseAlbedo;
+    ) * diffuseIrradiance * material.diffuseAlbedo.rgb;
 
 	float3 transmission = SampleTransmission(input.Tex, thickness, position, eyeDir, normal, absorption);
 	transmission += lerp(diffuseIrradiance, diffuseIrradiance * float3(1.5f, 1.5f, 1.5f), 0.03f) * velocity;
 
+	float3 scatteringLobe = ComputeScatteringRadiance(
+		normal,
+		normal,
+		-eyeDir,
+		2,
+		thickness,
+		material.diffuseAlbedo.rgb,
+		diffuseIrradiance
+	) + SampleTransmissionNoAbsorption(input.Tex, thickness, position, eyeDir, normal);
+	
+	scatteringLobe = (1.f - fresnel) * scatteringLobe + fresnel * specular;
+	scatteringLobe *= material.r_st_ior.a;
     float3 specularTransmissionLobe = (1.f - fresnel) * transmission + fresnel * specular;
 
     // inverse fresnel is already applied to the diffuse lobe
     float3 diffuseSpecularLobe = diffuse + fresnel * specular;
     float3 roughLobe = (1.f - material.r_st_ior.x) * diffuseSpecularLobe + material.r_st_ior.x * diffuse;
+	float3 metallicLobe = material.diffuseAlbedo.a * (specular * SchlicksConductor(material.diffuseAlbedo, max(dot(normal, eyeDir), 0.f)));
 
     specularTransmissionLobe *= material.r_st_ior.y;
     roughLobe *= (1.f - material.r_st_ior.y);
@@ -158,6 +177,15 @@ float4 Shade(VS_INPUT input, float projectedDepth) {
     return float4(util::CMRMapFloat(velocity), 1.f);
 #else
     float3 weight = specularTransmissionLobe + roughLobe;
+	weight *= 1.f - material.diffuseAlbedo.a;
+	weight += metallicLobe;
+	weight *= 1.f - material.r_st_ior.a;
+	weight += scatteringLobe;
+
+	// If metallic, we disable all other lobes and just use the metallic lobe
+	// For shader model 3, it's far more performant to do this rather than
+	// use actual branching.
+	
 	return float4(weight, 1.f);
 #endif
 }

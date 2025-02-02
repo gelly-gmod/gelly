@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.33.0] - 2025-02-01
+
+### Added
+
+- Added a new preset menu, found in the same customization menu (open with M, by default). This menu allows you to
+  quickly switch between presets without needing to use the Gelly Gun.
+- Added a new preset, Gelq, a viscous but slippery purple-pink plastic fluid.
+- Added a new preset, Gallium, a fully metallic fluid that reflects light like a metal.
+- Added a new preset, Milk. which acts like Gell-O but is more opaque and white. :)
+
+## [1.32.0] - 2025-01-31
+
+### Added
+
+- Added an entirely new foam system, which should look significantly better than the old one. It has less flickering and
+  smoother transitions.
+
+### Changed
+
+- Rewrote the entire simulation codebase. What that means is you can expect generally faster load times and performance
+  improvements.
+- Optimized the update loop. This should result in a consistent 60 FPS simulation, which means while it could look
+  choppy, your FPS should be higher and performance should be better.
+- Added a slider in Simulation named Max Diffuse Particles, which controls how many foam particles can spawn.
+
+### Fixed
+
+- Fixed fluid exploding when alt-tabbed or when the game is minimized.
+
+## [1.31.0] - 2025-01-29
+
+### Added
+
+- Added support for player collisions. This can be customized in the customization menu
+  under Simulation.
+- Added support for NPC collisions.
+- Added support for ragdoll collisions.
+
+### Changed
+
+- The prior method for collisions was removed and updated in this version, so hopefully you can expect more accurate and
+  better compatibility with other models beyond the basic GMod props.
+- Tuned blood preset to be more globby, but not that globby.
+- Blood now squirts from both sides of a gunshot wound in the blood mod.
+- Optimized map loading, so phys-heavy maps such as gm_gwater_remastered should load faster.
+
+## [1.30.0] - 2025-01-29
+
+### Added
+
+- Added scattering! You can now select "Scatter" in the Presets tab to have the fluid scatter light, which gives a more
+  soft and jelly-like appearance.
+- Added metals! You can now select "Metal" in the Presets tab to have the fluid reflect light like a metal.
+
 ## [1.29.6] - 2025-01-29
 
 ### Fixed

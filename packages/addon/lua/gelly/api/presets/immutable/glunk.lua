@@ -1,5 +1,6 @@
 return {
 	Name = "Glunk",
+	Color = Color(255, 255, 255, 255),
 	Radius = 3,
 	SolverParams = {
 		Viscosity = 20,

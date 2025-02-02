@@ -3,6 +3,19 @@ local gelly_ui_point_to_localhost = CreateClientConVar("gelly_ui_point_to_localh
 	"Point the Gelly UI to localhost for development purposes.")
 
 local PANEL = {}
+local TOGGLE_DELAY = 0.05
+
+local function encodeColorAsHexCode(color)
+	local rr = math.floor(color.r)
+	local gg = math.floor(color.g)
+	local bb = math.floor(color.b)
+
+	rr = rr < 16 and "0" .. string.format("%x", rr) or string.format("%x", rr)
+	gg = gg < 16 and "0" .. string.format("%x", gg) or string.format("%x", gg)
+	bb = bb < 16 and "0" .. string.format("%x", bb) or string.format("%x", bb)
+
+	return "#" .. rr .. gg .. bb
+end
 
 function PANEL:Init()
 	local localhostUI = gelly_ui_point_to_localhost:GetBool()
@@ -20,7 +33,7 @@ function PANEL:Init()
 end
 
 function PANEL:AdjustSize()
-	self:SetSize(ScrW() * 0.8, ScrH() * 0.6)
+	self:SetSize(ScrW() * 0.8, ScrH() * 0.9)
 	self:Center()
 end
 
@@ -43,12 +56,19 @@ function PANEL:Show()
 	self:ForceRemoveTranslucency()
 end
 
+local lastToggleTime = SysTime()
 function PANEL:ToggleVisibility()
+	if SysTime() - lastToggleTime < TOGGLE_DELAY then
+		return
+	end
+
 	if self:IsVisible() then
 		self:Hide()
 	else
 		self:Show()
 	end
+
+	lastToggleTime = SysTime()
 end
 
 function PANEL:Think()
@@ -72,6 +92,12 @@ end
 
 function PANEL:OnMousePressed()
 	self:Hide()
+end
+
+local ENCODE_PRESET_TEMPLATE = [[{name: '%s', color: '%s'}]]
+function PANEL:EncodePreset(preset)
+	return string.format(ENCODE_PRESET_TEMPLATE, preset.Name,
+		encodeColorAsHexCode(preset.Color or Color(100, 100, 100, 255)))
 end
 
 function PANEL:SetupJSEnvironment()
@@ -100,12 +126,29 @@ function PANEL:SetupJSEnvironment()
 	end)
 
 	self.HTML:AddFunction("gelly", "hide", function()
-		self:Hide()
+		self:ToggleVisibility()
 	end)
 
 	self.HTML:AddFunction("gelly", "getVersion", function()
 		return gelly.GetVersion() .. (gelly.IsRWDIBuild() and "+RWDI" or "")
 	end)
+
+	self.HTML:AddFunction("gelly", "getMenuBindKey", function()
+		return input.LookupBinding("gelly_toggle_customization") or "m"
+	end)
+
+	self.HTML:AddFunction("gelly", "selectPreset", function(presetName)
+		surface.PlaySound("garrysmod/ui_click.wav")
+		gellyx.presets.select(presetName)
+		gelly.Reset()
+	end)
+
+	local panel = self
+	function self.HTML:OnDocumentReady()
+		for _, preset in pairs(gellyx.presets.getAllPresets()) do
+			self:RunJavascript("gellySync.addPreset(" .. panel:EncodePreset(preset) .. ")")
+		end
+	end
 end
 
 function PANEL:ForceSettingUpdate()

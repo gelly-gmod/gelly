@@ -22,7 +22,8 @@ local BINARY_MODULE_RELATED_SETTINGS = {
 	"whitewater_strength",
 	"resolution_scale",
 	"glunk_lighting_fix",
-	"max_particles"
+	"max_particles",
+	"max_diffuse_particles"
 }
 
 function gellyx.settings.updateBinaryModuleSettings(changedConvar)
@@ -30,7 +31,12 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		-- This is one of our most expensive changes so we ensure it's only done when necessary
 		-- But on initialization, we need to set it again so we check if there even was a changed convar.
 
-		gelly.ChangeMaxParticles(gellyx.settings.get("max_particles"):GetInt())
+		local diffuseParticleCount = gellyx.settings.get("max_diffuse_particles"):GetInt()
+		diffuseParticleCount = gellyx.settings.get("whitewater_enabled"):GetBool() and
+			diffuseParticleCount or 0
+
+		gelly.ChangeMaxParticles(gellyx.settings.get("max_particles"):GetInt(), diffuseParticleCount)
+
 		gellyx.presets.select(gellyx.presets.getActivePreset().Name)
 		hook.Run("GellyRestarted")
 
@@ -83,8 +89,7 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		Lifetime = gellyx.settings.get("spray_lifetime"):GetFloat(),
 	})
 
-	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat() *
-		gellyx.settings.get("preset_radius_scale"):GetFloat())
+	gelly.SetDiffuseScale(gellyx.settings.get("spray_scale"):GetFloat())
 	gelly.SetDiffuseMotionBlur(gellyx.settings.get("spray_motion_blur"):GetFloat())
 end
 

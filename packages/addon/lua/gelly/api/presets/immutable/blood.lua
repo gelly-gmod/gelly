@@ -1,11 +1,12 @@
 return {
 	Name = "Blood",
+	Color = Color(255, 100, 100, 255),
 	Radius = 3.50,
 	SolverParams = {
 		Viscosity = 0,
 		SurfaceTension = 0.1,
 		Adhesion = 0.05,
-		Cohesion = 0.02,
+		Cohesion = 0.05,
 		VorticityConfinement = 0,
 		DynamicFriction = 1.1,
 		RestDistanceRatio = 0.55

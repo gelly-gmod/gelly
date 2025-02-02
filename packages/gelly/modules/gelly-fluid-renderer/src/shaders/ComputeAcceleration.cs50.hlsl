@@ -1,18 +1,40 @@
-Buffer<float3> previousVelocity : register(t0);
-Buffer<float3> currentVelocity : register(t1);
+Buffer<float3> velocity0 : register(t0);
+Buffer<float3> velocity1 : register(t1);
+Buffer<float3> velocity2 : register(t2);
+Buffer<float3> velocity3 : register(t3);
+Buffer<float3> velocity4 : register(t4);
+
 RWBuffer<float> acceleration : register(u0);
 
-// we process 64 particles at a time- enough to satisfy most nvidia warp sizes
+#include "ComputeAccelerationCBuffer.hlsli"
+
+static const float DV_CUTOFF = 5.f;
+static const float ACCEL_MULTIPLIER = 0.004f;
+static const float FOAM_DECAY_RATE = 8.f;
+
 [numthreads(64, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID) {
 	uint index = DTid.x;
 
-	float3 prevVel = previousVelocity[index];
-	float3 currVel = currentVelocity[index];
-	float3 dv = currVel - prevVel;
-	float3 accel = dv / 0.001f; // the simulation has a fixed timestep of 60Hz
-	float accelMagnitude = length(accel);
-	accelMagnitude /= 20.f;
+	float vel0 = length(velocity0[index]);
+	float vel1 = length(velocity1[index]);
+	float vel2 = length(velocity2[index]);
+	float vel3 = length(velocity3[index]);
+	float vel4 = length(velocity4[index]);
+	float dv10 = abs(vel1 - vel0);
+	float dv21 = abs(vel2 - vel1);
+	float dv32 = abs(vel3 - vel2);
+	float dv43 = abs(vel4 - vel3);
 
-	acceleration[index] = accelMagnitude;
+	float avgDv = (dv10 + dv21 + dv32 + dv43) / 4.f;
+	float accelMagnitude = avgDv / g_DeltaTime * ACCEL_MULTIPLIER;
+
+	float foaminess = acceleration[index];
+	if (avgDv > DV_CUTOFF) {
+		foaminess += accelMagnitude * 0.5f;
+	}
+
+	foaminess -= g_DeltaTime / FOAM_DECAY_RATE;
+	foaminess = saturate(foaminess);
+	acceleration[index] = foaminess;
 }

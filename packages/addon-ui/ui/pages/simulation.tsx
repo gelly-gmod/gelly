@@ -26,17 +26,23 @@ export default function Simulation() {
 	const [substeps, setSubsteps, resetSubsteps] = useSettingValue(
 		"simulation_substeps",
 	);
-	const [presetRadiusScale, setPresetRadiusScale, resetPresetRadiusScale] =
-		useSettingValue("preset_radius_scale");
 	const [relaxation, setRelaxation, resetRelaxation] = useSettingValue(
 		"simulation_relaxation",
 	);
+	const [playerCollision, setPlayerCollision, resetPlayerCollision] =
+		useSettingValue("player_collision");
+
 	const [collisionDistance, setCollisionDistance, resetCollisionDistance] =
 		useSettingValue("simulation_collision_distance");
 	const [gravity, setGravity, resetGravity] =
 		useSettingValue("simulation_gravity");
 	const [maxParticles, setMaxParticles, resetMaxParticles] =
 		useSettingValue("max_particles");
+	const [
+		maxDiffuseParticles,
+		setMaxDiffuseParticles,
+		resetMaxDiffuseParticles,
+	] = useSettingValue("max_diffuse_particles");
 	const [sprayThreshold, setSprayThreshold, resetSprayThreshold] =
 		useSettingValue("spray_threshold");
 	const [sprayDrag, setSprayDrag, resetSprayDrag] =
@@ -59,7 +65,7 @@ export default function Simulation() {
 			<Sliders>
 				<Slider
 					min={20}
-					max={60}
+					max={144}
 					step={1}
 					unit="Hz"
 					value={simRate}
@@ -97,19 +103,6 @@ export default function Simulation() {
 				/>
 
 				<Slider
-					min={1}
-					max={5}
-					step={0.1}
-					unit="x"
-					value={presetRadiusScale}
-					setValue={setPresetRadiusScale}
-					label="Radius Scale"
-					onInputStart={enableTemporaryTranslucency}
-					onInputEnd={disableTemporaryTranslucency}
-					onResetRequest={resetPresetRadiusScale}
-				/>
-
-				<Slider
 					min={10000}
 					max={1500000}
 					step={10000}
@@ -136,9 +129,16 @@ export default function Simulation() {
 					onResetRequest={resetRelaxation}
 				/>
 
+				<CheckBox
+					label="Player Collision"
+					checked={playerCollision}
+					onChange={setPlayerCollision}
+					onResetRequest={resetPlayerCollision}
+				/>
+
 				<Slider
-					min={0}
-					max={5}
+					min={0.01}
+					max={7.5}
 					step={0.25}
 					unit="hu"
 					value={collisionDistance}
@@ -164,6 +164,20 @@ export default function Simulation() {
 
 				<SliderSectionHeader>Whitewater Settings</SliderSectionHeader>
 				<HorizontalSeparator />
+
+				<Slider
+					min={10000}
+					max={1500000}
+					step={10000}
+					unit=""
+					label="Max Diffuse Particles"
+					value={maxDiffuseParticles}
+					setValue={setMaxDiffuseParticles}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onlySetValuesOnMouseUp
+					onResetRequest={resetMaxDiffuseParticles}
+				/>
 
 				<CheckBox
 					label="Whitewater Enabled"
@@ -273,8 +287,10 @@ export default function Simulation() {
 						the cost of reduced simulation quality.
 					</ExplanationText>
 					<ExplanationText>
-						Simulation rate, in particular, may cause visual lag, so
-						it is not recommended to lower it below 60Hz.
+						Simulation rate should be set to your average frame
+						rate, which for most people is 60Hz. But, if you want
+						smoother simulation, you can set it to 144Hz albeit
+						incurring a performance cost.
 					</ExplanationText>
 					<ExplanationText warning>
 						Max particles is a hard limit on the number of particles

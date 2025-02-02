@@ -313,7 +313,7 @@ void StandardPipeline::UpdateGellyRenderParams() {
 
 void StandardPipeline::RenderGellyFrame() {
 	const auto renderer = gellyResources.splattingRenderer;
-	renderer->Render();
+	renderer->StartRendering();
 }
 
 void StandardPipeline::SetCompositeSamplerState(

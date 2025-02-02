@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include "fluidsim/scene/helpers/flex-types.h"
+#include "v2/scene/helpers/flex-types.h"
 
 using namespace Gelly;
 
@@ -316,11 +316,10 @@ ObjectID ShapeHandler::MakeShape(const ShapeCreationInfo &info) {
 void ShapeHandler::RemoveShape(ObjectID id) {
 	const auto it = objects.find(id);
 	if (it == objects.end()) {
-		throw std::runtime_error("Shape object not found");
+		return;
 	}
 
 	if (it->second.type == ShapeType::TRIANGLE_MESH) {
-		NvFlexDestroyTriangleMesh(ctx.lib, it->second.triangleMesh.meshId);
 	}
 
 	objects.erase(it);
@@ -332,7 +331,7 @@ void ShapeHandler::UpdateShape(
 ) {
 	const auto it = objects.find(id);
 	if (it == objects.end()) {
-		throw std::runtime_error("Shape object not found");
+		return;
 	}
 
 	auto &object = it->second;

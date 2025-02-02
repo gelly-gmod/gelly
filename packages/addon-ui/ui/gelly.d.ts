@@ -42,4 +42,6 @@ declare namespace gelly {
 	function getActiveParticles(callback: (count: number) => void): void;
 	function getVersion(callback: (version: string) => void): void;
 	function hide(): void;
+	function getMenuBindKey(callback: (key: string) => void): void;
+	function selectPreset(preset: string): void;
 }

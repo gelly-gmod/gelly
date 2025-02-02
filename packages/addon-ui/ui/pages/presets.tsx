@@ -19,6 +19,9 @@ import {
 import ColorPicker from "../components/ColorPicker.tsx";
 import CheckBox from "../components/CheckBox.tsx";
 import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
+import { PresetMenu } from "../components/PresetMenu.tsx";
+import { gellySync, Preset } from "../gelly-sync.ts";
+import { useEffect, useState } from "preact/hooks";
 
 export default function Presets() {
 	const [fluidRadius, setFluidRadius, resetFluidRadius] =
@@ -42,8 +45,24 @@ export default function Presets() {
 	const [roughness, setRoughness, resetRoughness] =
 		useSettingValue("fluid_roughness");
 	const [opaque, setOpaque, resetOpaque] = useSettingValue("fluid_opaque");
+	const [metal, setMetal, resetMetal] = useSettingValue("fluid_metal");
+	const [scatter, setScatter, resetScatter] =
+		useSettingValue("fluid_scatter");
+
 	const [useWhitewater, setUseWhitewater, resetUseWhitewater] =
 		useSettingValue("fluid_use_whitewater");
+
+	const [presets, setPresets] = useState<Preset[]>(gellySync.presets ?? []);
+
+	useEffect(() => {
+		const listener = () => {
+			setPresets([...gellySync.presets]);
+		};
+
+		gellySync.addPresetListener(listener);
+
+		return () => gellySync.removePresetListener(listener);
+	}, []);
 
 	return (
 		<SlidersExplanationLayout>
@@ -52,7 +71,7 @@ export default function Presets() {
 				<HorizontalSeparator />
 				<Slider
 					min={1}
-					max={10}
+					max={50}
 					step={0.1}
 					unit="hu"
 					label="Radius"
@@ -170,6 +189,20 @@ export default function Presets() {
 				/>
 
 				<CheckBox
+					label="Metal"
+					checked={metal}
+					onChange={setMetal}
+					onResetRequest={resetMetal}
+				/>
+
+				<CheckBox
+					label="Scatter"
+					checked={scatter}
+					onChange={setScatter}
+					onResetRequest={resetScatter}
+				/>
+
+				<CheckBox
 					label="Opaque"
 					checked={opaque}
 					onChange={setOpaque}
@@ -181,6 +214,15 @@ export default function Presets() {
 					checked={useWhitewater}
 					onChange={setUseWhitewater}
 					onResetRequest={resetUseWhitewater}
+				/>
+
+				<ExplanationHeader>Presets</ExplanationHeader>
+				<HorizontalSeparator />
+				<PresetMenu
+					presets={presets}
+					onPresetSelected={(preset) =>
+						gelly.selectPreset(preset.name)
+					}
 				/>
 			</Sliders>
 			<Separator />

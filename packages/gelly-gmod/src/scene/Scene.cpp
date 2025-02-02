@@ -1,13 +1,7 @@
 #include "Scene.h"
 
-Scene::Scene(
-	const std::shared_ptr<ISimContext> &simContext,
-	const std::shared_ptr<IFluidSimulation> &sim,
-	int maxParticles
-) :
-	simContext(simContext), sim(sim), ents(), particles(sim), config(sim) {
-	sim->SetMaxParticles(maxParticles);
-}
+Scene::Scene(const std::shared_ptr<gelly::simulation::Simulation> &sim) :
+	sim(sim), ents(), particles(sim) {}
 
 void Scene::AddEntity(
 	EntIndex entIndex,
@@ -23,22 +17,28 @@ void Scene::AddPlayerObject(EntIndex entIndex, float radius, float halfHeight) {
 
 void Scene::RemoveEntity(EntIndex entIndex) { ents->RemoveEntity(entIndex); }
 
-void Scene::UpdateEntityPosition(EntIndex entIndex, Vector position) {
-	ents->UpdateEntityPosition(entIndex, position);
+void Scene::UpdateEntityPosition(
+	EntIndex entIndex, Vector position, size_t boneIndex
+) {
+	ents->UpdateEntityPosition(entIndex, position, boneIndex);
 }
 
-void Scene::UpdateEntityRotation(EntIndex entIndex, XMFLOAT4 rotation) {
-	ents->UpdateEntityRotation(entIndex, rotation);
+void Scene::UpdateEntityRotation(
+	EntIndex entIndex, XMFLOAT4 rotation, size_t boneIndex
+) {
+	ents->UpdateEntityRotation(entIndex, rotation, boneIndex);
 }
 
-void Scene::UpdateEntityScale(EntIndex entIndex, Vector scale) {
-	ents->UpdateEntityScale(entIndex, scale);
+void Scene::UpdateEntityScale(
+	EntIndex entIndex, Vector scale, size_t boneIndex
+) {
+	ents->UpdateEntityScale(entIndex, scale, boneIndex);
 }
 
 void Scene::LoadMap(
 	const std::shared_ptr<AssetCache> &assetCache, const std::string &mapPath
 ) {
-	map.emplace(assetCache, sim->GetScene(), mapPath);
+	map.emplace(assetCache, sim->GetSolver().GetUnownedScene(), mapPath);
 }
 
 void Scene::AddParticles(const ParticleListBuilder &builder) const {
@@ -47,15 +47,7 @@ void Scene::AddParticles(const ParticleListBuilder &builder) const {
 
 void Scene::ClearParticles() const { particles.ClearParticles(); }
 
-void Scene::SetFluidProperties(const ::SetFluidProperties &props) const {
-	config.SetFluidProperties(props);
-}
-
-void Scene::ChangeRadius(float radius) const { config.ChangeRadius(radius); }
-
 void Scene::Initialize() {
-	sim->Initialize();
-	ents.emplace(sim->GetScene());
-
+	ents.emplace(sim->GetSolver().GetUnownedScene());
 	SetTimeStepMultiplier(DEFAULT_TIMESTEP_MULTIPLIER);
 }
