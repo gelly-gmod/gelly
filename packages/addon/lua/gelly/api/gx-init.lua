@@ -1,5 +1,4 @@
 include("gx-settings.lua")
-include("gx-settings-sync.lua")
 
 include("gx-soft-functions.lua")
 include("gx-forcefields.lua")
@@ -21,6 +20,8 @@ include("gelly/util/prop-resizer.lua")
 
 gellyx.mods.initialize()
 gellyx.mods.runMods()
+
+include("gx-settings-sync.lua")
 gellyx.settings.updateBinaryModuleSettings()
 
 include("gelly/ui/customization.lua")
