@@ -29,6 +29,20 @@ function gellyx.mods.initialize()
 			logging.info(("Mod %s is missing metadata, inserting default metadata."):format(mod.info.ID))
 			repository.upsertMetadataForModId(mod.info.ID, { enabled = DEFAULT_MOD == mod.info.ID and true or false })
 		end)
+
+	local enabledMods = array(loadedMods)
+		:map(function(mod)
+			return { metadata = repository.fetchMetadataForModId(mod.ID) }
+		end)
+		:filter(function(mod)
+			return mod.metadata.enabled
+		end)
+		:toArray()
+
+	if #enabledMods == 0 then
+		logging.warn("No mods enabled. Enabling default mod.")
+		gellyx.mods.setModEnabled(DEFAULT_MOD, true)
+	end
 end
 
 --- Enables/disables a mod by its ID.
