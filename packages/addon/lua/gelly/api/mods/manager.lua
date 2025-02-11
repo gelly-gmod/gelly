@@ -5,11 +5,11 @@ local repository = include("gelly/api/mods/mod-repository.lua")
 local findAllGellyMods = include("gelly/api/mods/find-all-gelly-mods.lua")
 local array = include("gelly/util/functional-arrays.lua")
 local logging = include("gelly/logging.lua")
-local restrictModAdditions = include("gelly/api/mods/restrict-mod-additions.lua")
 
 local loadedMods = {}
 
 local DEFAULT_MOD = "sandbox-mod"
+gellyx.mods.DEFAULT_MOD = DEFAULT_MOD
 
 include("gelly/api/mods/enums.lua")
 
@@ -59,9 +59,6 @@ function gellyx.mods.setModEnabled(modId, enabled)
 
 	repository.upsertMetadataForModId(modId, { enabled = enabled })
 	logging.info("Mod %s is now %s.", modId, enabled and "enabled" or "disabled")
-	logging.info("Updating mod restrictions.")
-
-	restrictModAdditions()
 end
 
 --- Returns if a mod is enabled.
@@ -91,8 +88,6 @@ function gellyx.mods.runMods()
 				logging.error(("Failed to run mod %s: %s"):format(mod.ID, err))
 			end
 		end)
-
-	restrictModAdditions()
 end
 
 function gellyx.mods.getLoadedMods()

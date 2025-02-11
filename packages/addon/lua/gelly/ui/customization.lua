@@ -165,6 +165,11 @@ function PANEL:SetupJSEnvironment()
 	self.HTML:AddFunction("gelly", "getMods", function()
 		local encodedMods = {}
 		for _, mod in pairs(gellyx.mods.getLoadedMods()) do
+			if mod.ID == gellyx.mods.DEFAULT_MOD then
+				-- Skip the default mod, its always enabled
+				continue
+			end
+
 			encodedMods[#encodedMods + 1] = self:EncodeMod(mod)
 		end
 

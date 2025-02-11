@@ -158,6 +158,11 @@ hook.Add(
 
 		if bloodColor < 1 then bloodColor = BLOOD_COLOR_RED end
 
+		if GELLY_ACTIVE_PRESET.Name ~= "Blood" then
+			gellyx.presets.select("Blood")
+			gelly.Reset()
+		end
+
 		sprayBlood(type, victim, attacker, position, force, damage, {
 			Roughness = 0,         -- blood isn't rough at all
 			IsSpecularTransmission = false, -- blood is translucent
