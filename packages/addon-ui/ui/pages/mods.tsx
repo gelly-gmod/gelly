@@ -41,7 +41,6 @@ export default function Mods() {
 		gelly.getMods(setMods);
 
 		const listener = () => {
-			console.log("Forced update");
 			gelly.getMods(setMods);
 		};
 
