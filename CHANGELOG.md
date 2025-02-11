@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.34.1] - 2025-02-11
+
+### Fixed
+
+- Fixed fluid disappearing into pixely bits when viewed afar.
+- Fluid should remain consistent from all distances now. It is significantly harder to assure this for low-radius
+  fluids, but it is apparent for high-radius fluids.
+
 ## [1.34.0] - 2025-02-11
 
 ### Added

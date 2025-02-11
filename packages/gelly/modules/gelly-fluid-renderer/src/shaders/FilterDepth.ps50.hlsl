@@ -60,8 +60,14 @@ float IGN_PassCorrelated(float pixelX, float pixelY, int passIndex) {
 }
 
 // Shorthand for dispersing a filter point along the filter radius according to pass-correlated noise
-float F(float v, float2 coord, float passBias) {
-    return v * (IGN_PassCorrelated(coord.x, coord.y, passBias + g_SmoothingPassIndex) * FILTER_RADIUS);
+float F(float depth, float v, float2 coord, float passBias) {
+    float effectiveFilterRadius = FILTER_RADIUS;
+    // Reduce filter radius as pixel footprint of the fluid reduces
+    float radiusCompensation = min(1.f, 10.f / g_ParticleRadius);
+    effectiveFilterRadius -= (0.001f * -depth - 0.5f) * radiusCompensation; // arbitrary factor
+    effectiveFilterRadius = clamp(effectiveFilterRadius, 0, FILTER_RADIUS);
+
+    return v * (IGN_PassCorrelated(coord.x, coord.y, passBias + g_SmoothingPassIndex) * effectiveFilterRadius);
 }
 
 float4 CreateIsosurfaceNormals(float2 tex) {
@@ -87,15 +93,15 @@ float4 CreateIsosurfaceNormals(float2 tex) {
 	};
 
     float4 normalTaps[9] = {
-        FetchNormal(centerPixel + float2(F(-1, centerPixel, 1), F(-1, centerPixel, 1)), centerEyeDepth, mips[0]),
-        FetchNormal(centerPixel + float2(F( 0, centerPixel, 1), F(-1, centerPixel, 1)), centerEyeDepth, mips[1]),
-        FetchNormal(centerPixel + float2(F( 1, centerPixel, 1), F(-1, centerPixel, 1)), centerEyeDepth, mips[2]),
-        FetchNormal(centerPixel + float2(F(-1, centerPixel, 1), F( 0, centerPixel, 1)), centerEyeDepth, mips[3]),
+        FetchNormal(centerPixel + float2(F(centerEyeDepth, -1, centerPixel, 1), F(centerEyeDepth, -1, centerPixel, 1)), centerEyeDepth, mips[0]),
+        FetchNormal(centerPixel + float2(F(centerEyeDepth,  0, centerPixel, 1), F(centerEyeDepth, -1, centerPixel, 1)), centerEyeDepth, mips[1]),
+        FetchNormal(centerPixel + float2(F(centerEyeDepth,  1, centerPixel, 1), F(centerEyeDepth, -1, centerPixel, 1)), centerEyeDepth, mips[2]),
+        FetchNormal(centerPixel + float2(F(centerEyeDepth, -1, centerPixel, 1), F(centerEyeDepth, 0, centerPixel, 1)), centerEyeDepth, mips[3]),
         centerNormal,
-        FetchNormal(centerPixel + float2(F( 1, centerPixel, 1), F( 0, centerPixel, 1)), centerEyeDepth, mips[5]),
-        FetchNormal(centerPixel + float2(F(-1, centerPixel, 1), F( 1, centerPixel, 1)), centerEyeDepth, mips[6]),
-        FetchNormal(centerPixel + float2(F( 0, centerPixel, 1), F( 1, centerPixel, 1)), centerEyeDepth, mips[7]),
-        FetchNormal(centerPixel + float2(F( 1, centerPixel, 1), F( 1, centerPixel, 1)), centerEyeDepth, mips[8])
+        FetchNormal(centerPixel + float2(F(centerEyeDepth,  1, centerPixel, 1), F(centerEyeDepth, 0, centerPixel, 1)), centerEyeDepth, mips[5]),
+        FetchNormal(centerPixel + float2(F(centerEyeDepth, -1, centerPixel, 1), F(centerEyeDepth, 1, centerPixel, 1)), centerEyeDepth, mips[6]),
+        FetchNormal(centerPixel + float2(F(centerEyeDepth,  0, centerPixel, 1), F(centerEyeDepth, 1, centerPixel, 1)), centerEyeDepth, mips[7]),
+        FetchNormal(centerPixel + float2(F(centerEyeDepth,  1, centerPixel, 1), F(centerEyeDepth, 1, centerPixel, 1)), centerEyeDepth, mips[8])
     };
 
     [loop]
@@ -111,7 +117,7 @@ float4 CreateIsosurfaceNormals(float2 tex) {
 
     [loop]
     for (int j = 0; j < 9; j++) { // fyi: different variable name to avoid shadowing since hlsl is unrolling every loop
-		if (mips[j] >= (NORMAL_MIP_LEVEL - 4.f)) {
+		if (mips[j] >= (NORMAL_MIP_LEVEL - 5.f)) {
 			kernel[j] = 1.f / 9.f;
 			continue;
 		}
