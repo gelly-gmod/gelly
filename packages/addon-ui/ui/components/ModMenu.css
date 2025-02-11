@@ -1,0 +1,56 @@
+#mod-menu {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+
+	gap: 15px;
+	padding: 5px;
+	margin: 3px;
+
+	border: 1px solid #403c3c;
+	border-radius: 4px;
+	background: none;
+
+	width: 80%;
+	max-height: 300px;
+}
+
+.mod-button {
+	/* destyle */
+	outline: none;
+	appearance: none;
+	border: none;
+
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 4px;
+
+	font-size: 1.1em;
+	font-weight: normal;
+	font-family: "Roboto", sans-serif;
+	color: white;
+
+	width: 80px;
+	height: 80px;
+	position: relative;
+}
+
+.mod-button:hover {
+	background: #333;
+	cursor: pointer;
+}
+
+.mod-button.enabled::before {
+	content: "✔";
+	position: absolute;
+	top: -20px;
+	right: -10px;
+	font-size: 2em;
+
+	color: #00ff00;
+}
+
+.mod-button.enabled {
+	border: 1px solid #598059;
+}
