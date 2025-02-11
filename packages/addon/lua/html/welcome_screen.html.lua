@@ -16,15 +16,24 @@
 <body>
 <main>
 	<!-- I'm not even joking, this is easier to implement than actually packaging the png locally -->
-	<img src="https://raw.githubusercontent.com/gelly-gmod/gelly/master/branding/gellylogo.png" alt="Gelly Logo"
-		 id="logo"/>
+	<img
+		src="https://raw.githubusercontent.com/gelly-gmod/gelly/master/branding/Gelly_Logo_WideRender_2000x1000_Transparent.png"
+		alt="Gelly Logo"
+		id="logo"/>
 
 	<article id="welcome-text">
 		<h1>Welcome!</h1>
 
 		<p>If you can see this, that means Gelly was properly installed. No further steps are required. Once you exit
 			this screen, it won't be shown again.</p>
-		<p>Enjoy!</p>
+
+		<h1>Keybindings</h1>
+
+		<ul>
+			<li><strong>M</strong> - Opens the customization menu</li>
+			<li><strong>Middle Click + E</strong> - Activates the fluid grabber in the Gelly Gun.</li>
+		</ul>
+
 		<button id="close">Close</button>
 
 		<section id="socials">

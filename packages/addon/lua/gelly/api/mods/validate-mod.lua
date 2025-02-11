@@ -9,9 +9,6 @@ local MANDATORY_MOD_KEYS = {
 	Author = "string",
 	Description = "string",
 	Type = "number",
-
-	Weapons = "table",
-	Entities = "table",
 	InitPath = "string",
 }
 

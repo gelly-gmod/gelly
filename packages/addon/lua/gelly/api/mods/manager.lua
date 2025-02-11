@@ -5,11 +5,11 @@ local repository = include("gelly/api/mods/mod-repository.lua")
 local findAllGellyMods = include("gelly/api/mods/find-all-gelly-mods.lua")
 local array = include("gelly/util/functional-arrays.lua")
 local logging = include("gelly/logging.lua")
-local restrictModAdditions = include("gelly/api/mods/restrict-mod-additions.lua")
 
 local loadedMods = {}
 
 local DEFAULT_MOD = "sandbox-mod"
+gellyx.mods.DEFAULT_MOD = DEFAULT_MOD
 
 include("gelly/api/mods/enums.lua")
 
@@ -29,6 +29,20 @@ function gellyx.mods.initialize()
 			logging.info(("Mod %s is missing metadata, inserting default metadata."):format(mod.info.ID))
 			repository.upsertMetadataForModId(mod.info.ID, { enabled = DEFAULT_MOD == mod.info.ID and true or false })
 		end)
+
+	local enabledMods = array(loadedMods)
+		:map(function(mod)
+			return { metadata = repository.fetchMetadataForModId(mod.ID) }
+		end)
+		:filter(function(mod)
+			return mod.metadata.enabled
+		end)
+		:toArray()
+
+	if #enabledMods == 0 then
+		logging.warn("No mods enabled. Enabling default mod.")
+		gellyx.mods.setModEnabled(DEFAULT_MOD, true)
+	end
 end
 
 --- Enables/disables a mod by its ID.
@@ -45,46 +59,20 @@ function gellyx.mods.setModEnabled(modId, enabled)
 
 	repository.upsertMetadataForModId(modId, { enabled = enabled })
 	logging.info("Mod %s is now %s.", modId, enabled and "enabled" or "disabled")
-	logging.info("Updating mod restrictions.")
-
-	restrictModAdditions()
 end
 
-local function getGlobalModConflicts()
-	-- two global mods can't be enabled at the same time
-	local globalMods = array(loadedMods)
-		:filter(function(mod)
-			return mod.Type == gellyx.mods.ModType.Global
-		end)
-		:map(function(mod)
-			return { info = mod, metadata = repository.fetchMetadataForModId(mod.ID) }
-		end)
-		:filter(function(mod)
-			return mod.metadata.enabled
-		end)
-		:map(function(mod)
-			return mod.info.ID
-		end)
-		:toArray()
-
-	if #globalMods > 1 then
-		return globalMods
-	end
-
-	return nil
+--- Returns if a mod is enabled.
+---@param modId string
+---@return boolean
+function gellyx.mods.isModEnabled(modId)
+	local metadata = repository.fetchMetadataForModId(modId)
+	return metadata and metadata.enabled
 end
 
 --- Runs all enabled mods.
 ---@return nil
 function gellyx.mods.runMods()
 	hook.Run("GellyModsShutdown")
-
-	local globalModConflicts = getGlobalModConflicts()
-
-	if globalModConflicts then
-		logging.error(("Global mods %s are conflicting."):format(table.concat(globalModConflicts, ", ")))
-		return
-	end
 
 	array(loadedMods)
 		:filter(function(mod)
@@ -100,8 +88,6 @@ function gellyx.mods.runMods()
 				logging.error(("Failed to run mod %s: %s"):format(mod.ID, err))
 			end
 		end)
-
-	restrictModAdditions()
 end
 
 function gellyx.mods.getLoadedMods()
