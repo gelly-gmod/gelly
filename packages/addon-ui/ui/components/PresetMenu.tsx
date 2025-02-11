@@ -1,9 +1,8 @@
-import { Preset } from "../gelly-sync.ts";
 import "./PresetMenu.css";
 
 interface PresetMenuProps {
-	presets: Preset[];
-	onPresetSelected: (preset: Preset) => void;
+	presets: gelly.Preset[];
+	onPresetSelected: (preset: gelly.Preset) => void;
 }
 
 export const PresetMenu: preact.FunctionComponent<PresetMenuProps> = ({

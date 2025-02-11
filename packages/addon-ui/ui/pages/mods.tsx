@@ -15,6 +15,9 @@ import {
 	enableTemporaryTranslucency,
 } from "../util/temporary-translucency.ts";
 import SliderSectionHeader from "../components/SliderSectionHeader.tsx";
+import { useEffect, useState } from "preact/hooks";
+import { ModMenu } from "../components/ModMenu.tsx";
+import { gellySync } from "../gelly-sync.ts";
 
 export default function Mods() {
 	const [forcefieldStrength, setForcefieldStrength, resetForcefieldStrength] =
@@ -33,9 +36,30 @@ export default function Mods() {
 	const [density, setDensity, resetDensity] =
 		useSettingValue("gelly_gun_density");
 
+	const [mods, setMods] = useState<gelly.Mod[]>([]);
+	useEffect(() => {
+		gelly.getMods(setMods);
+
+		const listener = () => {
+			console.log("Forced update");
+			gelly.getMods(setMods);
+		};
+
+		gellySync.addListener(listener);
+		return () => gellySync.removeListener(listener);
+	}, []);
+
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
+				<SliderSectionHeader>Mods</SliderSectionHeader>
+				<HorizontalSeparator />
+				<ModMenu
+					mods={mods}
+					onModSelected={(mod) => {
+						gelly.selectMod(mod.id);
+					}}
+				/>
 				<SliderSectionHeader>Gelly Gun Settings</SliderSectionHeader>
 				<HorizontalSeparator />
 				<Slider

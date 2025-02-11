@@ -164,11 +164,18 @@ function PANEL:SetupJSEnvironment()
 
 	self.HTML:AddFunction("gelly", "getMods", function()
 		local encodedMods = {}
-		for _, mod in pairs(loadedMods) do
+		for _, mod in pairs(gellyx.mods.getLoadedMods()) do
 			encodedMods[#encodedMods + 1] = self:EncodeMod(mod)
 		end
 
 		return encodedMods
+	end)
+
+	self.HTML:AddFunction("gelly", "selectMod", function(modId)
+		surface.PlaySound("garrysmod/ui_click.wav")
+		gellyx.mods.setModEnabled(modId, not gellyx.mods.isModEnabled(modId))
+		gellyx.mods.runMods()
+		self:ForceSettingUpdate()
 	end)
 end
 

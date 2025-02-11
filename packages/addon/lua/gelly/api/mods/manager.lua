@@ -72,41 +72,10 @@ function gellyx.mods.isModEnabled(modId)
 	return metadata and metadata.enabled
 end
 
-local function getGlobalModConflicts()
-	-- two global mods can't be enabled at the same time
-	local globalMods = array(loadedMods)
-		:filter(function(mod)
-			return mod.Type == gellyx.mods.ModType.Global
-		end)
-		:map(function(mod)
-			return { info = mod, metadata = repository.fetchMetadataForModId(mod.ID) }
-		end)
-		:filter(function(mod)
-			return mod.metadata.enabled
-		end)
-		:map(function(mod)
-			return mod.info.ID
-		end)
-		:toArray()
-
-	if #globalMods > 1 then
-		return globalMods
-	end
-
-	return nil
-end
-
 --- Runs all enabled mods.
 ---@return nil
 function gellyx.mods.runMods()
 	hook.Run("GellyModsShutdown")
-
-	local globalModConflicts = getGlobalModConflicts()
-
-	if globalModConflicts then
-		logging.error(("Global mods %s are conflicting."):format(table.concat(globalModConflicts, ", ")))
-		return
-	end
 
 	array(loadedMods)
 		:filter(function(mod)
