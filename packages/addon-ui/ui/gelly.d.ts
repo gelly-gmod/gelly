@@ -1,4 +1,15 @@
 declare namespace gelly {
+	declare type Preset = {
+		name: string;
+		color: string;
+	};
+
+	declare type Mod = {
+		name: string;
+		id: string;
+		enabled: boolean;
+	};
+
 	/**
 	 * Fetches a setting key from the Gelly settings
 	 * @param key The key to fetch
@@ -41,6 +52,8 @@ declare namespace gelly {
 
 	function getActiveParticles(callback: (count: number) => void): void;
 	function getVersion(callback: (version: string) => void): void;
+	function getPresets(callback: (presets: Preset[]) => void): void;
+	function getMods(callback: (mods: Mod[]) => void): void;
 	function hide(): void;
 	function getMenuBindKey(callback: (key: string) => void): void;
 	function selectPreset(preset: string): void;

@@ -94,10 +94,20 @@ function PANEL:OnMousePressed()
 	self:Hide()
 end
 
-local ENCODE_PRESET_TEMPLATE = [[{name: '%s', color: '%s'}]]
 function PANEL:EncodePreset(preset)
-	return string.format(ENCODE_PRESET_TEMPLATE, preset.Name,
-		encodeColorAsHexCode(preset.Color or Color(100, 100, 100, 255)))
+	return {
+		name = preset.Name,
+		color =
+			encodeColorAsHexCode(preset.Color or Color(100, 100, 100, 255))
+	}
+end
+
+function PANEL:EncodeMod(mod)
+	return {
+		id = mod.ID,
+		name = mod.Name,
+		enabled = gellyx.mods.isModEnabled(mod.ID)
+	}
 end
 
 function PANEL:SetupJSEnvironment()
@@ -143,12 +153,23 @@ function PANEL:SetupJSEnvironment()
 		gelly.Reset()
 	end)
 
-	local panel = self
-	function self.HTML:OnDocumentReady()
+	self.HTML:AddFunction("gelly", "getPresets", function()
+		local encodedPresets = {}
 		for _, preset in pairs(gellyx.presets.getAllPresets()) do
-			self:RunJavascript("gellySync.addPreset(" .. panel:EncodePreset(preset) .. ")")
+			encodedPresets[#encodedPresets + 1] = self:EncodePreset(preset)
 		end
-	end
+
+		return encodedPresets
+	end)
+
+	self.HTML:AddFunction("gelly", "getMods", function()
+		local encodedMods = {}
+		for _, mod in pairs(loadedMods) do
+			encodedMods[#encodedMods + 1] = self:EncodeMod(mod)
+		end
+
+		return encodedMods
+	end)
 end
 
 function PANEL:ForceSettingUpdate()

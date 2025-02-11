@@ -64,6 +64,14 @@ function gellyx.mods.setModEnabled(modId, enabled)
 	restrictModAdditions()
 end
 
+--- Returns if a mod is enabled.
+---@param modId string
+---@return boolean
+function gellyx.mods.isModEnabled(modId)
+	local metadata = repository.fetchMetadataForModId(modId)
+	return metadata and metadata.enabled
+end
+
 local function getGlobalModConflicts()
 	-- two global mods can't be enabled at the same time
 	local globalMods = array(loadedMods)
