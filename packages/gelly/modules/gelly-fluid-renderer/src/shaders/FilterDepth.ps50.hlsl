@@ -10,7 +10,7 @@ Texture2D InputNormal : register(t1);
 SamplerState InputNormalSampler : register(s1);
 
 static const float INVALID_EYE_DEPTH_EPSILON = 0.001f;
-static const float NORMAL_MIP_LEVEL = 8.f;
+static const float NORMAL_MIP_LEVEL = 6.f;
 static const float FILTER_RADIUS = 4.f;
 
 struct PS_OUTPUT {
@@ -149,6 +149,12 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	float projDepth = depth.x;
     if (projDepth >= 1.f) {
         discard;
+    }
+
+    if (g_SmoothingPassIndex == -1) {
+        // no smoothness, just output old normals
+        output.FilteredNormal = InputNormal.SampleLevel(InputNormalSampler, input.Tex, 0);
+        return output;
     }
 
 	// there's really no point in filtering the depth if it's underwater
