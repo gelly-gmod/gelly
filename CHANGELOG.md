@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gallium is now blobbier and slippier.
 - When smoothing iterations is set to zero in the developer menu, you can now see the raw normals of the fluid.
 
+### Fixed
+
+- Fixed the Allow Threading signature and the addon now loads properly on the February 12th update of Garry's Mod.
+
 ## [1.34.2] - 2025-02-11
 
 ### Changed
