@@ -3,12 +3,12 @@ return {
 	Color = Color(100, 100, 100, 255),
 	Radius = 3.5,
 	SolverParams = {
-		Viscosity = 10,
-		SurfaceTension = 0.04,
+		Viscosity = 0,
+		SurfaceTension = 1,
 		Adhesion = 0,
 		Cohesion = 0.1,
 		VorticityConfinement = 15,
-		DynamicFriction = 1,
+		DynamicFriction = 0.1,
 		RestDistanceRatio = 0.58,
 	},
 	Material = {

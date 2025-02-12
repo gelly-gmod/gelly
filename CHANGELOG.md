@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.34.2] - 2025-02-11
+
+### Changed
+
+- Made gallium slide more like how it should.
+- Made gallium much more tense, so it globs up more.
+- Removed viscosity from gallium, which means it may "shake" more than before.
+
 ## [1.34.1] - 2025-02-11
 
 ### Fixed
