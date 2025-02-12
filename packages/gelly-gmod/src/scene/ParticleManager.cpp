@@ -6,11 +6,12 @@ ParticleListBuilder::ParticleListBuilder() :
 	particles(), absorption{0.f, 0.f, 0.f}, absorptionSet(false) {}
 
 ParticleListBuilder ParticleListBuilder::AddParticle(
-	const Vector &position, const Vector &velocity
+	const Vector &position, const Vector &velocity, float invMass
 ) {
 	particles.push_back(
 		{.position = XMFLOAT3(position.x, position.y, position.z),
-		 .velocity = XMFLOAT3(velocity.x, velocity.y, velocity.z)}
+		 .velocity = XMFLOAT3(velocity.x, velocity.y, velocity.z),
+		 .invMass = invMass}
 	);
 
 	return *this;

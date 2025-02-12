@@ -20,6 +20,10 @@ export default function Graphics() {
 		useSettingValue("smoothness");
 	const [resolutionScale, setResolutionScale, resetResolutionScale] =
 		useSettingValue("resolution_scale");
+	const [anisotropyMin, setAnisotropyMin, resetAnisotropyMin] =
+		useSettingValue("anisotropy_min");
+	const [anisotropyMax, setAnisotropyMax, resetAnisotropyMax] =
+		useSettingValue("anisotropy_max");
 	const [sunVisible, setSunVisible, resetSunVisible] =
 		useSettingValue("sun_visible");
 	const [glunkLightingFix, setGlunkLightingFix, resetGlunkLightingFix] =
@@ -54,6 +58,32 @@ export default function Graphics() {
 					onInputEnd={disableTemporaryTranslucency}
 					onlySetValuesOnMouseUp
 					onResetRequest={resetResolutionScale}
+				/>
+
+				<Slider
+					min={0}
+					max={5}
+					step={0.05}
+					value={anisotropyMin}
+					setValue={setAnisotropyMin}
+					unit=""
+					label="Anisotropy Min"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetAnisotropyMin}
+				/>
+
+				<Slider
+					min={0}
+					max={5}
+					step={0.05}
+					value={anisotropyMax}
+					setValue={setAnisotropyMax}
+					unit=""
+					label="Anisotropy Max"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetAnisotropyMax}
 				/>
 
 				<CheckBox

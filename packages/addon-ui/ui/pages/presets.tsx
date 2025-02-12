@@ -51,6 +51,9 @@ export default function Presets() {
 	const [useWhitewater, setUseWhitewater, resetUseWhitewater] =
 		useSettingValue("fluid_use_whitewater");
 
+	const [particleMass, setParticleMass, resetParticleMass] =
+		useSettingValue("particle_mass");
+
 	const [presets, setPresets] = useState<gelly.Preset[]>([]);
 
 	useEffect(() => {
@@ -146,6 +149,19 @@ export default function Presets() {
 					onInputEnd={disableTemporaryTranslucency}
 					onResetRequest={resetSurfaceTension}
 				/>
+				<Slider
+					min={0.01}
+					max={100}
+					step={0.05}
+					unit=""
+					label="Particle Mass"
+					value={particleMass}
+					setValue={setParticleMass}
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetParticleMass}
+				/>
+
 				<SliderSectionHeader>Fluid Material</SliderSectionHeader>
 				<HorizontalSeparator />
 				<ColorPicker

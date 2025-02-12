@@ -27,10 +27,10 @@ PS_OUTPUT main(GS_OUTPUT input) {
     ClipQuadCorners(magnitude);
 
     float lifetime = input.LifeTime;
-    float lifeTimeFade = min(1.f, lifetime * 0.125f);
-    float velocityFade = input.ViewVelocity.w;
+    float lifeTimeFade = min(1.f, lifetime * 0.35f);
+    float velocityFade = min(1.f, input.ViewVelocity.w);
 
-    float foamThickness = lifeTimeFade * velocityFade * sqr(normal.z) * 0.8f;
+    float foamThickness = lifeTimeFade * velocityFade * min(1.f, sqr(normal.z)) * 0.9f;
 
     output.Thickness = float3(0.f, 0.f, foamThickness);
     return output;

@@ -83,7 +83,10 @@ void Solver::AddParticles(const ParticleBatch &particles) {
 	for (int index = 0; index < particles.size(); index++) {
 		const auto &particle = particles[index];
 		positions[index + startCount] = {
-			particle.position.x, particle.position.y, particle.position.z, 1.0f
+			particle.position.x,
+			particle.position.y,
+			particle.position.z,
+			particle.invMass
 		};
 
 		velocities[index + startCount] = particle.velocity;
@@ -149,6 +152,9 @@ void Solver::Update(const UpdateSolverInfo &info) {
 	if (info.substeps.has_value()) {
 		substeps = *info.substeps;
 	}
+
+	UPDATE_FLEX_PARAM(anisotropyMin, anisotropyMin);
+	UPDATE_FLEX_PARAM(anisotropyMax, anisotropyMax);
 }
 
 int Solver::GetActiveParticleCount() const { return activeParticleCount; }
@@ -212,7 +218,7 @@ void Solver::SetupDefaultParams() {
 	params.damping = 0.0f;
 	params.particleCollisionMargin = 0.f;
 	params.shapeCollisionMargin = 0.4f;
-	params.sleepThreshold = 0.1f;
+	params.sleepThreshold = 0.0f;
 	params.shockPropagation = 0.0f;
 	params.restitution = 1.0f;
 

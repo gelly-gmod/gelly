@@ -14,7 +14,7 @@ local function alignToGrid(position, spacing)
 end
 
 --- Parameters for a cube emitter, bounds is a local-space vector which determines the size of the cube.
----@alias gx.emitters.CubeParams {center: Vector, velocity: Vector, bounds: Vector, density: number, transform: VMatrix, material: table|nil}
+---@alias gx.emitters.CubeParams {center: Vector, velocity: Vector, bounds: Vector, density: number, transform: VMatrix, material: table|nil, invMass: number|nil}
 
 --- Emits particles in a cube shape.
 ---@param params gx.emitters.CubeParams Parameters for the emitter.
@@ -50,6 +50,7 @@ function gellyx.emitters.Cube(params)
 		particles[#particles + 1] = {
 			pos = position,
 			vel = velocity,
+			invMass = params.invMass -- automatically defaults if its nil
 		}
 	end
 

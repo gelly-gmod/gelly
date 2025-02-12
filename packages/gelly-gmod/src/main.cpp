@@ -492,17 +492,20 @@ LUA_FUNCTION(gelly_AddParticles) {
 
 	builder.SetAbsorption(absorption.x, absorption.y, absorption.z);
 
-	for (uint32_t i = 0; i < particleCount; i += 2) {
+	for (uint32_t i = 0; i < particleCount; i += 3) {
 		LUA->PushNumber(i + 1);
 		LUA->GetTable(-2);
 		const auto position = LUA->GetVector(-1);
 		LUA->PushNumber(i + 2);
 		LUA->GetTable(-3);
 		const auto velocity = LUA->GetVector(-1);
+		LUA->PushNumber(i + 3);
+		LUA->GetTable(-4);
+		const auto invMass = LUA->GetNumber(-1);
 
-		builder.AddParticle(position, velocity);
+		builder.AddParticle(position, velocity, invMass);
 
-		LUA->Pop(2);
+		LUA->Pop(3);
 	}
 
 	scene->AddParticles(builder);
@@ -603,6 +606,21 @@ LUA_FUNCTION(gelly_SetFluidProperties) {
 
 	CATCH_GELLY_EXCEPTIONS();
 
+	return 0;
+}
+
+LUA_FUNCTION(gelly_ConfigureAnisotropy) {
+	START_GELLY_EXCEPTIONS();
+	LUA->CheckType(1, GarrysMod::Lua::Type::Table);
+
+	GET_LUA_TABLE_MEMBER(float, AnisotropyMin);
+	GET_LUA_TABLE_MEMBER(float, AnisotropyMax);
+	sim->GetSolver().Update({
+		.anisotropyMin = AnisotropyMin,
+		.anisotropyMax = AnisotropyMax,
+	});
+
+	CATCH_GELLY_EXCEPTIONS();
 	return 0;
 }
 
@@ -1134,6 +1152,7 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	DEFINE_LUA_FUNC(gelly, SetObjectScale);
 	DEFINE_LUA_FUNC(gelly, SetFluidProperties);
 	DEFINE_LUA_FUNC(gelly, SetFluidMaterial);
+	DEFINE_LUA_FUNC(gelly, ConfigureAnisotropy);
 	DEFINE_LUA_FUNC(gelly, ChangeParticleRadius);
 	DEFINE_LUA_FUNC(gelly, Reset);
 	DEFINE_LUA_FUNC(gelly, ChangeThresholdRatio);
