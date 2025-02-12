@@ -20,11 +20,16 @@ export default function Graphics() {
 		useSettingValue("smoothness");
 	const [resolutionScale, setResolutionScale, resetResolutionScale] =
 		useSettingValue("resolution_scale");
+	const [anisotropyMin, setAnisotropyMin, resetAnisotropyMin] =
+		useSettingValue("anisotropy_min");
+	const [anisotropyMax, setAnisotropyMax, resetAnisotropyMax] =
+		useSettingValue("anisotropy_max");
 	const [sunVisible, setSunVisible, resetSunVisible] =
 		useSettingValue("sun_visible");
 	const [glunkLightingFix, setGlunkLightingFix, resetGlunkLightingFix] =
 		useSettingValue("glunk_lighting_fix");
-
+	const [particleCulling, setParticleCulling, resetParticleCulling] =
+		useSettingValue("particle_culling");
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
@@ -55,6 +60,32 @@ export default function Graphics() {
 					onResetRequest={resetResolutionScale}
 				/>
 
+				<Slider
+					min={0}
+					max={5}
+					step={0.05}
+					value={anisotropyMin}
+					setValue={setAnisotropyMin}
+					unit=""
+					label="Anisotropy Min"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetAnisotropyMin}
+				/>
+
+				<Slider
+					min={0}
+					max={5}
+					step={0.05}
+					value={anisotropyMax}
+					setValue={setAnisotropyMax}
+					unit=""
+					label="Anisotropy Max"
+					onInputStart={enableTemporaryTranslucency}
+					onInputEnd={disableTemporaryTranslucency}
+					onResetRequest={resetAnisotropyMax}
+				/>
+
 				<CheckBox
 					label="Sun Enabled"
 					checked={sunVisible}
@@ -67,6 +98,13 @@ export default function Graphics() {
 					checked={glunkLightingFix}
 					onChange={setGlunkLightingFix}
 					onResetRequest={resetGlunkLightingFix}
+				/>
+
+				<CheckBox
+					label="Particle Culling"
+					checked={particleCulling}
+					onChange={setParticleCulling}
+					onResetRequest={resetParticleCulling}
 				/>
 			</Sliders>
 			<Separator />

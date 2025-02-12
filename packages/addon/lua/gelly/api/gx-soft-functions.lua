@@ -9,7 +9,7 @@ local function activeParticles()
 end
 
 --- Structure representing an individual particle to be spawned.
----@alias gx.ParticleSpawnData {pos: Vector, vel: Vector}
+---@alias gx.ParticleSpawnData {pos: Vector, vel: Vector, invMass?: number}
 
 --- Adds the given particle data to the simulation, returning true if they could be added, false otherwise.
 ---@param particles table<number, gx.ParticleSpawnData>
@@ -26,6 +26,7 @@ function gellyx.AddParticles(particles, material)
 	for _, spawnData in ipairs(particles) do
 		rawParticles[#rawParticles + 1] = spawnData.pos
 		rawParticles[#rawParticles + 1] = spawnData.vel
+		rawParticles[#rawParticles + 1] = spawnData.invMass or 1 / 2
 	end
 
 	gelly.AddParticles(rawParticles, material.Absorption)

@@ -9,6 +9,7 @@
 #include <optional>
 
 #include "SplattingGS.h"
+#include "SplattingNoCullGS.h"
 #include "SplattingPS.h"
 #include "SplattingVS.h"
 #include "pipeline-info.h"
@@ -21,7 +22,7 @@ namespace renderer {
 namespace splatting {
 
 inline auto CreateEllipsoidSplattingPipeline(
-	const PipelineInfo &info, float outputScale = 1.f
+	const PipelineInfo &info, float outputScale = 1.f, bool cullParticles = true
 ) -> std::shared_ptr<Pipeline> {
 	const auto renderPass = std::make_shared<RenderPass>(RenderPass::PassInfo{
 		.device = info.device,
@@ -188,7 +189,9 @@ inline auto CreateEllipsoidSplattingPipeline(
 		 .shaderGroup =
 			 {.pixelShader = PS_FROM_GSC(SplattingPS, info.device),
 			  .vertexShader = vertexShader,
-			  .geometryShader = {GS_FROM_GSC(SplattingGS, info.device)},
+			  .geometryShader =
+				  {cullParticles ? GS_FROM_GSC(SplattingGS, info.device)
+								 : GS_FROM_GSC(SplattingNoCullGS, info.device)},
 			  .constantBuffers =
 				  {info.internalBuffers->fluidRenderCBuffer.GetBuffer()}},
 		 .depthBuffer = info.internalTextures->ellipsoidDepthBuffer,

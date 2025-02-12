@@ -17,6 +17,9 @@ gellyx.settings.convars = {
 		"Controls the collision distance of the fluid", 0.01, 7.5),
 	simulation_gravity = settingConvar("simulation_gravity", -4, "Controls the gravity of the fluid", -100, 100),
 
+	particle_culling = settingConvar("particle_culling", 1, "Controls the culling of particles (0 = off, 1 = on)", 0, 1),
+	anisotropy_min = settingConvar("anisotropy_min", 0.1, "Controls the minimum anisotropy of the fluid", 0, 5),
+	anisotropy_max = settingConvar("anisotropy_max", 2, "Controls the maximum anisotropy of the fluid", 0, 5),
 	fluid_radius = settingConvar("fluid_radius", 1, "Controls the radius of the fluid", 1, 50),
 	fluid_viscosity = settingConvar("fluid_viscosity", 1, "Controls the viscosity of the fluid", 0, 100),
 	fluid_cohesion = settingConvar("fluid_cohesion", 1, "7Controls the cohesion of the fluid", 0, 1),
@@ -37,6 +40,7 @@ gellyx.settings.convars = {
 	fluid_use_whitewater = settingConvar("fluid_use_whitewater", 1,
 		"Controls the visibility of whitewater for the ephemeral fluid preset (0 = off, 1 = on)",
 		0, 1),
+	particle_mass = settingConvar("particle_mass", 2, "Controls the mass of particles.", 0, 10),
 
 	spray_scale = settingConvar("spray_scale", 0.5, "Controls the scale of spray particles.", 0, 4),
 	spray_motion_blur = settingConvar("spray_motion_blur", 7.6, "Controls the motion blur of spray particles.", 0, 10),

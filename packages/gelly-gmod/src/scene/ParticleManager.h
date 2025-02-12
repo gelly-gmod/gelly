@@ -20,7 +20,7 @@ public:
 	~ParticleListBuilder() = default;
 
 	ParticleListBuilder AddParticle(
-		const Vector &position, const Vector &velocity
+		const Vector &position, const Vector &velocity, float invMass
 	);
 
 	ParticleListBuilder SetAbsorption(float r, float g, float b);

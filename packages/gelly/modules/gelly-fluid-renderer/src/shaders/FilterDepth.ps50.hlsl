@@ -63,9 +63,11 @@ float IGN_PassCorrelated(float pixelX, float pixelY, int passIndex) {
 float F(float depth, float v, float2 coord, float passBias) {
     float effectiveFilterRadius = FILTER_RADIUS;
     // Reduce filter radius as pixel footprint of the fluid reduces
-    float radiusCompensation = min(1.f, 10.f / g_ParticleRadius);
+    float radiusCompensation = min(2.f, 10.f / g_ParticleRadius);
     effectiveFilterRadius -= (0.001f * -depth - 0.5f) * radiusCompensation; // arbitrary factor
-    effectiveFilterRadius = clamp(effectiveFilterRadius, 0, FILTER_RADIUS);
+    float filterMinimum = 0.5f * smoothstep(0, 500, -depth); // Forces the filter to never reach zero when viewed from afar, but allows it when fluid is viewed up close.
+
+    effectiveFilterRadius = clamp(effectiveFilterRadius, filterMinimum, FILTER_RADIUS);
 
     return v * (IGN_PassCorrelated(coord.x, coord.y, passBias + g_SmoothingPassIndex) * effectiveFilterRadius);
 }
@@ -149,6 +151,12 @@ PS_OUTPUT main(VS_OUTPUT input) {
 	float projDepth = depth.x;
     if (projDepth >= 1.f) {
         discard;
+    }
+
+    if (g_SmoothingPassIndex == -1) {
+        // no smoothness, just output old normals
+        output.FilteredNormal = InputNormal.SampleLevel(InputNormalSampler, input.Tex, 0);
+        return output;
     }
 
 	// there's really no point in filtering the depth if it's underwater

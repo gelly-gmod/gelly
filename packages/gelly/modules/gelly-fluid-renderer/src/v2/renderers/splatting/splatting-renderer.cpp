@@ -75,7 +75,8 @@ auto SplattingRenderer::StartRendering() -> void {
 	}
 #endif
 	RunPipeline(
-		ellipsoidSplatting,
+		settings.enableParticleCulling ? ellipsoidSplatting
+									   : ellipsoidSplattingNoCull,
 		durations.ellipsoidSplatting,
 		createInfo.solver->GetActiveParticleCount()
 	);
@@ -226,6 +227,8 @@ auto SplattingRenderer::CreatePipelines() -> void {
 		CreateSpraySplattingPipeline(pipelineInfo, createInfo.scale, true);
 	ellipsoidSplatting =
 		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
+	ellipsoidSplattingNoCull =
+		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale, false);
 	thicknessSplatting =
 		CreateThicknessSplattingPipeline(pipelineInfo, createInfo.scale);
 	albedoDownsampling =
@@ -342,27 +345,39 @@ auto SplattingRenderer::GetOutputD3DBuffers() const
 
 auto SplattingRenderer::RunSurfaceFilteringPipeline(unsigned int iterations)
 	-> void {
-	if (iterations == 0) {
-		const auto context = createInfo.device->GetRawDeviceContext();
-		// we'll just want to copy unfilted depth to the filtered depth output
-		context->CopyResource(
-			pipelineInfo.outputTextures->ellipsoidDepth->GetTexture2D().Get(),
-			pipelineInfo.internalTextures->unfilteredEllipsoidDepth
-				->GetTexture2D()
-				.Get()
-		);
+	float normalClearColor[4] = {1.f, 1.f, 1.f, 1.f};
 
+	if (iterations == 0) {
+		// this edge case is for when we want completely raw normals
+		if (settings.enableSurfaceFiltering) {
+			createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
+				pipelineInfo.outputTextures->normals->GetRenderTargetView().Get(
+				),
+				normalClearColor
+			);
+
+			SetFrameResolution(
+				surfaceFilteringA->GetRenderPass()->GetScaledWidth(),
+				surfaceFilteringA->GetRenderPass()->GetScaledHeight()
+			);
+
+			frameParamCopy.g_SmoothingPassIndex = -1;  // signal raw normals
+			pipelineInfo.internalBuffers->fluidRenderCBuffer.UpdateBuffer(
+				frameParamCopy
+			);
+
+			surfaceFilteringA->GetRenderPass()->SetMipRegenerationEnabled(
+				false
+			);
+			surfaceFilteringA->Run();
+		}
 		return;
 	}
-
-	// we need to only clear the output texture to ensure we don't
-	// accidently overwrite the original depth with 1.0
-	float depthClearColor[4] = {1.f, 1.f, 1.f, 1.f};
 
 	if (settings.enableSurfaceFiltering) {
 		createInfo.device->GetRawDeviceContext()->ClearRenderTargetView(
 			pipelineInfo.outputTextures->normals->GetRenderTargetView().Get(),
-			depthClearColor
+			normalClearColor
 		);
 	}
 

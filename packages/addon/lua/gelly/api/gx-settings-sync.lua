@@ -6,6 +6,9 @@ assert(gellyx.settings, "Cannot synchronize settings without settings module loa
 
 local BINARY_MODULE_RELATED_SETTINGS = {
 	"smoothness",
+	"particle_culling",
+	"anisotropy_min",
+	"anisotropy_max",
 	"simulation_substeps",
 	"simulation_iterations",
 	"simulation_relaxation",
@@ -61,6 +64,7 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		EnableGPUSynchronization = true,
 		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool() and
 			gellyx.presets.isPresetUsingWhitewater(),
+		EnableParticleCulling = gellyx.settings.get("particle_culling"):GetBool(),
 		WhitewaterStrength = gellyx.settings.get("whitewater_strength"):GetFloat(),
 	})
 
@@ -71,6 +75,11 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		CollisionDistance = gellyx.settings.get("simulation_collision_distance"):GetFloat(),
 		Gravity = gellyx.settings.get("simulation_gravity"):GetFloat(),
 		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool()
+	})
+
+	gelly.ConfigureAnisotropy({
+		AnisotropyMin = gellyx.settings.get("anisotropy_min"):GetFloat(),
+		AnisotropyMax = gellyx.settings.get("anisotropy_max"):GetFloat()
 	})
 
 	local isLightingFixEnabled = gellyx.settings.get("glunk_lighting_fix"):GetBool()

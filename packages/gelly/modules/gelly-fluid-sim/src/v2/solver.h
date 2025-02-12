@@ -112,6 +112,7 @@ struct OutputBuffers {
 struct ParticleUploadInfo {
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 velocity;
+	float invMass;
 };
 
 using ParticleBatch = std::vector<ParticleUploadInfo>;
@@ -145,6 +146,8 @@ public:
 		OPTIONAL_PARAM(collisionDistance, float);
 		OPTIONAL_PARAM(gravity, float);
 		OPTIONAL_PARAM(enableWhitewater, bool);
+		OPTIONAL_PARAM(anisotropyMin, float);
+		OPTIONAL_PARAM(anisotropyMax, float);
 	};
 
 	Solver(const CreateInfo &createInfo);
