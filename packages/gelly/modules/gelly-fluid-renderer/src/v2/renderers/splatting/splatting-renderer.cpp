@@ -75,7 +75,8 @@ auto SplattingRenderer::StartRendering() -> void {
 	}
 #endif
 	RunPipeline(
-		ellipsoidSplatting,
+		settings.enableParticleCulling ? ellipsoidSplatting
+									   : ellipsoidSplattingNoCull,
 		durations.ellipsoidSplatting,
 		createInfo.solver->GetActiveParticleCount()
 	);
@@ -226,6 +227,8 @@ auto SplattingRenderer::CreatePipelines() -> void {
 		CreateSpraySplattingPipeline(pipelineInfo, createInfo.scale, true);
 	ellipsoidSplatting =
 		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale);
+	ellipsoidSplattingNoCull =
+		CreateEllipsoidSplattingPipeline(pipelineInfo, createInfo.scale, false);
 	thicknessSplatting =
 		CreateThicknessSplattingPipeline(pipelineInfo, createInfo.scale);
 	albedoDownsampling =

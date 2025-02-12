@@ -67,6 +67,7 @@ public:
 		 */
 		bool enableGPUSynchronization = true;
 		bool enableSurfaceFiltering = true;
+		bool enableParticleCulling = true;
 		/**
 		 * Should never be true for general use, but this is useful for
 		 * debugging on a user's machine. This will enable the GPU timing
@@ -139,6 +140,7 @@ private:
 	PipelinePtr spraySplatting;
 	PipelinePtr spraySplattingDepth;
 	PipelinePtr ellipsoidSplatting;
+	PipelinePtr ellipsoidSplattingNoCull;
 	PipelinePtr thicknessSplatting;
 	PipelinePtr albedoDownsampling;
 	PipelinePtr surfaceFilteringA;
