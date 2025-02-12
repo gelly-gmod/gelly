@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed fluid disappearing into pixely bits when viewed afar.
+- Fixed fluid disappearing into pixely bits when viewed afar. Holes may still appear, but they shouldn't be as bad as
+  before this update.
 - Fluid should remain consistent from all distances now. It is significantly harder to assure this for low-radius
   fluids, but it is apparent for high-radius fluids.
 
