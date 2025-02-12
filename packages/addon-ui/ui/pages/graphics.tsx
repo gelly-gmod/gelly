@@ -24,7 +24,8 @@ export default function Graphics() {
 		useSettingValue("sun_visible");
 	const [glunkLightingFix, setGlunkLightingFix, resetGlunkLightingFix] =
 		useSettingValue("glunk_lighting_fix");
-
+	const [particleCulling, setParticleCulling, resetParticleCulling] =
+		useSettingValue("particle_culling");
 	return (
 		<SlidersExplanationLayout>
 			<Sliders>
@@ -67,6 +68,13 @@ export default function Graphics() {
 					checked={glunkLightingFix}
 					onChange={setGlunkLightingFix}
 					onResetRequest={resetGlunkLightingFix}
+				/>
+
+				<CheckBox
+					label="Particle Culling"
+					checked={particleCulling}
+					onChange={setParticleCulling}
+					onResetRequest={resetParticleCulling}
 				/>
 			</Sliders>
 			<Separator />

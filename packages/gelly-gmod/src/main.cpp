@@ -827,6 +827,7 @@ LUA_FUNCTION(gelly_SetGellySettings) {
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUSynchronization);
 	GET_LUA_TABLE_MEMBER(bool, EnableGPUTiming);
 	GET_LUA_TABLE_MEMBER(bool, EnableWhitewater);
+	GET_LUA_TABLE_MEMBER(bool, EnableParticleCulling);
 	GET_LUA_TABLE_MEMBER(float, WhitewaterStrength);
 
 	int filterIterations = static_cast<int>(FilterIterations);
@@ -835,6 +836,7 @@ LUA_FUNCTION(gelly_SetGellySettings) {
 	currentSettings.enableGPUSynchronization = EnableGPUSynchronization_b;
 	currentSettings.enableGPUTiming = EnableGPUTiming_b;
 	currentSettings.enableWhitewater = EnableWhitewater_b;
+	currentSettings.enableParticleCulling = EnableParticleCulling_b;
 	currentSettings.whitewaterStrength = WhitewaterStrength;
 
 	compositor->UpdateGellySettings(currentSettings);

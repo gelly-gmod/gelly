@@ -17,6 +17,7 @@ gellyx.settings.convars = {
 		"Controls the collision distance of the fluid", 0.01, 7.5),
 	simulation_gravity = settingConvar("simulation_gravity", -4, "Controls the gravity of the fluid", -100, 100),
 
+	particle_culling = settingConvar("particle_culling", 1, "Controls the culling of particles (0 = off, 1 = on)", 0, 1),
 	fluid_radius = settingConvar("fluid_radius", 1, "Controls the radius of the fluid", 1, 50),
 	fluid_viscosity = settingConvar("fluid_viscosity", 1, "Controls the viscosity of the fluid", 0, 100),
 	fluid_cohesion = settingConvar("fluid_cohesion", 1, "7Controls the cohesion of the fluid", 0, 1),

@@ -6,6 +6,7 @@ assert(gellyx.settings, "Cannot synchronize settings without settings module loa
 
 local BINARY_MODULE_RELATED_SETTINGS = {
 	"smoothness",
+	"particle_culling",
 	"simulation_substeps",
 	"simulation_iterations",
 	"simulation_relaxation",
@@ -61,6 +62,7 @@ function gellyx.settings.updateBinaryModuleSettings(changedConvar)
 		EnableGPUSynchronization = true,
 		EnableWhitewater = gellyx.settings.get("whitewater_enabled"):GetBool() and
 			gellyx.presets.isPresetUsingWhitewater(),
+		EnableParticleCulling = gellyx.settings.get("particle_culling"):GetBool(),
 		WhitewaterStrength = gellyx.settings.get("whitewater_strength"):GetFloat(),
 	})
 

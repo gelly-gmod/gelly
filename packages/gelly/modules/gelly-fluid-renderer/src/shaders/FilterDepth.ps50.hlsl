@@ -10,7 +10,7 @@ Texture2D InputNormal : register(t1);
 SamplerState InputNormalSampler : register(s1);
 
 static const float INVALID_EYE_DEPTH_EPSILON = 0.001f;
-static const float NORMAL_MIP_LEVEL = 6.f;
+static const float NORMAL_MIP_LEVEL = 8.f;
 static const float FILTER_RADIUS = 4.f;
 
 struct PS_OUTPUT {
@@ -63,9 +63,11 @@ float IGN_PassCorrelated(float pixelX, float pixelY, int passIndex) {
 float F(float depth, float v, float2 coord, float passBias) {
     float effectiveFilterRadius = FILTER_RADIUS;
     // Reduce filter radius as pixel footprint of the fluid reduces
-    float radiusCompensation = min(1.f, 10.f / g_ParticleRadius);
+    float radiusCompensation = min(2.f, 10.f / g_ParticleRadius);
     effectiveFilterRadius -= (0.001f * -depth - 0.5f) * radiusCompensation; // arbitrary factor
-    effectiveFilterRadius = clamp(effectiveFilterRadius, 0, FILTER_RADIUS);
+    float filterMinimum = 0.5f * smoothstep(0, 500, -depth); // Forces the filter to never reach zero when viewed from afar, but allows it when fluid is viewed up close.
+
+    effectiveFilterRadius = clamp(effectiveFilterRadius, filterMinimum, FILTER_RADIUS);
 
     return v * (IGN_PassCorrelated(coord.x, coord.y, passBias + g_SmoothingPassIndex) * effectiveFilterRadius);
 }
