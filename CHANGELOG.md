@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added a "Particle Culling" toggle to the menu, which you can use to remove the filter for small particles.
+- Added the "Particle Mass" slider to the menu, which you can use to change the mass of the particles. You can use this
+  to mimic oil on water.
+- Added the "Anisotropy Min" and "Anisotropy Max" sliders to the menu, which you can use to change the anisotropy of the
+  particles. You can use this to make the fluid look more spherical or spiky.
 
 ### Changed
 
