@@ -48,8 +48,10 @@ float2 whitewaterSettings : register(c27);
 
 struct PS_OUTPUT {
     float4 Color : SV_TARGET0;
-    float Depth : SV_DEPTH;
+    precise float Depth : SV_DEPTH;
 };
+
+static const float GELLY_DEPTH_BIAS = 0.000005f;
 
 float3 WorldPosFromDepth(in float2 tex, in float depth) {
 	float4 pos = float4(tex.x * 2.0f - 1.0f, (1.0f - tex.y) * 2.0f - 1.0f, depth, 1.0f);
@@ -198,6 +200,6 @@ PS_OUTPUT main(VS_INPUT input) {
     
     PS_OUTPUT output = (PS_OUTPUT)0;
     output.Color = Shade(input, depthFragment.r);
-    output.Depth = depthFragment.r;
+    output.Depth = depthFragment.r - GELLY_DEPTH_BIAS;
     return output;
 }
