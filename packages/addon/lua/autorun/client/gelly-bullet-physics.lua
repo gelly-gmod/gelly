@@ -17,8 +17,8 @@ hook.Add("GellyLoaded", "gelly.initialize-bullet-physics", function()
 
 			local forcefield = gellyx.forcefield.create({
 				Position = pos,
-				Radius = FORCEFIELD_RADIUS,
-				Strength = FORCEFIELD_STRENGTH,
+				Radius = FORCEFIELD_RADIUS * (gellyx.presets.getEffectiveRadius() / 3),
+				Strength = FORCEFIELD_STRENGTH * (gellyx.presets.getEffectiveRadius() / 3),
 				LinearFalloff = false,
 				Mode = gellyx.forcefield.Mode.Force,
 			})
