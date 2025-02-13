@@ -121,7 +121,7 @@ function SWEP:PrimaryAttack()
 		center = owner:GetShootPos() + owner:GetAimVector() * gellyx.settings.get("gelly_gun_distance"):GetFloat(),
 		velocity = owner:GetAimVector() * 2,
 		bounds = self:GetPrimaryBounds(),
-		density = gellyx.settings.get("gelly_gun_density"):GetInt(),
+		density = gellyx.settings.get("gelly_gun_density"):GetInt() / gellyx.presets.getEffectiveRadius(),
 		invMass = 1 / gellyx.settings.get("particle_mass"):GetFloat(),
 	})
 
@@ -139,7 +139,7 @@ function SWEP:SecondaryAttack()
 		center = owner:GetShootPos() + owner:GetAimVector() * gellyx.settings.get("gelly_gun_distance"):GetFloat(),
 		velocity = owner:GetAimVector() * gellyx.settings.get("gelly_gun_secondary_velocity"):GetFloat(),
 		bounds = self:GetSecondaryBounds(),
-		density = gellyx.settings.get("gelly_gun_density"):GetInt(),
+		density = gellyx.settings.get("gelly_gun_density"):GetInt() / gellyx.presets.getEffectiveRadius(),
 		invMass = 1 / gellyx.settings.get("particle_mass"):GetFloat(),
 	})
 
