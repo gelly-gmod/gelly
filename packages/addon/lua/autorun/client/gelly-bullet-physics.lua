@@ -1,4 +1,4 @@
-local FORCEFIELD_SAMPLES = 24 -- # of equidistant forcefield points
+local MAX_FORCEFIELD_SAMPLES = 60
 local FORCEFIELD_RADIUS = 10
 local FORCEFIELD_STRENGTH = 11
 local FORCEFIELD_LIFETIME = 0.07
@@ -6,11 +6,12 @@ local STEP_BACK_FRACTION = 0.1
 
 hook.Add("GellyLoaded", "gelly.initialize-bullet-physics", function()
 	hook.Add("GellyXBulletFired", "gelly.bullet-physics", function(startPos, endPos)
-		print("Yayaya")
 		local forcefields = {}
+		local distance = startPos:Distance(endPos)
+		local forcefieldCount = math.min(math.ceil(distance / (FORCEFIELD_RADIUS * 2)), MAX_FORCEFIELD_SAMPLES)
 
-		for sample = 0, FORCEFIELD_SAMPLES do
-			local t = sample / FORCEFIELD_SAMPLES
+		for sample = 0, forcefieldCount do
+			local t = sample / forcefieldCount
 			-- step back propulses the fluid in the direction of the bullet
 			local pos = LerpVector(math.max(t - STEP_BACK_FRACTION, 0), startPos, endPos)
 
