@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.35.0] - 2025-02-13
+
+### Added
+
+- Bullets now affect fluid! You can now shoot fluid with bullets and see the fluid react to the bullet. The strength is
+  related to the power of your weapon, so shotguns will cause more fluid to be displaced than pistols for example.
+
+### Fixed
+
+- Player collision no longer disappears after ragdolling / dying.
+
 ## [1.34.4] - 2025-02-12
 
 ### Fixed

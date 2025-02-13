@@ -144,7 +144,7 @@ local function updateObject(entity)
 	end
 
 	local isEntitySolid = bit.band(entity:GetSolidFlags(), FSOLID_NOT_SOLID) == 0
-	if not isEntitySolid then
+	if not isEntitySolid and entity ~= LocalPlayer() then
 		removeObject(entity) -- An entity can't get into this state naturally, so it's very likely to have been removed but not cleaned up
 		return
 	end
