@@ -7,6 +7,7 @@ gellyx.presets.loadPresetFiles()
 
 include("gx-replicate-damage.lua")
 include("gx-replicate-bullets.lua")
+include("gx-replicate-explosions.lua")
 include("gx-replicate-removal.lua")
 include("gx-replicate-buttons.lua")
 
