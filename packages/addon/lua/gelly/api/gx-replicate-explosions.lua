@@ -1,7 +1,7 @@
 gellyx = gellyx or {}
 gellyx.EXPLOSION_NETMSG = "GellyReplicateExplosion"
 
-local GRENADE_DETONATE_THRESHOLD = 0.01
+local GRENADE_DETONATE_THRESHOLD = 0.1
 
 if SERVER then
 	util.AddNetworkString(gellyx.EXPLOSION_NETMSG)
