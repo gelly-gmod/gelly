@@ -50,13 +50,10 @@ local function performanceDebugger()
 	sampler:InjectTimingHooks()
 	gelly.SetTimeStepMultiplier(1)
 
+	local settings = gelly.GetGellySettings()
+	settings.EnableGPUTiming = true
+	gelly.SetGellySettings(settings)
 	timer.Simple(2.8, function()
-		local settings = gelly.GetGellySettings()
-		settings.EnableGPUTiming = true
-		gelly.SetGellySettings(settings)
-
-		gelly.Render()
-
 		local timings = gelly.GetGellyTimings()
 		settings.EnableGPUTiming = false
 		gelly.SetGellySettings(settings)
@@ -95,7 +92,6 @@ local function performanceDebugger()
 		print(("Smoothness: %d"):format(gellyx.settings.get("smoothness"):GetInt()))
 		print(("Screen resolution: %dx%d"):format(ScrW(), ScrH()))
 		print(("Max particles: %d"):format(gellyx.settings.get("max_particles"):GetInt()))
-		print(("Preset radius scale: %.2f"):format(gellyx.settings.get("preset_radius_scale"):GetFloat()))
 
 		if timings.IsDisjoint then
 			print("WARNING !!!")

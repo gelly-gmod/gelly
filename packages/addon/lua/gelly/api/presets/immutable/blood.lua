@@ -4,9 +4,9 @@ return {
 	Radius = 3.50,
 	SolverParams = {
 		Viscosity = 1.5,
-		SurfaceTension = 0.1,
-		Adhesion = 0.05,
-		Cohesion = 0.02,
+		SurfaceTension = 0,
+		Adhesion = 0.02,
+		Cohesion = 0.05,
 		VorticityConfinement = 0,
 		DynamicFriction = 1,
 		RestDistanceRatio = 0.53

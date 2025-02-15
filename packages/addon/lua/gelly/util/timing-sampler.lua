@@ -8,8 +8,8 @@ function TimingSampler.new()
 	self.simulateSamples = {}
 	self.compositeSamples = {}
 
-	self.originalRenderFn = gelly.Render
-	self.originalSimulateFn = gelly.Simulate
+	self.originalRenderFn = gelly.EndRendering
+	self.originalSimulateFn = gelly.EndTick
 	self.originalCompositeFn = gelly.Composite
 
 	self.averageRenderMs = 0
@@ -22,13 +22,13 @@ end
 function TimingSampler:InjectTimingHooks()
 	local self = self
 
-	gelly.Render = function()
+	gelly.EndRendering = function()
 		local startTime = SysTime()
 		self.originalRenderFn()
 		table.insert(self.renderSamples, SysTime() - startTime)
 	end
 
-	gelly.Simulate = function(deltaTime)
+	gelly.EndTick = function(deltaTime)
 		local startTime = SysTime()
 		self.originalSimulateFn(deltaTime)
 		table.insert(self.simulateSamples, SysTime() - startTime)
