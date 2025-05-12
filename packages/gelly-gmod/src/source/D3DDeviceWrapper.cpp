@@ -19,7 +19,7 @@ void EnsureShaderAPILoaded() {
 /**
  * Current offset to D3DDevice in GMod.
  */
-const uintptr_t D3DDeviceWrapperOffset = 0x9A9D8;
+const uintptr_t D3DDeviceWrapperOffset = 0x9A9C8;
 IDirect3DDevice9Ex *GetD3DDevice() {
 	LOG_INFO("Starting process to get D3D9Ex device.");
 	// Grab the BaseShaderAPIDLL module.
