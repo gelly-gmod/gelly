@@ -6,6 +6,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <TlHelp32.h>
+
+#include <functional>
 #include <unordered_map>
 #include <string>
 // clang-format on
@@ -33,6 +35,33 @@ public:
 	void Remove() const;
 };
 
+using ValuePredicate = std::function<bool(const void *, size_t)>;
+static const ValuePredicate AlwaysNull = [](const void *data, size_t size) {
+	for (size_t i = 0; i < size; i++) {
+		if (*(static_cast<const uint8_t *>(data) + i) != 0) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+struct StructMemberPattern {
+	uintptr_t offset;
+	size_t size;
+	ValuePredicate predicate;
+};
+
+struct StructPattern {
+	std::vector<StructMemberPattern> members;
+};
+
+struct StructScanInfo {
+	uintptr_t start;
+	uintptr_t size;
+	StructPattern target;
+};
+
 class Library {
 private:
 	uintptr_t base_address;
@@ -58,6 +87,10 @@ public:
 	 */
 	uintptr_t Scan(const char *pattern) const;
 
+	uintptr_t ScanStruct(const StructScanInfo &info) const;
+
+	inline uintptr_t GetBaseAddress() const { return base_address; }
+
 	template <typename T>
 	T GetObjectAt(uintptr_t offset) {
 		return reinterpret_cast<T>(base_address + offset);
@@ -74,6 +107,8 @@ public:
 		void **original,
 		HookedFunction &hookedFunction
 	) const;
+
+	bool IsValidAddress(uintptr_t address);
 };
 
-#endif //LIBRARY_H
+#endif	// LIBRARY_H
