@@ -2,5 +2,16 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly-gmod/vendor/BSPParser" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly-gmod/vendor/GMFS" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly-gmod/vendor/PHYParser" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly-gmod/vendor/VDFParser" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly-gmod/vendor/gmod-module-base" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly-gmod/vendor/minhook" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly-gmod/vendor/tracy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly/modules/gelly-fluid-renderer/vendor/renderdoc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly/modules/gelly-fluid-renderer/vendor/tracy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly/modules/gelly-fluid-sim/vendor/DirectXMath" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/gelly/modules/gelly-fluid-sim/vendor/FleX" vcs="Git" />
   </component>
 </project>

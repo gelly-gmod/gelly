@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "MinHook.h"
+#include "logging/global-macros.h"
 
 #define DEBUG_ASSERT_MH(status)                    \
 	OutputDebugStringA(MH_StatusToString(status)); \
@@ -13,13 +14,13 @@
 
 HookedFunction::HookedFunction(
 	void *originalAddress, void *hookAddress, void **originalFn
-)
-	: originalAddress(originalAddress), hookAddress(hookAddress) {
+) :
+	originalAddress(originalAddress), hookAddress(hookAddress) {
 	Init(originalAddress, hookAddress, originalFn);
 }
 
-HookedFunction::HookedFunction()
-	: originalAddress(nullptr), hookAddress(nullptr) {}
+HookedFunction::HookedFunction() :
+	originalAddress(nullptr), hookAddress(nullptr) {}
 
 HookedFunction::~HookedFunction() { Remove(); }
 
@@ -169,6 +170,45 @@ uintptr_t Library::Scan(const char *pattern) const {
 	return 0;
 }
 
+uintptr_t Library::ScanStruct(const StructScanInfo &info) const {
+	uintptr_t currentAddress = base_address + info.start;
+	uintptr_t endAddress = currentAddress + info.size;
+	uintptr_t samples = 0;
+
+	while (currentAddress < endAddress) {
+		samples++;
+
+		bool eachMemberPassed = true;
+		for (const auto &member : info.target.members) {
+			const auto memberAddress = currentAddress + member.offset;
+			const auto memberData =
+				reinterpret_cast<const uint8_t *>(memberAddress);
+
+			if (!member.predicate(memberData, member.size)) {
+				eachMemberPassed = false;
+			}
+		}
+
+		if (eachMemberPassed) {
+			LOG_INFO(
+				"Struct scan found at %p after %d samples.",
+				currentAddress,
+				samples
+			);
+			return currentAddress;
+		}
+
+		currentAddress++;
+	}
+
+	LOG_WARNING(
+		"Struct scan failed after %d samples. Check the pattern and size.",
+		samples
+	);
+
+	return 0;
+}
+
 bool Library::HookFunction(
 	const char *pattern,
 	void *hook,
@@ -184,4 +224,8 @@ bool Library::HookFunction(
 	hookedFunction.Init(reinterpret_cast<void *>(address), hook, original);
 
 	return true;
+}
+
+bool Library::IsValidAddress(uintptr_t address) {
+	return address >= base_address && address <= (base_address + size);
 }

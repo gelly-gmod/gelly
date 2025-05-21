@@ -1072,16 +1072,22 @@ extern "C" __declspec(dllexport) int gmod13_open(lua_State *L) {
 	GetClientViewSetup(currentView);
 
 	if (!GetD3DDevice()) {
+		LOG_ERROR("Failed to fetch D3D device!");
 		LUA->ThrowError(
+			"\nGELLY FATAL ERROR: Failed to fetch D3D device!\n"
+			"----------------------------------------------\n"
+			"This could be due to a number of reasons, including:\n"
 			"Gelly has detected that the current GMod instance is running "
-			"in "
-			"DirectX 9 mode. Gelly requires Direct3D9Ex to function. Check "
+			"in"
+			"DirectX 9 mode. Gelly requires Direct3D9Ex to function.\nCheck "
 			"if "
 			"you have any launch options that force DirectX 9 mode--such "
 			"as "
-			"'-nod3d9ex' "
+			"'-nod3d9ex'\n"
 			"Certain optimization configs/mods might also force DirectX 9 "
-			"mode. "
+			"mode.\n"
+			"OR\n"
+			"Gelly is out of date and needs to be updated.\n"
 		);
 	}
 
