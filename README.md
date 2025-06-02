@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> Gelly is now essentially over. Development has unfortunately ceased and there is not enough interest in the project to keep it going.
+> The last release of Gelly contains a patch to hopefully make it much more resilient to future GMod updates, and hopefully it will still work for at least
+> a little longer.
+
 <p align="center">
    <img src="branding/Gelly_Logo_WideRender_2000x1000_Transparent.png" border="20" />
    <br />
